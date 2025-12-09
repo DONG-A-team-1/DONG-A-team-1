@@ -38,6 +38,10 @@ async def donga_crawl(bigkinds_data):
 
             # article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")["src"]
 
+            img = soup.select_one(
+                "#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")
+            article_img = img.get("src") if img else None
+
             article_url = url
             collected_at = now_kst
 
@@ -46,13 +50,13 @@ async def donga_crawl(bigkinds_data):
                 "article_name": article_name,
                 "article_content": article_content,
                 "article_date": article_date,
-                "article_img": None,
+                "article_img": article_img,
                 "article_url": article_url,
                 "article_write": article_write,
                 "collected_at": collected_at,
             })
 
-    print(article_list[0])
+    print(f"{len(article_list)}개 수집 완료")
     print(f"동아일보 {now_kst}")
 
 
