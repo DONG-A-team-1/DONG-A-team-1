@@ -36,7 +36,7 @@ async def donga_crawl(bigkinds_data):
             write = soup.select_one('#contents > header > div > section > ul > li:nth-child(1) > strong')
             article_write =  date.get_text(strip=True) if write else None
 
-            article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")["src"]
+            # article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")["src"]
 
             article_url = url
             collected_at = now_kst
@@ -46,7 +46,7 @@ async def donga_crawl(bigkinds_data):
                 "article_name": article_name,
                 "article_content": article_content,
                 "article_date": article_date,
-                "article_img": article_img,
+                "article_img": None,
                 "article_url": article_url,
                 "article_write": article_write,
                 "collected_at": collected_at,

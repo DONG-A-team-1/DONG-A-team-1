@@ -7,9 +7,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
-from database import get_db
+# from database import get_db
 from sqlalchemy import text
+
+from crawler.kbs_crawler import kbs_crawl
 from donga_crawler import donga_crawl
+from  chosun_crawler import chosun_crawl
 
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
@@ -18,8 +21,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "중앙일보", "국민일보"]
-    # press_list = ["동아일보"]
+    # press_list = ["동아일보", "KBS", "한겨레", "조선일보", "중앙일보", "국민일보"]
+    press_list = ["동아일보", "KBS","조선일보"]
 
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
 
@@ -98,27 +101,27 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 # ------------------------
                 # DB JSON INSERT
                 # ------------------------
-                sql = text("""
-                    INSERT INTO news_analysis
-                    (press, news_id, reporter, upload_date, keywords, features, url, raw_json)
-                    VALUES
-                    (:press, :news_id, :reporter, :upload_date, :keywords, :features, :url, :raw_json)
-                """)
-
-                params = {
-                    "press": data["press"],
-                    "news_id": data["news_id"],
-                    "reporter": data["reporter"],
-                    "upload_date": data["upload_date"],
-                    "keywords": json.dumps(data["keywords"], ensure_ascii=False),
-                    "features": json.dumps(data["features_top50"], ensure_ascii=False),
-                    "url": data["url"],
-                    "raw_json": json.dumps(data, ensure_ascii=False)
-                }
-
-                with get_db() as db:
-                    db.execute(sql, params)
-                    db.commit()
+                # sql = text("""
+                #     INSERT INTO news_analysis
+                #     (press, news_id, reporter, upload_date, keywords, features, url, raw_json)
+                #     VALUES
+                #     (:press, :news_id, :reporter, :upload_date, :keywords, :features, :url, :raw_json)
+                # """)
+                #
+                # params = {
+                #     "press": data["press"],
+                #     "news_id": data["news_id"],
+                #     "reporter": data["reporter"],
+                #     "upload_date": data["upload_date"],
+                #     "keywords": json.dumps(data["keywords"], ensure_ascii=False),
+                #     "features": json.dumps(data["features_top50"], ensure_ascii=False),
+                #     "url": data["url"],
+                #     "raw_json": json.dumps(data, ensure_ascii=False)
+                # }
+                #
+                # with get_db() as db:
+                #     db.execute(sql, params)
+                #     db.commit()
 
             except Exception as e:
                 print("[오류] 데이터 처리 실패:", e)
@@ -127,11 +130,11 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         if press_name == "동아일보":
             asyncio.run(donga_crawl(press_results))
         elif press_name == "KBS":
-            pass
+            asyncio.run(kbs_crawl(press_results))
         elif press_name == "한겨레":
             pass
         elif press_name == "조선일보":
-            pass
+            asyncio.run(chosun_crawl(press_results))
         elif press_name == "중앙일보":
             pass
         elif press_name == "국민일보":
