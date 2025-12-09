@@ -1,0 +1,50 @@
+import httpx
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta, timezone
+from urllib.parse import urlparse
+
+KST = timezone(timedelta(hours=9))
+now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
+
+async def donga_crawl(bigkinds_data):
+    print(f"구동시작:{now_kst}")
+    url_list = [data["url"] for data in bigkinds_data]
+
+    domian = "donga"
+    article_list = []
+
+    async with httpx.AsyncClient() as client:
+        for url in url_list:
+            resp = await client.get(url)
+            soup = BeautifulSoup(resp.text, "html.parser")
+
+            dong_a_id = urlparse(url).path.strip("/").split("/")[-2]
+
+            article_id = f"{domian}_{dong_a_id}"
+            article_name = soup.select_one('#contents > header > div > section > h1').text
+            article_content = soup.select_one(
+                '#contents > div.view_body > div > div.main_view > section.news_view').text
+            article_date = soup.select_one(
+                '#contents > header > div > section > ul > li:nth-child(2) > button > span:nth-child(1)').text
+            article_write = soup.select_one('#contents > header > div > section > ul > li:nth-child(1) > strong').text
+            article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure:nth-child(1) > div")
+            article_url = url
+            collected_at = now_kst
+
+            article_list.append({
+                "article_id": article_id,
+                "article_name": article_name,
+                "article_content": article_content,
+                "article_date": article_date,
+                "article_img": article_img,
+                "article_url": article_url,
+                "article_write": article_write,
+                "collected_at": collected_at,
+            })
+
+    print(len(article_list))
+    print(f"동아일보 {now_kst}")
+
+
+
+
