@@ -8,7 +8,7 @@ now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 
 async def donga_crawl(bigkinds_data):
     print(f"구동시작:{now_kst}")
-    url_list = [data["url"] for data in bigkinds_data]
+    url_list = [data["url"] for data in bigkinds_data] #빅카인즈에서 받아온 데이터의 url 부분만 리스트로 변경하여 준비합니다
 
     domian = "donga"
     article_list = []
