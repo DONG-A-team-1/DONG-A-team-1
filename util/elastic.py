@@ -7,9 +7,10 @@ es = Elasticsearch(
     ssl_show_warn=False,
 )
 
-ES_INDEX = "products"
+ES_INDEX = "article"
 
 def create_index():
     if es.indices.exists(index=ES_INDEX):
         print("기존 인덱스를 삭제합니다.")
         es.indices.delete(index=ES_INDEX)
+

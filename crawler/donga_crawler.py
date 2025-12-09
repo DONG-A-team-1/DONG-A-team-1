@@ -21,13 +21,23 @@ async def donga_crawl(bigkinds_data):
             dong_a_id = urlparse(url).path.strip("/").split("/")[-2]
 
             article_id = f"{domian}_{dong_a_id}"
-            article_name = soup.select_one('#contents > header > div > section > h1').text
-            article_content = soup.select_one(
-                '#contents > div.view_body > div > div.main_view > section.news_view').text
-            article_date = soup.select_one(
-                '#contents > header > div > section > ul > li:nth-child(2) > button > span:nth-child(1)').text
-            article_write = soup.select_one('#contents > header > div > section > ul > li:nth-child(1) > strong').text
-            article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure:nth-child(1) > div")
+
+            name = soup.select_one('#contents > header > div > section > h1')
+            article_name = name.get_text(strip=True) if name else None
+
+            content = soup.select_one(
+                '#contents > div.view_body > div > div.main_view > section.news_view')
+            article_content = content.get_text(strip=True) if content else None
+
+            date = soup.select_one(
+                '#contents > header > div > section > ul > li:nth-child(2) > button > span:nth-child(1)')
+            article_date =  date.get_text(strip=True) if date else None
+
+            write = soup.select_one('#contents > header > div > section > ul > li:nth-child(1) > strong')
+            article_write =  date.get_text(strip=True) if write else None
+
+            article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")["src"]
+
             article_url = url
             collected_at = now_kst
 
@@ -42,7 +52,7 @@ async def donga_crawl(bigkinds_data):
                 "collected_at": collected_at,
             })
 
-    print(len(article_list))
+    print(article_list[0])
     print(f"동아일보 {now_kst}")
 
 
