@@ -101,27 +101,27 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 # ------------------------
                 # DB JSON INSERT
                 # ------------------------
-                # sql = text("""
-                #     INSERT INTO news_analysis
-                #     (press, news_id, reporter, upload_date, keywords, features, url, raw_json)
-                #     VALUES
-                #     (:press, :news_id, :reporter, :upload_date, :keywords, :features, :url, :raw_json)
-                # """)
-                #
-                # params = {
-                #     "press": data["press"],
-                #     "news_id": data["news_id"],
-                #     "reporter": data["reporter"],
-                #     "upload_date": data["upload_date"],
-                #     "keywords": json.dumps(data["keywords"], ensure_ascii=False),
-                #     "features": json.dumps(data["features_top50"], ensure_ascii=False),
-                #     "url": data["url"],
-                #     "raw_json": json.dumps(data, ensure_ascii=False)
-                # }
-                #
-                # with get_db() as db:
-                #     db.execute(sql, params)
-                #     db.commit()
+                sql = text("""
+                    INSERT INTO news_analysis
+                    (press, news_id, reporter, upload_date, keywords, features, url, raw_json)
+                    VALUES
+                    (:press, :news_id, :reporter, :upload_date, :keywords, :features, :url, :raw_json)
+                """)
+
+                params = {
+                    "press": data["press"],
+                    "news_id": data["news_id"],
+                    "reporter": data["reporter"],
+                    "upload_date": data["upload_date"],
+                    "keywords": json.dumps(data["keywords"], ensure_ascii=False),
+                    "features": json.dumps(data["features_top50"], ensure_ascii=False),
+                    "url": data["url"],
+                    "raw_json": json.dumps(data, ensure_ascii=False)
+                }
+
+                with get_db() as db:
+                    db.execute(sql, params)
+                    db.commit()
 
             except Exception as e:
                 print("[오류] 데이터 처리 실패:", e)
