@@ -9,20 +9,34 @@ from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 # from database import get_db
 from sqlalchemy import text
+from datetime import timedelta, timezone
 
-from crawler.kbs_crawler import kbs_crawl
-from donga_crawler import donga_crawl
-from  chosun_crawler import chosun_crawl
+
+from .kbs_crawler import kbs_crawl
+from .donga_crawler import donga_crawl
+from .chosun_crawler import chosun_crawl
+from .kmib_crawler import kmib_crawl
+from .hani_crawler import hani_crawl
+from .cleaner import clean_articles
+
+from util.elastic import es
+from util.logger import Logger
+
+
+logger = Logger().get_logger(__name__)
+KST = timezone(timedelta(hours=9))
 
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
-
-    options = webdriver.ChromeOptions()
+    id_list = [ ]
+    now_kst = datetime.now(KST).isoformat(timespec="seconds")
+    print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
+    options = webdriver.ChromeOptions() 
     options.add_argument("--start-maximized")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-    # press_list = ["동아일보", "KBS", "한겨레", "조선일보", "중앙일보", "국민일보"]
-    press_list = ["동아일보", "KBS","조선일보"]
+    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보"]
+    # press_list = ["동아일보","KBS"]
 
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
 
@@ -62,7 +76,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         # 4) 기사 30개로 변경
         try:
             select_tag = Select(driver.find_element(By.ID, "select2"))
-            select_tag.select_by_value("30")
+            select_tag.select_by_value("20")
         except:
             pass
 
@@ -85,43 +99,34 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             row_no = row_id.split('-')[1]
 
             try:
+                keywords_raw = driver.find_element(By.CSS_SELECTOR, f'td[id="14-{row_no}"]').text
+                feature_raw = driver.find_element(By.CSS_SELECTOR, f'td[id="15-{row_no}"]').text  # <-- FIX
+
+                keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()]
+                features = [f.strip() for f in feature_raw.split(",") if f.strip()]
+
                 data = {
                     "press": driver.find_element(By.CSS_SELECTOR, f'td[id="2-{row_no}"]').text, # 언론사명
                     "news_id": driver.find_element(By.CSS_SELECTOR, f'td[id="0-{row_no}"]').text, # 빅카인즈 고유식별번호
-                    "upload_date": driver.find_element(By.CSS_SELECTOR, f'td[id="1-{row_no}"]').text, # 기자
-                    "reporter": driver.find_element(By.CSS_SELECTOR, f'td[id="3-{row_no}"]').text, # 업로드한 날짜
-                    "keywords": driver.find_element(By.CSS_SELECTOR, f'td[id="14-{row_no}"]').text, # 키워드
-                    "features_top50": driver.find_element(By.CSS_SELECTOR, f'td[id="15-{row_no}"]').text, # 가중치순 상위 50개
+                    "upload_date": driver.find_element(By.CSS_SELECTOR, f'td[id="1-{row_no}"]').text, # 업로드 날짜
+                    "reporter": driver.find_element(By.CSS_SELECTOR, f'td[id="3-{row_no}"]').text, # 기자
+                    "keywords": keywords, # 키워드
+                    "features": features, # 가중치순 상위 50개
                     "url": driver.find_element(By.CSS_SELECTOR, f'td[id="17-{row_no}"]').text, # 기사 원문 링크
-                    "collected_at": str(datetime.now()) # 모든 칼럼을 json으로 변환해서 해당 컬럼에 박은 것
+                    "collected_at": now_kst # 모든 칼럼을 json으로 변환해서 해당 컬럼에 박은 것
                 }
 
                 all_results.append(data)
-                press_results.append(data) # 언론사별 데이터를 묶어서 저장하고 언론사가 변경 될 때마다 삭제됩니다
-                # ------------------------
-                # DB JSON INSERT
-                # ------------------------
-                sql = text("""
-                    INSERT INTO news_analysis
-                    (press, news_id, reporter, upload_date, keywords, features, url, raw_json)
-                    VALUES
-                    (:press, :news_id, :reporter, :upload_date, :keywords, :features, :url, :raw_json)
-                """)
+                press_results.append(data) 
 
-                params = {
-                    "press": data["press"],
-                    "news_id": data["news_id"],
-                    "reporter": data["reporter"],
-                    "upload_date": data["upload_date"],
-                    "keywords": json.dumps(data["keywords"], ensure_ascii=False),
-                    "features": json.dumps(data["features_top50"], ensure_ascii=False),
-                    "url": data["url"],
-                    "raw_json": json.dumps(data, ensure_ascii=False)
-                }
+                id_list = [data["news_id"] for data in all_results]
 
-                with get_db() as db:
-                    db.execute(sql, params)
-                    db.commit()
+                es.index(
+                    index="article_data",
+                    document=data,
+                    id = data['news_id']
+                
+                )
 
             except Exception as e:
                 print("[오류] 데이터 처리 실패:", e)
@@ -132,15 +137,15 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         elif press_name == "KBS":
             asyncio.run(kbs_crawl(press_results))
         elif press_name == "한겨레":
-            pass
+            asyncio.run(hani_crawl(press_results))
         elif press_name == "조선일보":
             asyncio.run(chosun_crawl(press_results))
-        elif press_name == "중앙일보":
-            pass
         elif press_name == "국민일보":
-            pass
+            asyncio.run(kmib_crawl(press_results))
 
     driver.quit()
+    logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집, 클리닝 시작.")
+    clean_articles(id_list)
     return all_results
 
 if __name__ == '__main__':
