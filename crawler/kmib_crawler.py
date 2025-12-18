@@ -1,12 +1,20 @@
+import os
+import inspect
+import httpx
 
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
-import httpx
 from bs4 import BeautifulSoup
 from util.logger import Logger
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
+
+filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 
 KST = timezone(timedelta(hours=+9))
 now_kst = datetime.now(KST).strftime("%Y%m%d%H%M%S")
@@ -21,7 +29,6 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
     url_list = [data["url"] for data in bigkinds_data]
     domain = "kmib"
     article_list = []
-
     async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
         for news_id, url in zip(id_list, url_list):
             res = await client.get(url)
@@ -61,12 +68,28 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 }
             )
 
-            article_raw ={
+            article_raw = {
                 "article_id": news_id,
                 "article_title": article_title,
                 "article_content": article_content,
             }
 
-            es.index(index="article_raw", id=news_id, document=article_raw)
+            error_doc = {
+                "@timestamp": now_kst_iso,
+                "log": {
+                    "level": "ERROR",
+                    "logger": logger_name
+                },
+                "message": f"{news_id}결측치 존재, url :{url}"
+            }
+            null_count = 0
+            for v in article_raw.values():
+                if v in (None, "", []):
+                    null_count += 1
+            if null_count >= 1:
+                es.create(index="error_log", id=news_id, document=error_doc, refresh="wait_for")  
+                continue
+            else:
+                es.index(index="article_raw", id=news_id, document=article_raw)
 
     return article_list

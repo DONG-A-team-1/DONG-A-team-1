@@ -5,10 +5,18 @@ from bs4 import BeautifulSoup
 from util.logger import Logger
 from typing import List, Dict, Any
 from util.elastic import es
+import os
+import inspect
+
 
 logger = Logger().get_logger(__name__)
 # base_url = "<https://www.hani.co.kr/arti>"
 
+filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 KST = timezone(timedelta(hours=+9))
 now_kst = datetime.now(KST).strftime("%Y%m%d%H%M%S")
 HEADERS = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -50,7 +58,6 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
             soup = BeautifulSoup(res.text, "html.parser")
             logger.info(f"crawling {url}")
 
-
             # 제목 art_name
             title_tag = soup.select_one('h3.ArticleDetailView_title__9kRU_')
             if not title_tag:
@@ -88,8 +95,25 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
                 "article_content": article_content,
             }
 
-            es.index(index="article_raw", id=news_id, document=article_raw)
+            error_doc = {
+                "@timestamp": now_kst_iso,
+                "log": {
+                    "level": "ERROR",
+                    "logger": logger_name
+                },
+                "message": f"{news_id}결측치 존재, url :{url}"
+            }
 
-        print(f"한겨레 {len(article_list)} 크롤링 완료")
+            null_count = 0
+
+            for v in article_raw.values():
+                if v in (None, "", []):
+                    null_count += 1
+            if null_count >= 1:
+                es.create(index="error_log", id=news_id, document=error_doc)  
+                continue
+            else:
+                es.index(index="article_raw", id=news_id, document=article_raw)
+                
     return article_list
 # 맨 앞에 기사 하나 잘 들어오는지 확인하기

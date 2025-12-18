@@ -1,14 +1,23 @@
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-
+from util.elastic import es
 from util.logger import Logger
+import inspect
+import os
+
+filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
+
 logger = Logger().get_logger(__name__)
 
-from util.elastic import es
 
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
+domain = "donga"
 
 async def donga_crawl(bigkinds_data):
     print(f"구동시작:{now_kst}")
@@ -19,7 +28,6 @@ async def donga_crawl(bigkinds_data):
 
     async with httpx.AsyncClient() as client:
         for news_id, url in zip(id_list, url_list):
-
             resp = await client.get(url)
             soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -52,7 +60,22 @@ async def donga_crawl(bigkinds_data):
                 "article_content": article_content,
             }
 
-            es.index(index="article_raw", id=news_id, document=article_raw)
+            error_doc = {
+                "@timestamp": now_kst_iso,
+                "log": {
+                    "level": "ERROR",
+                    "logger": logger_name
+                },
+                "message": f"{news_id}결측치 존재, url :{url}"
+            }
+            null_count = 0
+            for v in article_raw.values():
+                if v in (None, "", []):
+                    null_count += 1
+            if null_count >= 1:
+                es.create(index="error_log", id=news_id, document=error_doc)  
+            else:
+                es.index(index="article_raw", id=news_id, document=article_raw)
             
 
     print(f"{len(article_list)}개 수집 완료")

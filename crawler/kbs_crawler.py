@@ -1,10 +1,20 @@
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
 import json
+import os
+import inspect
+
+
+filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
+
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 BASE_URL = "https://news.kbs.co.kr"
@@ -26,7 +36,6 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
     # httpx를 사용하여 비동기 HTTP 요청 처리
     async with httpx.AsyncClient(timeout=10.0) as client:
         for news_id, orginal_url in zip(id_list, url_list):
-
             # 🚨 리다이렉션 오류(302) 해결 로직: PC 버전 URL로 경로 강제 변경
             # 예: /news/view.do?ncd=...  -> /news/pc/view/view.do?ncd=...
             if "/news/view.do" in orginal_url:
@@ -46,11 +55,11 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 # --- 기사 본문 추출 ---
                 article_content = soup.select_one("div.detail-body")
-                content = article_content.get_text(strip=True) if article_content else "본문 추출 실패"
+                content = article_content.get_text(strip=True) if article_content else None
 
                 # --- 나머지 정보 추출 ---
                 # 'data["newsTitle"]'이 아닌 상세 페이지에서 추출하거나, 안전한 기본값 사용
-                article_title = soup.select_one("div.detail-title h2").text.strip() if soup.select_one("div.detail-title h2") else "제목 추출 실패"
+                article_title = soup.select_one("div.detail-title h2").text.strip() if soup.select_one("div.detail-title h2") else None
 
                 news_img = soup.select_one("div.detail-visual img")
                 article_img = BASE_URL + news_img["src"] if news_img and news_img.get("src") else None
@@ -69,7 +78,24 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     "article_content": content
                 }
 
-                es.index(index="article_raw", id=news_id, document=article_raw)
+                error_doc = {
+                "@timestamp": now_kst_iso,
+                "log": {
+                    "level": "ERROR",
+                    "logger": logger_name
+                },
+                "message": f"{news_id}결측치 존재, url :{url}"
+                }
+
+                null_count = 0
+                for v in article_raw.values():
+                    if v in (None, "", []):
+                        null_count += 1
+                if null_count >= 1:
+                    es.create(index="error_log", id=news_id, document=error_doc)  
+                    continue
+                else:
+                    es.index(index="article_raw", id=news_id, document=article_raw)
 
             except httpx.RequestError as e:
                 print(f"[KBS 오류] URL 접근 실패 ({url}): {e}")

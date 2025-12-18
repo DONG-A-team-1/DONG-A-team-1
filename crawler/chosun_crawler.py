@@ -5,10 +5,18 @@ from urllib.parse import urlparse
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
 from util.elastic import es
+import os
+import inspect
 
+filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
 
 async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
@@ -27,7 +35,6 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
     async with httpx.AsyncClient(timeout=15.0, headers=HEADERS) as client:
 
         for news_id, url in zip(id_list, url_list):
-
             try:
                 # 🚨 429 Too Many Requests 오류 해결: 비동기 지연 시간 추가 (0.5초)
                 await asyncio.sleep(2)
@@ -56,7 +63,7 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                 # --- 기타 정보 추출 ---
                 article_name_tag = soup.select_one("h1.article-header__title")
                 # 🚨 'newsTitle' KeyError 방지: 상세 페이지에서 추출하거나, 기본값 사용
-                article_title = article_name_tag.text.strip() if article_name_tag else "제목 추출 실패"
+                article_title = article_name_tag.text.strip() if article_name_tag else None
 
 
                 image_tag = soup.select_one("div.article-body figure img")
@@ -76,7 +83,23 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                     "article_content": full_content 
                 }
 
-                es.index(index="article_raw", id=news_id, document=article_raw)
+                error_doc = {
+                "@timestamp": now_kst_iso,
+                "log": {
+                    "level": "ERROR",
+                    "logger": logger_name
+                },
+                "message": f"{news_id}결측치 존재, url :{url}"
+            }
+                null_count = 0
+                for v in article_raw.values():
+                    if v in (None, "", []):
+                        null_count += 1
+                if null_count >= 1:
+                    es.create(index="error_log", id=news_id, document=error_doc)  
+                    continue
+                else:
+                    es.index(index="article_raw", id=news_id, document=article_raw)
 
             except httpx.RequestError as e:
                 print(f"[조선 오류] URL 접근 실패 ({url}): {e}")

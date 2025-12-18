@@ -134,8 +134,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(hani_crawl(press_results))
         elif press_name == "조선일보":
             asyncio.run(chosun_crawl(press_results))
-        # elif press_name == "중앙일보":
-        #     asyncio.run(kbs_crawl(press_results))
         elif press_name == "국민일보":
             asyncio.run(kmib_crawl(press_results))
 
