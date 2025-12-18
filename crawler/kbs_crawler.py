@@ -54,8 +54,8 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
 
                 # --- 기사 본문 추출 ---
-                article_content = soup.select_one("div.detail-body")
-                content = article_content.get_text(strip=True) if article_content else None
+                content = soup.select_one("div.detail-body")
+                article_content = content.get_text(strip=True) if content else None
 
                 # --- 나머지 정보 추출 ---
                 # 'data["newsTitle"]'이 아닌 상세 페이지에서 추출하거나, 안전한 기본값 사용
@@ -75,7 +75,8 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                 article_raw ={
                     "article_id": news_id,
                     "article_title": article_title,
-                    "article_content": content
+                    "article_content": article_content,
+                    "collected_at": now_kst_iso
                 }
 
                 error_doc = {

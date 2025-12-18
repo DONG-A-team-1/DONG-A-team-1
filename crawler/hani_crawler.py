@@ -93,6 +93,7 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
                 "article_id": news_id,
                 "article_title": article_title,
                 "article_content": article_content,
+                "collected_at": now_kst_iso
             }
 
             error_doc = {

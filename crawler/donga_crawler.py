@@ -5,6 +5,7 @@ from util.elastic import es
 from util.logger import Logger
 import inspect
 import os
+from .cleaner import clean_articles
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name
@@ -58,6 +59,7 @@ async def donga_crawl(bigkinds_data):
                 "article_id": news_id,
                 "article_title": article_title,
                 "article_content": article_content,
+                "collected_at": now_kst_iso
             }
 
             error_doc = {
@@ -68,6 +70,7 @@ async def donga_crawl(bigkinds_data):
                 },
                 "message": f"{news_id}결측치 존재, url :{url}"
             }
+
             null_count = 0
             for v in article_raw.values():
                 if v in (None, "", []):
@@ -76,7 +79,8 @@ async def donga_crawl(bigkinds_data):
                 es.create(index="error_log", id=news_id, document=error_doc)  
             else:
                 es.index(index="article_raw", id=news_id, document=article_raw)
-            
+
+
 
     print(f"{len(article_list)}개 수집 완료")
     print(f"동아일보 {now_kst}")

@@ -17,13 +17,17 @@ from .donga_crawler import donga_crawl
 from .chosun_crawler import chosun_crawl
 from .kmib_crawler import kmib_crawl
 from .hani_crawler import hani_crawl
+from .cleaner import clean_articles
 
 from util.elastic import es
 from util.logger import Logger
+
+
 logger = Logger().get_logger(__name__)
 KST = timezone(timedelta(hours=9))
 
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
+    id_list = [ ]
     now_kst = datetime.now(KST).isoformat(timespec="seconds")
     print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
     options = webdriver.ChromeOptions() 
@@ -115,6 +119,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 all_results.append(data)
                 press_results.append(data) 
 
+                id_list = [data["news_id"] for data in all_results]
+
                 es.index(
                     index="article_data",
                     document=data,
@@ -138,6 +144,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(kmib_crawl(press_results))
 
     driver.quit()
+    logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집, 클리닝 시작.")
+    clean_articles(id_list)
     return all_results
 
 if __name__ == '__main__':

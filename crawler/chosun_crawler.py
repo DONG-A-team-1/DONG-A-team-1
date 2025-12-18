@@ -80,7 +80,8 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                 article_raw ={
                     "article_id": news_id,
                     "article_title": article_title,
-                    "article_content": full_content 
+                    "article_content": full_content ,
+                    "collected_at": now_kst_iso
                 }
 
                 error_doc = {
