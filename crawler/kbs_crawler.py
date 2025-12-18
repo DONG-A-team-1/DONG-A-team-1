@@ -4,10 +4,11 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse, parse_qs
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
-
+import json
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 BASE_URL = "https://news.kbs.co.kr"
+from util.elastic import es
 
 async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
@@ -16,20 +17,22 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
     print(f"KBS 상세 크롤링 구동 시작:{now_kst}")
 
+    id_list = [data["news_id"] for data in bigkinds_data]
+    url_list = [data["url"] for data in bigkinds_data]
+
     domain = "kbs"
     article_list = []
 
     # httpx를 사용하여 비동기 HTTP 요청 처리
     async with httpx.AsyncClient(timeout=10.0) as client:
-        for data in bigkinds_data:
-            original_url = data["url"]
+        for news_id, orginal_url in zip(id_list, url_list):
 
             # 🚨 리다이렉션 오류(302) 해결 로직: PC 버전 URL로 경로 강제 변경
             # 예: /news/view.do?ncd=...  -> /news/pc/view/view.do?ncd=...
-            if "/news/view.do" in original_url:
-                url = original_url.replace("/news/view.do", "/news/pc/view/view.do")
+            if "/news/view.do" in orginal_url:
+                url = orginal_url.replace("/news/view.do", "/news/pc/view/view.do")
             else:
-                url = original_url # 이미 올바른 형식일 경우 그대로 사용
+                url = url # 이미 올바른 형식일 경우 그대로 사용
 
             try:
                 # 0.5초 비동기 지연 추가 (서버 부하 감소)
@@ -40,10 +43,6 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-                # URL에서 ncd 값(고유 ID) 추출
-                parsed_url = urlparse(url)
-                query_params = parse_qs(parsed_url.query)
-                art_id = query_params.get('ncd', ['ID_NOT_FOUND'])[0]
 
                 # --- 기사 본문 추출 ---
                 article_content = soup.select_one("div.detail-body")
@@ -51,24 +50,26 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 # --- 나머지 정보 추출 ---
                 # 'data["newsTitle"]'이 아닌 상세 페이지에서 추출하거나, 안전한 기본값 사용
-                article_name = soup.select_one("div.detail-title h2").text.strip() if soup.select_one("div.detail-title h2") else "제목 추출 실패"
-                article_write = soup.select_one("span.reporter-name").text.strip() if soup.select_one("span.reporter-name") else data.get("reporter", "기자 미상")
-                article_date = soup.select_one("span.date").text.strip() if soup.select_one("span.date") else data["upload_date"]
+                article_title = soup.select_one("div.detail-title h2").text.strip() if soup.select_one("div.detail-title h2") else "제목 추출 실패"
 
                 news_img = soup.select_one("div.detail-visual img")
                 article_img = BASE_URL + news_img["src"] if news_img and news_img.get("src") else None
 
-                article_list.append({
-                    "article_id": f"{domain}_{art_id}",
-                    "article_name": article_name,
-                    "article_content": content,
-                    "article_date": article_date,
-                    "article_img": article_img,
-                    "article_url": original_url, # 원본 빅카인즈 URL을 저장
-                    "article_write": article_write,
-                    "collected_at": now_kst,
-                    "bigkinds_meta": data
-                })
+                es.update(
+                    index="article_data",
+                    id=news_id,
+                    doc={
+                        "article_img": article_img
+                    }
+                )
+
+                article_raw ={
+                    "article_id": news_id,
+                    "article_title": article_title,
+                    "article_content": content
+                }
+
+                es.index(index="article_raw", id=news_id, document=article_raw)
 
             except httpx.RequestError as e:
                 print(f"[KBS 오류] URL 접근 실패 ({url}): {e}")
@@ -77,4 +78,3 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                 print(f"[KBS 오류] 데이터 파싱 실패 ({url}): {e}")
 
     print(f"KBS {len(article_list)}건 크롤링 완료.")
-    return article_list

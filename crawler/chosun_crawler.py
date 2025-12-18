@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
-import os
+from util.elastic import es
 
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
@@ -17,20 +17,16 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
     print(f"조선일보 상세 크롤링 구동 시작:{now_kst}")
 
+    id_list = [data["news_id"] for data in bigkinds_data]
+    url_list = [data["url"] for data in bigkinds_data]
+
     domain = "chosun"
     article_list = []
 
     # httpx를 사용하여 비동기 HTTP 요청 처리
     async with httpx.AsyncClient(timeout=15.0, headers=HEADERS) as client:
 
-        for data in bigkinds_data:
-            url = data["url"]
-
-            # --- art_id 추출 로직 ---
-            cleaned_url = url.rstrip('/')
-            base_name = os.path.basename(cleaned_url.split('?')[0]) # 쿼리 스트링 제거 후 basename
-            art_id = base_name.split('.')[0]
-            # --- art_id 추출 로직 끝 ---
+        for news_id, url in zip(id_list, url_list):
 
             try:
                 # 🚨 429 Too Many Requests 오류 해결: 비동기 지연 시간 추가 (0.5초)
@@ -60,25 +56,27 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                 # --- 기타 정보 추출 ---
                 article_name_tag = soup.select_one("h1.article-header__title")
                 # 🚨 'newsTitle' KeyError 방지: 상세 페이지에서 추출하거나, 기본값 사용
-                article_name = article_name_tag.text.strip() if article_name_tag else "제목 추출 실패"
+                article_title = article_name_tag.text.strip() if article_name_tag else "제목 추출 실패"
 
-                article_write = data.get("reporter", "기자 미상") # 빅카인즈 메타데이터 사용
-                article_date = data["upload_date"] # 빅카인즈 메타데이터 사용
 
                 image_tag = soup.select_one("div.article-body figure img")
                 article_img = image_tag.get("src") if image_tag and image_tag.get("src") else None
 
-                article_list.append({
-                    "article_id": f"{domain}_{art_id}",
-                    "article_name": article_name,
-                    "article_content": full_content if full_content else "본문 추출 실패",
-                    "article_date": article_date,
-                    "article_img": article_img,
-                    "article_url": url,
-                    "article_write": article_write,
-                    "collected_at": now_kst,
-                    "bigkinds_meta": data
-                })
+                es.update(
+                    index="article_data",
+                    id=news_id,
+                    doc={
+                        "article_img": article_img,
+                    }
+                )
+
+                article_raw ={
+                    "article_id": news_id,
+                    "article_title": article_title,
+                    "article_content": full_content 
+                }
+
+                es.index(index="article_raw", id=news_id, document=article_raw)
 
             except httpx.RequestError as e:
                 print(f"[조선 오류] URL 접근 실패 ({url}): {e}")
@@ -86,5 +84,4 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                 print(f"[조선 오류] 데이터 파싱 실패 ({url}): {e}")
 
     print(f"조선일보 {len(article_list)}건 크롤링 완료.")
-    return article_list
 
