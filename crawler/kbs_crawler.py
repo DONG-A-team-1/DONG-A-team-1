@@ -27,7 +27,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
     print(f"KBS 상세 크롤링 구동 시작:{now_kst}")
 
-    id_list = [data["news_id"] for data in bigkinds_data]
+    id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data]
 
     domain = "kbs"
@@ -35,7 +35,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
     # httpx를 사용하여 비동기 HTTP 요청 처리
     async with httpx.AsyncClient(timeout=10.0) as client:
-        for news_id, orginal_url in zip(id_list, url_list):
+        for article_id, orginal_url in zip(id_list, url_list):
             # 🚨 리다이렉션 오류(302) 해결 로직: PC 버전 URL로 경로 강제 변경
             # 예: /news/view.do?ncd=...  -> /news/pc/view/view.do?ncd=...
             if "/news/view.do" in orginal_url:
@@ -66,14 +66,14 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 es.update(
                     index="article_data",
-                    id=news_id,
+                    id=article_id,
                     doc={
                         "article_img": article_img
                     }
                 )
 
                 article_raw ={
-                    "article_id": news_id,
+                    "article_id": article_id,
                     "article_title": article_title,
                     "article_content": article_content,
                     "collected_at": now_kst_iso
@@ -85,7 +85,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     "level": "ERROR",
                     "logger": logger_name
                 },
-                "message": f"{news_id}결측치 존재, url :{url}"
+                "message": f"{article_id}결측치 존재, url :{url}"
                 }
 
                 null_count = 0
@@ -93,10 +93,10 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     if v in (None, "", []):
                         null_count += 1
                 if null_count >= 1:
-                    es.create(index="error_log", id=news_id, document=error_doc)  
+                    es.create(index="error_log", id=article_id, document=error_doc)
                     continue
                 else:
-                    es.index(index="article_raw", id=news_id, document=article_raw)
+                    es.index(index="article_raw", id=article_id, document=article_raw)
 
             except httpx.RequestError as e:
                 print(f"[KBS 오류] URL 접근 실패 ({url}): {e}")
