@@ -3,6 +3,35 @@ import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
 from elasticsearch import helpers
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
+
+def sent_weights_tfidf_in_doc(sents: list[str], mode="sum") -> np.ndarray:
+    if not sents:
+        return np.array([], dtype=np.float32)
+
+    vec = TfidfVectorizer(
+        analyzer="char",     # 한국어에서 토크나이저 없이도 안정적
+        ngram_range=(3, 5),
+        min_df=1
+    )
+    X = vec.fit_transform(sents)  # (n_sent, vocab)
+
+    if mode == "sum":
+        scores = np.asarray(X.sum(axis=1)).ravel()
+    elif mode == "mean":
+        nnz = np.maximum(X.getnnz(axis=1), 1)
+        scores = np.asarray(X.sum(axis=1)).ravel() / nnz
+    else:  # "max"
+        scores = np.asarray(X.max(axis=1).toarray()).ravel()
+
+    # softmax-like (너무 쏠리면 temp 올려도 됨)
+    scores = scores + 1e-6
+    scores = scores - scores.max()
+    w = np.exp(scores)
+    w = w / (w.sum() + 1e-12)
+    return w.astype(np.float32)
 
 # L2 정규화를 통해 1에 가깝게 눌러줍니다
 def l2_normalize(v: np.ndarray, eps: float = 1e-12) -> np.ndarray:
@@ -20,7 +49,7 @@ def build_doc_embeddings(
     model,
     articles: list[dict],
     alpha: float = 0.3,
-    sent_weight_mode: str = "sqrt_len",
+    sent_weight_mode: str = "tfidf",
     max_sents: int = 40,
 ) -> dict[str, list[float]]:
     """
@@ -59,6 +88,14 @@ def build_doc_embeddings(
         # 지정한 옵션에 따라 문장 가중치를 결정합니다. 저희는 디폴트로 sqrt_len 사용합니다
         if not sents:
             w = np.array([], dtype=np.float32)
+        elif sent_weight_mode == "tfidf":  # ✅ 추가
+            w = sent_weights_tfidf_in_doc(sents, mode="sum")
+
+            if len(w) > 0:
+                w[0] *= 1.3
+            if len(w) > 1:
+                w[1] *= 1.2
+
         elif sent_weight_mode == "uniform":
             w = np.ones(len(sents), dtype=np.float32)
         elif sent_weight_mode == "len":
@@ -114,8 +151,6 @@ def build_doc_embeddings(
 
 # 원하는 기사 식별키의 목록을 넣고 임베딩 필드를 업데이트 시키는 함수입니다
 def create_embedding(article_list):
-
-    model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
     body = {
         "_source": ["article_id", "article_title", "article_content"],
         "size": len(article_list),
@@ -123,6 +158,7 @@ def create_embedding(article_list):
     }
     #호출
     resp = es.search(index="article_data", body=body)
+
 
     articles = [h["_source"] for h in resp["hits"]["hits"]]
     doc_embeddings = build_doc_embeddings(articles=articles, model=model)
@@ -143,7 +179,35 @@ def create_embedding(article_list):
     helpers.bulk(es, actions, chunk_size=500, request_timeout=120)
     print("임베딩 생성 성공")
 
+def re_embedding():
+    body = {
+        "_source": ["article_id", "article_title", "article_content"],
+        "size": 500,
+    }
+    resp = es.search(index="article_data", body=body)
+    articles = [h["_source"] for h in resp["hits"]["hits"]]
+
+    doc_embeddings = build_doc_embeddings(articles= articles, model=model)
+
+    actions = (
+        {
+            "_op_type": "update",
+            "_index": "article_data",
+            "_id": article_id,
+            "doc": {
+                "article_embedding": vec  # ← 필드 지정
+            }
+        }
+        for article_id, vec in doc_embeddings.items()
+    )
+
+    # es에 모든 내용을 한번에 올립니다
+    helpers.bulk(es, actions, chunk_size=500, request_timeout=120)
+    print("작업 성공")
+
+
+
 if __name__ == "__main__":
-    create_embedding(article_list=["01100401.20251218171902001","01100401.20251218171902001"])
+    re_embedding()
 
 
