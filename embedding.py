@@ -4,15 +4,18 @@ import re
 from sentence_transformers import SentenceTransformer
 from elasticsearch import helpers
 
+# L2 정규화를 통해 1에 가깝게 눌러줍니다
 def l2_normalize(v: np.ndarray, eps: float = 1e-12) -> np.ndarray:
     return v / (np.linalg.norm(v) + eps)
 
+# 문장별 벡터 생성 위해서 문장 단위 분리를 진행합니다
 def split_sentences_ko(text: str) -> list[str]:
     text = re.sub(r"\s+", " ", text).strip()
     if not text:
         return []
     return re.split(r"(?<=[.!?])\s+", text)
 
+# 본격적으로 임베딩을 생성합니다
 def build_doc_embeddings(
     model,
     articles: list[dict],
@@ -38,18 +41,22 @@ def build_doc_embeddings(
     titles = []
     ids = []
 
-    # 1️⃣ 기사별 문장 분리 + 가중치 준비
+    # 벡터화 수행을 위한 전처리 작업을 합니다
+    # id, 제목 , [본문(문장단위분리)] , [문장별 가중치] 를 각각 다른 list에 담아둡니다 (임베딩을 한번에 진행하기 위한 batch 처리)
     for a in articles:
         a_id = a["article_id"]
         title = (a.get("article_title") or "").strip()
         content = (a.get("article_content") or "").strip()
-
+        
+        #문장 단위 분리입니다
         sents = split_sentences_ko(content)
         sents = [s for s in sents if s]
 
+        # 기사 내용이 너무 길면 40번 문장 이후로는 날리는 기능입니다, 후반 문장 중요도도 낮고 처리 시간이 길어지는걸 방지합니다
         if len(sents) > max_sents:
             sents = sents[:max_sents]
-
+        
+        # 지정한 옵션에 따라 문장 가중치를 결정합니다. 저희는 디폴트로 sqrt_len 사용합니다
         if not sents:
             w = np.array([], dtype=np.float32)
         elif sent_weight_mode == "uniform":
@@ -64,47 +71,48 @@ def build_doc_embeddings(
         titles.append(title if title else " ")
         ids.append(a_id)
 
-    # 2️⃣ 제목 임베딩 (batch)
+    # 우선 제목 임베딩 리스트를 생성합니다
     title_vecs = model.encode(titles, normalize_embeddings=False)
 
-    # 3️⃣ 모든 문장을 한 번에 임베딩
+    # 모든 문장의 임베딩 리스트를 생성합니다
     flat_sents = []
     spans = []
     idx = 0
+
+    #전체 기사의 문장 리스트 (per_doc_sents)에서 각 기사의 문장 리스트를 꺼내 위치를 확인(spans) 하고 하나의 리스트(flat_sents)에 담아둡니다
     for sents in per_doc_sents:
         flat_sents.extend(sents)
         spans.append((idx, idx + len(sents)))
         idx += len(sents)
-
+    
+    # 모든 문장을 batch로 벡터화합니다
     sent_vecs = (
         model.encode(flat_sents, normalize_embeddings=False)
         if flat_sents else None
     )
 
-    # 4️⃣ 문서 임베딩 생성
+    # 이제 분리된 제목과 본문을 합치고 기사별 벡터를 생성합니다
     doc_embeddings = {}
 
+    # 앞서 언급된 전체 배열에서 각기 다른 기사의 문장과 가중치들을 다시 분리해내는 과정입니다
     for i, aid in enumerate(ids):
         Et = title_vecs[i]
-
         start, end = spans[i]
-
         if start == end:
-
             Ebody = np.zeros_like(Et)
         else:
-
             Es = sent_vecs[start:end]
             w = per_doc_weights[i]
             w = w / (w.sum() + 1e-12)
             Ebody = (Es * w[:, None]).sum(axis=0)
-
+        # 완성된 임베딩은 article_id : 벡터LIST 형태로 dict가 됩니다
         Edoc = alpha * Et + (1 - alpha) * Ebody
         Edoc = l2_normalize(Edoc.astype(np.float32))
         doc_embeddings[aid] = Edoc.tolist()  # ES 저장용 list
     return doc_embeddings
 
 
+# 원하는 기사 식별키의 목록을 넣고 임베딩 필드를 업데이트 시키는 함수입니다
 def create_embedding(article_list):
 
     model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
@@ -113,7 +121,7 @@ def create_embedding(article_list):
         "size": len(article_list),
         "query": {"terms": {"article_id": article_list}}
     }
-
+    #호출
     resp = es.search(index="article_data", body=body)
 
     articles = [h["_source"] for h in resp["hits"]["hits"]]
@@ -131,9 +139,7 @@ def create_embedding(article_list):
         for article_id, vec in doc_embeddings.items()
     )
 
-    keys = list(doc_embeddings.keys())
-
-
+    # es에 모든 내용을 한번에 올립니다
     helpers.bulk(es, actions, chunk_size=500, request_timeout=120)
     print("임베딩 생성 성공")
 
