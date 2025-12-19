@@ -25,12 +25,12 @@ HEADERS = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
 # User Agent가 비어있거나 기본 https값이면 에러
 
 async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
-    id_list = [data["news_id"] for data in bigkinds_data]
+    id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data]
     domain = "kmib"
     article_list = []
     async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
-        for news_id, url in zip(id_list, url_list):
+        for article_id, url in zip(id_list, url_list):
             res = await client.get(url)
             soup = BeautifulSoup(res.content, "html.parser")
 
@@ -62,35 +62,36 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
 
             es.update(
                 index="article_data",
-                id=news_id,
+                id=article_id,
                 doc={
                     "article_img": article_img,
                 }
             )
 
             article_raw = {
-                "article_id": news_id,
+                "article_id": article_id,
                 "article_title": article_title,
                 "article_content": article_content,
                 "collected_at": now_kst_iso
             }
 
-            error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{news_id}결측치 존재, url :{url}"
-            }
             null_count = 0
+
             for v in article_raw.values():
                 if v in (None, "", []):
                     null_count += 1
             if null_count >= 1:
-                es.create(index="error_log", id=news_id, document=error_doc, refresh="wait_for")  
+                error_doc = {
+                    "@timestamp": now_kst_iso,
+                    "log": {
+                        "level": "ERROR",
+                        "logger": logger_name
+                    },
+                    "message": f"{article_id}결측치 존재, url :{url}"
+                }
+                es.create(index="error_log", id=article_id, document=error_doc, refresh="wait_for")
                 continue
             else:
-                es.index(index="article_raw", id=news_id, document=article_raw)
+                es.index(index="article_raw", id=article_id, document=article_raw)
 
     return article_list

@@ -18,12 +18,14 @@ def clean_articles(article_ids: list[str]):
         
         if title_raw is None:
             title_raw = ""
+            es.delete(index="article_raw", id=article_id)
         elif isinstance(title_raw, list):
             title_raw = " ".join(str(x) for x in title_raw if x)
 
         content_raw = article.get("article_content")
         if content_raw is None:
             content_raw = ""
+            es.delete(index="article_raw", id=article_id)
         elif isinstance(content_raw, list):
             content_raw = " ".join(str(x) for x in content_raw if x)
 
@@ -39,6 +41,37 @@ def clean_articles(article_ids: list[str]):
         
     return None
 
+
+def delete_null():
+
+    query = {
+        "_source": ["article_id"],
+        "size":500,
+        "query": {
+            "range": {
+                "collected_at": {
+                    "gte": f"now-2h",
+                    "lte": "now"
+                }
+            }
+        }
+    }
+
+    ids = set()
+    resp = es.search(index="article_raw", body=query)
+
+    for h in resp["hits"]["hits"]:
+        ids.add(h["_source"]["article_id"])
+
+    resp2 = es.search(index="article_data", body=query)
+    for h in resp2["hits"]["hits"]:
+        data_id = h["_source"]["article_id"]
+        if data_id not in ids:
+            es.delete(index="article_data", id=data_id)
+
+
+
+
 if __name__ == "__main__":
-    clean_articles()
+    delete_null()
 

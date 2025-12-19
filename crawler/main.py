@@ -17,8 +17,8 @@ from .donga_crawler import donga_crawl
 from .chosun_crawler import chosun_crawl
 from .kmib_crawler import kmib_crawl
 from .hani_crawler import hani_crawl
-from .cleaner import clean_articles
-
+from .cleaner import clean_articles, delete_null
+from embedding import create_embedding
 from util.elastic import es
 from util.logger import Logger
 
@@ -107,7 +107,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
                 data = {
                     "press": driver.find_element(By.CSS_SELECTOR, f'td[id="2-{row_no}"]').text, # 언론사명
-                    "news_id": driver.find_element(By.CSS_SELECTOR, f'td[id="0-{row_no}"]').text, # 빅카인즈 고유식별번호
+                    "article_id": driver.find_element(By.CSS_SELECTOR, f'td[id="0-{row_no}"]').text, # 빅카인즈 고유식별번호
                     "upload_date": driver.find_element(By.CSS_SELECTOR, f'td[id="1-{row_no}"]').text, # 업로드 날짜
                     "reporter": driver.find_element(By.CSS_SELECTOR, f'td[id="3-{row_no}"]').text, # 기자
                     "keywords": keywords, # 키워드
@@ -119,13 +119,13 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 all_results.append(data)
                 press_results.append(data) 
 
-                id_list = [data["news_id"] for data in all_results]
-
+                id_list = [data["article_id"] for data in all_results]
+                
+                # 빅카인즈 데이터 -> article_data로 저장
                 es.index(
                     index="article_data",
                     document=data,
-                    id = data['news_id']
-                
+                    id = data['article_id']
                 )
 
             except Exception as e:
@@ -144,8 +144,11 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(kmib_crawl(press_results))
 
     driver.quit()
+
     logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집, 클리닝 시작.")
+    delete_null()
     clean_articles(id_list)
+    create_embedding(id_list)
     return all_results
 
 if __name__ == '__main__':
