@@ -150,34 +150,43 @@ def build_doc_embeddings(
 
 
 # 원하는 기사 식별키의 목록을 넣고 임베딩 필드를 업데이트 시키는 함수입니다
+from elasticsearch import helpers
+
 def create_embedding(article_list):
-    body = {
-        "_source": ["article_id", "article_title", "article_content"],
-        "size": len(article_list),
-        "query": {"terms": {"article_id": article_list}}
-    }
-    #호출
-    resp = es.search(index="article_data", body=body)
+    # 1) 원하는 _id(=article_id)들을 mget으로 정확히 조회
+    resp = es.mget(
+        index="article_data",
+        body={"ids": article_list},
+        _source=["article_id", "article_title", "article_content"]
+    )
 
+    # 2) 존재하는 문서만 추출 (없는 id는 누락됨)
+    articles = [d["_source"] for d in resp["docs"] if d.get("found")]
 
-    articles = [h["_source"] for h in resp["hits"]["hits"]]
-    doc_embeddings = build_doc_embeddings(articles=articles, model=model)
+    # (옵션) 못 찾은 id 로그
+    not_found = [d["_id"] for d in resp["docs"] if not d.get("found")]
+    if not_found:
+        print(f"[warn] not found ids: {len(not_found)} (ex: {not_found[:5]})")
+
+    doc_embeddings = build_doc_embeddings(
+        articles=articles,
+        model=model,
+        sent_weight_mode="tfidf",
+    )
 
     actions = (
         {
             "_op_type": "update",
             "_index": "article_data",
             "_id": article_id,
-            "doc": {
-                "article_embedding": vec  # ← 필드 지정
-            }
+            "doc": {"article_embedding": vec}
         }
         for article_id, vec in doc_embeddings.items()
     )
 
-    # es에 모든 내용을 한번에 올립니다
     helpers.bulk(es, actions, chunk_size=500, request_timeout=120)
     print("임베딩 생성 성공")
+
 
 def re_embedding():
     body = {

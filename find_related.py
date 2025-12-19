@@ -18,7 +18,7 @@ def similar_articles(article_id):
     # print(query_vec)
     res = es.search(
         index="article_data",
-        size=30,
+        size=5,
         knn={
             "field": "article_embedding",
             "query_vector": query_vec,  # list[float], len=768
@@ -39,7 +39,8 @@ def similar_articles(article_id):
     print(len(hits))
     print(json.dumps(hits,indent=2,ensure_ascii=False))
 
-if __name__ == '__main__':
-    similar_articles("01101001.20251219144012001")
+if __name__ == "__main__":
+    article_id = input("article_id 입력: ").strip()
+    similar_articles(article_id)
 
 
