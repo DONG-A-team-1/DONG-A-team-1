@@ -7,7 +7,7 @@ from typing import List, Dict, Any
 import json
 import os
 import inspect
-
+from util.logger import  build_error_doc
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name
@@ -79,22 +79,16 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     "collected_at": now_kst_iso
                 }
 
-                error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{article_id}결측치 존재, url :{url}"
-                }
+                error_doc = build_error_doc(
+                    message=f"{article_id} 결측치 존재, url: {url}"
+                )
 
                 null_count = 0
                 for v in article_raw.values():
                     if v in (None, "", []):
                         null_count += 1
                 if null_count >= 1:
-                    es.create(index="error_log", id=article_id, document=error_doc)
-                    continue
+                    es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
                 else:
                     es.index(index="article_raw", id=article_id, document=article_raw)
 

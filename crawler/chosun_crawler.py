@@ -6,9 +6,14 @@ from typing import List, Dict, Any
 from util.elastic import es
 import os
 import inspect
+from util.logger import build_error_doc
 
 # 로깅을 위한 설정
 filename = os.path.basename(__file__)
+funcname = inspect.currentframe().f_back.f_code.co_name
+
+logger_name = f"{filename}:{funcname}"
+now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 KST = timezone(timedelta(hours=9))
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -68,16 +73,13 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                 image_tag = soup.select_one("section.article-body div.lazyload-wrapper img")
                 article_img = image_tag.get("src") if image_tag else None
 
-                # 5. 데이터 검증 (본문이 없으면 결측치로 간주)
-                if not full_content:
-                    error_doc = {
-                        "@timestamp": now_iso,
-                        "log": {"level": "ERROR", "logger": logger_name},
-                        "message": f"본문 수집 실패: {article_id}",
-                        "url": url
+                es.update(
+                    index="article_data",
+                    id=article_id,
+                    doc={
+                        "article_img": article_img,
                     }
-                    es.index(index="error_log", id=article_id, document=error_doc)
-                    continue
+                )
 
                 # 6. Elasticsearch 저장
                 # article_raw: 전처리 전 원본 데이터 저장
@@ -87,7 +89,19 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                     "article_content": full_content,
                     "collected_at": now_iso
                 }
-                es.index(index="article_raw", id=article_id, document=article_raw)
+
+                error_doc = build_error_doc(
+                    message=f"{article_id} 결측치 존재, url: {url}"
+                )
+
+                null_count = 0
+                for v in article_raw.values():
+                    if v in (None, "", []):
+                        null_count += 1
+                if null_count >= 1:
+                    es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
+                else:
+                    es.index(index="article_raw", id=article_id, document=article_raw)
 
                 # article_data: 기존 빅카인즈 데이터에 이미지 경로 업데이트 (upsert)
                 es.update(

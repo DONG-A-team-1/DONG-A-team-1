@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 from util.elastic import es
-from util.logger import Logger
+from util.logger import Logger, build_error_doc
 import inspect
 import os
 
@@ -66,14 +66,9 @@ async def naeil_crawl(bigkinds_data):
                 "collected_at": now_kst_iso
             }
 
-            error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{article_id}결측치 존재, url :{url}"
-            }
+            error_doc = build_error_doc(
+                message=f"{article_id} 결측치 존재, url: {url}"
+            )
 
             null_count = 0
             for v in article_raw.values():

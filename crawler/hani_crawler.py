@@ -2,7 +2,7 @@ from urllib.parse import urlparse, urlunparse
 from datetime import datetime, timezone, timedelta
 import httpx
 from bs4 import BeautifulSoup
-from util.logger import Logger
+from util.logger import Logger, build_error_doc
 from typing import List, Dict, Any
 from util.elastic import es
 import os
@@ -96,23 +96,16 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
                 "collected_at": now_kst_iso
             }
 
-            error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{article_id}결측치 존재, url :{url}"
-            }
+            error_doc = build_error_doc(
+                message=f"{article_id} 결측치 존재, url: {url}"
+            )
 
             null_count = 0
-
             for v in article_raw.values():
                 if v in (None, "", []):
                     null_count += 1
             if null_count >= 1:
-                es.create(index="error_log", id=article_id, document=error_doc)
-                continue
+                es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
             else:
                 es.index(index="article_raw", id=article_id, document=article_raw)
                 
