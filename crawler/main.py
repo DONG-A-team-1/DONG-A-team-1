@@ -32,11 +32,12 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
     options = webdriver.ChromeOptions() 
     options.add_argument("--start-maximized")
+    options.add_argument("--headless")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문"]
-    # press_list = ["내일신문"]
+    # press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문"]
+    press_list = ["KBS","조선일보","내일신문"]
 
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
 

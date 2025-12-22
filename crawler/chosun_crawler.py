@@ -1,110 +1,106 @@
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse
-import asyncio # 비동기 지연을 위해 추가
+import asyncio
 from typing import List, Dict, Any
 from util.elastic import es
 import os
 import inspect
 
+# 로깅을 위한 설정
 filename = os.path.basename(__file__)
-funcname = inspect.currentframe().f_back.f_code.co_name
-
-logger_name = f"{filename}:{funcname}"
-now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 KST = timezone(timedelta(hours=9))
-now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,/ *;q=0.8"
+}
 
 
-async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
+async def chosun_crawl(press_results: List[Dict[str, Any]]):
     """
-    빅카인즈에서 받은 URL 리스트를 사용하여 조선일보 상세 기사를 비동기적으로 크롤링합니다.
-    429 Too Many Requests 오류를 해결하기 위해 비동기 지연을 추가합니다.
+    main.py에서 넘겨받은 press_results(기사 목록)를 바탕으로
+    조선일보 상세 페이지 본문을 수집합니다.
     """
-    print(f"조선일보 상세 크롤링 구동 시작:{now_kst}")
+    funcname = inspect.currentframe().f_code.co_name
+    logger_name = f"{filename}:{funcname}"
+    now_iso = datetime.now(KST).isoformat()
 
-    id_list = [data["article_id"] for data in bigkinds_data]
-    url_list = [data["url"] for data in bigkinds_data]
+    print(f"조선일보 상세 크롤링 시작 (대상: {len(press_results)}건)")
 
-    domain = "chosun"
-    article_list = []
+    success_list = []
 
-    # httpx를 사용하여 비동기 HTTP 요청 처리
-    async with httpx.AsyncClient(timeout=15.0, headers=HEADERS) as client:
+    async with httpx.AsyncClient(timeout=20.0, headers=HEADERS, follow_redirects=True) as client:
+        for data in press_results:
+            article_id = data.get("article_id")
+            url = data.get("url")
 
-        for article_id, url in zip(id_list, url_list):
+            if not url:
+                continue
+
             try:
-                # 🚨 429 Too Many Requests 오류 해결: 비동기 지연 시간 추가 (0.5초)
-                await asyncio.sleep(2)
+                # 1. 속도 조절 (조선일보 차단 방지)
+                await asyncio.sleep(1.5)
 
-                # 기사 상세 페이지 접속 및 본문 추출
                 resp = await client.get(url)
-                resp.raise_for_status() # 4xx, 5xx 에러 시 예외 발생
+                resp.raise_for_status()
 
+                # 2. 파싱 (lxml 설치되어 있다면 'lxml' 사용 권장, 없으면 'html.parser')
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-                # --- 본문 추출 ---
-                # 불필요한 태그 제거
-                for tag in soup.select("div.ad, div.promotion, div.related, div.article-body > :last-child"):
-                    tag.decompose()
+                # 3. 본문 추출 (가장 안정적인 select 방식)
+                # section.article-body 내부의 모든 p 태그를 가져와서 합칩니다.
+                p_tags = soup.select("section.article-body p")
+                full_content = " ".join([p.get_text(strip=True) for p in p_tags if p]).strip()
 
-                paragraphs = soup.select("section.article-body p")
-                full_content = " ".join([p.get_text(strip=True) for p in paragraphs]).strip()
-                if not full_content:  # 본문이 추출되지 않으면 AMP 버전 시도 (선택 사항)
+                # 본문이 비었을 경우 AMP 페이지 시도
+                if not full_content:
                     amp_url = url + "?outputType=amp"
                     amp_resp = await client.get(amp_url)
-                    amp_soup = BeautifulSoup(amp_resp.text, "lxml")
-                    amp_paragraphs = amp_soup.select("section.article-body p") or amp_soup.select("article p")
-                    full_content = " ".join([p.get_text(strip=True) for p in amp_paragraphs]).strip()
-                # --- 본문 추출 끝 ---
+                    if amp_resp.status_code == 200:
+                        amp_soup = BeautifulSoup(amp_resp.text, "html.parser")
+                        amp_p = amp_soup.select("section.article-body p") or amp_soup.select("article p")
+                        full_content = " ".join([p.get_text(strip=True) for p in amp_p if p]).strip()
 
-                # --- 기타 정보 추출 ---
-                article_name_tag = soup.select_one("h1.article-header__headline span")
-                # 🚨 'newsTitle' KeyError 방지: 상세 페이지에서 추출하거나, 기본값 사용
-                article_title = article_name_tag.text.strip() if article_name_tag else None
+                # 4. 제목 및 이미지 추출
+                title_tag = soup.select_one("h1.article-header__headline span")
+                article_title = title_tag.get_text(strip=True) if title_tag else data.get("title", "제목 없음")
 
                 image_tag = soup.select_one("section.article-body div.lazyload-wrapper img")
-                article_img = image_tag.get("src") if image_tag and image_tag.get("src") else None
+                article_img = image_tag.get("src") if image_tag else None
 
+                # 5. 데이터 검증 (본문이 없으면 결측치로 간주)
+                if not full_content:
+                    error_doc = {
+                        "@timestamp": now_iso,
+                        "log": {"level": "ERROR", "logger": logger_name},
+                        "message": f"본문 수집 실패: {article_id}",
+                        "url": url
+                    }
+                    es.index(index="error_log", id=article_id, document=error_doc)
+                    continue
+
+                # 6. Elasticsearch 저장
+                # article_raw: 전처리 전 원본 데이터 저장
+                article_raw = {
+                    "article_id": article_id,
+                    "article_title": article_title,
+                    "article_content": full_content,
+                    "collected_at": now_iso
+                }
+                es.index(index="article_raw", id=article_id, document=article_raw)
+
+                # article_data: 기존 빅카인즈 데이터에 이미지 경로 업데이트 (upsert)
                 es.update(
                     index="article_data",
                     id=article_id,
-                    doc={
-                        "article_img": article_img,
-                    }
+                    doc={"article_img": article_img},
+                    doc_as_upsert=True
                 )
 
-                article_raw ={
-                    "article_id": article_id,
-                    "article_title": article_title,
-                    "article_content": full_content ,
-                    "collected_at": now_kst_iso
-                }
+                success_list.append(article_id)
 
-                error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{article_id}결측치 존재, url :{url}"
-            }
-                null_count = 0
-                for v in article_raw.values():
-                    if v in (None, "", []):
-                        null_count += 1
-                if null_count >= 1:
-                    es.create(index="error_log", id=article_id, document=error_doc)
-                    continue
-                else:
-                    es.index(index="article_raw", id=article_id, document=article_raw)
-
-            except httpx.RequestError as e:
-                print(f"[조선 오류] URL 접근 실패 ({url}): {e}")
             except Exception as e:
-                print(f"[조선 오류] 데이터 파싱 실패 ({url}): {e}")
+                print(f"[조선 오류] {article_id} 처리 실패: {e}")
 
-    print(f"조선일보 {len(article_list)}건 크롤링 완료.")
-
+    print(f"==== 조선일보 상세 크롤링 완료: {len(success_list)}건 성공 ====")
+    return success_list
