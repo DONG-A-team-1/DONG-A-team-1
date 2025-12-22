@@ -145,8 +145,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(kmib_crawl(press_results))
         elif press_name == "내일신문":
             asyncio.run(naeil_crawl(press_results))
-        if press_name == "내일신문":
-            asyncio.run(naeil_crawl(press_results))
 
     driver.quit()
 
