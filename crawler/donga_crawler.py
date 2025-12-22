@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 from util.elastic import es
-from util.logger import Logger
+from util.logger import Logger, build_error_doc
 import inspect
 import os
 from .cleaner import clean_articles
@@ -46,7 +46,6 @@ async def donga_crawl(bigkinds_data):
                 "#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")
             article_img = img.get("src") if img else None
 
-
             es.update(
                 index="article_data",
                 id=article_id,
@@ -62,24 +61,18 @@ async def donga_crawl(bigkinds_data):
                 "collected_at": now_kst_iso
             }
 
-            error_doc = {
-                "@timestamp": now_kst_iso,
-                "log": {
-                    "level": "ERROR",
-                    "logger": logger_name
-                },
-                "message": f"{article_id}결측치 존재, url :{url}"
-            }
+            error_doc = build_error_doc(
+                message=f"{article_id} 결측치 존재, url: {url}"
+            )
 
             null_count = 0
             for v in article_raw.values():
                 if v in (None, "", []):
                     null_count += 1
             if null_count >= 1:
-                es.create(index="error_log", id=article_id, document=error_doc)
+                es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
             else:
                 es.index(index="article_raw", id=article_id, document=article_raw)
-
 
 
     print(f"{len(article_list)}개 수집 완료")
