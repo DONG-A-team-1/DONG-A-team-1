@@ -50,23 +50,22 @@ async def chosun_crawl(bigkinds_data: List[Dict[str, Any]]):
                 for tag in soup.select("div.ad, div.promotion, div.related, div.article-body > :last-child"):
                     tag.decompose()
 
-                paragraphs = soup.select("section.article-body p, div.article-body p")
+                paragraphs = soup.select("section.article-body p")
                 full_content = " ".join([p.get_text(strip=True) for p in paragraphs]).strip()
-                if not full_content: # 본문이 추출되지 않으면 AMP 버전 시도 (선택 사항)
-                     amp_url = url + "?outputType=amp"
-                     amp_resp = await client.get(amp_url)
-                     amp_soup = BeautifulSoup(amp_resp.text, "lxml")
-                     amp_paragraphs = amp_soup.select("section.article-body p") or amp_soup.select("article p")
-                     full_content = " ".join([p.get_text(strip=True) for p in amp_paragraphs]).strip()
+                if not full_content:  # 본문이 추출되지 않으면 AMP 버전 시도 (선택 사항)
+                    amp_url = url + "?outputType=amp"
+                    amp_resp = await client.get(amp_url)
+                    amp_soup = BeautifulSoup(amp_resp.text, "lxml")
+                    amp_paragraphs = amp_soup.select("section.article-body p") or amp_soup.select("article p")
+                    full_content = " ".join([p.get_text(strip=True) for p in amp_paragraphs]).strip()
                 # --- 본문 추출 끝 ---
 
                 # --- 기타 정보 추출 ---
-                article_name_tag = soup.select_one("h1.article-header__title")
+                article_name_tag = soup.select_one("h1.article-header__headline span")
                 # 🚨 'newsTitle' KeyError 방지: 상세 페이지에서 추출하거나, 기본값 사용
                 article_title = article_name_tag.text.strip() if article_name_tag else None
 
-
-                image_tag = soup.select_one("div.article-body figure img")
+                image_tag = soup.select_one("section.article-body div.lazyload-wrapper img")
                 article_img = image_tag.get("src") if image_tag and image_tag.get("src") else None
 
                 es.update(
