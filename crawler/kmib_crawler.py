@@ -31,6 +31,8 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
     article_list = []
     async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
         for article_id, url in zip(id_list, url_list):
+            if not url:
+                continue
             res = await client.get(url)
             soup = BeautifulSoup(res.content, "html.parser")
 

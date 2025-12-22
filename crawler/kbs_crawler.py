@@ -52,16 +52,16 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-
                 # --- 기사 본문 추출 ---
                 content = soup.select_one("div.detail-body")
                 article_content = content.get_text(strip=True) if content else None
 
                 # --- 나머지 정보 추출 ---
                 # 'data["newsTitle"]'이 아닌 상세 페이지에서 추출하거나, 안전한 기본값 사용
-                article_title = soup.select_one("div.detail-title h2").text.strip() if soup.select_one("div.detail-title h2") else None
+                article_title = soup.select_one("div.category-issue h4").text.strip() if soup.select_one(
+                    "div.detail-title h2") else None
 
-                news_img = soup.select_one("div.detail-visual img")
+                news_img = soup.select_one("div#element-image img")
                 article_img = BASE_URL + news_img["src"] if news_img and news_img.get("src") else None
 
                 es.update(

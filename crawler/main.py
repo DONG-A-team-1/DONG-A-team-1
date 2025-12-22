@@ -16,6 +16,8 @@ from .donga_crawler import donga_crawl
 from .chosun_crawler import chosun_crawl
 from .kmib_crawler import kmib_crawl
 from .hani_crawler import hani_crawl
+from .naeil_crawl import naeil_crawl
+
 from .cleaner import clean_articles,  delete_null
 from embedding import create_embedding
 from util.elastic import es
@@ -26,7 +28,6 @@ logger = Logger().get_logger(__name__)
 KST = timezone(timedelta(hours=9))
 
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
-    id_list = [ ]
     now_kst = datetime.now(KST).isoformat(timespec="seconds")
     print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
     options = webdriver.ChromeOptions() 
@@ -34,8 +35,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보"]
-    # press_list = ["동아일보","KBS"]
+    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문"]
+    # press_list = ["내일신문"]
 
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
 
@@ -119,8 +120,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 press_results.append(data) 
 
                 # 해당 세션에서 수집된 모든 기사의 article_id를 수집하여 리스트 생성,
-                # 추후 각기 다른 작업들의 범위를 일정하게, 안정적으로 맞추기 위해서 
-                id_list = [data["article_id"] for data in all_results]
+                # 추후 각기 다른 작업들의 범위를 일정하게, 안정적으로 맞추기 위해서
                 
                 # article_data 인덱스에 우선 bigkinds 내용 저장
                 es.index(
@@ -143,12 +143,23 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(chosun_crawl(press_results))
         elif press_name == "국민일보":
             asyncio.run(kmib_crawl(press_results))
+        elif press_name == "내일신문":
+            asyncio.run(naeil_crawl(press_results))
+        if press_name == "내일신문":
+            asyncio.run(naeil_crawl(press_results))
+
     driver.quit()
 
-    logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집, 클리닝 시작.")
+    id_list = [data["article_id"] for data in all_results]
+
+    logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집")
+
     null_id = delete_null() # 기사 원문 수집에 실패한 기사들에 대해서 삭제 진행 및 결측치로 인해 삭제된 article_id 명시해줌
+    logger.info(f"[{now_kst}] 개 기사 중 . 총 {len(all_results) - len(null_id)}개 결측치 발생")
     article_list = list(set(id_list) - set(null_id)) # 상단에서 명시된 결측 기사들을 추후 작업에서 제외합니다
+    logger.info("기사 본문 전처리 및 업데이트")
     clean_articles(article_list ) # 기사 원문(제목,본문)에 대해서 클리닝 작업 실행 및 article_data의 해당 필드 업데이트
+    logger.info("기사별 임베딩 생성")
     create_embedding(article_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
     return all_results
 

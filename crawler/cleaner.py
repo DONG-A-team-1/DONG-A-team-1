@@ -57,7 +57,7 @@ def delete_null():
         "query": {
             "range": {
                 "collected_at": {
-                    "gte": f"now-2h",
+                    "gte": f"now-7d",
                     "lte": "now"
                 }
             }
@@ -128,5 +128,5 @@ def re_clean_articles():
     return None
 
 if __name__ == "__main__":
-    re_clean_articles()
+    delete_null()
 
