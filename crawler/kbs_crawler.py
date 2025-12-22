@@ -92,6 +92,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                 else:
                     es.index(index="article_raw", id=article_id, document=article_raw)
 
+
             except httpx.RequestError as e:
                 print(f"[KBS 오류] URL 접근 실패 ({url}): {e}")
             except Exception as e:
