@@ -57,7 +57,7 @@ def delete_null():
         "query": {
             "range": {
                 "collected_at": {
-                    "gte": f"now-7d",
+                    "gte": f"now-1d",
                     "lte": "now"
                 }
             }

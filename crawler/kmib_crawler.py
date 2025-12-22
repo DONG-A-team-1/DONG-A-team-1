@@ -5,7 +5,7 @@ import httpx
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 from bs4 import BeautifulSoup
-from util.logger import Logger
+from util.logger import Logger, build_error_doc
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
@@ -77,22 +77,16 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 "collected_at": now_kst_iso
             }
 
-            null_count = 0
+            error_doc = build_error_doc(
+                message=f"{article_id} 결측치 존재, url: {url}"
+            )
 
+            null_count = 0
             for v in article_raw.values():
                 if v in (None, "", []):
                     null_count += 1
             if null_count >= 1:
-                error_doc = {
-                    "@timestamp": now_kst_iso,
-                    "log": {
-                        "level": "ERROR",
-                        "logger": logger_name
-                    },
-                    "message": f"{article_id}결측치 존재, url :{url}"
-                }
-                es.create(index="error_log", id=article_id, document=error_doc, refresh="wait_for")
-                continue
+                es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
             else:
                 es.index(index="article_raw", id=article_id, document=article_raw)
 

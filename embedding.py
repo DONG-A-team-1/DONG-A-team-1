@@ -2,7 +2,6 @@ from util.elastic import es
 import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
-from elasticsearch import helpers
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
