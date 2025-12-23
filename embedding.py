@@ -213,8 +213,6 @@ def re_embedding():
     helpers.bulk(es, actions, chunk_size=500, request_timeout=120)
     print("작업 성공")
 
-
-
 if __name__ == "__main__":
     re_embedding()
 
