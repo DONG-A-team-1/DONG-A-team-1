@@ -1,4 +1,3 @@
-import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 import asyncio
@@ -19,7 +18,8 @@ HEADERS = {
 async def chosun_crawl(press_results: List[Dict[str, Any]]):
     print(f"조선일보 상세 크롤링 시작 (대상: {len(press_results)}건)")
     success_list = []
-
+    error_list = []
+    empty_articles =[]
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
@@ -27,14 +27,11 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
             locale="ko-KR",
             viewport={"width": 1280, "height": 720},
         )
-
         for data in press_results:
             article_id = data.get("article_id")
             url = data.get("url")
-
             if not url:
                 continue
-
             try:
                 # 1. 속도 조절 (조선일보 차단 방지)
                 await asyncio.sleep(1.5)
@@ -78,31 +75,40 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                     "collected_at": now_kst_iso
                 }
 
-                print(article_raw)
+                # print(article_raw)
 
-                error_doc = build_error_doc(
-                    message=f"{article_id} 결측치 존재, url: {url}"
-                )
-
-                null_count = 0
-                for v in article_raw.values():
-                    if v in (None, "", []):
-                        null_count += 1
-                if null_count >= 1:
-                    es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
-                else:
-                    es.index(index="article_raw", id=article_id, document=article_raw)
-
-                # article_data: 기존 빅카인즈 데이터에 이미지 경로 업데이트 (upsert)
-                es.update(
-                    index="article_data",
-                    id=article_id,
-                    doc={"article_img": article_img},
-                    doc_as_upsert=True
-                )
-                success_list.append(article_id)
             except Exception as e:
-                print(f"[조선 오류] {article_id} 처리 실패: {e}")
+                error_list.append({
+                    "error_url": url,
+                    "error_type": type(e).__name__,
+                    "error_message": f"{str(e)}"
+                })
+                continue
+
+            null_count = sum(1 for v in article_raw.values() if v in (None, "", []))
+            if null_count == 0:
+                es.index(index="article_raw", id=article_id, document=article_raw)
+            else:
+                empty_articles.append({
+                    "article_id": article_id
+                })
+
+        # 에러 로그 업로드
+        if len(error_list) > 0:
+            error_doc = build_error_doc(
+                message=f"{len(error_list)}개 에러 발생",
+                samples=error_list
+            )
+            es.index(index="error_log", document=error_doc)
+
+        if len(empty_articles) > 0:
+            es.index(
+                index="error_log",
+                document=build_error_doc(
+                    message=f"{len(empty_articles)}개 결측치 발생",
+                    samples=empty_articles
+                )
+            )
 
     print(f"==== 조선일보 상세 크롤링 완료: {len(success_list)}건 성공 ====")
     return success_list

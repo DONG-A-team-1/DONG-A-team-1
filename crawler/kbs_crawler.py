@@ -30,8 +30,9 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
     id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data]
 
-    domain = "kbs"
     article_list = []
+    error_list = []
+    empty_articles = []
 
     # httpx를 사용하여 비동기 HTTP 요청 처리
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -79,24 +80,36 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     "collected_at": now_kst_iso
                 }
 
-                error_doc = build_error_doc(
-                    message=f"{article_id} 결측치 존재, url: {url}"
-                )
-
-                null_count = 0
-                for v in article_raw.values():
-                    if v in (None, "", []):
-                        null_count += 1
-                if null_count >= 1:
-                    es.create(index="error_log", id=f"{now_kst_iso}_{article_id}", document=error_doc)
-                else:
-                    es.index(index="article_raw", id=article_id, document=article_raw)
-
-
-            except httpx.RequestError as e:
-                print(f"[KBS 오류] URL 접근 실패 ({url}): {e}")
             except Exception as e:
-                # 'newsTitle' KeyError 방지를 위해 data.get("newsTitle", "...") 대신 상세 페이지에서 추출하도록 변경했습니다.
-                print(f"[KBS 오류] 데이터 파싱 실패 ({url}): {e}")
+                error_list.append({
+                    "error_url": url,
+                    "error_type": type(e).__name__,
+                    "error_message": f"{str(e)}"
+                })
+                continue
 
-    print(f"KBS {len(article_list)}건 크롤링 완료.")
+            null_count = sum(1 for v in article_raw.values() if v in (None, "", []))
+            if null_count == 0:
+                es.index(index="article_raw", id=article_id, document=article_raw)
+            else:
+                empty_articles.append({
+                    "article_id": article_id
+                })
+
+        # 에러 로그 업로드
+        if len(error_list) > 0:
+            error_doc = build_error_doc(
+                message=f"{len(error_list)}개 에러 발생",
+                samples=error_list
+            )
+            es.index(index="error_log", document=error_doc)
+
+        if len(empty_articles) > 0:
+            es.index(
+                index="error_log",
+                document=build_error_doc(
+                    message=f"{len(empty_articles)}개 결측치 발생",
+                    samples=empty_articles
+                )
+            )
+    print("==========KBS 크롤링 종료==========")
