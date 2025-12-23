@@ -1,4 +1,4 @@
-import time
+cimport time
 import json
 import asyncio
 from datetime import datetime
@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from sqlalchemy import text
 from datetime import timedelta, timezone
+from collections import Counter  #25.12.23 15:19 이지민 추가, 빅카인즈 특성키워드카운트를 위함 
 
 
 from .kbs_crawler import kbs_crawl
