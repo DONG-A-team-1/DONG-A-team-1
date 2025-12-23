@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
+from collections import Counter  #25.12.23 15:19 이지민 추가, 빅카인즈 특성키워드카운트를 위함 
 
 
 from .kbs_crawler import kbs_crawl
@@ -85,7 +86,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             pass
         time.sleep(3)
 
-        # 4) 기사 30개로 변경
+        # 4) 기사 20개로 변경 (25.12.23 이지민 주석 변경[30→20])
         try:
             select_tag = Select(driver.find_element(By.ID, "select2"))
             select_tag.select_by_value("20")
