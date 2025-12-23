@@ -45,7 +45,23 @@ def create_topic():
         "_source": ["article_id", "article_title", "article_content", "features"],
         "size": 500,
         "query": {
-            "range": {"collected_at": {"gte": "now-1d", "lte": "now"}}
+            "bool": {
+                "filter": [
+                    {
+                        "range": {
+                            "collected_at": {
+                                "gte": "now-3d",
+                                "lte": "now"
+                            }
+                        }
+                    },
+                    {
+                        "term": {
+                            "article_label.category": "정치"
+                        }
+                    }
+                ]
+            }
         }
     }
 
@@ -54,7 +70,7 @@ def create_topic():
     if not hits:
         print("No documents found.")
         return
-
+    print(len(hits))
     article_ids, titles, texts, features_list = [], [], [], []
 
     for h in hits:
