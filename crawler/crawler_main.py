@@ -85,7 +85,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             pass
         time.sleep(3)
 
-        # 4) 기사 30개로 변경
+        # 4) 기사 20개로 변경 (25.12.23 이지민 주석 변경[30→20])
         try:
             select_tag = Select(driver.find_element(By.ID, "select2"))
             select_tag.select_by_value("20")
