@@ -1,4 +1,4 @@
-cimport time
+import time
 import json
 import asyncio
 from datetime import datetime
