@@ -15,6 +15,8 @@ from .chosun_crawler import chosun_crawl
 from .kmib_crawler import kmib_crawl
 from .hani_crawler import hani_crawl
 from .naeil_crawl import naeil_crawl
+from .everyday_crawler import  everyday_crawl
+from .hankookilbo_crawler import hankookilbo_crawl
 
 from .cleaner import clean_articles,  delete_null
 from embedding import create_embedding
@@ -33,7 +35,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문"]
+    press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문","매일신문","한국일보"]
     # press_list = ["조선일보"]
 
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
@@ -162,6 +164,10 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             asyncio.run(kmib_crawl(press_results))
         elif press_name == "내일신문":
             asyncio.run(naeil_crawl(press_results))
+        elif press_name == "매일신문":
+            asyncio.run(everyday_crawl(press_results))
+        elif press_name == "한국일보":
+            asyncio.run(hankookilbo_crawl(press_results))
 
     driver.quit()
     id_list = [data["article_id"] for data in all_results]
