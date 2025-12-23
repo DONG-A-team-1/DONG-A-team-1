@@ -17,15 +17,15 @@ now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
 
 KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
-BASE_URL = "https://www.imaeil.com"
+BASE_URL = "https://www.hankookilbo.com/"
 from util.elastic import es
 
-async def korea_crawl(bigkinds_data: List[Dict[str, Any]]):
+async def hankookilbo_crawl(bigkinds_data: List[Dict[str, Any]]):
     """
     빅카인즈에서 받은 URL 리스트를 사용하여 KBS 상세 기사를 비동기적으로 크롤링합니다.
     URL 리다이렉션 오류(302)를 해결하기 위해 URL 경로를 수정합니다.
     """
-    print(f"매일신문 상세 크롤링 구동 시작:{now_kst}")
+    print(f"한국일보 상세 크롤링 구동 시작:{now_kst}")
 
     id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data]
@@ -42,7 +42,7 @@ async def korea_crawl(bigkinds_data: List[Dict[str, Any]]):
             if "/news/view.do" in orginal_url:
                 url = orginal_url.replace("/news/view.do", "/news/pc/view/view.do")
             else:
-                url = url # 이미 올바른 형식일 경우 그대로 사용
+                url = orginal_url # 이미 올바른 형식일 경우 그대로 사용
 
             try:
                 # 0.5초 비동기 지연 추가 (서버 부하 감소)
@@ -54,7 +54,7 @@ async def korea_crawl(bigkinds_data: List[Dict[str, Any]]):
                 soup = BeautifulSoup(resp.text, "html.parser")
 
                 # --- 기사 본문 추출 ---
-                content_div = soup.select_one("div.col-main")
+                content_div = soup.select_one("div.end-body div.col-main")
 
                 if content_div:
                     # 2. 부모 div 안의 모든 p 태그를 찾음
@@ -68,8 +68,8 @@ async def korea_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 # --- 나머지 정보 추출 ---
                 # 'data["newsTitle"]'이 아닌 상세 페이지에서 추출하거나, 안전한 기본값 사용
-                article_title = soup.select_one("div.col-main h1.title").text.strip() if soup.select_one(
-                    "div.col-main h1.title") else None
+                article_title = soup.select_one("div.end-top div.col-main h1.title").text.strip() if soup.select_one(
+                    "div.end-top div.col-main h1.title") else None
 
                 news_img = soup.select_one("div.img-box img")
                 article_img = news_img["src"] if news_img and news_img.get("src") else None
