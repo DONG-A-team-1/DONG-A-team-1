@@ -19,7 +19,6 @@ def clean_articles(article_ids: list[str]):
 
     for article in article_list:
         article_id = article.get("article_id")
-        
         # 기사의 제목을 전처리합니다, 에러 방지위해 혹시 None인 겯우 방지 위해 공백 문자열을 넣고 갑니다
         title_raw = article.get("article_title")
         if title_raw is None:
@@ -41,7 +40,8 @@ def clean_articles(article_ids: list[str]):
         cleaned_article = {
             "article_id": article_id,
             "article_title": title,
-            "article_content": content
+            "article_content": content,
+            "status": "1"
         }
         # 성공적으로 전처리 된 기사들을 아직 비어있는 article_data 인덱스에 삽입시킵니다
         es.update(index="article_data", id=article_id, body={"doc": cleaned_article})

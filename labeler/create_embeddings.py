@@ -3,9 +3,11 @@ import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from elasticsearch import helpers
 
 model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
 
+#가중치 계산 함수
 def sent_weights_tfidf_in_doc(sents: list[str], mode="sum") -> np.ndarray:
     if not sents:
         return np.array([], dtype=np.float32)
@@ -149,8 +151,6 @@ def build_doc_embeddings(
 
 
 # 원하는 기사 식별키의 목록을 넣고 임베딩 필드를 업데이트 시키는 함수입니다
-from elasticsearch import helpers
-
 def create_embedding(article_list):
     # 1) 원하는 _id(=article_id)들을 mget으로 정확히 조회
     resp = es.mget(
@@ -178,7 +178,7 @@ def create_embedding(article_list):
             "_op_type": "update",
             "_index": "article_data",
             "_id": article_id,
-            "doc": {"article_embedding": vec}
+            "doc": {"article_embedding": vec , "status":"2"}
         }
         for article_id, vec in doc_embeddings.items()
     )
