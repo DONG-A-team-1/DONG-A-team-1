@@ -20,7 +20,7 @@ from .everyday_crawler import  everyday_crawl
 from .hankookilbo_crawler import hankookilbo_crawl
 
 from .cleaner import clean_articles,  delete_null
-from embedding import create_embedding
+from labeler.create_embeddings import create_embedding
 from util.elastic import es
 from util.logger import Logger, build_error_doc
 

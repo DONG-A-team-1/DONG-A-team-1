@@ -151,3 +151,5 @@ def create_topic():
 
 if __name__ == "__main__":
     create_topic()
+    # print(res)
+    pass
