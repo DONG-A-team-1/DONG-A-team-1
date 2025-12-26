@@ -73,7 +73,11 @@ async def hankookilbo_crawl(bigkinds_data: List[Dict[str, Any]]):
 
                 news_img = soup.select_one("div.img-box img")
                 article_img = news_img["src"] if news_img and news_img.get("src") else None
-
+                
+                #base64 방지
+                if len(article_img) > 500:
+                    article_img = None
+                    
                 es.update(
                     index="article_data",
                     id=article_id,

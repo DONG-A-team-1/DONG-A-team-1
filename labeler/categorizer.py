@@ -3,7 +3,7 @@ from util.elastic import  es
 from elasticsearch import helpers
 from util.logger import build_error_doc
 
-model = r"C:\Users\M\Desktop\Project\DONG-A-team-1\model\news_category_classifier_add.pkl"
+model = r"model/news_category_classifier_add.pkl"
 model = joblib.load(model)
 
 # article_id를 리스트 형태로 넣어주면 해당 기사들을 찾고 카테고리를 추가합니다
@@ -13,7 +13,7 @@ def categorizer(article_list):
         "_source": ["article_id", "article_title", "article_content"],
         "size": 1000,
         "query": {
-            "match": {"article_id": article_list}
+            "terms": {"article_id": article_list}
         }
     }
 
@@ -65,7 +65,8 @@ def categorizer(article_list):
             "doc": {
                 "article_label": {
                     "category": r["category"]
-                }
+                },
+                "status": "3"
             }
         }
         for r in results
