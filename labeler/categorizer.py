@@ -65,7 +65,8 @@ def categorizer(article_list):
             "doc": {
                 "article_label": {
                     "category": r["category"]
-                }
+                },
+                "status": "3"
             }
         }
         for r in results

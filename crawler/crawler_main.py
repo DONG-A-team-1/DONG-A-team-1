@@ -40,7 +40,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
 
     press_list = ["동아일보", "KBS", "한겨레", "조선일보", "국민일보","내일신문","매일신문","한국일보"]
     # press_list = ["조선일보"]
-    press_results =[]
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
     big_error_list =[]
     press_error_list =[]
@@ -63,16 +62,16 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         time.sleep(1)
 
         # 2) 적용하기 클릭 기능
-        try:
-            apply_btn = driver.find_element(By.CSS_SELECTOR, ".btn-apply")
-            driver.execute_script("arguments[0].click();", apply_btn)
-        except Exception as e:
-            big_error_list.append({
-                "error_type": type(e).__name__,
-                "error_message": f"{press_name} : {str(e)}"
-            })
-            pass
-        time.sleep(1.5)
+        # try:
+        #     apply_btn = driver.find_element(By.CSS_SELECTOR, ".btn-apply")
+        #     driver.execute_script("arguments[0].click();", apply_btn)
+        # except Exception as e:
+        #     big_error_list.append({
+        #         "error_type": type(e).__name__,
+        #         "error_message": f"{press_name} : {str(e)}"
+        #     })
+        #     pass
+        # time.sleep(1.5)
 
         # 3) 검색 클릭 기능
         try:
@@ -90,18 +89,18 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         time.sleep(3)
 
         # 4) 기사 20개로 변경 (25.12.23 이지민 주석 변경[30→20])
-        try:
-            select_tag = Select(driver.find_element(By.ID, "select2"))
-            select_tag.select_by_value("20")
-            print("4")
-        except Exception as e:
-            big_error_list.append({
-                "error_type": type(e).__name__,
-                "error_message": f"{press_name} : {str(e)}"
-            })
-
-            pass
-        time.sleep(3)
+        # try:
+        #     select_tag = Select(driver.find_element(By.ID, "select2"))
+        #     select_tag.select_by_value("20")
+        #     print("4")
+        # except Exception as e:
+        #     big_error_list.append({
+        #         "error_type": type(e).__name__,
+        #         "error_message": f"{press_name} : {str(e)}"
+        #     })
+        #
+        #     pass
+        # time.sleep(3)
 
         # 5) 뉴스분석 클릭 기능
         try:

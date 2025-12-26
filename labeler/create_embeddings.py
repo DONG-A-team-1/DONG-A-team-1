@@ -178,7 +178,7 @@ def create_embedding(article_list):
             "_op_type": "update",
             "_index": "article_data",
             "_id": article_id,
-            "doc": {"article_embedding": vec}
+            "doc": {"article_embedding": vec , "status":"2"}
         }
         for article_id, vec in doc_embeddings.items()
     )
