@@ -13,7 +13,7 @@ def categorizer(article_list):
         "_source": ["article_id", "article_title", "article_content"],
         "size": 1000,
         "query": {
-            "match": {"article_id": article_list}
+            "terms": {"article_id": article_list}
         }
     }
 
