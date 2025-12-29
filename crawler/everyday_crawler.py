@@ -107,6 +107,7 @@ async def everyday_crawl(bigkinds_data: List[Dict[str, Any]]):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
         # 에러 로그 업로드
         if len(error_list) > 0:
@@ -124,4 +125,7 @@ async def everyday_crawl(bigkinds_data: List[Dict[str, Any]]):
                     samples=empty_articles
                 )
             )
-    print("==========매일신문 크롤링 종료==========")
+    empty_ids = {x["article_id"] for x in empty_articles}
+    result = list(set(id_list) - empty_ids)
+    print(f"==== 매일신문 상세 크롤링 완료: {len(result)}개 성공====")
+    return result
