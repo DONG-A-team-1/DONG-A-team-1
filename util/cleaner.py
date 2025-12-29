@@ -49,39 +49,48 @@ def clean_articles(article_ids: list[str]):
 
 
 # bigkinds 수집 성공했으나 기사 원문 수집에 실패한 경우를 필터링 하기 위한 함수입니다
-def delete_null():
-    null_id = [ ]
+def delete_null(article_ids: list[str]) -> list[str]:
+    """
+    이번 세션에서 수집한 article_ids 중,
+    article_data에서 본문이 없거나 비어있는 문서를 삭제.
+    """
+    if not article_ids:
+        return []
+
+    # 본문/제목 필드명은 너희 스키마에 맞게 조정
+    # 예: article_content / article_title
     query = {
-        "_source": ["article_id"],
-        "size":500,
+        "_source": ["article_id", "article_title", "article_content"],
+        "size": len(article_ids),
         "query": {
-            "range": {
-                "collected_at": {
-                    "gte": f"now-1d",
-                    "lte": "now"
-                }
-            }
+            "terms": {"article_id": article_ids}
         }
     }
 
-    ids = set()
-    # article_raw 인덱스에서 최근 2시간간의 기사 500개의 식별키를 호출합니다
     resp = es.search(index="article_raw", body=query)
+    hits = resp.get("hits", {}).get("hits", [])
 
-    # 호출된 모든 식별키를 ids에 담습니다(혹시 몰라 set이긴합니다)
-    for h in resp["hits"]["hits"]:
-        ids.add(h["_source"]["article_id"])
+    null_ids = []
+    for h in hits:
+        src = h.get("_source", {})
+        aid = src.get("article_id")
+        title = (src.get("article_title") or "").strip()
+        content = src.get("article_content")
 
-    # 이번에는 article_data 인덱스에 대해서 동일한 조건(2시간,500개)로 수집합니다
-    # 수집 결과를 비교 대조하고 결측 데이터를 삭제합니다
-    resp2 = es.search(index="article_data", body=query)
-    for h in resp2["hits"]["hits"]:
-        data_id = h["_source"]["article_id"]
-        if data_id not in ids:
-            es.delete(index="article_data", id=data_id)
-            null_id.append(data_id)
-    # crawler.main 함수에서 사용할 원문이 없는, 추후 작업을 진행할 이유가 없는 데이터를 삭제합니다
-    return null_id
+        # content가 None이거나, 문자열인데 공백이거나, 리스트인데 비어있으면 실패로 간주
+        empty_content = (
+            content is None or
+            (isinstance(content, str) and not content.strip()) or
+            (isinstance(content, list) and len(content) == 0)
+        )
+
+        if empty_content:
+            es.delete(index="article_data", id=aid)
+            es.delete(index="article_raw", id=aid)
+            null_ids.append(aid)
+
+    return null_ids
+
 
 # 이미 들어간 내용 전처리용
 def re_clean_articles():

@@ -17,9 +17,9 @@ HEADERS = {
 
 async def chosun_crawl(press_results: List[Dict[str, Any]]):
     print(f"조선일보 상세 크롤링 시작 (대상: {len(press_results)}건)")
-    success_list = []
     error_list = []
     empty_articles =[]
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
@@ -35,7 +35,6 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
             try:
                 # 1. 속도 조절 (조선일보 차단 방지)
                 await asyncio.sleep(1.5)
-
                 # 2. Playwright로 페이지 로드
                 page = await context.new_page()
                 await page.goto(url, wait_until="domcontentloaded", timeout=25000)
@@ -75,8 +74,6 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                     "collected_at": now_kst_iso
                 }
 
-                # print(article_raw)
-
             except Exception as e:
                 error_list.append({
                     "error_url": url,
@@ -92,6 +89,7 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
         # 에러 로그 업로드
         if len(error_list) > 0:
@@ -110,5 +108,8 @@ async def chosun_crawl(press_results: List[Dict[str, Any]]):
                 )
             )
 
-    print(f"==== 조선일보 상세 크롤링 완료: {len(success_list)}건 성공 ====")
-    return success_list
+    empty_ids = {x["article_id"] for x in empty_articles}
+    id_list = [data["article_id"] for data in press_results]
+    result = list(set(id_list) - empty_ids)
+    print(f"==== 조선일보 상세 크롤링 완료: {len(result)}개 성공====")
+    return result

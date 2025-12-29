@@ -24,7 +24,6 @@ async def donga_crawl(bigkinds_data):
     id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data] #빅카인즈에서 받아온 데이터의 url 부분만 리스트로 변경하여 준비합니다
 
-    article_list = []
     error_list = []
     empty_articles = []
     async with httpx.AsyncClient() as client:
@@ -77,6 +76,7 @@ async def donga_crawl(bigkinds_data):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
         # 에러 로그 업로드
         if len(error_list) > 0:
@@ -95,7 +95,10 @@ async def donga_crawl(bigkinds_data):
                 )
             )
 
-    print("==========동아일보 크롤링 종료==========")
+    empty_ids = {x["article_id"] for x in empty_articles}
+    result = list(set(id_list) - empty_ids)
+    print(f"==== 동아일보 상세 크롤링 완료: {len(result)}개 성공====")
+    return result 
 
 
 
