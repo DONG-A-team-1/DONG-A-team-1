@@ -5,7 +5,6 @@ from util.elastic import es
 from util.logger import Logger, build_error_doc
 import inspect
 import os
-from .cleaner import clean_articles
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name

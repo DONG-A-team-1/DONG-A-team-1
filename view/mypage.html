@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - 마이페이지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.dark {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Header */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark header {
+    background-color: #1f2937;
+    border-bottom-color: #374151;
+}
+
+.header-content {
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo:hover {
+    opacity: 0.9;
+}
+
+.logo-icon {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.logo:hover .logo-icon {
+    transform: scale(1.05);
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+.dark .logo-text {
+    color: white;
+}
+
+.nav {
+    display: none;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .nav {
+        display: flex;
+    }
+}
+
+.nav-item {
+    position: relative;
+    width: 4rem;
+    height: 3rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #374151;
+    transition: all 0.3s;
+}
+
+.dark .nav-item {
+    color: #e5e7eb;
+}
+
+.nav-item:hover {
+    color: #111827;
+    transform: scale(1.05);
+}
+
+.dark .nav-item:hover {
+    color: #ffffff;
+}
+
+.nav-blob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    z-index: -1;
+    opacity: 0.5;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(-50%, -50%) scale(0.9);
+    mix-blend-mode: multiply;
+}
+
+.dark .nav-blob {
+    mix-blend-mode: screen;
+    opacity: 0.3;
+}
+
+.nav-item:hover .nav-blob {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+}
+
+.nav-blob-2 {
+    background: radial-gradient(circle at 70% 30%, rgba(254, 215, 170, 0.7), rgba(253, 186, 116, 0.3));
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    filter: blur(5px);
+}
+
+.nav-blob-3 {
+    background: radial-gradient(circle at 40% 60%, rgba(254, 202, 202, 0.7), rgba(252, 165, 165, 0.3));
+    border-radius: 35% 65% 60% 40% / 30% 60% 40% 70%;
+    filter: blur(5px);
+}
+
+.nav-blob-4 {
+    background: radial-gradient(circle at 60% 40%, rgba(187, 247, 208, 0.7), rgba(134, 239, 172, 0.3));
+    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+    filter: blur(5px);
+}
+
+.nav-blob-5 {
+    background: radial-gradient(circle at 30% 70%, rgba(199, 210, 254, 0.7), rgba(165, 180, 252, 0.3));
+    border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%;
+    filter: blur(5px);
+}
+
+.nav-blob-6 {
+    background: radial-gradient(circle at 50% 50%, rgba(191, 219, 254, 0.7), rgba(147, 197, 253, 0.3));
+    border-radius: 40% 60% 70% 30% / 50% 60% 30% 60%;
+    filter: blur(5px);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.theme-toggle {
+    padding: 0.5rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.theme-toggle:hover {
+    background-color: #f3f4f6;
+}
+
+.dark .theme-toggle {
+    color: #9ca3af;
+}
+
+.dark .theme-toggle:hover {
+    background-color: #374151;
+}
+
+.theme-toggle .light-icon {
+    display: none;
+}
+
+.dark .theme-toggle .dark-icon {
+    display: none;
+}
+
+.dark .theme-toggle .light-icon {
+    display: block;
+}
+
+.user-info {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@media (min-width: 640px) {
+    .user-info {
+        display: flex;
+    }
+}
+
+.dark .user-info {
+    color: #d1d5db;
+}
+
+.user-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: transform 0.3s;
+}
+
+.dark .user-avatar {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #9ca3af;
+}
+
+.user-info:hover .user-avatar {
+    transform: scale(1.05);
+}
+
+/* Main Content */
+main {
+    padding: 2rem 0;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 1536px;
+    margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+    .grid-layout {
+        grid-template-columns: 1fr 3fr;
+    }
+}
+
+/* Card */
+.card {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #f3f4f6;
+    padding: 1.5rem;
+}
+
+.dark .card {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Profile Section */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar-container {
+    position: relative;
+    width: 6rem;
+    height: 6rem;
+    margin-bottom: 1rem;
+}
+
+.profile-avatar {
+    width: 6rem;
+    height: 6rem;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+}
+
+.dark .profile-avatar {
+    background: linear-gradient(135deg, #1f2937, #374151);
+    color: #60a5fa;
+    border-color: #4b5563;
+}
+
+.profile-avatar-container:hover .profile-avatar {
+    transform: scale(1.05);
+}
+
+.profile-edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 2rem;
+    height: 2rem;
+    background-color: white;
+    border-radius: 50%;
+    border: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark .profile-edit-icon {
+    background-color: #1f2937;
+    border-color: #4b5563;
+}
+
+.profile-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.dark .profile-name {
+    color: white;
+}
+
+.profile-email {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.dark .profile-email {
+    color: #9ca3af;
+}
+
+.logout-btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #6b7280;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 9999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+    border-color: #fecaca;
+}
+
+.dark .logout-btn {
+    background-color: #1f2937;
+    color: #9ca3af;
+    border-color: #374151;
+}
+
+.dark .logout-btn:hover {
+    background-color: rgba(127, 29, 29, 0.2);
+    color: #f87171;
+    border-color: rgba(127, 29, 29, 0.5);
+}
+
+.divider {
+    border-top: 1px solid #f3f4f6;
+    margin: 1.5rem 0;
+}
+
+.dark .divider {
+    border-top-color: #374151;
+}
+
+/* Donut Chart */
+.chart-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.donut-chart {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #3b82f6 0% 40%,
+        #22c55e 40% 70%,
+        #a855f7 70% 90%,
+        #e5e7eb 90% 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark .donut-chart {
+    background: conic-gradient(
+        #3b82f6 0% 40%,
+        #22c55e 40% 70%,
+        #a855f7 70% 90%,
+        #4b5563 90% 100%
+    );
+}
+
+.donut-chart::after {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.dark .donut-chart::after {
+    background: #1f2937;
+}
+
+.donut-percent {
+    position: absolute;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #374151;
+    z-index: 10;
+}
+
+.dark .donut-percent {
+    color: white;
+}
+
+.donut-percent .unit {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #9ca3af;
+}
+
+.chart-label {
+    position: absolute;
+    font-size: 0.625rem;
+    font-weight: bold;
+    background-color: rgba(255,255,255,0.9);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark .chart-label {
+    background-color: rgba(31, 41, 55, 0.9);
+}
+
+.chart-label-1 {
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+    top: 1rem;
+    right: -1.75rem;
+}
+
+.dark .chart-label-1 {
+    color: #60a5fa;
+    border-color: rgba(30, 58, 138, 0.5);
+}
+
+.chart-label-2 {
+    color: #16a34a;
+    border: 1px solid #d1fae5;
+    bottom: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dark .chart-label-2 {
+    color: #4ade80;
+    border-color: rgba(20, 83, 45, 0.5);
+}
+
+.chart-label-3 {
+    color: #9333ea;
+    border: 1px solid #f3e8ff;
+    left: -1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.dark .chart-label-3 {
+    color: #c084fc;
+    border-color: rgba(88, 28, 135, 0.5);
+}
+
+.chart-label-4 {
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    left: 0.25rem;
+    top: -1rem;
+}
+
+.dark .chart-label-4 {
+    color: #9ca3af;
+    border-color: #374151;
+}
+
+.chart-legend {
+    width: 100%;
+    padding: 0 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.legend-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.legend-color.blue { background-color: #3b82f6; }
+.legend-color.green { background-color: #22c55e; }
+.legend-color.purple { background-color: #a855f7; }
+.legend-color.gray { background-color: #e5e7eb; }
+.dark .legend-color.gray { background-color: #4b5563; }
+
+.legend-text {
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.dark .legend-text {
+    color: #d1d5db;
+}
+
+.legend-value {
+    font-weight: bold;
+    color: #111827;
+}
+
+.dark .legend-value {
+    color: white;
+}
+
+.reset-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #4b5563;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+}
+
+.reset-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.dark .reset-btn {
+    color: #d1d5db;
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.dark .reset-btn:hover {
+    background-color: #374151;
+}
+
+.reset-btn .material-icons-outlined {
+    transition: transform 0.5s;
+}
+
+.reset-btn:hover .material-icons-outlined {
+    transform: rotate(180deg);
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 1rem;
+}
+
+.dark .section-header {
+    border-bottom-color: #374151;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title .material-icons-outlined {
+    color: #3b82f6;
+}
+
+.section-title h2 {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+.dark .section-title h2 {
+    color: white;
+}
+
+/* Calendar */
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.calendar-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.calendar-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+.dark .calendar-title {
+    color: white;
+}
+
+.calendar-weeks {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+}
+
+.dark .calendar-weeks {
+    background-color: #1f2937;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.calendar-nav-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.calendar-nav-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.dark .calendar-nav-btn:hover {
+    background-color: #1f2937;
+}
+
+.calendar-container {
+    background-color: white;
+    border: 1px solid #f3f4f6;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark .calendar-container {
+    background-color: rgba(31, 41, 55, 0.2);
+    border-color: rgba(55, 65, 81, 0.5);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem 0.5rem;
+    text-align: center;
+}
+
+.calendar-day-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9ca3af;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.dark .calendar-day-header {
+    border-bottom-color: #1f2937;
+}
+
+.calendar-day {
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+@media (min-width: 640px) {
+    .calendar-day {
+        height: 3.5rem;
+    }
+}
+
+.calendar-day.prev-month,
+.calendar-day.next-month {
+    color: #d1d5db;
+}
+
+.dark .calendar-day.prev-month,
+.dark .calendar-day.next-month {
+    color: #374151;
+}
+
+.calendar-day.no-activity {
+    background-color: #f9fafb;
+    color: #4b5563;
+}
+
+.dark .calendar-day.no-activity {
+    background-color: rgba(31, 41, 55, 0.5);
+    color: #9ca3af;
+}
+
+.calendar-day.activity-low {
+    background-color: rgba(191, 219, 254, 0.5);
+    color: #1e40af;
+    font-weight: bold;
+}
+
+.dark .calendar-day.activity-low {
+    background-color: rgba(30, 58, 138, 0.3);
+    color: #93c5fd;
+}
+
+.calendar-day.activity-medium {
+    background-color: rgba(96, 165, 250, 0.5);
+    color: #1e3a8a;
+    font-weight: bold;
+}
+
+.dark .calendar-day.activity-medium {
+    background-color: rgba(37, 99, 235, 0.5);
+    color: white;
+}
+
+.calendar-day.activity-high {
+    background-color: rgba(59, 130, 246, 0.8);
+    color: white;
+    font-weight: bold;
+}
+
+.dark .calendar-day.activity-high {
+    background-color: rgba(59, 130, 246, 0.8);
+}
+
+.calendar-day:hover {
+    ring: 2px solid #bfdbfe;
+}
+
+.calendar-day.selected {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 900;
+    box-shadow: 0 10px 15px rgba(59, 130, 246, 0.3);
+    z-index: 20;
+    border: 2px solid white;
+    ring: 2px solid #111827;
+}
+
+.dark .calendar-day.selected {
+    border-color: #374151;
+    ring-color: #f3f4f6;
+}
+
+.calendar-day.selected::before {
+    content: '';
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.dark .calendar-day.selected::before {
+    border-color: #1f2937;
+}
+
+.calendar-tooltip {
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #111827;
+    color: white;
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 30;
+}
+
+.calendar-day:hover .calendar-tooltip {
+    opacity: 1;
+}
+
+.calendar-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -0.25rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #111827;
+}
+
+/* Stats & Activity List */
+.activity-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+@media (min-width: 1280px) {
+    .activity-layout {
+        flex-direction: row;
+        gap: 2rem;
+    }
+}
+
+.activity-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+@media (min-width: 1280px) {
+    .activity-sidebar {
+        width: 18rem;
+    }
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid #bfdbfe;
+}
+
+.dark .stats-card {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.2), rgba(30, 64, 175, 0.1));
+    border-color: rgba(30, 58, 138, 0.5);
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.dark .stats-label {
+    color: #9ca3af;
+}
+
+.stats-value {
+    font-size: 1.875rem;
+    font-weight: 900;
+    color: #3b82f6;
+}
+
+.activity-list-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #f3f4f6;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dark .activity-list-card {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.activity-list-header {
+    background-color: rgba(249, 250, 251, 0.5);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.dark .activity-list-header {
+    background-color: rgba(31, 41, 55, 0.5);
+    border-bottom-color: #374151;
+}
+
+.activity-list-date {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+.dark .activity-list-date {
+    color: white;
+}
+
+.activity-list-date .material-icons-outlined {
+    font-size: 1rem;
+    color: #3b82f6;
+}
+
+.activity-list-count {
+    font-size: 0.625rem;
+    font-weight: bold;
+    color: #6b7280;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    padding: 0.125rem 0.375rem;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark .activity-list-count {
+    background-color: #374151;
+    border-color: #4b5563;
+}
+
+.activity-list-items {
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.activity-item {
+    display: block;
+    padding: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.activity-item:hover {
+    background-color: #f9fafb;
+}
+
+.dark .activity-item {
+    border-bottom-color: #1f2937;
+}
+
+.dark .activity-item:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+}
+
+.activity-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.375rem;
+}
+
+.activity-category {
+    font-size: 0.625rem;
+    font-weight: bold;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    border: 1px solid;
+}
+
+.activity-category.tech {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-color: #dbeafe;
+}
+
+.dark .activity-category.tech {
+    color: #60a5fa;
+    background-color: rgba(30, 58, 138, 0.3);
+    border-color: rgba(30, 58, 138, 0.5);
+}
+
+.activity-category.economy {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border-color: #d1fae5;
+}
+
+.dark .activity-category.economy {
+    color: #4ade80;
+    background-color: rgba(20, 83, 45, 0.3);
+    border-color: rgba(20, 83, 45, 0.5);
+}
+
+.activity-category.culture {
+    color: #9333ea;
+    background-color: #faf5ff;
+    border-color: #f3e8ff;
+}
+
+.dark .activity-category.culture {
+    color: #c084fc;
+    background-color: rgba(88, 28, 135, 0.3);
+    border-color: rgba(88, 28, 135, 0.5);
+}
+
+.activity-category.society {
+    color: #ea580c;
+    background-color: #fff7ed;
+    border-color: #fed7aa;
+}
+
+.dark .activity-category.society {
+    color: #fb923c;
+    background-color: rgba(124, 45, 18, 0.3);
+    border-color: rgba(124, 45, 18, 0.5);
+}
+
+.activity-time {
+    font-size: 0.625rem;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.activity-title {
+    font-size: 0.875rem;
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.375;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.3s;
+}
+
+.dark .activity-title {
+    color: #e5e7eb;
+}
+
+.activity-item:hover .activity-title {
+    color: #3b82f6;
+}
+
+.activity-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+    color: #9ca3af;
+}
+
+.activity-empty .material-icons-outlined {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.activity-empty span {
+    font-size: 0.75rem;
+}
+
+/* Form Section */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.dark .form-label {
+    color: #d1d5db;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    color: #111827;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+}
+
+.dark .form-input,
+.dark .form-select {
+    border-color: #4b5563;
+    background-color: #1f2937;
+    color: white;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    ring: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    padding: 0.625rem 1.5rem;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-secondary {
+    padding: 0.625rem 1.5rem;
+    border: 1px solid #d1d5db;
+    background-color: transparent;
+    color: #374151;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #f9fafb;
+}
+
+.dark .btn-secondary {
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+.dark .btn-secondary:hover {
+    background-color: #374151;
+}
+
+.delete-account-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid #fecaca;
+    background-color: #fef2f2;
+    color: #ef4444;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.delete-account-btn:hover {
+    background-color: #fee2e2;
+}
+
+.dark .delete-account-btn {
+    border-color: rgba(127, 29, 29, 0.3);
+    background-color: rgba(127, 29, 29, 0.1);
+    color: #f87171;
+}
+
+.dark .delete-account-btn:hover {
+    background-color: rgba(127, 29, 29, 0.2);
+}
+
+.delete-account-btn .material-icons-outlined {
+    margin-bottom: 0.25rem;
+    transition: transform 0.3s;
+}
+
+.delete-account-btn:hover .material-icons-outlined {
+    transform: scale(1.1);
+}
+
+.delete-account-btn span {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+    padding: 2rem;
+    max-width: 28rem;
+    width: 100%;
+    margin: 1rem;
+    border: 1px solid #f3f4f6;
+    animation: fadeInUp 0.3s ease;
+}
+
+.dark .modal-content {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.modal-icon {
+    width: 4rem;
+    height: 4rem;
+    background-color: #fef2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    animation: bounce 1s infinite;
+}
+
+.dark .modal-icon {
+    background-color: rgba(127, 29, 29, 0.2);
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-0.5rem);
+    }
+}
+
+.modal-icon .material-icons-outlined {
+    font-size: 2.5rem;
+    color: #ef4444;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.dark .modal-title {
+    color: white;
+}
+
+.modal-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.625;
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.dark .modal-description {
+    color: #9ca3af;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.modal-btn-cancel {
+    border: 1px solid #e5e7eb;
+    background-color: transparent;
+    color: #374151;
+}
+
+.modal-btn-cancel:hover {
+    background-color: #f9fafb;
+}
+
+.dark .modal-btn-cancel {
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+.dark .modal-btn-cancel:hover {
+    background-color: #374151;
+}
+
+.modal-btn-confirm {
+    background-color: #ef4444;
+    color: white;
+    box-shadow: 0 10px 15px rgba(239, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.modal-btn-confirm:hover {
+    background-color: #dc2626;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+/* Utility Classes */
+.section-title .material-icons-outlined,
+.activity-list-date .material-icons-outlined {
+    font-size: 1.25rem;
+}
+</style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="header-content">
+            <a class="logo" href="homepage.html">
+                <div class="logo-icon">
+                    <span>N</span>
+                </div>
+                <span class="logo-text">NewsPalette</span>
+            </a>
+            <nav class="nav">
+                <a class="nav-item" href="/society">
+                    <div class="nav-blob nav-blob-2"></div>
+                    <span>사회</span>
+                </a>
+                <a class="nav-item" href="/politics">
+                    <div class="nav-blob nav-blob-3"></div>
+                    <span>정치</span>
+                </a>
+                <a class="nav-item" href="/economy">
+                    <div class="nav-blob nav-blob-4"></div>
+                    <span>경제</span>
+                </a>
+                <a class="nav-item" href="/world">
+                    <div class="nav-blob nav-blob-5"></div>
+                    <span>국제</span>
+                </a>
+                <a class="nav-item" href="/tech">
+                    <div class="nav-blob nav-blob-6"></div>
+                    <span>IT/과학</span>
+                </a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span class="material-icons-outlined dark-icon">dark_mode</span>
+                    <span class="material-icons-outlined light-icon">light_mode</span>
+                </button>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <div class="grid-layout">
+            <aside>
+                <div class="card">
+                    <div class="profile-section">
+                        <div class="profile-avatar-container">
+                            <div class="profile-avatar">
+                                <span class="material-symbols-outlined">person</span>
+                            </div>
+                            <div class="profile-edit-icon">
+                                <span class="material-icons-outlined" style="font-size: 0.875rem; color: #6b7280;">edit</span>
+                            </div>
+                        </div>
+                        <h2 class="profile-name">유저 ID명</h2>
+                        <p class="profile-email">news_enthusiast@example.com</p>
+                        <button class="logout-btn" onclick="handleLogout()">
+                            <span class="material-icons-outlined" style="font-size: 0.875rem;">logout</span>
+                            로그아웃
+                        </button>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div>
+                        <div class="section-title" style="margin-bottom: 1.5rem;">
+                            <span class="material-icons-outlined" style="color: #6b7280;">history</span>
+                            <h3 style="font-weight: bold; color: #111827;">개인 조회 카테고리</h3>
+                        </div>
+
+                        <div class="chart-section">
+                            <div style="position: relative; margin-bottom: 1.5rem;">
+                                <div class="donut-chart" id="algorithm-chart">
+                                    <span class="donut-percent" id="algorithm-percent">40<span class="unit">%</span></span>
+                                    <span class="chart-label chart-label-1">IT/과학</span>
+                                    <span class="chart-label chart-label-2">경제</span>
+                                    <span class="chart-label chart-label-3">문화</span>
+                                    <span class="chart-label chart-label-4">기타</span>
+                                </div>
+                            </div>
+
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-label">
+                                        <span class="legend-color blue"></span>
+                                        <span class="legend-text">IT/과학</span>
+                                    </div>
+                                    <span class="legend-value">40%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label">
+                                        <span class="legend-color green"></span>
+                                        <span class="legend-text">경제</span>
+                                    </div>
+                                    <span class="legend-value">30%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label">
+                                        <span class="legend-color purple"></span>
+                                        <span class="legend-text">문화</span>
+                                    </div>
+                                    <span class="legend-value">20%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label">
+                                        <span class="legend-color gray"></span>
+                                        <span class="legend-text">기타</span>
+                                    </div>
+                                    <span class="legend-value">10%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;">
+                            <button class="reset-btn" onclick="resetAlgorithm()">
+                                <span class="material-icons-outlined" style="font-size: 0.875rem;">restart_alt</span>
+                                <span>알고리즘 초기화</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <section class="card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons-outlined">calendar_month</span>
+                            <h2>최근 활동 분석</h2>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
+                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #f3f4f6; border: 1px solid #e5e7eb;"></span>
+                                <span>활동 없음</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
+                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #bfdbfe;"></span>
+                                <span>적음</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
+                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #60a5fa;"></span>
+                                <span>보통</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
+                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #3b82f6;"></span>
+                                <span>많음</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="activity-layout">
+                        <div class="activity-main">
+                            <div class="calendar-controls">
+                                <div class="calendar-title-wrapper">
+                                    <span class="calendar-title" id="calendar-title">2024년 3월</span>
+                                    <span class="calendar-weeks" id="calendar-weeks">Week 10-14</span>
+                                </div>
+                                <div class="calendar-nav">
+                                    <button class="calendar-nav-btn" onclick="changeMonth(-1)">
+                                        <span class="material-icons-outlined" style="font-size: 0.875rem;">chevron_left</span>
+                                    </button>
+                                    <button class="calendar-nav-btn" onclick="changeMonth(1)">
+                                        <span class="material-icons-outlined" style="font-size: 0.875rem;">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="calendar-container">
+                                <div class="calendar-grid" id="calendar-grid">
+                                    <div class="calendar-day-header">일</div>
+                                    <div class="calendar-day-header">월</div>
+                                    <div class="calendar-day-header">화</div>
+                                    <div class="calendar-day-header">수</div>
+                                    <div class="calendar-day-header">목</div>
+                                    <div class="calendar-day-header">금</div>
+                                    <div class="calendar-day-header">토</div>
+
+                                    <div class="calendar-day prev-month">25</div>
+                                    <div class="calendar-day prev-month">26</div>
+                                    <div class="calendar-day prev-month">27</div>
+                                    <div class="calendar-day prev-month">28</div>
+                                    <div class="calendar-day prev-month">29</div>
+                                    <div class="calendar-day no-activity">1</div>
+                                    <div class="calendar-day activity-low">2</div>
+                                    <div class="calendar-day activity-medium">3</div>
+                                    <div class="calendar-day activity-high">4</div>
+                                    <div class="calendar-day no-activity">5</div>
+                                    <div class="calendar-day activity-low">6</div>
+                                    <div class="calendar-day activity-low">7</div>
+                                    <div class="calendar-day activity-medium">8</div>
+                                    <div class="calendar-day activity-high">9</div>
+                                    <div class="calendar-day activity-medium">10</div>
+                                    <div class="calendar-day no-activity">11</div>
+                                    <div class="calendar-day activity-low">12</div>
+                                    <div class="calendar-day selected" id="default-selected-day">
+                                        13
+                                        <div class="calendar-tooltip">12건 조회</div>
+                                    </div>
+                                    <div class="calendar-day no-activity">14</div>
+                                    <div class="calendar-day no-activity">15</div>
+                                    <div class="calendar-day no-activity">16</div>
+                                    <div class="calendar-day no-activity">17</div>
+                                    <div class="calendar-day no-activity">18</div>
+                                    <div class="calendar-day no-activity">19</div>
+                                    <div class="calendar-day no-activity">20</div>
+                                    <div class="calendar-day no-activity">21</div>
+                                    <div class="calendar-day no-activity">22</div>
+                                    <div class="calendar-day no-activity">23</div>
+                                    <div class="calendar-day no-activity">24</div>
+                                    <div class="calendar-day no-activity">25</div>
+                                    <div class="calendar-day no-activity">26</div>
+                                    <div class="calendar-day no-activity">27</div>
+                                    <div class="calendar-day no-activity">28</div>
+                                    <div class="calendar-day no-activity">29</div>
+                                    <div class="calendar-day no-activity">30</div>
+                                    <div class="calendar-day no-activity">31</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="activity-sidebar">
+                            <div class="stats-card">
+                                <span class="stats-label">총 기사 조회수</span>
+                                <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                                    <span class="stats-value">1,245</span>
+                                </div>
+                            </div>
+
+                            <div class="activity-list-card">
+                                <div class="activity-list-header">
+                                    <div class="activity-list-date">
+                                        <span class="material-icons-outlined">event_note</span>
+                                        <span id="list-date">3월 13일 (수)</span>
+                                    </div>
+                                    <span class="activity-list-count" id="list-count">4건</span>
+                                </div>
+                                <div class="activity-list-items" id="list-items">
+                                    <a class="activity-item" href="/article/ai-startup">
+                                        <div class="activity-item-header">
+                                            <span class="activity-category tech">IT/과학</span>
+                                            <span class="activity-time">14:20</span>
+                                        </div>
+                                        <h5 class="activity-title">[속보] AI 반도체 스타트업 투자 유치 성공</h5>
+                                    </a>
+                                    <a class="activity-item" href="/article/us-rate-decision">
+                                        <div class="activity-item-header">
+                                            <span class="activity-category economy">경제</span>
+                                            <span class="activity-time">11:05</span>
+                                        </div>
+                                        <h5 class="activity-title">미국 연준 금리 동결 시사... 시장 반응은?</h5>
+                                    </a>
+                                    <a class="activity-item" href="/article/movie-pamyo">
+                                        <div class="activity-item-header">
+                                            <span class="activity-category culture">문화</span>
+                                            <span class="activity-time">09:15</span>
+                                        </div>
+                                        <h5 class="activity-title">신작 영화 '파묘' 천만 관객 돌파 카운트다운</h5>
+                                    </a>
+                                    <a class="activity-item" href="/article/fine-dust-warning">
+                                        <div class="activity-item-header">
+                                            <span class="activity-category society">사회</span>
+                                            <span class="activity-time">08:30</span>
+                                        </div>
+                                        <h5 class="activity-title">봄철 미세먼지 주의보... 야외 활동 자제 권고</h5>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons-outlined" style="color: #6b7280;">badge</span>
+                            <h2>정보 변경</h2>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">이름</label>
+                            <input class="form-input" type="text" value="홍길동"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">성별</label>
+                            <select class="form-select">
+                                <option>남성</option>
+                                <option>여성</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">생년월일</label>
+                            <input class="form-input" type="date" value="1990-01-01"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <input class="form-input" type="email" value="user@example.com"/>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-primary" onclick="saveUserInfo()">변경 사항 저장</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons-outlined" style="color: #6b7280;">lock_reset</span>
+                            <h2>비밀번호 변경</h2>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">현재 비밀번호</label>
+                            <input class="form-input" id="current-password" placeholder="••••••••" type="password"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">새 비밀번호</label>
+                            <input class="form-input" id="new-password" type="password"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">새 비밀번호 확인</label>
+                            <input class="form-input" id="confirm-password" type="password"/>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-secondary" onclick="updatePassword()">비밀번호 업데이트</button>
+                    </div>
+                </section>
+
+                <div style="display: flex; justify-content: flex-end; padding-top: 1rem;">
+                    <button class="delete-account-btn" onclick="document.getElementById('confirm-dialog').classList.add('show')">
+                        <span class="material-icons-outlined">person_remove</span>
+                        <span>회원탈퇴</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="confirm-dialog">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="modal-icon">
+                <span class="material-icons-outlined">priority_high</span>
+            </div>
+            <h3 class="modal-title">탈퇴하시겠습니까?</h3>
+            <p class="modal-description">탈퇴시 데이터 삭제 및 복구 불가</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('confirm-dialog').classList.remove('show')">
+                    취소
+                </button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmWithdrawal()">
+                    <span class="material-icons-outlined" style="font-size: 0.875rem;">check</span>
+                    탈퇴하기
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme Toggle
+function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+}
+
+// Activity Data
+const activityData = {
+    "12": [
+        { category: "정치", color: "society", time: "18:45", title: "여야, 선거구 획정안 막판 타결 임박", url: "/article/politics-election" },
+        { category: "IT/과학", color: "tech", time: "13:20", title: "애플, 새로운 아이패드 라인업 공개 예정", url: "/article/apple-new-ipad" },
+        { category: "경제", color: "economy", time: "10:15", title: "국내 증시, 반도체주 강세로 상승 출발", url: "/article/stock-market-up" }
+    ],
+    "13": [
+        { category: "IT/과학", color: "tech", time: "14:20", title: "[속보] AI 반도체 스타트업 투자 유치 성공", url: "/article/ai-startup" },
+        { category: "경제", color: "economy", time: "11:05", title: "미국 연준 금리 동결 시사... 시장 반응은?", url: "/article/us-rate-decision" },
+        { category: "문화", color: "culture", time: "09:15", title: "신작 영화 '파묘' 천만 관객 돌파 카운트다운", url: "/article/movie-pamyo" },
+        { category: "사회", color: "society", time: "08:30", title: "봄철 미세먼지 주의보... 야외 활동 자제 권고", url: "/article/fine-dust-warning" }
+    ],
+    "14": [
+        { category: "경제", color: "economy", time: "09:00", title: "코스피 장초반 상승세... 외국인 매수 유입", url: "/article/kospi-rise" },
+        { category: "국제", color: "tech", time: "07:30", title: "유럽 증시, ECB 금리 결정 앞두고 혼조세", url: "/article/europe-market-mixed" }
+    ],
+    "15": [
+        { category: "사회", color: "society", time: "12:00", title: "주말 날씨 전망: 전국 대체로 맑음", url: "/article/weekend-weather" }
+    ]
+};
+
+// Calendar State
+let currentCalendarDate = new Date(2024, 2, 1);
+let originalGridHTML = '';
+
+// User Actions
+function handleLogout() {
+    if(confirm('로그아웃 하시겠습니까?')) {
+        alert('로그아웃 되었습니다.');
+    }
+}
+
+function saveUserInfo() {
+    alert('정보가 저장되었습니다.');
+}
+
+function updatePassword() {
+    const currentPass = document.getElementById('current-password').value;
+    const newPass = document.getElementById('new-password').value;
+    const confirmPass = document.getElementById('confirm-password').value;
+
+    if (!currentPass || !newPass || !confirmPass) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        alert('새 비밀번호가 일치하지 않습니다.');
+        return;
+    }
+
+    alert('비밀번호가 업데이트되었습니다.');
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+}
+
+function resetAlgorithm() {
+    if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
+        const chart = document.getElementById('algorithm-chart');
+        chart.style.background = 'conic-gradient(#e5e7eb 0% 100%)';
+        document.getElementById('algorithm-percent').innerHTML = '0<span class="unit">%</span>';
+
+        const listContainer = document.getElementById('list-items');
+        listContainer.innerHTML = `
+            <div class="activity-empty">
+                <span class="material-icons-outlined">delete_sweep</span>
+                <span>기록이 초기화되었습니다.</span>
+            </div>
+        `;
+        document.getElementById('list-count').innerText = '0건';
+        alert('개인화 추천 알고리즘이 초기화되었습니다.');
+    }
+}
+
+function confirmWithdrawal() {
+    if(confirm('정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다.')) {
+        alert('탈퇴 처리가 완료되었습니다.');
+        document.getElementById('confirm-dialog').classList.remove('show');
+    }
+}
+
+// Activity List Functions
+function generateArticleHTML(article) {
+    return `
+        <a class="activity-item" href="${article.url || '#'}">
+            <div class="activity-item-header">
+                <span class="activity-category ${article.color}">${article.category}</span>
+                <span class="activity-time">${article.time}</span>
+            </div>
+            <h5 class="activity-title">${article.title}</h5>
+        </a>
+    `;
+}
+
+function updateList(day) {
+    const listContainer = document.getElementById('list-items');
+    const listDate = document.getElementById('list-date');
+    const listCount = document.getElementById('list-count');
+
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+    const dateObj = new Date(year, month, day);
+    const dayOfWeek = daysOfWeek[dateObj.getDay()];
+
+    listDate.textContent = `${month + 1}월 ${day}일 (${dayOfWeek})`;
+
+    const articles = activityData[day] || [];
+    listCount.textContent = `${articles.length}건`;
+
+    if (articles.length > 0) {
+        listContainer.innerHTML = articles.map(generateArticleHTML).join('');
+    } else {
+        listContainer.innerHTML = `
+            <div class="activity-empty">
+                <span class="material-icons-outlined">event_busy</span>
+                <span>조회된 활동 내역이 없습니다.</span>
+            </div>
+        `;
+    }
+}
+
+// Calendar Functions
+function setupGridInteractions() {
+    const grid = document.getElementById('calendar-grid');
+    const clickableDays = grid.querySelectorAll('.calendar-day:not(.prev-month):not(.next-month)');
+
+    clickableDays.forEach(dayEl => {
+        dayEl.addEventListener('click', function(e) {
+            clickableDays.forEach(d => {
+                d.classList.remove('selected');
+            });
+
+            this.classList.add('selected');
+
+            const dayNum = this.textContent.trim().match(/\d+/)[0];
+            updateList(dayNum);
+        });
+    });
+}
+
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function renderGenericGrid(year, month) {
+    const grid = document.getElementById('calendar-grid');
+    grid.innerHTML = '';
+
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    days.forEach(d => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.textContent = d;
+        grid.appendChild(header);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+        const dayNum = prevMonthDays - firstDay + 1 + i;
+        const day = document.createElement('div');
+        day.className = 'calendar-day prev-month';
+        day.textContent = dayNum;
+        grid.appendChild(day);
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+        const day = document.createElement('div');
+        const hasActivity = Math.random() > 0.7;
+
+        if (hasActivity) {
+            const rand = Math.random();
+            if (rand > 0.66) {
+                day.className = 'calendar-day activity-high';
+            } else if (rand > 0.33) {
+                day.className = 'calendar-day activity-medium';
+            } else {
+                day.className = 'calendar-day activity-low';
+            }
+        } else {
+            day.className = 'calendar-day no-activity';
+        }
+
+        day.textContent = i;
+        grid.appendChild(day);
+    }
+}
+
+function changeMonth(delta) {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+    updateCalendarUI();
+}
+
+function updateCalendarUI() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+
+    document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
+
+    const startWeek = getWeekNumber(new Date(year, month, 1));
+    const endWeek = getWeekNumber(new Date(year, month + 1, 0));
+    document.getElementById('calendar-weeks').textContent = `Week ${startWeek}-${endWeek}`;
+
+    const grid = document.getElementById('calendar-grid');
+    if (year === 2024 && month === 2) {
+        grid.innerHTML = originalGridHTML;
+    } else {
+        renderGenericGrid(year, month);
+    }
+
+    setupGridInteractions();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.getElementById('calendar-grid');
+    originalGridHTML = grid.innerHTML;
+    setupGridInteractions();
+});
+</script>
+</body>
+</html>

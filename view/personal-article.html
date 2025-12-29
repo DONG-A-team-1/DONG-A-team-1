@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - Global Economic Shift</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #F8FAFC;
+    color: #1F2937;
+    line-height: 1.6;
+}
+
+body.dark {
+    background-color: #0F172A;
+    color: #E5E7EB;
+}
+
+/* Header */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E2E8F0;
+    height: 64px;
+}
+
+body.dark header {
+    background-color: rgba(30, 41, 59, 0.95);
+    border-bottom-color: #334155;
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.logo:hover {
+    opacity: 0.9;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #3B82F6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.125rem;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    transition: transform 0.3s;
+}
+
+.logo:hover .logo-icon {
+    transform: scale(1.05);
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+    transition: color 0.3s;
+}
+
+body.dark .logo-text {
+    color: white;
+}
+
+.logo:hover .logo-text {
+    color: #3B82F6;
+}
+
+/* Navigation */
+nav {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    nav {
+        display: flex;
+    }
+}
+
+.nav-item {
+    position: relative;
+    padding: 0.375rem 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-blob {
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    transition: all 0.3s;
+}
+
+.nav-item:hover .nav-blob {
+    transform: scale(1.05);
+}
+
+.nav-text {
+    position: relative;
+    font-size: 0.875rem;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.nav-item.society .nav-blob {
+    background-color: #D1FAE5;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+body.dark .nav-item.society .nav-blob {
+    background-color: rgba(16, 185, 129, 0.3);
+}
+
+.nav-item.society .nav-text {
+    color: #047857;
+}
+
+body.dark .nav-item.society .nav-text {
+    color: #6EE7B7;
+}
+
+.nav-item.politics .nav-blob {
+    background-color: #FFE4E6;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+body.dark .nav-item.politics .nav-blob {
+    background-color: rgba(244, 63, 94, 0.3);
+}
+
+.nav-item.politics .nav-text {
+    color: #BE123C;
+}
+
+body.dark .nav-item.politics .nav-text {
+    color: #FDA4AF;
+}
+
+.nav-item.economy .nav-blob {
+    background-color: #DBEAFE;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+body.dark .nav-item.economy .nav-blob {
+    background-color: rgba(59, 130, 246, 0.3);
+}
+
+.nav-item.economy .nav-text {
+    color: #1D4ED8;
+}
+
+body.dark .nav-item.economy .nav-text {
+    color: #93C5FD;
+}
+
+.nav-item.international .nav-blob {
+    background-color: #FEF3C7;
+    border-radius: 73% 27% 59% 41% / 38% 65% 35% 62%;
+}
+
+body.dark .nav-item.international .nav-blob {
+    background-color: rgba(245, 158, 11, 0.3);
+}
+
+.nav-item.international .nav-text {
+    color: #B45309;
+}
+
+body.dark .nav-item.international .nav-text {
+    color: #FCD34D;
+}
+
+.nav-item.tech .nav-blob {
+    background-color: #EDE9FE;
+    border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
+}
+
+body.dark .nav-item.tech .nav-blob {
+    background-color: rgba(139, 92, 246, 0.3);
+}
+
+.nav-item.tech .nav-text {
+    color: #6D28D9;
+}
+
+body.dark .nav-item.tech .nav-text {
+    color: #C4B5FD;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+body.dark .icon-btn {
+    color: #9CA3AF;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-btn:hover {
+    background-color: #334155;
+}
+
+/* User Dropdown */
+.user-dropdown-container {
+    position: relative;
+}
+
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 224px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #F3F4F6;
+    padding: 0.25rem 0;
+    display: none;
+    z-index: 50;
+}
+
+body.dark .user-dropdown {
+    background-color: #1E293B;
+    border-color: #374151;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+.user-info {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+body.dark .user-info {
+    border-bottom-color: #374151;
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+body.dark .user-name {
+    color: white;
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.dark .user-email {
+    color: #9CA3AF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: #334155;
+}
+
+.dropdown-item.logout {
+    color: #DC2626;
+}
+
+body.dark .dropdown-item.logout {
+    color: #F87171;
+}
+
+.dropdown-item.logout:hover {
+    background-color: #FEF2F2;
+}
+
+body.dark .dropdown-item.logout:hover {
+    background-color: rgba(220, 38, 38, 0.1);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #F3F4F6;
+    margin: 0.25rem 0;
+}
+
+body.dark .dropdown-divider {
+    background-color: #374151;
+}
+
+/* Search Bar */
+.search-section {
+    background-color: white;
+    padding: 1rem 0;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+body.dark .search-section {
+    background-color: #1E293B;
+    border-bottom-color: #334155;
+}
+
+.search-container {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-dropdown-btn {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #4B5563;
+    background-color: white;
+    padding: 0.375rem 0.625rem;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 20;
+}
+
+body.dark .search-dropdown-btn {
+    color: #D1D5DB;
+    background-color: #334155;
+    border-color: #4B5563;
+}
+
+.search-dropdown-btn:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .search-dropdown-btn:hover {
+    background-color: #475569;
+}
+
+.search-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0.5rem;
+    width: 112px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #F3F4F6;
+    overflow: hidden;
+    display: none;
+    z-index: 30;
+}
+
+body.dark .search-dropdown-menu {
+    background-color: #1E293B;
+    border-color: #374151;
+}
+
+.search-dropdown-menu.show {
+    display: block;
+}
+
+.search-dropdown-item {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+body.dark .search-dropdown-item {
+    color: #D1D5DB;
+}
+
+.search-dropdown-item:hover {
+    background-color: #F9FAFB;
+    color: #3B82F6;
+}
+
+body.dark .search-dropdown-item:hover {
+    background-color: #334155;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 7rem;
+    border: none;
+    border-radius: 12px;
+    background-color: #F3F4F6;
+    color: #111827;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+body.dark .search-input {
+    background-color: #1E293B;
+    color: white;
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3B82F6;
+    background-color: white;
+}
+
+body.dark .search-input:focus {
+    background-color: #1E293B;
+}
+
+.search-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    color: #3B82F6;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+    background-color: #E5E7EB;
+}
+
+body.dark .search-btn:hover {
+    background-color: #334155;
+}
+
+/* Main Content */
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 3fr 6fr 3fr;
+    }
+}
+
+/* Sidebar */
+.sidebar {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .sidebar {
+        display: block;
+    }
+}
+
+.sidebar-sticky {
+    position: sticky;
+    top: 6rem;
+}
+
+.sidebar-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #EF4444;
+    font-weight: bold;
+    font-size: 1.125rem;
+    color: #111827;
+}
+
+body.dark .sidebar-title {
+    color: white;
+}
+
+.sidebar-title.recommend {
+    border-bottom-color: #3B82F6;
+}
+
+.sidebar-title .material-symbols-outlined {
+    color: #EF4444;
+}
+
+.sidebar-title.recommend .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.sidebar-article {
+    display: block;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #E5E7EB;
+}
+
+body.dark .sidebar-article {
+    border-top-color: #374151;
+}
+
+.sidebar-article:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.article-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.article-tag.critical {
+    color: #EF4444;
+}
+
+.article-tag.alternative {
+    color: #F97316;
+}
+
+.article-tag.analysis {
+    color: #A855F7;
+}
+
+.article-tag.personalized {
+    color: #3B82F6;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+.article-tag.popular {
+    color: #EF4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.popular {
+    background-color: rgba(239, 68, 68, 0.3);
+}
+
+.article-tag.trending {
+    color: #F97316;
+    background-color: rgba(249, 115, 22, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.trending {
+    background-color: rgba(249, 115, 22, 0.3);
+}
+
+.article-tag.recommended {
+    color: #6B7280;
+    background-color: #F3F4F6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.recommended {
+    background-color: #1E293B;
+}
+
+.article-content {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.article-text {
+    flex: 1;
+}
+
+.article-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.3s;
+}
+
+body.dark .article-title {
+    color: #E5E7EB;
+}
+
+.sidebar-article:hover .article-title {
+    color: #3B82F6;
+}
+
+.article-source {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+}
+
+body.dark .article-source {
+    color: #9CA3AF;
+}
+
+.article-category {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.article-thumb {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #E5E7EB;
+}
+
+.article-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s;
+}
+
+.sidebar-article:hover .article-thumb img {
+    opacity: 0.8;
+}
+
+/* Main Article */
+.main-article {
+    grid-column: 1;
+}
+
+@media (min-width: 1024px) {
+    .main-article {
+        grid-column: 2;
+    }
+}
+
+.article-header {
+    margin-bottom: 2rem;
+}
+
+.article-headline {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+body.dark .article-headline {
+    color: white;
+}
+
+@media (min-width: 640px) {
+    .article-headline {
+        font-size: 2.25rem;
+    }
+}
+
+.article-headline .highlight {
+    color: #3B82F6;
+}
+
+.article-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+body.dark .article-meta {
+    border-bottom-color: #334155;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #E5E7EB;
+}
+
+body.dark .author-avatar {
+    border-color: #4B5563;
+}
+
+.author-name {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+body.dark .author-name {
+    color: white;
+}
+
+.author-dept {
+    font-size: 0.75rem;
+    color: #3B82F6;
+    font-weight: 500;
+}
+
+.article-date {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-align: right;
+}
+
+body.dark .article-date {
+    color: #9CA3AF;
+}
+
+.article-date .material-symbols-outlined {
+    font-size: 14px;
+    vertical-align: middle;
+    margin-right: 0.25rem;
+}
+
+/* Featured Image */
+.featured-image {
+    margin-bottom: 2rem;
+}
+
+.featured-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.5rem;
+}
+
+figcaption {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-align: center;
+}
+
+body.dark figcaption {
+    color: #9CA3AF;
+}
+
+/* Article Body */
+.article-body {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: #374151;
+    margin-bottom: 3rem;
+}
+
+body.dark .article-body {
+    color: #D1D5DB;
+}
+
+.article-body p {
+    margin-bottom: 1.5rem;
+}
+
+.article-body .drop-cap {
+    float: left;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3B82F6;
+    margin-right: 0.75rem;
+    margin-top: -0.5rem;
+    line-height: 1;
+}
+
+.article-body blockquote {
+    border-left: 4px solid #3B82F6;
+    background-color: #EFF6FF;
+    padding: 1.5rem;
+    border-radius: 0 8px 8px 0;
+    font-style: normal;
+    margin: 2rem 0;
+}
+
+body.dark .article-body blockquote {
+    background-color: rgba(30, 41, 59, 0.5);
+}
+
+.article-body blockquote p {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+body.dark .article-body blockquote p {
+    color: #E5E7EB;
+}
+
+.article-body blockquote cite {
+    font-size: 0.875rem;
+    color: #3B82F6;
+    font-weight: bold;
+    display: block;
+    font-style: normal;
+}
+
+/* Related Articles */
+.related-section {
+    border-top: 2px solid #F3F4F6;
+    padding-top: 2rem;
+}
+
+body.dark .related-section {
+    border-top-color: #1E293B;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark .section-title {
+    color: white;
+}
+
+.title-bar {
+    width: 6px;
+    height: 24px;
+    background-color: #3B82F6;
+    border-radius: 9999px;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .related-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.related-card {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.related-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 0.75rem;
+}
+
+.related-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.related-card:hover .related-image img {
+    transform: scale(1.05);
+}
+
+.related-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 0.625rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+}
+
+.related-title {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s;
+}
+
+body.dark .related-title {
+    color: #F3F4F6;
+}
+
+.related-card:hover .related-title {
+    color: #3B82F6;
+}
+
+.related-date {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .related-date {
+    color: #9CA3AF;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    width: 100vw;
+    overflow-y: auto;
+    display: flex;
+    min-height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.modal-content {
+    position: relative;
+    transform: scale(1);
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: white;
+    text-align: left;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 384px;
+    border: 1px solid #E2E8F0;
+}
+
+body.dark .modal-content {
+    background-color: #1E293B;
+    border-color: #334155;
+}
+
+.modal-close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    color: #9CA3AF;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+body.dark .modal-close {
+    color: #6B7280;
+}
+
+.modal-close:hover {
+    color: #6B7280;
+}
+
+body.dark .modal-close:hover {
+    color: #D1D5DB;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.modal-icon {
+    margin: 0 auto;
+    display: flex;
+    height: 56px;
+    width: 56px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #EFF6FF;
+    margin-bottom: 1.25rem;
+}
+
+body.dark .modal-icon {
+    background-color: rgba(59, 130, 246, 0.3);
+}
+
+.modal-icon .material-symbols-outlined {
+    font-size: 1.875rem;
+    color: #3B82F6;
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    line-height: 1.5;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+body.dark .modal-title {
+    color: white;
+}
+
+.modal-description {
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+body.dark .modal-description {
+    color: #9CA3AF;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn {
+    width: 100%;
+    border-radius: 12px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #3B82F6;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+    background-color: #2563EB;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #111827;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
+}
+
+body.dark .btn-secondary {
+    background-color: #334155;
+    color: white;
+    border-color: #4B5563;
+}
+
+.btn-secondary:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .btn-secondary:hover {
+    background-color: #475569;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+<script>
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('dark');
+}
+
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+function toggleSearchDropdown() {
+    const menu = document.getElementById('search-dropdown-menu');
+    menu.classList.toggle('show');
+}
+
+function updateSearchContext(label, placeholder) {
+    document.getElementById('search-dropdown-label').innerText = label;
+    document.getElementById('search-input-field').placeholder = placeholder;
+    document.getElementById('search-dropdown-menu').classList.remove('show');
+}
+
+function performSearch() {
+    const input = document.getElementById('search-input-field');
+    if (input && input.value.trim() !== "") {
+        const query = encodeURIComponent(input.value.trim());
+        window.location.href = `search-result.html?q=${query}`;
+    }
+}
+
+function showLoginModal() {
+    document.getElementById('login-popup').classList.add('show');
+}
+
+function hideLoginModal() {
+    document.getElementById('login-popup').classList.remove('show');
+}
+
+function performLogin() {
+    document.getElementById('dropdown-loggedin').classList.remove('hidden');
+    document.getElementById('dropdown-loggedout').classList.add('hidden');
+    hideLoginModal();
+}
+
+function performLogout() {
+    document.getElementById('dropdown-loggedin').classList.add('hidden');
+    document.getElementById('dropdown-loggedout').classList.remove('hidden');
+    toggleUserDropdown();
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    const userDropdown = document.getElementById('user-dropdown');
+    const userBtn = document.querySelector('.user-dropdown-container button');
+    const searchDropdown = document.getElementById('search-dropdown-menu');
+    const searchBtn = document.querySelector('.search-dropdown-btn');
+
+    if (userDropdown && !userDropdown.contains(event.target) && !userBtn.contains(event.target)) {
+        userDropdown.classList.remove('show');
+    }
+
+    if (searchDropdown && !searchDropdown.contains(event.target) && !searchBtn.contains(event.target)) {
+        searchDropdown.classList.remove('show');
+    }
+});
+
+// Search on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input-field');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+});
+</script>
+</head>
+<body>
+
+<header>
+    <div class="header-container">
+        <a class="logo" href="homepage.html">
+            <div class="logo-icon">N</div>
+            <span class="logo-text">NewsPalette</span>
+        </a>
+
+        <nav>
+            <a class="nav-item society" href="socialcategorypage.html">
+                <span class="nav-blob"></span>
+                <span class="nav-text">사회</span>
+            </a>
+            <a class="nav-item politics" href="politiccategorypage.html">
+                <span class="nav-blob"></span>
+                <span class="nav-text">정치</span>
+            </a>
+            <a class="nav-item economy" href="economycategory.html">
+                <span class="nav-blob"></span>
+                <span class="nav-text">경제</span>
+            </a>
+            <a class="nav-item international" href="universecategory.html">
+                <span class="nav-blob"></span>
+                <span class="nav-text">국제</span>
+            </a>
+            <a class="nav-item tech" href="ITcategory.html">
+                <span class="nav-blob"></span>
+                <span class="nav-text">IT/과학</span>
+            </a>
+        </nav>
+
+        <div class="header-actions">
+            <button class="icon-btn" onclick="toggleDarkMode()">
+                <span class="material-symbols-outlined">dark_mode</span>
+            </button>
+
+            <div class="user-dropdown-container">
+                <button class="icon-btn" onclick="toggleUserDropdown()">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+                </button>
+
+                <div class="user-dropdown" id="user-dropdown">
+                    <div id="dropdown-loggedin">
+                        <div class="user-info">
+                            <p class="user-name">뉴스팔레트 회원</p>
+                            <p class="user-email">member@newspalette.com</p>
+                        </div>
+                        <a class="dropdown-item" href="mypage.html">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            마이페이지
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item logout" href="#" onclick="performLogout(); return false;">
+                            <span class="material-symbols-outlined">logout</span>
+                            로그아웃
+                        </a>
+                    </div>
+
+                    <div class="hidden" id="dropdown-loggedout">
+                        <a class="dropdown-item" href="login.html">
+                            <span class="material-symbols-outlined">login</span>
+                            로그인
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="search-section">
+    <div class="search-container">
+        <div class="search-wrapper">
+            <button class="search-dropdown-btn" onclick="toggleSearchDropdown()">
+                <span id="search-dropdown-label">제목+본문</span>
+                <span class="material-symbols-outlined">arrow_drop_down</span>
+            </button>
+
+            <div class="search-dropdown-menu" id="search-dropdown-menu">
+                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('제목+본문', '관심있는 뉴스를 검색해보세요'); return false;">제목+본문</a>
+                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('제목', '기사 제목을 검색해 보세요'); return false;">제목</a>
+                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('본문', '기사 본문 내용을 검색해 보세요'); return false;">본문</a>
+                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('키워드', '관심 키워드를 검색해 보세요'); return false;">키워드</a>
+            </div>
+
+            <input
+                class="search-input"
+                id="search-input-field"
+                placeholder="관심있는 뉴스를 검색해보세요"
+                type="text"
+            />
+
+            <button class="search-btn" onclick="performSearch()">
+                <span class="material-symbols-outlined">search</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<main>
+    <div class="content-grid">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-sticky">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <span class="material-symbols-outlined">trending_down</span>
+                        반대 성향 기사
+                    </h3>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag critical">비판적 시각</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">AI 규제, 혁신의 걸림돌인가 필수 안전장치인가?</h4>
+                                <p class="article-source">디지털 타임스</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="AI Robot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClEFKUHwWAoi1RzHlaT0PDkZhh4gN0Hx_4vzjUQt3FqW_8LYS5CpO5HIWCWEDOqeZbUAayheBIxBFwUYb_5bM87mfj_MPjmwz76CImdwphzCfogE4fpbJZF2t_bEqWk1nocuLm7BX5OI0GgmjTgdN-Rdz64vp3P8Q1sBy_RV9HkueL_XGLm7bGcodsMUg2ceWTEDo5GJPf681dh7VJmoe7CoBKx80u5Vm7jqf7uAcXm_TK_KCtNABbmQkmpbB-wrDuUHuEkhNCR18"/>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag alternative">다른 관점</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">일자리 감소 우려, 과장된 공포일 뿐... 새로운 직업 창출 효과 주목</h4>
+                                <p class="article-source">경제 포커스</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="Chart" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJsvQTQ_DfnOxTi26q-UmNIPhVxd1pJPxDzaDx7KGWMWSjTRFvL7srQNZ5x9fCSPTQIxfqX2BSHVCWiNkbayuPRj3aM9ew6H_z5Aqx0q8mPR3tOg-CgWgiHh5mEGeMyl99qTGsBNTCxK2rWstLChGHfmADwKgzUfMy_NwJjuccDVdQgU28vchGUl_23Iv1B042Vf2wL-ie0rBOjtDOKZMAWTJI6k4xfvNJbkAxxvExkI03-PI2m1xgSWrgC9HkIlUCcqfQBROPGX8"/>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag analysis">분석</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">전통 산업의 반격, AI만이 답은 아니다. 인간 중심 가치 재조명</h4>
+                                <p class="article-source">위클리 비즈</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="Factory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGcS_zl_pyK-XS6Prexvtol0sPgnIA-3aIVD7jOkmUCKvffshXUIJo8imq5QRpu1dlt5ha4fsuyMnxbyFP_RKWgWLt_avqsBlOgDpAz1GwMCl9hzCYVYlmkTQioCKpo3-jj65ZSgtvGF65mVJo4FPhtMperfOvIK1a-g_kX8Al-8BAkdEcLBUpnAK6Jo8FR9agwILanMf0wQMzVqVdzpKA-iXNzYPXz_c_t4zDuVoxeknYAxihieJSVpzWp5OPe5rcUyRqRbbER-U"/>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Article -->
+        <article class="main-article">
+            <header class="article-header">
+                <h1 class="article-headline">
+                    글로벌 경제의 대전환점:<br/>
+                    <span class="highlight">인공지능</span>이 바꾸는 미래 산업 지형도
+                </h1>
+
+                <div class="article-meta">
+                    <div class="author-info">
+                        <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
+                        <div>
+                            <div class="author-name">박지보 기자</div>
+                            <div class="author-dept">뉴스팔레트 경제부</div>
+                        </div>
+                    </div>
+
+                    <div class="article-date">
+                        <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
+                    </div>
+                </div>
+            </header>
+
+            <figure class="featured-image">
+                <img alt="AI Connection Network" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoNZSXI4i9jP9Ngp3ktWbr9ZCXaCEMKcVQ7D_m5n5a3PJLldWBicbQwGKWumvP4udJV8kHO2LX5QBVcFIBDm7IFdpxnvHMfnhwgVtPd-d-NmeVdhD8hrhl_djGVrLaYi7dv2ySVrBA2uTOVx2p4EiqLrZO6Rqo1z53SGPQASTSXS3eZ1Spw-ExbjLv3xTH0vl2YjeE-5yLwp9gBPxdOi11jzsWZNczMqL1xMVvgNLandPHEXvwYxRRQCeTE4hC64QS4Py9CLuYo6s"/>
+                <figcaption>
+                    셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다.
+                </figcaption>
+            </figure>
+
+            <div class="article-body">
+                <p>
+                    <span class="drop-cap">인</span>
+                    공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
+                </p>
+
+                <p>
+                    지난 수십 년간 정보화 혁명이 인터넷을 중심으로 이루어졌다면, 이번 AI 혁명은 '지능화'를 핵심으로 한다. 데이터 분석을 넘어 스스로 콘텐츠를 생성하고, 복잡한 의사결정을 지원하며, 인간의 창의성 영역까지 넘보고 있다.
+                </p>
+
+                <blockquote>
+                    <p>
+                        "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
+                    </p>
+                    <cite>- 홍수형 경제연구소 수석연구원</cite>
+                </blockquote>
+
+                <p>
+                    향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
+                </p>
+            </div>
+
+            <section class="related-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="title-bar"></span>
+                        이 기사와 연관된 뉴스
+                    </h3>
+                </div>
+
+                <div class="related-grid">
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Meeting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDufcOc-rl6P65mCzJ3Mo-WfkGH6L4sQ9NFZPpDn-7rnfV9WjhSGK0V2iwtXl2tRXD1hHAG3ku6TBEmP1QDTExJMrhiabKZwAe2wVPSdhHbodsrWWmiqJZNGn0fjHyBiQZ2XFu_3NeyM4pgIm7f8z_1ppt-Y_YycCrdzIqGvwxU7xqWdYm9enffCzkwXcPViGlJHUKFa9T2ZHV3GELohU2qXwUIc88X9Lfm_cgnSKree619bGKApXvfdQIUcrqOnUlkRYd6OFYhezA"/>
+                            <span class="related-badge">사회</span>
+                        </div>
+                        <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
+                        <span class="related-date">2023.11.13</span>
+                    </a>
+
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Office Plant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhOAQiATb9MVPwOcSMunpaakj2hwYzrxHU5DMhikdzS0xwpjlIr6nviHPtn7zspy_7RSSXMe8SFpKup1Aqb2qyBlBl-SCSYeKwdYMOTjwAeikVFCJnVPnXdsEK40xp1mG3DR11WqhMQ6HPJzOOQys8bsH6W1ah13J6E5GG-6At0R_V1xOqbo_XZMKKMSIa-G18RnVuqIdrAQy_75iOKVOjcmJRzuvOZelbbIRJa4kjNe608NjtGan2e_rRk__UdeWPukPCSzAhhw"/>
+                            <span class="related-badge">기술/과학</span>
+                        </div>
+                        <h4 class="related-title">개발자 없는 개발 시대, 노코드(No-Code) 열풍</h4>
+                        <span class="related-date">2023.11.13</span>
+                    </a>
+
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvWBjc1BBXGwhaWq9bj1Ubp53AVdwo7_BZeiNTcrPVxiyRxIqWM42lxZd8H_qU1CvV1do6jwjtOXSac5Uvyu-QY_VQyE0AxdNi3wgLzWn4fZi8xmyQsSZziskkXld52oT6xHZ-gqMKJguzPdu9MV-9t21uta3p46Bp1lI-AKMEZNgYNuhmIwb3KmUzjmciBOyOfHUaWZLiCfsGNmuIcP7UpsSl9LIwju3lKK2264EzgRA3aJX5hj0cDh7IWaRIVcSj1RufWKbAUuU"/>
+                            <span class="related-badge">경제</span>
+                        </div>
+                        <h4 class="related-title">빅데이터로 본 2024년 경제 전망 리포트</h4>
+                        <span class="related-date">2023.11.10</span>
+                    </a>
+                </div>
+            </section>
+        </article>
+
+        <!-- Right Sidebar -->
+                <aside class="sidebar">
+            <div class="sidebar-sticky">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title recommend">
+                        <span class="material-symbols-outlined">auto_awesome</span>
+                        개인화 추천 기사
+                    </h3>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag personalized">회원님 취향저격</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Tech" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkm7WqpuOxwQdN1spYTqTnkRsChAHZ-2MQAmxjxR5kbZroJ7e0cISLnHHMphkl4wqAkfRzwC4Xt4X1dbQn5vXc1AMrowdTn57Fk8COoAfmoiRx48VkEgZC0SH_bEMebrKlNH_x2-3HqB8I59AGnBO1cNc2BTbYFezSLsjiPryFmDa5aKZPCoIl-5_cBRqsWxrFEGD1WsvJq9r4U2t6J5Q5bpvfmxfI05krsY_Ycq2GMba2eFEo70tBQPKKrmXdKhLnMxCDKfVHl1A"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">애플, 생성형 AI 탑재된 시리... 언제쯤?</h4>
+                                <span class="article-category">IT/과학</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag popular">많이 본 뉴스</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Tech Green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWi4NaI0I2zpv8_uyFXigfmPr_i8y-7HqttomcXZL8kxSJxinMC1jsTS5wxuQWeY08dmdB5QtSsd6ZB-c99gIyrAaUpa3nk0eYN3fzPWiKyIZWcMnzUUTDTF04eEkBcCWZ-nUjBUP0KiA9v_yvxBY3Txo07C5jI5zZ7DSeq36Sl09isaR1fzxU3y2r1I7fLBX5fDpKzCI9MkIAgXOCWlLGqijx4byzZIqXeMJ6ZA6f_taEPf13OUyAPjY29ll8HU1FJsdy03J-slc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">삼성전자, 3분기 영업익 2.4조... 반등 신호탄?</h4>
+                                <span class="article-category">경제</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>
+                     <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>
+                     <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</main>
+
+</body>
+</html>
+
+
