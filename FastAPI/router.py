@@ -55,6 +55,13 @@ async def login(user_id: str = Form(...), password: str = Form(...), req: Reques
         return JSONResponse(status_code=401, content={"message": "정보 불일치"})
 
 
+@app.get("/logout")
+async def logout(req: Request):
+    # 1. 세션 데이터 완전히 삭제
+    req.session.clear()
+    # 2. 삭제 후 로그인 페이지로 이동
+    return RedirectResponse(url="/view/mainpage.html")
+
 @app.post("/change-password")
 async def change_password(current_pw: str = Form(...), new_pw: str = Form(...), req: Request = None):
     user_id = req.session.get('loginId')
@@ -71,3 +78,29 @@ async def withdraw(req: Request):
     if member.withdraw(user_id):
         req.session.clear()  # 탈퇴 후 세션 비우기
         return {"message": "탈퇴 완료"}
+
+@app.post("/find-id")
+async def find_user_id(
+    user_email: str = Form(...),
+    security_answer: str = Form(...)
+):
+    user_id = member.find_id(user_email, security_answer)
+    if user_id:
+        return {"status": "success", "user_id": user_id}
+    return JSONResponse(
+        status_code=404,
+        content={"status": "fail", "message": "일치하는 정보가 없습니다."}
+    )
+
+@app.post("/find-pw")
+async def find_user_pw(
+    user_id: str = Form(...),
+    user_email: str = Form(...)
+):
+    user_pw = member.find_pw(user_id, user_email)
+    if user_pw:
+        return {"status": "success", "user_pw": user_pw}
+    return JSONResponse(
+        status_code=404,
+        content={"status": "fail", "message": "일치하는 정보가 없습니다."}
+    )

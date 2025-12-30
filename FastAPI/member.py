@@ -66,6 +66,34 @@ def login(user_id, password, session): # 배운대로 세션 넣긴 했는데 �
             return "INACTIVE"
         return "FAIL"
 
+# 아이디 찾기
+def find_id(email: str, security_answer: str):
+    with SessionLocal() as connection:
+        query = text("""
+            SELECT a.user_id 
+            FROM user_auth a
+            JOIN security_questions q ON a.user_id = q.user_id
+            WHERE a.user_email = :email AND q.answer_hash = :ans
+        """)
+        result = connection.execute(query, {"email": email, "ans": security_answer}).fetchone()
+
+        if result:
+            return result.user_id  # 아이디 반환
+        return None
+
+# 비밀번호 찾기
+def find_pw(user_id: str, email: str):
+    with SessionLocal() as connection:
+        query = text("""
+            SELECT user_pw 
+            FROM user_auth 
+            WHERE user_id = :u_id AND user_email = :email
+        """)
+        result = connection.execute(query, {"u_id": user_id, "email": email}).fetchone()
+
+        if result:
+            return result.user_pw  # 비밀번호 반환 ( 비밀번호 재설정 고려 )
+        return None
 
 # 비밀번호 변경
 def change_pw(user_id, current_pw, new_pw):
