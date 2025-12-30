@@ -3,11 +3,12 @@ from util.elastic import es
 import re
 import numpy as np
 from collections import Counter, defaultdict
-
+from elasticsearch import helpers
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
+from datetime import datetime
 
 def find_best_k(X, k_min=2, k_max=30, random_state=42):
     """
@@ -41,6 +42,7 @@ def find_best_k(X, k_min=2, k_max=30, random_state=42):
 
 
 def create_topic():
+    date_str = datetime.now().strftime("%Y%m%d")
     query = {
         "_source": ["article_id", "article_title", "article_content", "features"],
         "size": 500,
@@ -130,16 +132,40 @@ def create_topic():
     terms = np.array(vec.get_feature_names_out())
     centers = best_km.cluster_centers_
 
+    cluster_labels = []
+
     cluster_titles = defaultdict(list)
     for lbl, title in zip(labels, titles):
         cluster_titles[int(lbl)].append(title)
 
     for c in range(best_k):
         top_terms = terms[np.argsort(centers[c])[::-1][:8]]
-        print(f"\n[Cluster {c}] (n={len(cluster_titles[c])}) top_features: {', '.join(top_terms)}")
-        for t in cluster_titles[c][:10]:  # 너무 길면 10개만
-            print(" -", t)
+        es.insert(
+            index="topic_polarity",
+            doc_type="article", )
 
+
+    # actions = (
+    #     {
+    #         "_op_type": "update",
+    #         "_index": "article_data",
+    #         "_id": article_id,
+    #         "doc": {
+    #             "article_label.topic_polarity.topic_id": topic_id
+    #         }
+    #     }
+    #     for article_id, topic_id in zip(article_ids, labels)
+    # )
+
+
+    # helpers.bulk(
+    #     es,
+    #     actions,
+    #     chunk_size=500,
+    #     request_timeout=120
+    # )
+
+    print(len(terms), centers, cluster_labels)
     return {
         "article_ids": article_ids,
         "titles": titles,
@@ -148,8 +174,16 @@ def create_topic():
         "vocab_size": len(vocab)
     }
 
+def topic_polar():
+    pass
+
+
 
 if __name__ == "__main__":
     create_topic()
     # print(res)
     pass
+
+
+
+
