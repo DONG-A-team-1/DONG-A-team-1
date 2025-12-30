@@ -1,14 +1,11 @@
-
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
-import json
 import os
 import inspect
-from util.logger import  build_error_doc
+from util.elastic_templates import build_error_doc
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name
