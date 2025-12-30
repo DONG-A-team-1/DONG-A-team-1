@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker
 
 URL= 'mysql+pymysql://web_user:pass@localhost:3306/donga'
 
-
 engine = create_engine(
     URL,
     echo=False,

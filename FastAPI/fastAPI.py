@@ -1,13 +1,12 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse,RedirectResponse
-from util.database import get_engine
+from util.database import SessionLocal
 from sqlalchemy import text
 from datetime import datetime
 import os
 
 app = FastAPI()
-engine = get_engine()
 app.mount("/view", StaticFiles(directory="view"), name="view")
 
 @app.get("/")
@@ -25,7 +24,7 @@ async def register_user(
     birthdate: str = Form(...),    # 생년월일
     user_gender: str = Form(...)   # 성별 (male, female, none)
 ):
-    with engine.connect() as connection:
+    with SessionLocal() as connection:
         transaction = connection.begin()
         try:
             # 1. [부모] user_auth 테이블에 데이터 삽입
@@ -75,7 +74,7 @@ async def register_user(
 
 @app.get("/check-id")
 async def check_id(user_id: str):  # ERD에 따라 int로 설정
-    with engine.connect() as connection:
+    with SessionLocal() as connection:
         # user_auth 테이블에서 해당 user_id가 있는지 조회
         query = text("SELECT user_id FROM user_auth WHERE user_id = :u_id")
         result = connection.execute(query, {"u_id": user_id}).fetchone()
