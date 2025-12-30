@@ -8,7 +8,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
 import traceback
 
-
 from kbs_crawler import kbs_crawl
 from donga_crawler import donga_crawl
 from chosun_crawler import chosun_crawl

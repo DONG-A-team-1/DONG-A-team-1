@@ -1,11 +1,10 @@
 import time
-import logging
+from util.logger import Logger
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from crawler.crawler_main import crawl_bigkinds_full
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = Logger().get_logger(__name__)
 
 def run_crawl():
     try:
