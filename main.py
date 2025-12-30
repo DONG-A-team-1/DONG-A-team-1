@@ -43,4 +43,6 @@ def main():
         logger.info("scheduler stopped")
 
 if __name__ == "__main__":
+    # main()
+#     run_crawl()
     main()

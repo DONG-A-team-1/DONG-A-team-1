@@ -1,7 +1,7 @@
 import joblib
 from util.elastic import  es
 from elasticsearch import helpers
-from util.logger import build_error_doc
+from util.elastic_templates import build_error_doc
 
 model = r"model/news_category_classifier_add.pkl"
 model = joblib.load(model)

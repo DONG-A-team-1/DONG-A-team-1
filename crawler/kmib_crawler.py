@@ -2,7 +2,9 @@ import httpx
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 from bs4 import BeautifulSoup
-from util.logger import Logger, build_error_doc
+
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)

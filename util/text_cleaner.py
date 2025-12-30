@@ -1,7 +1,4 @@
 import re
-from typing import Optional, Tuple
-
-import re
 from typing import Optional
 
 _VIEW_TOKENS = ("크게보기", "작게보기", "기사보기", "더보기")
