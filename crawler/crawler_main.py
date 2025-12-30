@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
-
+import traceback
 
 
 from .kbs_crawler import kbs_crawl
@@ -42,7 +42,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     # press_list = ["조선일보"]
     all_results = [] # 빈 리스트 생성해서 이따 JSON 데이터 담을 예정
     big_error_list =[]
-    press_error_list =[]
+
+    success_list = []
     for press_name in press_list:
         print(f"==== {press_name} 크롤링 시작 ====")
         press_results = [] # 언론사 변경시마다 빈 리스트 생성해서 언론사별 최신 기사 저장 및 전달
@@ -152,51 +153,63 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 id = data['article_id']
             )
 
-
         try:
             # 여기 하단에서부터는 언론사별 개별 크롤링 실행
             if press_name == "동아일보":
-                asyncio.run(donga_crawl(press_results))
+                result = asyncio.run(donga_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "KBS":
-                asyncio.run(kbs_crawl(press_results))
+                result = asyncio.run(kbs_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "한겨레":
-                asyncio.run(hani_crawl(press_results))
+                result = asyncio.run(hani_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "조선일보":
-                asyncio.run(chosun_crawl(press_results))
+                result = asyncio.run(chosun_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "국민일보":
-                asyncio.run(kmib_crawl(press_results))
+                result = asyncio.run(kmib_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "내일신문":
-                asyncio.run(naeil_crawl(press_results))
+                result = asyncio.run(naeil_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "매일신문":
-                asyncio.run(everyday_crawl(press_results))
+                result = asyncio.run(everyday_crawl(press_results))
+                success_list.extend(result)
             elif press_name == "한국일보":
-                asyncio.run(hankookilbo_crawl(press_results))
+                result = asyncio.run(hankookilbo_crawl(press_results))
+                success_list.extend(result)
         except Exception as e:
-            press_error_list.append({
-                "error_type": type(e).__name__,
-            })
-            error_doc = build_error_doc(
-                message=f"{len(press_error_list)}개 에러 발생:{press_name}",
-                samples=press_error_list,
+
+            es.index(
+                index="error_log",
+                document=build_error_doc(
+                    message=f"{press_name} 크롤러 호출 실패",
+                    samples=[{
+                        "press": press_name,
+                        "error_type": type(e).__name__,
+                        "error_message": str(e),
+                        "traceback": traceback.format_exc()
+                    }]
+                )
             )
-            es.index(index="error_log", document=error_doc)
-        finally:
-            pass
     driver.quit()
 
     id_list = [data["article_id"] for data in all_results]
 
     logger.info(f"[{now_kst}] 빅카인즈 전체 크롤링 완료. 총 {len(all_results)}개 기사 수집")
-    time.sleep(30)  # 30초 대기 (상황에 맞게 조절)
-    null_id = delete_null() # 기사 원문 수집에 실패한 기사들에 대해서 삭제 진행 및 결측치로 인해 삭제된 article_id 명시해줌
-
-    logger.info(f"[{now_kst}] 개 기사 중 . 총 {len(null_id)}개 결측치 발생")
-    article_list = list(set(id_list) - set(null_id)) # 상단에서 명시된 결측 기사들을 추후 작업에서 제외합니다
+    time.sleep(30)
+    # null_id = delete_null(id_list)  # ✅ article_raw랑 비교하지 말고, 이번 세션 id_list만 기준
+    print(len(success_list))
+    logger.info(f"[{id_list}] 개 기사 중 . 총 {len(id_list) - len(success_list)}개 결측치 발생")
     logger.info("기사 본문 전처리 및 업데이트")
-    clean_articles(article_list) # 기사 원문(제목,본문)에 대해서 클리닝 작업 실행 및 article_data의 해당 필드 업데이트
+    clean_articles(success_list) # 기사 원문(제목,본문)에 대해서 클리닝 작업 실행 및 article_data의 해당 필드 업데이트
     logger.info("기사별 임베딩 생성")
-    create_embedding(article_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
-    categorizer(article_list)
+    if success_list:
+        create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
+        categorizer(success_list)
+    else:
+        pass
 
 
     if len(big_error_list) > 0 :

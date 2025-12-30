@@ -7,7 +7,10 @@ from typing import List, Dict, Any
 import json
 import os
 import inspect
-from util.logger import  build_error_doc
+from util.logger import  build_error_doc, Logger
+
+logger = Logger().get_logger(__name__)
+
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name
@@ -95,6 +98,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
         # 에러 로그 업로드
         if len(error_list) > 0:
@@ -112,4 +116,7 @@ async def kbs_crawl(bigkinds_data: List[Dict[str, Any]]):
                     samples=empty_articles
                 )
             )
-    print("==========KBS 크롤링 종료==========")
+    empty_ids = {x["article_id"] for x in empty_articles}
+    result = list(set(id_list) - empty_ids)
+    print(f"==== KBS 상세 크롤링 완료: {len(result)}개 성공====")
+    return result
