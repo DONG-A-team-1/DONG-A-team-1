@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
 import traceback
-
+from score.trust.trust_pipline import run_trust_pipeline
 
 from kbs_crawler import kbs_crawl
 from donga_crawler import donga_crawl
@@ -209,6 +209,8 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)
+        # 구조상 여기에 넣는 게 맞음.....
+        run_trust_pipeline(success_list)
         upsert_article(success_list)
     else:
         pass
