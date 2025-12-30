@@ -18,6 +18,8 @@ from .naeil_crawl import naeil_crawl
 from .everyday_crawler import  everyday_crawl
 from .hankookilbo_crawler import hankookilbo_crawl
 
+from wordCloud.wordCloudMaker import make_wordcloud_data
+
 from util.cleaner import clean_articles
 from util.elastic import es
 from util.logger import Logger
@@ -208,6 +210,11 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)
+
+    if all_results:
+        print("📊 워드클라우드용 키워드 추출 시작...")
+        asyncio.run(make_wordcloud_data(all_results))
+
     else:
         pass
 
