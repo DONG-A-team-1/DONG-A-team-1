@@ -9,19 +9,20 @@ from datetime import timedelta, timezone
 import traceback
 
 
-from .kbs_crawler import kbs_crawl
-from .donga_crawler import donga_crawl
-from .chosun_crawler import chosun_crawl
-from .kmib_crawler import kmib_crawl
-from .hani_crawler import hani_crawl
-from .naeil_crawl import naeil_crawl
-from .everyday_crawler import  everyday_crawl
-from .hankookilbo_crawler import hankookilbo_crawl
+from kbs_crawler import kbs_crawl
+from donga_crawler import donga_crawl
+from chosun_crawler import chosun_crawl
+from kmib_crawler import kmib_crawl
+from hani_crawler import hani_crawl
+from naeil_crawl import naeil_crawl
+from everyday_crawler import  everyday_crawl
+from hankookilbo_crawler import hankookilbo_crawl
 
 from util.cleaner import clean_articles
 from util.elastic import es
 from util.logger import Logger
 from util.elastic_templates import build_error_doc
+from util.repository import upsert_article
 
 from labeler.create_embeddings import create_embedding
 from labeler.categorizer import categorizer
@@ -208,6 +209,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)
+        upsert_article(success_list)
     else:
         pass
 
