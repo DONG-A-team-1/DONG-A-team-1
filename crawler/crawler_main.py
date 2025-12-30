@@ -4,7 +4,6 @@ from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
 import traceback
@@ -19,9 +18,10 @@ from .naeil_crawl import naeil_crawl
 from .everyday_crawler import  everyday_crawl
 from .hankookilbo_crawler import hankookilbo_crawl
 
-from util.cleaner import clean_articles,  delete_null
+from util.cleaner import clean_articles
 from util.elastic import es
-from util.logger import Logger, build_error_doc
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 
 from labeler.create_embeddings import create_embedding
 from labeler.categorizer import categorizer

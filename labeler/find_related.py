@@ -1,5 +1,4 @@
 import json
-
 from util.elastic import es
 
 def similar_articles(article_id):
