@@ -1,10 +1,13 @@
+import asyncio
+
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-import asyncio
 from typing import List, Dict, Any
-from util.elastic import es
-from util.logger import build_error_doc
 from playwright.async_api import async_playwright
+
+from util.elastic import es
+from util.elastic_templates import build_error_doc
+
 # 로깅을 위한 설정
 KST = timezone(timedelta(hours=9))
 now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()

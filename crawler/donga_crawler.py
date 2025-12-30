@@ -2,7 +2,8 @@ import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 from util.elastic import es
-from util.logger import Logger, build_error_doc
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 import inspect
 import os
 

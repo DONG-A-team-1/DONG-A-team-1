@@ -1,13 +1,12 @@
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse
 import asyncio # 비동기 지연을 위해 추가
 from typing import List, Dict, Any
-import json
 import os
 import inspect
-from util.logger import  build_error_doc, Logger
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 
 logger = Logger().get_logger(__name__)
 
