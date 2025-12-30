@@ -9,14 +9,14 @@ from datetime import timedelta, timezone
 import traceback
 from score.trust.trust_pipline import run_trust_pipeline
 
-from kbs_crawler import kbs_crawl
-from donga_crawler import donga_crawl
-from chosun_crawler import chosun_crawl
-from kmib_crawler import kmib_crawl
-from hani_crawler import hani_crawl
-from naeil_crawl import naeil_crawl
-from everyday_crawler import  everyday_crawl
-from hankookilbo_crawler import hankookilbo_crawl
+from .kbs_crawler import kbs_crawl
+from .donga_crawler import donga_crawl
+from .chosun_crawler import chosun_crawl
+from .kmib_crawler import kmib_crawl
+from .hani_crawler import hani_crawl
+from .naeil_crawl import naeil_crawl
+from .everyday_crawler import  everyday_crawl
+from .hankookilbo_crawler import hankookilbo_crawl
 
 from util.cleaner import clean_articles
 from util.elastic import es
@@ -211,6 +211,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
         categorizer(success_list)
         # 구조상 여기에 넣는 게 맞음.....
         run_trust_pipeline(success_list)
+        time.sleep(30)
         upsert_article(success_list)
     else:
         pass
