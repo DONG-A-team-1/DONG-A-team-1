@@ -128,3 +128,39 @@ async def withdraw(user_id: str):
         connection.execute(query, {"u_id": user_id})
         connection.commit()
         return {"message": "탈퇴 처리가 완료되었습니다."}
+
+@app.post("/change-password")
+async def change_password(
+        user_id: str = Form(...),
+        current_pw: str = Form(...),
+        new_pw: str = Form(...)
+):
+    with SessionLocal() as connection:
+        # 1. 먼저 현재 아이디와 비밀번호가 맞는지 확인
+        check_query = text("""
+            SELECT user_id FROM user_auth 
+            WHERE user_id = :u_id AND user_pw = :pw
+        """)
+        user = connection.execute(check_query, {"u_id": user_id, "pw": current_pw}).fetchone()
+
+        if not user:
+            return JSONResponse(
+                status_code=401,
+                content={"status": "fail", "message": "현재 비밀번호가 일치하지 않습니다."}
+            )
+
+        # 2. 일치한다면 새 비밀번호로 업데이트
+        try:
+            update_query = text("""
+                UPDATE user_auth 
+                SET user_pw = :new_pw 
+                WHERE user_id = :u_id
+            """)
+            connection.execute(update_query, {"new_pw": new_pw, "u_id": user_id})
+            connection.commit()  # 데이터 변경이므로 반드시 commit 필요
+
+            return {"status": "success", "message": "비밀번호가 성공적으로 변경되었습니다."}
+
+        except Exception as e:
+            connection.rollback()
+            return JSONResponse(status_code=500, content={"message": "서버 오류로 변경에 실패했습니다."})
