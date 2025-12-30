@@ -15,7 +15,7 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 @app.get("/")
 async def read_root():
-    return RedirectResponse(url="/view/logregist.html")
+    return RedirectResponse(url="/view/logregist.html") # 기본 메인페이지로 지정해야됨
 
 
 @app.get("/check-id")
@@ -44,7 +44,11 @@ async def register_user(
 
 
 @app.post("/login")  # GET보다는 POST 권장 (보안상)
-async def login(user_id: str = Form(...), password: str = Form(...), req: Request = None):
+async def login(
+        user_id: str = Form(...),
+        password: str = Form(...),
+        req: Request = None
+):
     result = member.login(user_id, password, req.session)
 
     if result == "SUCCESS":
@@ -59,11 +63,15 @@ async def login(user_id: str = Form(...), password: str = Form(...), req: Reques
 async def logout(req: Request):
     # 1. 세션 데이터 완전히 삭제
     req.session.clear()
-    # 2. 삭제 후 로그인 페이지로 이동
-    return RedirectResponse(url="/view/mainpage.html")
+    # 2. 삭제 후 메인페이지로 이동
+    return RedirectResponse(url="/view/mainpage.html") # 메인페이지에 맞게 형식 조정 필요
 
 @app.post("/change-password")
-async def change_password(current_pw: str = Form(...), new_pw: str = Form(...), req: Request = None):
+async def change_password(
+        current_pw: str = Form(...),
+        new_pw: str = Form(...),
+        req: Request = None
+):
     user_id = req.session.get('loginId')
     if not user_id: return JSONResponse(status_code=401, content={"message": "로그인 필요"})
 
@@ -71,13 +79,14 @@ async def change_password(current_pw: str = Form(...), new_pw: str = Form(...), 
         return {"status": "success", "message": "변경 완료"}
     return JSONResponse(status_code=400, content={"message": "현재 비밀번호 불일치"})
 
-
 @app.post("/withdraw")
 async def withdraw(req: Request):
     user_id = req.session.get('loginId')
     if member.withdraw(user_id):
         req.session.clear()  # 탈퇴 후 세션 비우기
         return {"message": "탈퇴 완료"}
+    return None
+
 
 @app.post("/find-id")
 async def find_user_id(
@@ -90,7 +99,7 @@ async def find_user_id(
     return JSONResponse(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
-    )
+)
 
 @app.post("/find-pw")
 async def find_user_pw(
@@ -103,4 +112,4 @@ async def find_user_pw(
     return JSONResponse(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
-    )
+)
