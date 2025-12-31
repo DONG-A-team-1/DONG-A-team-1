@@ -2,7 +2,9 @@ import httpx
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 from bs4 import BeautifulSoup
-from util.logger import Logger, build_error_doc
+
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
@@ -85,6 +87,7 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
     #에러 로그 업로드
     if len(error_list) > 0 :
@@ -102,4 +105,7 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 samples=empty_articles
             )
         )
-    print("==========국민일보 크롤링 종료==========")
+    empty_ids = {x["article_id"] for x in empty_articles}
+    result = list(set(id_list) - empty_ids)
+    print(f"==== 조선일보 상세 크롤링 완료: {len(result)}개 성공====")
+    return result

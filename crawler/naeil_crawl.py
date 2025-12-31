@@ -2,7 +2,8 @@ import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 from util.elastic import es
-from util.logger import Logger, build_error_doc
+from util.logger import Logger
+from util.elastic_templates import build_error_doc
 import inspect
 import os
 
@@ -84,6 +85,7 @@ async def naeil_crawl(bigkinds_data):
                 empty_articles.append({
                     "article_id": article_id
                 })
+                es.delete(index="article_data", id=article_id)
 
         # 에러 로그 업로드
         if len(error_list) > 0:
@@ -101,9 +103,10 @@ async def naeil_crawl(bigkinds_data):
                     samples=empty_articles
                 )
             )
-
-    print(f"{len(article_list)}개 수집 완료")
-    print(f"내일신문 {now_kst}")
+    empty_ids = {x["article_id"] for x in empty_articles}
+    result = list(set(id_list) - empty_ids)
+    print(f"==== 조선일보 상세 크롤링 완료: {len(result)}개 성공====")
+    return result
 
 
 

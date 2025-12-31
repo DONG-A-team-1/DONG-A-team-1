@@ -17,6 +17,9 @@ def run_crawl():
 
 def main():
     scheduler = BackgroundScheduler(timezone="Asia/Seoul")
+    # 프로그램 시작 시 즉시 1회 실행 (실험용)
+    logger.info("initial run (startup)")
+    run_crawl()
 
     # 1시간마다 실행
     scheduler.add_job(
@@ -40,4 +43,6 @@ def main():
         logger.info("scheduler stopped")
 
 if __name__ == "__main__":
+    # main()
+#     run_crawl()
     main()
