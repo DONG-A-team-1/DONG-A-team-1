@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsPalette - 뉴스 검색</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --container: 1280px;
+        }
+
+        body.dark {
+            --surface: #1f2937;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --border: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text);
+            transition: background-color 0.2s, color 0.2s;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.dark {
+            background-color: #111827;
+        }
+
+        .container {
+            max-width: var(--container);
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Header */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: color-mix(in oklab, var(--surface) 95%, transparent);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-inner {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: var(--primary);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+
+        .brand-icon .material-icons-round {
+            font-size: 18px;
+        }
+
+        .brand-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 999px;
+            border: 2px solid var(--surface);
+        }
+
+        .brand-name {
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .nav {
+            display: none;
+            gap: 28px;
+        }
+
+        @media (min-width: 768px) {
+            .nav {
+                display: flex;
+            }
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 4px;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .nav-link.is-active {
+            color: var(--primary);
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            display: grid;
+            place-items: center;
+        }
+
+        .icon-btn:hover {
+            background: color-mix(in oklab, var(--text) 8%, transparent);
+            color: var(--text);
+        }
+
+        .mypage {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: color-mix(in oklab, var(--text) 82%, transparent);
+            font-size: 14px;
+            font-weight: 500;
+            transition: color .15s;
+        }
+
+        .mypage:hover {
+            color: var(--primary);
+        }
+
+        .mypage-text {
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .mypage-text {
+                display: inline;
+            }
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: color-mix(in oklab, var(--text) 10%, transparent);
+            overflow: hidden;
+        }
+
+        .avatar .material-icons-round {
+            color: color-mix(in oklab, var(--text) 35%, transparent);
+        }
+
+        /* Search Section */
+        /* Main layout */
+        .main { padding: 32px 16px; }
+
+        .search-section { margin-bottom: 30px; }
+
+        .search-bar {
+        max-width: 896px;
+        margin: 0 auto;
+        padding: 8px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        }
+
+        @media (min-width: 640px) {
+        .search-bar { flex-direction: row; align-items: center; }
+        }
+
+        .select-wrap { position: relative; width: 100%; }
+        @media (min-width: 640px) { .select-wrap { width: auto; } }
+
+        .select {
+        appearance: none;
+        width: 100%;
+        padding: 12px 36px 12px 16px;
+        border: 0;
+        border-radius: 10px;
+        background: color-mix(in oklab, var(--text) 6%, transparent);
+        color: color-mix(in oklab, var(--text) 88%, transparent);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        outline: none;
+        }
+        @media (min-width: 640px) { .select { width: 128px; } }
+
+        .select-caret {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--muted);
+        pointer-events: none;
+        }
+
+        .search-input-wrap { position: relative; width: 100%; flex: 1; }
+        .search-input {
+        width: 100%;
+        padding: 12px 44px 12px 16px;
+        border-radius: 10px;
+        border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+        background: var(--surface);
+        color: var(--text);
+        outline: none;
+        transition: box-shadow .15s, border-color .15s;
+        }
+        .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
+        .search-input:focus {
+        border-color: transparent;
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        .search-btn {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        cursor: pointer;
+        }
+        .search-btn .material-icons-round { font-size: 26px; }
+
+        /* Card Grid */
+        .search-result-section {
+            position: static;
+            height: auto;
+            min-height: unset;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 640px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .news-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .news-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-image-container {
+            height: 160px;
+            background: #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.dark .card-image-container {
+            background: #374151;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .3s;
+        }
+
+        .news-card:hover .card-image {
+            transform: scale(1.05);
+        }
+
+        .card-category {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-card:hover .card-title {
+            color: var(--primary);
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: color-mix(in oklab, var(--muted) 80%, transparent);
+        }
+         /* Filter Section */
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .filter-section {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .filter-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .filter-buttons {
+                padding-bottom: 0;
+            }
+        }
+
+        .filter-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 9999px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .filter-button.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .filter-button:not(.active) {
+            background-color: #ffffff;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+
+        body.dark .filter-button:not(.active) {
+            background-color: #1f2937;
+            color: #d1d5db;
+            border-color: #374151;
+        }
+
+        .filter-button:not(.active):hover {
+            background-color: #f9fafb;
+        }
+
+        body.dark .filter-button:not(.active):hover {
+            background-color: #1f2937;
+        }
+
+        /* Article List */
+        .article-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .article-item {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+
+        body.dark .article-item {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+
+        @media (min-width: 768px) {
+            .article-item {
+                flex-direction: row;
+            }
+        }
+
+        .article-item:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .article-image-container {
+            width: 100%;
+            height: 12rem;
+            flex-shrink: 0;
+            background-color: #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .article-image-container {
+                width: 16rem;
+                height: auto;
+            }
+        }
+
+        body.dark .article-image-container {
+            background-color: #374151;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .article-item:hover .article-image {
+            transform: scale(1.05);
+        }
+
+        .article-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+
+        .article-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-category {
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .category-opinion {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        body.dark .category-opinion {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+
+        .category-economy {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        body.dark .category-economy {
+            background-color: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+        }
+
+        .category-culture {
+            background-color: #faf5ff;
+            color: #7c3aed;
+        }
+
+        body.dark .category-culture {
+            background-color: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+        }
+
+        .category-education {
+            background-color: #f0fdf4;
+            color: #16a34a;
+        }
+
+        body.dark .category-education {
+            background-color: rgba(22, 163, 74, 0.2);
+            color: #4ade80;
+        }
+
+        .category-society {
+            background-color: #eef2ff;
+            color: #4f46e5;
+        }
+
+        body.dark .category-society {
+            background-color: rgba(79, 70, 229, 0.2);
+            color: #818cf8;
+        }
+
+        .article-date {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        body.dark .article-date {
+            color: #6b7280;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .article-item:hover .article-title {
+            color: #3b82f6;
+        }
+
+        .article-description {
+            font-size: 0.875rem;
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        body.dark .article-description {
+            color: #9ca3af;
+        }
+
+        .article-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        .article-author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        body.dark .article-author-info {
+            color: #9ca3af;
+        }
+
+        .author-name {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        body.dark .author-name {
+            color: #e5e7eb;
+        }
+
+        .author-dot {
+            width: 0.25rem;
+            height: 0.25rem;
+            background-color: #d1d5db;
+            border-radius: 9999px;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            transition: color 0.2s;
+        }
+
+        .action-button:hover {
+            color: #3b82f6;
+        }
+
+        /* Pagination */
+        .pagination-section {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .pagination a,
+        .pagination button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: #6b7280;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.dark .pagination a,
+        body.dark .pagination button {
+            color: #9ca3af;
+        }
+
+        .pagination a:hover,
+        .pagination button:hover {
+            background-color: #e5e7eb;
+        }
+
+        body.dark .pagination a:hover,
+        body.dark .pagination button:hover {
+            background-color: #374151;
+        }
+
+        .page-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: #374151;
+        }
+
+        body.dark .page-number {
+            color: #d1d5db;
+        }
+
+        .page-number.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Divider */
+        .divider {
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            margin: 3rem 0;
+        }
+
+        body.dark .divider {
+            border-top-color: #374151;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 5rem;
+            padding: 3rem 0;
+        }
+
+        body.dark footer {
+            background-color: #1f2937;
+            border-top-color: #374151;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .footer-container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .footer-container {
+                padding: 0 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .footer-container {
+                padding: 0 2rem;
+            }
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background-color: #9ca3af;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        body.dark .footer-logo-icon {
+            background-color: #4b5563;
+        }
+
+        .footer-logo-text {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #4b5563;
+        }
+
+        body.dark .footer-logo-text {
+            color: #d1d5db;
+        }
+
+        .footer-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        body.dark .footer-info {
+            color: #9ca3af;
+        }
+
+        @media (min-width: 768px) {
+            .footer-info {
+                text-align: right;
+            }
+        }
+
+        .footer-links {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .footer-links a {
+            color: inherit;
+            text-decoration: none;
+            transition: text-decoration 0.2s;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="brand" role="button" tabindex="0">
+                <div class="brand-icon">
+                    <span class="material-icons-round">palette</span>
+                    <span class="brand-badge" aria-label="notification"></span>
+                </div>
+                <span class="brand-name">NewsPalette</span>
+            </div>
+
+            <nav class="nav">
+                <a class="nav-link is-active" href="#">홈</a>
+                <a class="nav-link" href="#">사회</a>
+                <a class="nav-link" href="#">정치</a>
+                <a class="nav-link" href="#">경제</a>
+                <a class="nav-link" href="#">국제</a>
+                <a class="nav-link" href="#">IT/과학</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="icon-btn" id="theme-toggle" aria-label="테마 토글">
+                    <span class="material-icons-round" id="theme-icon">dark_mode</span>
+                </button>
+
+                <a class="mypage" href="#">
+                    <span class="mypage-text">마이페이지</span>
+                    <span class="avatar">
+                        <span class="material-icons-round">person</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+
+    </header>
+
+    <!-- Main -->
+    <main class="container main">
+        <!-- Search -->
+        <section class="search-section">
+        <div class="search-bar">
+          <div class="select-wrap">
+            <select class="select">
+              <option>제목+본문</option>
+              <option>제목</option>
+              <option>본문</option>
+              <option>키워드</option>
+            </select>
+            <span class="material-icons-round select-caret">expand_more</span>
+          </div>
+
+          <div class="search-input-wrap">
+            <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
+            <button id = "searchBtn" class="search-btn" aria-label="검색">
+              <span class="material-icons-round">search</span>
+            </button>
+          </div>
+        </div>
+      </section>
+        <!-- Search Result Header -->
+        <section class="result-header">
+            <h1 class="result-title">
+                <span class="search-term"></span> 검색 결과
+            </h1>
+            <p class="result-count"><span class="count-number"></span>검색 결과가 없습니다.</p>
+
+
+            <!-- Personalized News -->
+            <section class="search-result-section">
+                <div class="card-grid">
+                    <article class="news-card">
+                        <div class="card-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPEH9FxEniMOiDDxU-qNQPWYRbqMAIaUWXrlepRFKty68kKSL0Ghs0L6mQzhx1cNl2tHMSPb9uwCqln4v3iAK1nqIl4awSqBHbtcyQMx84Y2_Qq18itnWj-ewt7LxyjlXF93s90RVS7HRo_3E4l08Na7Bjk2jVXITb1JBs9xVl9peIynrcugrAwhzUWDKe-Newpp1VxyaNECzZfPIfkCbPRvsRSma0Ad91FxmVkDdG2D_2ut1kgBYNajCkISYB6yxLdNmH4zQGM-7" alt="AI Robot Hand" class="card-image">
+                            <span class="card-category">IT/과학</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">AI가 바꾸는 미래 일자리, 위기인가 기회인가?</h3>
+                            <p class="card-description">인공지능 기술의 급격한 발전이 노동 시장에 미치는 영향에 대한 심층 분석 리포트입니다. 전문가들의...</p>
+                            <div class="card-meta">
+                                <span>테크데일리</span>
+                                <span>•</span>
+                                <span>3시간 전</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <div class="card-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuChQYYx8L1INe9ZW6YNlsLPOH_Ubvt7BqoiakhqWjBWk7ai8bsytFsDKV63YJcvLd--lmU2stFVjEvc3AtDZtm7CyO2-Y7vaYoQAGhO7mDouwSQ0Suw56SxB0-enmSwt7y3UsGUjfuUQB1cA8oNN7UALng6aZIl5HA3-3GhQ6Q-R7MDzYpS1i8dxDuJ7C0SJd-rlHdagZ7IKEFomvzlnJQJ2DKbq-vmZsI7vwqcyb1SC2hEy4liXVG8vaGig7z5m1tKaBCC8XFP1phF" alt="Data Analysis" class="card-image">
+                            <span class="card-category" style="background-color: rgba(37, 99, 235, 0.9);">경제</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">글로벌 기업들의 AI 투자 현황과 전망</h3>
+                            <p class="card-description">빅테크 기업들이 AI 스타트업 인수에 열을 올리고 있습니다. 2024년 상반기 투자 트렌드를 분석합니다.</p>
+                            <div class="card-meta">
+                                <span>경제매거진</span>
+                                <span>•</span>
+                                <span>5시간 전</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <div class="card-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoCyFeAeZ_9RNhjI_j8J0sQP2hEpCS4fVK2tVLJ89bPLmXjTFwBuEh5ZFjSR36RDzTM4G5391hi5Z2gkoS3Kilum9pvrnm6Cyeok3vrPt0h8JJabrR9HR0afGO-3KAccpvDF6Bk8N4I5SKdE4AySIfuhhKMRaR1Kq7Fel03Y2is4CoJStj8T6gMGlrqMwfqPqyLC3sGNQxmqGxaRxIEBZsqFn9TOYO0dli0K8Rs1BUNL4savXhw081Q8NKnY7ysqySL2-s0m1-SAoc" alt="Medical Technology" class="card-image">
+                            <span class="card-category" style="background-color: rgba(22, 163, 74, 0.9);">의료</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">의료 현장에 도입된 AI 진단 시스템의 성과</h3>
+                            <p class="card-description">암 조기 진단율을 획기적으로 높인 새로운 AI 알고리즘이 화제입니다. 실제 임상 사례를 통해 알아봅니다.</p>
+                            <div class="card-meta">
+                                <span>메디뉴스</span>
+                                <span>•</span>
+                                <span>1일 전</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <div class="card-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcWsFNMNJh6WAjnqCq7zcTyhhQaljDREaaStHmfpvQjU07EdtPlo-znMeP5EFw3baYBZYMt6K1qPfhEhCxjz1jLM_kGSI3e5oM9oGf2LTWqhM3zwdkTfFXacruf8mh38HkqUnfDnsDQVNvf6No7lpPGTuIn9ErzAKGRXA4i9Dr2Eo6fHAQJYjQOoEbAiXtjp8Fp4LksRJntlGp0C8MASnocCHfFKXiwDq-r8tu52ZMwgy_hfKSnCckueMrHmVInqoRMEs4M7wApkek" alt="Cyber Security" class="card-image">
+                            <span class="card-category" style="background-color: rgba(239, 68, 68, 0.9);">보안</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">생성형 AI 악용한 사이버 범죄 급증</h3>
+                            <p class="card-description">딥페이크와 피싱 메일 등 생성형 AI를 악용한 신종 범죄 수법에 대한 주의가 요구됩니다.</p>
+                            <div class="card-meta">
+                                <span>보안뉴스</span>
+                                <span>•</span>
+                                <span>1일 전</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </section>
+    </main>
+    <hr class="divider">
+
+        <!-- Full Article List -->
+        <section class="section container">
+            <div class="filter-section">
+                <h2 class="section-title">
+                    <span class="material-icons section-icon">list</span>
+                    전체 뉴스 리스트
+                </h2>
+                <div class="filter-buttons">
+                    <button class="filter-button active">최신순</button>
+                    <button class="filter-button">과거순</button>
+                    <button class="filter-button">신뢰도순</button>
+                </div>
+            </div>
+
+            <div class="article-list">
+                <!-- Article 1 -->
+                 <section class="article-section">
+                    <article class="article-item">
+                        <div class="article-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
+                        </div>
+                        <div class="article-content">
+                            <div>
+                                <div class="article-header">
+                                    <span class="article-category category-opinion">오피니언</span>
+                                    <span class="article-date">2023.10.27</span>
+                                </div>
+                                <h3 class="article-title">
+                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
+                                </h3>
+                                <p class="article-description line-clamp-3">
+                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
+                                </p>
+                            </div>
+                            <div class="article-footer">
+                                <div class="article-author-info">
+                                    <span class="author-name">김철수 논설위원</span>
+                                    <span class="author-dot"></span>
+                                    <span>대한일보</span>
+                                </div>
+                                <!-- <div class="article-actions">
+                                    <button class="action-button">
+                                        <span class="material-icons-outlined" style="font-size: 14px;">bookmark_border</span>
+                                        저장
+                                    </button>
+                                    <button class="action-button">
+                                        <span class="material-icons-outlined" style="font-size: 14px;">share</span>
+                                        공유
+                                    </button>
+                                </div> -->
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Article 2 -->
+                    <article class="article-item">
+                        <div class="article-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2ma1SMPpYdUtLHBFR32bJ89rCpdSmbG3OhA7HyHCIHZ_xq7f5LIjt9NZ2LodIHHS0IGHMdrvTvVsHFEpovv2KtwEcL_17FMnu8QJPaGTs-aVeJ9LZUb0jTezVuX63tEQw1eLl7Lq1kXvIxmqMJDQMarWzfIYfnTmZpOItqGKQVDKK-iA6PQlX3ylvPEy71B8cFSXL4rlyh40oIZGgruwvKxVJ9tTB1j-bMK6774L_0-biCwX2pXJZYl4951lbwFw8VNDXmBtfU1JH" alt="Chip Manufacturing" class="article-image">
+                        </div>
+                        <div class="article-content">
+                            <div>
+                                <div class="article-header">
+                                    <span class="article-category category-economy">경제</span>
+                                    <span class="article-date">2023.10.26</span>
+                                </div>
+                                <h3 class="article-title">
+                                    반도체 시장의 새로운 희망, AI 칩 수요 폭발
+                                </h3>
+                                <p class="article-description line-clamp-3">
+                                    침체되었던 반도체 시장이 AI 전용 칩셋 수요 급증으로 다시 활기를 띠고 있습니다. 주요 기업들의 3분기 실적 발표와 함께 향후 시장 전망을 살펴봅니다. 엔비디아와 경쟁자들의...
+                                </p>
+                            </div>
+                            <div class="article-footer">
+                                <div class="article-author-info">
+                                    <span class="author-name">이영희 기자</span>
+                                    <span class="author-dot"></span>
+                                    <span>경제투데이</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Article 3 -->
+                    <article class="article-item">
+                        <div class="article-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI4LzIDoeUZL9dvCUePyYiT_H4QPJqsrUPNmmYIb7-4-kSNPCaXzRRtEtYnuxrc7VgVCmhL6zddHepoZzvtq61Ms1DIBlzAfzFp0O3zJE1IKriwTAMy_gMJ8wh9kZJ0uaokxQ0vDRDdkdUaO8MRE8CSCFDsXiE97f13nZ4YH-Hu-lA3Z5TelqmMey66E7JwbDKU1w_WwrBX1oMvUCftaFv0bS1p7R_9gNfjo00cPFqLar6e1-Itjk7lvklYt-Onbpmb8KOVgTio2bc" alt="Virtual Reality" class="article-image">
+                        </div>
+                        <div class="article-content">
+                            <div>
+                                <div class="article-header">
+                                    <span class="article-category category-culture">문화</span>
+                                    <span class="article-date">2023.10.25</span>
+                                </div>
+                                <h3 class="article-title">
+                                    가상현실에서 만나는 예술, AI 도슨트가 안내한다
+                                </h3>
+                                <p class="article-description line-clamp-3">
+                                    국립현대미술관이 새롭게 선보인 VR 전시관에서는 인공지능 도슨트가 관람객의 취향에 맞춰 작품을 해설해줍니다. 기술과 예술의 융합이 만들어낸 새로운 관람 문화를 체험해보았습니다.
+                                </p>
+                            </div>
+                            <div class="article-footer">
+                                <div class="article-author-info">
+                                    <span class="author-name">박예술 기자</span>
+                                    <span class="author-dot"></span>
+                                    <span>아트뉴스</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Article 4 -->
+                    <article class="article-item">
+                        <div class="article-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0E08-JbLYS4lyPy1eLUImJzpKDr3_Kg9LN3WZpUjne-zhGxK2NbDIWwKHQEBUe5taSkKnEHoCJPbsZ-XJVELqbeyecN741lJVW7gKUu0c4wzCvXi27TwysCG7r6HlMSS_sIZtsr5Dw5I1xlUFjPSGyCz-FVoyPr--jRr9OxH9DK89sqh0AdbN_MRUIr29hviOBNmZHEMMsCjf77CYp-GnHaMcGu2UYf5hH5NzEu2ccljQMEnlntZGdpprmAVYf1wl1OVHnsAY7T-y" alt="Coding Screen" class="article-image">
+                        </div>
+                        <div class="article-content">
+                            <div>
+                                <div class="article-header">
+                                    <span class="article-category category-education">교육</span>
+                                    <span class="article-date">2023.10.24</span>
+                                </div>
+                                <h3 class="article-title">
+                                    초등학교 코딩 교육, AI 활용 능력 중심으로 개편
+                                </h3>
+                                <p class="article-description line-clamp-3">
+                                    교육부가 발표한 2025년 교육 과정 개편안에 따르면, 초등학교 코딩 교육이 단순 프로그래밍 언어 습득에서 벗어나 AI 툴을 활용한 문제 해결 능력 배양에 초점을 맞추게 됩니다.
+                                </p>
+                            </div>
+                            <div class="article-footer">
+                                <div class="article-author-info">
+                                    <span class="author-name">최교육 기자</span>
+                                    <span class="author-dot"></span>
+                                    <span>에듀포커스</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Article 5 -->
+                    <article class="article-item">
+                        <div class="article-image-container">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApZ3xaI2crl_5L7Py6hmqJU34FvvHeKnGvXcvfcVqHaiM1FrBomfk5H2JywVidXEhJif-T7UCgNKUhJ90vo6AfA8i8fKNFxpJ3bvsQBDZW1rapy6tg7e35kyNdjsPOBdnDUaTwIlFu0U2QWKXX1IL5bBxOSbZp3PzUDHPH84kxLuj6Diw-QMDeN2FKxCasDNIXZ4u2mWS01UdIXa52EX4edJ_rxQ5Iwo-FJJe16M0iVrb_dMdCd55mORgG3ZvF3AdhYSMCqdSI7yFb" alt="Smart City" class="article-image">
+                        </div>
+                        <div class="article-content">
+                            <div>
+                                <div class="article-header">
+                                    <span class="article-category category-society">사회</span>
+                                    <span class="article-date">2023.10.23</span>
+                                </div>
+                                <h3 class="article-title">
+                                    스마트 시티의 그늘, 데이터 프라이버시 문제 대두
+                                </h3>
+                                <p class="article-description line-clamp-3">
+                                    도시 전체가 네트워크로 연결되는 스마트 시티. 편리함 뒤에 숨겨진 개인 정보 유출 우려와 이에 대한 시민단체의 반발이 거세지고 있습니다. 균형점은 어디에 있을까요?
+                                </p>
+                            </div>
+                            <div class="article-footer">
+                                <div class="article-author-info">
+                                    <span class="author-name">정사회 기자</span>
+                                    <span class="author-dot"></span>
+                                    <span>시티뉴스</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-section">
+                <nav class="pagination">
+                    <a href="#">
+                        <span class="material-icons">&lt;</span>
+                    </a>
+                    <a href="#" class="page-number active">1</a>
+                    <a href="#" class="page-number">2</a>
+                    <a href="#" class="page-number">3</a>
+                    <a href="#" class="page-number">4</a>
+                    <a href="#" class="page-number">5</a>
+                    <a href="#">
+                        <span class="material-icons">&gt;</span>
+                    </a>
+                </nav>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo">
+                <div class="footer-logo-icon">
+                    <span class="material-icons" style="font-size: 14px;">palette</span>
+                </div>
+                <span class="footer-logo-text">NewsPalette</span>
+            </div>
+            <div class="footer-info">
+                <p>© 2024 NewsPalette Inc. All rights reserved.</p>
+                <!-- <div class="footer-links">
+                    <a href="#">이용약관</a>
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">고객센터</a>
+                </div> -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById("searchInput");
+        const searchBtn = document.getElementById("searchBtn");
+        const searchSection = document.querySelector(".search-result-section");
+        const articleSection = document.querySelector(".article-section");
+        // trend-section 있는 지 확인하기
+        const resultCountEl = document.querySelector(".result-count");
+        // 결과 갯수 나타내주는 코드
+        const searchTermEl = document.querySelector(".search-term");
+        const countNumberEl = document.querySelector(".count-number");
+        const searchWrapper = document.querySelector(".result-header")
+
+        // enter키 눌렀을 때에도 검색 될 수 있게 해주는 코드
+        searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                searchBtn.click();
+            }
+        });
+
+        searchBtn.addEventListener("click", () => {
+            const keyword = searchInput.value.trim();
+
+            if (!keyword) {
+            alert("검색어를 입력하세요");
+            return;
+            }
+
+            // 검색어 표시
+            searchTermEl.textContent = `'${keyword}'`;
+
+            const results = []; // ← 결과 0건이라고 가정
+
+            if (results.length === 0) {
+                // ❌ 검색 결과 영역 숨기기
+                resultCountEl.innerHTML = `총 <span class="count-number">${results.length}</span>건의 기사가 검색되었습니다.`;
+                searchSection.style.display = "none";
+                articleSection.style.display = "block";
+                // searchWrapper.style.display = "none"; -> 안 보여주기/위로 올려야함
+                // ✅ 트렌드 기사 영역 위로 올려서 보여주기
+
+                return;
+            }
+
+            // 결과 있을 때
+             resultCountEl.innerHTML = `
+                총 <span class="count-number">${results.length}</span>건의 기사가 검색되었습니다.
+            `;
+            searchSection.style.display = "block";
+            articleSection.style.display = "none";
+
+        });
+
+        // Dark mode handling
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+        }
+
+        // Filter button functionality
+        const filterButtons = document.querySelectorAll('.filter-button');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+
+        // Dark mode toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            themeIcon.textContent = document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+        });
+
+        // Check system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+            themeIcon.textContent = 'light_mode';
+        }
+    </script>
+</body>
+</html>
