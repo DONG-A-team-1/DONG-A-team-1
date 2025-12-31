@@ -66,6 +66,7 @@ async def logout(req: Request):
     # 2. 삭제 후 메인페이지로 이동
     return RedirectResponse(url="/view/mainpage.html") # 메인페이지에 맞게 형식 조정 필요
 
+
 @app.post("/change-password")
 async def change_password(
         current_pw: str = Form(...),
@@ -78,6 +79,7 @@ async def change_password(
     if member.change_pw(user_id, current_pw, new_pw):
         return {"status": "success", "message": "변경 완료"}
     return JSONResponse(status_code=400, content={"message": "현재 비밀번호 불일치"})
+
 
 @app.post("/withdraw")
 async def withdraw(req: Request):
@@ -100,6 +102,7 @@ async def find_user_id(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
 )
+
 
 @app.post("/find-pw")
 async def find_user_pw(
