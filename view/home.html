@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>NewsPalette - Homepage</title>
+
+    <!-- Fonts / Icons (원본 유지) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- 다크토글, 프로필 아이콘 출처 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        rel="stylesheet"
+      />
+
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     
+   <style>
+      /*다크모드 */
+      :root {
+          --primary: #3b82f6;
+          --surface: #ffffff;
+          --text: #1f2937;
+          --muted: #6b7280;
+          --border: #e5e7eb;
+          --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          --container: 1280px;
+          --gray-100: #f3f4f6;
+          --gray-700: #374151;
+          --gray-800: #1f2937;
+      }
+
+      body.dark {
+          --surface: #1f2937;
+          --text: #f3f4f6;
+          --muted: #9ca3af;
+          --border: #374151;
+      }
+
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: 'Noto Sans KR', sans-serif;
+          background-color: #f3f4f6;
+          color: var(--text);
+          transition: background-color 0.2s, color 0.2s;
+          -webkit-font-smoothing: antialiased;
+      }
+
+      body.dark {
+          background-color: #111827;
+      }
+
+      .container {
+          max-width: var(--container);
+          margin: 0 auto;
+          padding: 0 16px;
+      }
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      html.dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      .brand-icon {
+        width: 32px; height: 32px;
+        border-radius: 999px;
+        background: var(--primary);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      .brand-icon .material-icons-round { font-size: 18px; }
+
+      .brand-badge {
+        position: absolute;
+        top: -4px; right: -4px;
+        width: 12px; height: 12px;
+        background: #ef4444;
+        border-radius: 999px;
+        border: 2px solid var(--surface);
+      }
+
+      .brand-name {
+        font-weight: 900;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+      /* 카테고리 */
+      /* Navigation */
+      nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background-color: #FFFFFF;
+          border-bottom: 1px solid #E5E7EB;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+
+      body.dark nav {
+          background-color: #1F2937;
+          border-bottom-color: #374151;
+      }
+
+      .nav-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 1rem;
+      }
+
+      .nav-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 64px;
+          position: relative;
+      }
+
+      .nav-left {
+          display: flex;
+          align-items: center;
+      }
+
+      .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          text-decoration: none;
+          cursor: pointer;
+      }
+
+      .logo-icon {
+          color: #3B82F6;
+          font-size: 1.875rem;
+      }
+
+      .logo-text {
+          font-weight: 700;
+          font-size: 1.25rem;
+          color: #3B82F6;
+          letter-spacing: -0.025em;
+      }
+
+      .category {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          display: none;
+      }
+
+      @media (min-width: 768px) {
+          .category {
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+          }
+      }
+
+      .nav-splash-item {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.5rem 1.25rem;
+          margin: 0 0.25rem;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          z-index: 10;
+          color: #4B5563;
+          text-decoration: none;
+      }
+
+      body.dark .nav-splash-item {
+          color: #D1D5DB;
+      }
+
+      .nav-splash-item::before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 160%;
+          height: 160%;
+          transform: translate(-50%, -50%) scale(0.6);
+          background-color: var(--splash-color);
+          -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          -webkit-mask-position: center;
+          mask-position: center;
+          -webkit-mask-size: contain;
+          mask-size: contain;
+          opacity: 0;
+          z-index: -1;
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .nav-splash-item:hover {
+          color: var(--splash-text-color, var(--splash-color));
+      }
+
+      .nav-splash-item:hover::before {
+          opacity: 0.2;
+          transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+      }
+
+      .nav-splash-item.active {
+          color: var(--splash-text-color, var(--splash-color));
+      }
+
+      .nav-splash-item.active::before {
+          opacity: 0.35;
+          transform: translate(-50%, -50%) scale(1.15);
+      }
+
+      .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+      .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+      .splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+      .splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+      .splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+
+      .nav-right {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+      }
+
+      .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      body.dark .dropdown-header {
+          border-bottom-color: #374151;
+      }
+
+      .dropdown-subtitle {
+          font-size: 0.75rem;
+          color: #6B7280;
+      }
+
+      body.dark .dropdown-subtitle {
+          color: #9CA3AF;
+      }
+
+      .dropdown-title {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: #111827;
+          margin-top: 0.125rem;
+      }
+
+      body.dark .dropdown-title {
+          color: #FFFFFF;
+      }
+
+      .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.625rem 1rem;
+          font-size: 0.875rem;
+          color: #374151;
+          text-decoration: none;
+          transition: background-color 0.2s;
+          background: none;
+          border: none;
+          width: 100%;
+          text-align: left;
+          cursor: pointer;
+      }
+
+      body.dark .dropdown-item {
+          color: #E5E7EB;
+      }
+
+      .dropdown-item:hover {
+          background-color: #F9FAFB;
+      }
+
+      body.dark .dropdown-item:hover {
+          background-color: rgba(55, 65, 81, 0.5);
+      }
+
+      .dropdown-item .material-symbols-outlined {
+          font-size: 1.25rem;
+          color: #9CA3AF;
+          transition: color 0.2s;
+      }
+
+      body.dark .dropdown-item .material-symbols-outlined {
+          color: #6B7280;
+      }
+
+      .dropdown-item:hover .material-symbols-outlined {
+          color: #3B82F6;
+      }
+
+      .dropdown-item.logout-btn:hover {
+          color: #EF4444;
+      }
+
+      .dropdown-item.logout-btn:hover .material-symbols-outlined {
+          color: #EF4444;
+      }
+
+      /* Actions */
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      /* 다크모드 버튼 */
+      .icon-button {
+        padding: 0.5rem;
+        border-radius: 50%;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      body.dark .icon-button {
+        color: #9CA3AF;
+      }
+
+      .icon-button:hover {
+        background-color: var(--gray-100);
+      }
+
+      body.dark .icon-button:hover {
+        background-color: var(--gray-700);
+      }
+
+      /* =========================
+        USER MENU (CLICK MODE)
+      ========================= */
+
+      .user-menu {
+        position: relative;
+      }
+
+      .user-menu-button {
+        position: relative;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .user-menu-blob {
+        position: absolute;
+        inset: 0;
+        background-color: var(--gray-100);
+        opacity: 0;
+        transition: opacity 0.2s;
+        transform: scale(1.3);
+        border-radius: 50%;
+      }
+
+      body.dark .user-menu-blob {
+        background-color: var(--gray-800);
+      }
+
+      .user-menu-button:hover .user-menu-blob {
+        opacity: 1;
+      }
+
+      .user-menu-icon {
+        position: relative;
+        z-index: 10;
+      }
+
+      /* 🔹 드롭다운 */
+      .user-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 220px;
+        background: var(--surface);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        display: none;
+        overflow: hidden;
+        z-index: 100;
+        border: 1px solid var(--border);
+      }
+
+      body.dark .user-dropdown {
+        border-color: #374151;
+      }
+
+      .user-dropdown.show {
+        display: block;
+      }
+
+      /* 🔹 헤더 */
+      .dropdown-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dropdown-subtitle {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .dropdown-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      /* 🔹 아이템 */
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 14px;
+        color: var(--text);
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s;
+      }
+
+      .dropdown-item:hover {
+        background: color-mix(in oklab, var(--text) 8%, transparent);
+      }
+
+      .dropdown-item.logout-btn {
+        color: #ef4444;
+      }
+
+      .dropdown-item.logout-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+
+      /* 신뢰도 버튼 ---------------------------------------------*/
+      .trust-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      /* 버튼 */
+      .trust-button {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: 500;
+
+        color: #2563eb;
+        background-color: #eff6ff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+
+        transition: background-color 0.2s;
+      }
+
+      .trust-button:hover {
+        background-color: #dbeafe;
+      }
+
+      /* 다크모드 */
+      html.dark .trust-button {
+        background-color: rgba(30, 58, 138, 0.3);
+        color: #93c5fd;
+      }
+
+      /* 아이콘 */
+      .trust-icon {
+        font-size: 16px;
+      }
+
+      /* 뱃지 위치 */
+      .trust-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 12px;
+        height: 12px;
+      }
+
+      /* 고정 점 */
+      .badge-dot {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        background: #3b82f6;
+        border-radius: 50%;
+        z-index: 2;
+      }
+
+      /* 퍼지는 애니메이션 */
+      .badge-ping {
+        position: absolute;
+        inset: 0;
+        background: #60a5fa;
+        border-radius: 50%;
+        animation: ping 1.5s infinite;
+        opacity: 0.7;
+      }
+
+      @keyframes ping {
+        0% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+
+      /* Main layout */
+      .main { padding: 10px 16px; }
+
+      .search-section { margin-bottom: 30px; }
+
+      .search-bar {
+        max-width: 896px;
+        margin: 0 auto;
+        padding: 8px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      @media (min-width: 640px) {
+        .search-bar { flex-direction: row; align-items: center; }
+      }
+
+      .select-wrap { position: relative; width: 100%; }
+      @media (min-width: 640px) { .select-wrap { width: auto; } }
+
+      .select {
+        appearance: none;
+        width: 100%;
+        padding: 12px 36px 12px 16px;
+        border: 0;
+        border-radius: 10px;
+        background: color-mix(in oklab, var(--text) 6%, transparent);
+        color: color-mix(in oklab, var(--text) 88%, transparent);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        outline: none;
+      }
+      @media (min-width: 640px) { .select { width: 128px; } }
+
+      .select-caret {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+
+      .search-input-wrap { position: relative; width: 100%; flex: 1; }
+      .search-input {
+        width: 100%;
+        padding: 12px 44px 12px 16px;
+        border-radius: 10px;
+        border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+        background: var(--surface);
+        color: var(--text);
+        outline: none;
+        transition: box-shadow .15s, border-color .15s;
+      }
+      .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
+      .search-input:focus {
+        border-color: transparent;
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+      }
+
+      .search-btn {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        cursor: pointer;
+      }
+      .search-btn .material-icons-round { font-size: 26px; }
+
+
+      /* Top grid */
+      .top-grid {
+        display: grid;
+        gap: 15px;
+        margin-bottom: 12px;
+        align-items: stretch;
+      }
+
+      @media (min-width: 1024px) {
+        .top-grid { grid-template-columns: 2fr 1fr; }
+      }
+
+      /* Main news card */
+      .main-news-card {
+        display: grid;
+        cursor:pointer;
+        grid-template-columns: 6fr 4fr;
+        gap: 0;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--surface);
+        position: relative;
+        min-height: 100%;
+        transition: transform .25s ease, box-shadow .25s ease;
+        align-items:stretch;
+      }
+      .main-news-card:hover { 
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg); 
+      }
+
+      .main-news-media {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .main-news-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .media-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.1),
+          rgba(0,0,0,0.6)
+        );
+      }
+
+      .trend-chip {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 6px 12px;
+        border-radius: 9999px;
+
+        background: linear-gradient(
+          135deg,
+          #3b82f6,
+          #2563eb
+        );
+
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+      }
+      .trend-chip .material-icons-round { font-size: 16px; }
+
+      .main-news-body {
+        flex-direction: column;
+        padding: 28px;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        background: var(--surface);
+        padding-bottom: 28px;
+      }
+
+      html.dark .main-news-body {
+        background: linear-gradient(
+          to right,
+          rgba(31, 41, 55, 0.96),
+          rgba(31, 41, 55, 0.88)
+        );
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        margin-bottom: 8px;
+      }
+
+      .date { font-size: 12px; color: rgba(229,231,235,.9); }
+
+      .main-title {
+        margin: 0 0 14px;
+        color: #2b2b2b;
+        font-weight: 800;
+        line-height: 1.2;
+        text-shadow: 0 10px 30px rgba(0,0,0,.35);
+        font-size: 24px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      html.dark .main-title {
+        color: #ffffff;
+        text-shadow: 0 10px 30px rgba(0,0,0,.6);
+      }
+
+      @media (min-width: 768px) { .main-title { font-size: 32px; } }
+      @media (min-width: 1024px) { .main-title { font-size: 38px; } }
+
+      .main-desc {
+        margin: 0 0 18px;
+        color: color-mix(in oklab, var(--text) 82%, transparent);
+        font-size: 14px;
+        line-height: 1.6;
+        text-shadow: 0 10px 30px rgba(0,0,0,.30);
+        display:block;
+      }
+      @media (min-width: 768px) { .main-desc { font-size: 16px; } }
+
+      /* 캐러셀 기본 */
+      .carousel {
+        position: relative;
+      }
+
+      /* 보이는 영역 */
+      .viewport {
+        overflow: hidden;
+        width: 100%;
+      }
+
+      /* 실제로 움직이는 줄 */
+      .track {
+        display: flex;
+        width: 100%;
+        transition: transform 0.4s ease;
+      }
+
+      /* 메인 기사는 한 장씩 */
+      .main-news-card {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* 화살표 버튼 */
+      .arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background: rgba(0,0,0,0.4);
+        border: none;
+        color: #fff;
+        padding: 8px;
+        cursor: pointer;
+      }
+
+      .arrow.left { left: 8px; }
+      .arrow.right { right: 8px; }
+
+      /* 신뢰도 점수 각 기사마다 */
+      .trust-score {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        font-size: 12px;
+        font-weight: 500;
+        color: #2563eb;
+      }
+
+      .trust-value {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #eff6ff;
+      }
+      .main-news-body .trust-score {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        font-size: 13px;
+        font-weight: 500;
+        color: #2563eb;
+      }
+      /* 연관기사 신뢰도 점수 */
+      .trust-score {
+        position: absolute;
+        right: 16px;
+        bottom: 12px;
+
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 4px 10px;
+        font-size: 13px;
+        border-radius: 8px;
+
+        color: #2563eb;
+        background-color: #eff6ff;
+      }
+
+      html.dark .trust-value {
+        background: rgba(37, 99, 235, 0.25);
+      }
+
+      /* Related */
+      .related-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 4px 10px;
+      }
+      .newslink {
+        text-decoration: none;
+      }
+      .section-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .title-bar {
+        display: inline-block;
+        width: 6px; height: 24px;
+        border-radius: 999px;
+        background: var(--primary);
+      }
+
+      .more-link {
+        font-size: 14px;
+        text-decoration: none;
+        color: var(--muted);
+      }
+      .more-link:hover { color: var(--primary); }
+
+      .related-item {
+        margin:10px;
+        position:relative;
+        display: flex;
+        cursor:pointer;
+        gap: 14px;
+        height: 106px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+        transition: box-shadow .15s, transform .15s;
+        min-height: 96px;
+      }
+      .related-item + .related-item { margin-top: 12px; }
+      .related-item:hover { 
+        box-shadow: var(--shadow-md); 
+        transform: translateY(-2px);
+      }
+
+      .thumb {
+        width: 96px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex: 0 0 auto;
+        background: color-mix(in oklab, var(--text) 12%, transparent);
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: transform .5s;
+      }
+      .related-item:hover .thumb img { transform: scale(1.1); }
+
+      .related-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 4px 72px 4px 0;
+        min-width: 0;
+        position: relative;
+      }
+      .related-title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+        color: color-mix(in oklab, var(--text) 92%, transparent);
+        transition: color .15s;
+      }
+      .related-item:hover .related-title { color: var(--primary); }
+      .related-time { font-size: 12px; color: color-mix(in oklab, var(--text) 45%, transparent); }
+
+      /* Sub section */
+      .sub-head { margin: 0 4px 16px; }
+      .section-title-inline {
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .section-title-inline .material-icons-round { color: var(--primary); }
+
+      .sub-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      @media (min-width: 768px) {
+        .sub-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+
+      .sub-card {
+        border-radius: 14px;
+        cursor:pointer;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        transition:box-shadow .2s ease, transform .2s ease;
+      }
+      .sub-card:hover {
+        box-shadow: var(--shadow-lg); 
+        transform: translateY(-4px);
+        }
+
+      .sub-media {
+        position: relative;
+        height: 192px;
+        background: color-mix(in oklab, var(--text) 12%, transparent);
+        overflow: hidden;
+      }
+      .sub-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: transform .5s;
+      }
+      .sub-card:hover .sub-media img { transform: scale(1.1); }
+
+      .tag {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(0,0,0,.6);
+        color: #fff;
+        font-size: 10px;
+      }
+
+      .sub-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+      }
+      .sub-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: color .15s;
+        color:var(--primary);
+      }
+      .sub-title:hover { color: var(--primary); }
+
+      .sub-desc {
+        margin: 0;
+        font-size: 13px;
+        color: color-mix(in oklab, var(--text) 62%, transparent);
+        line-height: 1.6;
+        flex: 1;
+      }
+      .sub-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: color-mix(in oklab, var(--text) 50%, transparent);
+        margin-top: auto;
+      }
+      /* opinion */
+
+      .opinion {
+        background: var(--surface);
+        border-radius: 16px;
+        margin: 20px 0px 20px 0px;
+        position: relative;
+      }
+
+      .opinion h3 {
+        text-align: center;
+        padding-top: 20px;
+        padding-bottom: 0px;
+      }
+
+      .highlight {
+        color: #3b82f6;
+      }
+
+      .opinion-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 60px;
+        position: relative;
+        padding-bottom: 20px;
+      }
+
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .title {
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .pill {
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: #f3e8ff;
+        color: #6b21a8;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      .pill.warn {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .center-topic {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #60a5fa, #2563eb);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        cursor: pointer;
+      }
+
+
+      /* 한 줄짜리 개인화 기사 */
+
+
+      .personalized-wrap {
+        max-width: 1280px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin:0 auto;
+      }
+      .personalized-header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top:16px;
+      }
+
+      /* 🔥 링크 밑줄 제거 */
+      .news-link {
+        text-decoration: none;
+      }
+
+      /* 카드 */
+      .personal-card {
+        position:relative;
+        transition:box-shadow .2s ease, transform .2s ease;
+        cursor: pointer;
+        background:var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px 28px;
+        min-height: 120PX;
+      }
+
+      .personal-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+      }
+      /* 제목 강조 */
+      .personal-card:hover .card-title {
+        color: var(--primary);
+      }
+
+      /* 리스트형 카드 */
+      .list-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 120PX;
+        margin-bottom: 10px;
+      }
+
+      /* 썸네일 */
+      .thumb {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #f3f4f6;
+      }
+
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .personal-img{
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #f3f4f6;
+      }
+      .personal-img img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* 텍스트 */
+      .card-text {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-right: 80px;
+      }
+
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .card-time {
+        font-size: 13px;
+        color: color-mix(in oklab, var(--text) 55%, transparent);
+      }
+
+
+      /* Footer */
+      .footer {
+        margin-top: 48px;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+        padding: 32px 0;
+      }
+      .footer-inner {
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .footer-copy { margin: 0 0 10px; }
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+      }
+      .footer-links a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .footer-links a:hover { color: var(--text); }
+
+      /* 워드클라우드 섹션 */
+      .wordcloud-section {
+        background: var(--surface-light, #ffffff);
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 40px 0;
+        margin-top: 24px;
+        height: 500px;
+      }
+
+      body.dark .wordcloud-section {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .wordcloud-title {
+        font-size: 18px;
+        font-weight: 700;
+        padding-bottom: 20px;
+        padding-left: 26px;
+        padding-top: 0px;
+      }
+
+      /* 클라우드 영역 */
+      .wordcloud-container {
+        min-height: 360px;
+        max-width: 1200px;
+        margin-left: 10px;
+        margin-right: 10px;
+        background: color-mix(in oklab, var(--text) 6%, transparent);
+        border-radius: 12px;
+        padding: 0 24px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+      }
+
+      body.dark .wordcloud-container {
+        background: #111827;
+      }
+
+      /* 키워드 */
+      .word-item {
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        user-select: none;
+      }
+
+      .word-item:hover {
+        transform: scale(1.15);
+        opacity: 0.9;
+      }
+
+
+      /* Line clamp utilities */
+      .clamp-2, .clamp-3 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .clamp-2 { -webkit-line-clamp: 2; }
+      .clamp-3 { -webkit-line-clamp: 3; }
+      
+      /* Footer */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 5rem;
+            padding: 3rem 0;
+        }
+
+        body.dark footer {
+            background-color: #1f2937;
+            border-top-color: #374151;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .footer-container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        .footer-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        body.dark .footer-info {
+            color: #9ca3af;
+        }
+
+    </style>
+</head>
+  
+  <body>
+    <nav>
+      <div class="nav-container">
+        <div class="nav-content">
+
+          <!-- Logo -->
+          <div class="nav-left">
+            <a class="logo" href="homepage.html">
+              <span class="material-symbols-outlined logo-icon">palette</span>
+              <span class="logo-text">NewsPalette</span>
+            </a>
+          </div>
+
+          <!-- Category -->
+          <div class="category">
+            <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+            <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+            <a class="nav-splash-item splash-economy" href="economycategory.html">국제</a>
+            <a class="nav-splash-item splash-world" href="universecategory.html">지역</a>
+            <a class="nav-splash-item splash-tech" href="culturecategory.html">문화</a>
+            <a class="nav-splash-item splash-tech" href="sportscategory.html">스포츠</a>
+          </div>
+
+          <!-- Actions -->
+          <div class="header-actions">
+            <button class="icon-button" onclick="toggleDarkMode()">
+              <span class="material-symbols-outlined">dark_mode</span>
+            </button>
+
+            <div class="user-menu">
+              <button class="user-menu-button" onclick="toggleUserMenu(event)">
+                <div class="user-menu-blob"></div>
+                <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+              </button>
+
+              <div class="user-dropdown" id="userDropdown">
+                <div id="dropdownContent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+
+    <!-- Main -->
+    <main class="container main">
+      <!-- Search -->
+      <section class="search-section">
+        <div class="search-bar">
+          <div class="select-wrap">
+            <select class="select">
+              <option>제목+본문</option>
+              <option>제목</option>
+              <option>본문</option>
+              <option>키워드</option>
+            </select>
+            <span class="material-symbols-outlined select-caret">expand_more</span>
+          </div>
+
+          <div class="search-input-wrap">
+            <input class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
+            <button class="search-btn" aria-label="검색">
+              <span class="material-symbols-outlined">search</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top grid -->
+      <section class="top-grid">
+
+        <!-- ⭐ Main news (캐러셀 적용) -->
+        <div class="main-news carousel">
+          
+          <!-- 왼쪽 버튼 --> 
+          <button class="arrow left" id="prevBtn">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+
+          <!-- 캐러셀 viewport -->
+          <div class="viewport">
+            <div class="track" id="track">
+
+              <!-- ===== 메인기사 슬라이드 1 ===== -->
+              <div class="main-news-card">
+                <div class="main-news-media">
+                  <img
+                    alt="Main News Abstract"
+                    src=""
+                  />
+                  <div class="media-gradient"></div>
+                  <div class="trend-chip">
+                    <span class="material-symbols-outlined">trending_up</span>
+                    트렌드 순위 1위
+                  </div>
+                </div>
+
+                <div class="main-news-body">
+                  <div class="meta-row">
+                    <span class="pill"></span>
+                    <span class="date"></span>
+                  </div>
+
+                  <h1 class="main-title">
+                  </h1>
+
+                  <p class="main-desc clamp-3">
+                    
+                  </p>
+                <div class="article-footer">
+                  <div class="article-author-info">
+                      <span class="author-name"></span>
+                      <span class="author-dot"></span>
+                      <span></span>
+                  </div>
+              </div>
+                  <div class="trust-score" data-score="">
+                    <span class="trust-label">신뢰도</span>
+                    <span class="trust-value"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== 메인기사 슬라이드 2 ===== -->
+              <div class="main-news-card">
+                <!-- 두 번째 메인 기사 내용 -->
+              </div>
+
+              <!-- ===== 메인기사 슬라이드 3 ===== -->
+              <div class="main-news-card">
+                <!-- 세 번째 메인 기사 내용 -->
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 오른쪽 버튼 -->
+          <button class="arrow right" id="nextBtn">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Related (연관기사) -->
+        <!-- Related -->
+        <aside class="related">
+          <div class="related-head">
+            <h2 class="section-title">
+              <span class="title-bar"></span>
+              연관 기사
+            </h2>
+          </div>
+
+          <a href="#" class="newslink">
+            <article class="related-item">
+              <div class="thumb">
+                <img
+                  alt="Related News 1"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                />
+              </div>
+              <div class="related-text">
+                <h3 class="related-title clamp-2">
+                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <div class="article-footer">
+                    <div class="article-author-info">
+                        <span class="author-name"></span>
+                        <span class="author-dot"></span>
+                        <span></span>
+                    </div>
+                </div>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="newslink">
+            <article class="related-item">
+              <div class="thumb">
+                <img
+                  alt="Related News 1"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                />
+              </div>
+              <div class="related-text">
+                <h3 class="related-title clamp-2">
+                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <div class="article-footer">
+                    <div class="article-author-info">
+                        <span class="author-name"></span>
+                        <span class="author-dot"></span>
+                        <span></span>
+                    </div>
+                </div>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="newslink">
+            <article class="related-item">
+              <div class="thumb">
+                <img
+                  alt="Related News 1"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                />
+              </div>
+              <div class="related-text">
+                <h3 class="related-title clamp-2">
+                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <div class="article-footer">
+                    <div class="article-author-info">
+                        <span class="author-name"></span>
+                        <span class="author-dot"></span>
+                        <span></span>
+                    </div>
+                </div>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="newslink">
+            <article class="related-item">
+              <div class="thumb">
+                <img
+                  alt="Related News 1"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                />
+              </div>
+              <div class="related-text">
+                <h3 class="related-title clamp-2">
+                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <div class="article-footer">
+                    <div class="article-author-info">
+                        <span class="author-name"></span>
+                        <span class="author-dot"></span>
+                        <span></span>
+                    </div>
+                </div>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+        </aside>
+      </section>
+
+      <!-- 개인화 추천 기사 -->
+      <section class="personalized-wrap">
+        <div class="personalized-header">
+          <h2 class="section-title">
+            <span class="title-bar"></span>
+              개인화 추천 기사
+          </h2>
+          <a class="more-link" href="./user_article.html?from=main">더보기</a>
+        </div>
+
+        <div class="personalized-list" id="personalizedList">
+          <a href="#" class="news-link">
+            <article class="personal-card list-card" >
+              <div class="personal-img">
+                <img
+                  alt="개인화 기사 이미지"
+                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                />
+              </div>
+              <div class="card-text">
+                <h3 class="card-title clamp-2">
+                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <span class="card-time">10분 전</span>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="news-link">
+            <article class="personal-card list-card" >
+              <div class="personal-img">
+                <img
+                  alt="개인화 기사 이미지"
+                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                />
+              </div>
+              <div class="card-text">
+                <h3 class="card-title clamp-2">
+                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <span class="card-time">10분 전</span>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="news-link">
+            <article class="personal-card list-card" >
+              <div class="personal-img">
+                <img
+                  alt="개인화 기사 이미지"
+                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                />
+              </div>
+              <div class="card-text">
+                <h3 class="card-title clamp-2">
+                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <span class="card-time">10분 전</span>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="news-link">
+            <article class="personal-card list-card" >
+              <div class="personal-img">
+                <img
+                  alt="개인화 기사 이미지"
+                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                />
+              </div>
+              <div class="card-text">
+                <h3 class="card-title clamp-2">
+                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <span class="card-time">10분 전</span>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+
+          <a href="#" class="news-link">
+            <article class="personal-card list-card" >
+              <div class="personal-img">
+                <img
+                  alt="개인화 기사 이미지"
+                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                />
+              </div>
+              <div class="card-text">
+                <h3 class="card-title clamp-2">
+                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                </h3>
+                <span class="card-time">10분 전</span>
+              </div>
+              <div class="trust-score" data-score="">
+                  <span class="trust-label">신뢰도</span>
+                  <span class="trust-value"></span>
+              </div>
+            </article>
+          </a>
+        </div>
+      </section>
+
+        <!-- 토픽에 관련된 긍/부 -->
+        <section class="opinion">
+          <div class="opinion-container">
+            <h3>
+              <span class="highlight">오늘의 토픽</span> 여론 분석
+            </h3>
+
+            <div class="opinion-wrap">
+
+              <div class="side positive">
+                <p class="title">긍정 / 기대</p>
+                <div class="pill">기사1</div>
+                <div class="pill">기사2</div>
+              </div>
+
+              <div class="center-topic">
+                <p class="small">HOT TOPIC</p>
+                <h4>AI 기술<br>규제 법안</h4>
+              </div>
+
+              <div class="side negative">
+                <p class="title">부정 / 우려</p>
+                <div class="pill warn">기사1</div>
+                <div class="pill warn">기사2</div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="wordcloud-section">
+        <h3 class="wordcloud-title">오늘의 키워드 클라우드</h3>
+
+        <div class="wordcloud-container" id="wordCloud">
+          <!-- JS로 키워드 주입 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>© 2026 NewsPalette Inc. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+  </body>
+  <script>
+    // 기사 불러오기 백엔드 해볼려고 작성한건데 맞는지는.. 해봐야 알 것 같아요-----------------------
+    $(function () {
+      $.ajax({
+        url: "/api/main-article",
+        method: "POST",//post 방식이 더 보안에 좋음?
+        dataType: "json",
+        success: function (data) {
+          const article = data.main_article;
+
+          $(".main-news-media img")
+            .attr("src", article.image_url)
+            .attr("alt", article.title);
+
+          $(".pill").text(article.category);
+          $(".date").text(article.upload_date);
+          $(".main-title").text(article.article_title);
+          $(".main-desc").text(article.article_content);
+          $(".author-name").text(article.reporter);
+          $(".author-dot").text(article.press_name);
+          $(".trust-value").text(`${article.trust_score}점`);
+        },
+        error: function () {
+          console.error("백엔드 연결 실패");
+        }
+      });
+    });
+
+    // 로그인 처리
+    $(document).ready(function () {
+      renderUserDropdown();
+
+      // 바깥 클릭 시 닫기
+      $(document).on('click', function (e) {
+        if (!$(e.target).closest('.user-menu').length) {
+          $('#userDropdown').removeClass('show');
+        }
+      });
+
+      // 로그아웃 버튼 (동적 생성 대응)
+      $(document).on('click', '.logout-btn', function () {
+        localStorage.setItem('isLoggedIn', 'false');
+        renderUserDropdown();
+        $('#userDropdown').removeClass('show');
+      });
+    });
+
+    // 로그인 상태에 따른 메뉴 렌더링 이건 백엔드 연결해서 어떻게 나오는지 보고 고칠려고염----------------
+    function renderUserDropdown() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+      if (isLoggedIn) {
+        $('#dropdownContent').html(`
+          <div class="dropdown-header">
+            <p class="dropdown-subtitle">환영합니다</p>
+            <p class="dropdown-title">홍길동님</p>
+          </div>
+          <a href="mypage.html" class="dropdown-item">
+            <span class="material-symbols-outlined">account_circle</span>
+            마이페이지
+          </a>
+          <button class="dropdown-item logout-btn">
+            <span class="material-symbols-outlined">logout</span>
+            로그아웃
+          </button>
+        `);
+      } else {
+        $('#dropdownContent').html(`
+          <div class="dropdown-header">
+            <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+            <p class="dropdown-title">로그인이 필요합니다</p>
+          </div>
+          <a href="login.html" class="dropdown-item">
+            <span class="material-symbols-outlined">login</span>
+            로그인
+          </a>
+          <a href="logregist.html" class="dropdown-item">
+            <span class="material-symbols-outlined">person_add</span>
+            회원가입
+          </a>
+        `);
+      }
+    }
+    localStorage.setItem('isLoggedIn', 'true');
+
+    // 메인기사 캐러셀
+    const track = document.getElementById("track");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let index = 0;
+    const total = track.children.length;
+
+    function moveSlide() {
+      track.style.transform = `translateX(-${index * 100}%)`;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (index < total - 1) {
+        index++;
+        moveSlide();
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (index > 0) {
+        index--;
+        moveSlide();
+      }
+    });
+
+    // 유저 메뉴 토글
+    function toggleUserMenu(event) {
+      event.stopPropagation();
+      document.getElementById('userDropdown').classList.toggle('show');
+    }
+
+    // 카테고리 선택 색상 고정
+    function setActiveCategoryByURL() {
+      const navItems = document.querySelectorAll('.nav-splash-item');
+      const currentPage = window.location.pathname.split('/').pop();
+
+      navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    // 다크모드 토글
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+    }
+
+    // 다크모드 초기화
+    if (localStorage.getItem('darkMode') === 'true' || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('darkMode'))) {
+      document.body.classList.add('dark');
+    }
+
+    // 초기 실행
+    document.addEventListener('DOMContentLoaded', () => {
+      setActiveCategoryByURL();
+    });
+</script>
+</html>
