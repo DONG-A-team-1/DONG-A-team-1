@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette 로그인</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<style>
+:root {
+    --primary: #2EA061;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --card-light: #FFFFFF;
+    --card-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --input-bg-light: #FFFFFF;
+    --input-bg-dark: #374151;
+    --input-border-light: #D1D5DB;
+    --input-border-dark: #4B5563;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+
+body.dark-mode {
+    background-color: var(--bg-dark);
+}
+
+/* Success Popup */
+#success-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#success-popup.show {
+    display: flex;
+    opacity: 1;
+}
+
+#popup-content {
+    background-color: var(--card-light);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 2rem;
+    max-width: 24rem;
+    width: 100%;
+    margin: 0 1rem;
+    border: 1px solid var(--input-border-light);
+    transform: scale(0.95);
+    transition: transform 0.3s;
+}
+
+body.dark-mode #popup-content {
+    background-color: var(--card-dark);
+    border-color: var(--input-border-dark);
+}
+
+#popup-content.scale-100 {
+    transform: scale(1);
+}
+
+.popup-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.popup-icon {
+    width: 4rem;
+    height: 4rem;
+    background-color: #D1FAE5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+body.dark-mode .popup-icon {
+    background-color: rgba(16, 185, 129, 0.3);
+}
+
+.popup-icon .material-icons-round {
+    color: var(--primary);
+    font-size: 2.5rem;
+}
+
+.popup-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main-light);
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode .popup-title {
+    color: var(--text-main-dark);
+}
+
+.popup-text {
+    color: var(--text-sub-light);
+    margin-bottom: 2rem;
+    line-height: 1.625;
+}
+
+body.dark-mode .popup-text {
+    color: var(--text-sub-dark);
+}
+
+.popup-button {
+    width: 100%;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(46, 160, 97, 0.2);
+    transition: all 0.2s;
+}
+
+.popup-button:hover {
+    background-color: #259251;
+}
+
+.popup-button:active {
+    transform: scale(0.98);
+}
+
+/* Navigation */
+nav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1.5rem;
+    z-index: 50;
+}
+
+.nav-container {
+    position: relative;
+}
+
+.user-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--card-light);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: var(--text-sub-light);
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark-mode .user-button {
+    background-color: var(--card-dark);
+    color: var(--text-sub-dark);
+}
+
+.user-button:hover {
+    color: var(--primary);
+}
+
+.user-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(46, 160, 97, 0.5);
+}
+
+.user-button .material-icons-round {
+    font-size: 1.875rem;
+}
+
+#user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.75rem;
+    width: 8rem;
+    background-color: var(--card-light);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 20px rgba(0,0,0,0.05);
+    border: 1px solid var(--input-border-light);
+    overflow: hidden;
+    transform-origin: top right;
+    transition: all 0.2s;
+}
+
+body.dark-mode #user-dropdown {
+    background-color: var(--card-dark);
+    border-color: var(--input-border-dark);
+}
+
+#user-dropdown.show {
+    display: block;
+}
+
+#user-dropdown a {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-main-light);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+body.dark-mode #user-dropdown a {
+    color: var(--text-main-dark);
+}
+
+#user-dropdown a:hover {
+    background-color: var(--bg-light);
+    color: var(--primary);
+}
+
+body.dark-mode #user-dropdown a:hover {
+    background-color: var(--bg-dark);
+}
+
+/* Main Card */
+.login-card {
+    background-color: var(--card-light);
+    width: 100%;
+    max-width: 28rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 20px rgba(0,0,0,0.05);
+    padding: 2rem;
+    transition: background-color 0.3s;
+    z-index: 10;
+}
+
+body.dark-mode .login-card {
+    background-color: var(--card-dark);
+}
+
+@media (min-width: 640px) {
+    .login-card {
+        padding: 2.5rem;
+    }
+}
+
+.header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.logo-icon {
+    width: 4rem;
+    height: 4rem;
+    background-color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(46, 160, 97, 0.3);
+}
+
+.logo-icon .material-icons-round {
+    font-size: 2.5rem;
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main-light);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.025em;
+}
+
+body.dark-mode .brand-name {
+    color: var(--text-main-dark);
+}
+
+.welcome-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-main-light);
+    margin-bottom: 0.75rem;
+}
+
+body.dark-mode .welcome-title {
+    color: var(--text-main-dark);
+}
+
+.welcome-text {
+    font-size: 0.875rem;
+    color: var(--text-sub-light);
+    text-align: center;
+}
+
+body.dark-mode .welcome-text {
+    color: var(--text-sub-dark);
+}
+
+/* Form */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main-light);
+    margin-left: 0.25rem;
+}
+
+body.dark-mode .form-label {
+    color: var(--text-main-dark);
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.form-input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--input-border-light);
+    background-color: var(--input-bg-light);
+    color: var(--text-main-light);
+    font-size: 1rem;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .form-input {
+    border-color: var(--input-border-dark);
+    background-color: var(--input-bg-dark);
+    color: var(--text-main-dark);
+}
+
+.form-input::placeholder {
+    color: #9CA3AF;
+}
+
+.form-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+    border-color: transparent;
+}
+
+.password-input {
+    padding-right: 3rem;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    color: #9CA3AF;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: #6B7280;
+}
+
+body.dark-mode .toggle-password:hover {
+    color: #D1D5DB;
+}
+
+.toggle-password:focus {
+    outline: none;
+}
+
+.toggle-password .material-icons-round {
+    font-size: 1.25rem;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(46, 160, 97, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #259251;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: transparent;
+    color: var(--text-sub-light);
+    font-weight: 500;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--input-border-light);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+body.dark-mode .btn-secondary {
+    color: var(--text-sub-dark);
+    border-color: var(--input-border-dark);
+}
+
+.btn-secondary:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background-color: #1F2937;
+}
+
+.btn-secondary:active {
+    transform: scale(0.98);
+}
+
+/* Footer Links */
+.footer-links {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.footer-links a {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #1E7A47;
+}
+
+.footer-divider {
+    color: #D1D5DB;
+}
+
+body.dark-mode .footer-divider {
+    color: #4B5563;
+}
+</style>
+</head>
+<body>
+<div id="success-popup">
+<div id="popup-content">
+<div class="popup-inner">
+<div class="popup-icon">
+<span class="material-icons-round">check_circle</span>
+</div>
+<h3 class="popup-title">로그인 성공!</h3>
+<p class="popup-text">
+                로그인에 성공했습니다.<br/>잠시 후 홈 화면으로 이동합니다.
+            </p>
+<button class="popup-button" onclick="closePopup()">
+                확인
+            </button>
+</div>
+</div>
+</div>
+
+<nav>
+<div class="nav-container">
+<button class="user-button" onclick="toggleUserMenu()" type="button">
+<span class="material-icons-round">account_circle</span>
+</button>
+<div id="user-dropdown">
+<a href="login.html">로그인</a>
+</div>
+</div>
+</nav>
+
+<div class="login-card">
+<div class="header-section">
+<div class="logo-icon">
+<span class="material-icons-round">palette</span>
+</div>
+<h1 class="brand-name">NewsPalette</h1>
+<h2 class="welcome-title">환영합니다</h2>
+<p class="welcome-text">
+                뉴스 팔레트를 이용하시려면 로그인 해주세요
+            </p>
+</div>
+
+<form onsubmit="handleLogin(event)">
+<div class="form-group">
+<label class="form-label" for="usr_id">
+                    아이디를 입력해주세요.
+                </label>
+<div class="input-wrapper">
+<input class="form-input" id="usr_id" name="usr_id" required />
+</div>
+</div>
+
+<div class="form-group">
+<label class="form-label" for="password">
+                    비밀번호를 입력해주세요.
+                </label>
+<div class="input-wrapper">
+<input class="form-input password-input" id="password" name="password" placeholder="........" required type="password"/>
+<button class="toggle-password" onclick="togglePassword()" type="button">
+<span class="material-icons-round" id="visibility-icon">visibility_off</span>
+</button>
+</div>
+</div>
+
+<div class="button-group">
+<button class="btn-primary" type="submit">
+                    로그인
+                </button>
+<a class="btn-secondary" href="logregist.html">
+                    회원가입
+                </a>
+</div>
+</form>
+
+<div class="footer-links">
+<a href="passwordsearch.html">비밀번호 찾기</a>
+<span class="footer-divider">|</span>
+<a href="idsearch.html">아이디 찾기</a>
+</div>
+</div>
+
+<script>
+
+
+
+
+function handleLogin(event) {
+
+    event.preventDefault();
+
+    const LoginData = {
+        user_id: $('#usr_id').val(),
+        password: $('#password').val(),
+    };
+
+    $.ajax({
+            url: '/login',
+            type: 'POST',
+            data: LoginData,
+            success: function(response) {
+                $('#success-popup').addClass('show');
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "로그인 중 오류가 발생했습니다.";
+                alert(errorMsg);
+            }
+        });
+    }
+
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const icon = document.getElementById('visibility-icon');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.textContent = 'visibility';
+    } else {
+        passwordInput.type = 'password';
+        icon.textContent = 'visibility_off';
+    }
+}
+
+function toggleUserMenu() {
+    const menu = document.getElementById('user-dropdown');
+    menu.classList.toggle('show');
+}
+
+// function handleLogin(event) {
+//     event.preventDefault();
+//     const popup = document.getElementById('success-popup');
+//     const popupContent = document.getElementById('popup-content');
+
+//     popup.classList.add('show');
+
+//     setTimeout(() => {
+//         popupContent.classList.add('scale-100');
+//     }, 10);
+
+//     setTimeout(() => {
+//         closePopup();
+//     }, 2000);
+// }
+
+function closePopup() {
+    const popup = document.getElementById('success-popup');
+    const popupContent = document.getElementById('popup-content');
+
+    popup.style.opacity = '0';
+    popupContent.classList.remove('scale-100');
+
+    setTimeout(() => {
+        popup.classList.remove('show');
+        popup.style.opacity = '';
+        window.location.href = 'mypage.html';
+    }, 300);
+}
+
+// Close dropdown when clicking outside
+window.addEventListener('click', function(e) {
+    const button = document.querySelector('.user-button');
+    const menu = document.getElementById('user-dropdown');
+    if (button && menu && !button.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('show');
+    }
+});
+
+// Optional: Dark mode toggle (if needed)
+// Uncomment below if you want to add dark mode toggle functionality
+/*
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+}
+
+// Load dark mode preference
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+*/
+</script>
+</body>
+</html>

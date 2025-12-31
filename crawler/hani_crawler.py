@@ -70,21 +70,12 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
     
                 # 제목 art_name
                 title_tag = soup.select_one('h3.ArticleDetailView_title__9kRU_')
-                if not title_tag:
-                    logger.info("제목 태그 없음")
-                    continue  # 제목 태그 없으면 건너뛰기
                 article_title = title_tag.get_text(strip=True)
     
                 # 본문
                 paragraphs = soup.select('div.article-text p.text')
-                if not paragraphs:
-                    logger.info("본문 없음 ")
-                    continue
     
                 article_content = " ".join(p.get_text(strip=True) for p in paragraphs[:-1])
-                if len(article_content) < 50:  # 너무 짧으면 영상 기사 등으로 판단하여 제외
-                    logger.info("영상 기사일 가능성")
-                    continue
     
                 # 대표 이미지 저장
                 image = soup.select_one('picture img')
