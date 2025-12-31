@@ -165,7 +165,6 @@ def create_topic():
     #     request_timeout=120
     # )
 
-    print(len(terms), centers, cluster_labels)
     return {
         "article_ids": article_ids,
         "titles": titles,
