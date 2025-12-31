@@ -6,510 +6,124 @@
 <title>NewsPalette - Global Economic Shift</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #F8FAFC;
-    color: #1F2937;
-    line-height: 1.6;
-}
 
-body.dark {
-    background-color: #0F172A;
-    color: #E5E7EB;
-}
-
-/* Header */
-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #E2E8F0;
-    height: 64px;
-}
-
-body.dark header {
-    background-color: rgba(30, 41, 59, 0.95);
-    border-bottom-color: #334155;
-}
-
-.header-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    transition: opacity 0.3s;
-}
-
-.logo:hover {
-    opacity: 0.9;
-}
-
-.logo-icon {
-    width: 32px;
-    height: 32px;
-    background-color: #3B82F6;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.125rem;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-    transition: transform 0.3s;
-}
-
-.logo:hover .logo-icon {
-    transform: scale(1.05);
-}
-
-.logo-text {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #111827;
-    transition: color 0.3s;
-}
-
-body.dark .logo-text {
-    color: white;
-}
-
-.logo:hover .logo-text {
-    color: #3B82F6;
-}
-
-/* Navigation */
-nav {
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-@media (min-width: 768px) {
-    nav {
-        display: flex;
-    }
-}
-
-.nav-item {
-    position: relative;
-    padding: 0.375rem 1rem;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.nav-blob {
-    position: absolute;
-    inset: 0;
-    opacity: 0.4;
-    transition: all 0.3s;
-}
-
-.nav-item:hover .nav-blob {
-    transform: scale(1.05);
-}
-
-.nav-text {
-    position: relative;
-    font-size: 0.875rem;
-    font-weight: bold;
-    z-index: 10;
-}
-
-.nav-item.society .nav-blob {
-    background-color: #D1FAE5;
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-}
-
-body.dark .nav-item.society .nav-blob {
-    background-color: rgba(16, 185, 129, 0.3);
-}
-
-.nav-item.society .nav-text {
-    color: #047857;
-}
-
-body.dark .nav-item.society .nav-text {
-    color: #6EE7B7;
-}
-
-.nav-item.politics .nav-blob {
-    background-color: #FFE4E6;
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-}
-
-body.dark .nav-item.politics .nav-blob {
-    background-color: rgba(244, 63, 94, 0.3);
-}
-
-.nav-item.politics .nav-text {
-    color: #BE123C;
-}
-
-body.dark .nav-item.politics .nav-text {
-    color: #FDA4AF;
-}
-
-.nav-item.economy .nav-blob {
-    background-color: #DBEAFE;
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-}
-
-body.dark .nav-item.economy .nav-blob {
-    background-color: rgba(59, 130, 246, 0.3);
-}
-
-.nav-item.economy .nav-text {
-    color: #1D4ED8;
-}
-
-body.dark .nav-item.economy .nav-text {
-    color: #93C5FD;
-}
-
-.nav-item.international .nav-blob {
-    background-color: #FEF3C7;
-    border-radius: 73% 27% 59% 41% / 38% 65% 35% 62%;
-}
-
-body.dark .nav-item.international .nav-blob {
-    background-color: rgba(245, 158, 11, 0.3);
-}
-
-.nav-item.international .nav-text {
-    color: #B45309;
-}
-
-body.dark .nav-item.international .nav-text {
-    color: #FCD34D;
-}
-
-.nav-item.tech .nav-blob {
-    background-color: #EDE9FE;
-    border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
-}
-
-body.dark .nav-item.tech .nav-blob {
-    background-color: rgba(139, 92, 246, 0.3);
-}
-
-.nav-item.tech .nav-text {
-    color: #6D28D9;
-}
-
-body.dark .nav-item.tech .nav-text {
-    color: #C4B5FD;
-}
-
-/* Header Actions */
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.icon-btn {
-    padding: 0.5rem;
-    border-radius: 9999px;
-    background: none;
-    border: none;
-    color: #6B7280;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-body.dark .icon-btn {
-    color: #9CA3AF;
-}
-
-.icon-btn:hover {
-    background-color: #F3F4F6;
-}
-
-body.dark .icon-btn:hover {
-    background-color: #334155;
-}
-
-/* User Dropdown */
-.user-dropdown-container {
-    position: relative;
-}
-
-.user-dropdown {
-    position: absolute;
-    right: 0;
-    margin-top: 0.5rem;
-    width: 224px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    border: 1px solid #F3F4F6;
-    padding: 0.25rem 0;
-    display: none;
-    z-index: 50;
-}
-
-body.dark .user-dropdown {
-    background-color: #1E293B;
-    border-color: #374151;
-}
-
-.user-dropdown.show {
-    display: block;
-}
-
-.user-info {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #F3F4F6;
-}
-
-body.dark .user-info {
-    border-bottom-color: #374151;
-}
-
-.user-name {
-    font-size: 0.875rem;
-    font-weight: bold;
-    color: #111827;
-}
-
-body.dark .user-name {
-    color: white;
-}
-
-.user-email {
-    font-size: 0.75rem;
-    color: #6B7280;
-    margin-top: 0.125rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-body.dark .user-email {
-    color: #9CA3AF;
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-    color: #374151;
-    text-decoration: none;
-    transition: background-color 0.3s;
-}
-
-body.dark .dropdown-item {
-    color: #E5E7EB;
-}
-
-.dropdown-item:hover {
-    background-color: #F9FAFB;
-}
-
-body.dark .dropdown-item:hover {
-    background-color: #334155;
-}
-
-.dropdown-item.logout {
-    color: #DC2626;
-}
-
-body.dark .dropdown-item.logout {
-    color: #F87171;
-}
-
-.dropdown-item.logout:hover {
-    background-color: #FEF2F2;
-}
-
-body.dark .dropdown-item.logout:hover {
-    background-color: rgba(220, 38, 38, 0.1);
-}
-
-.dropdown-divider {
-    height: 1px;
-    background-color: #F3F4F6;
-    margin: 0.25rem 0;
-}
-
-body.dark .dropdown-divider {
-    background-color: #374151;
-}
 
 /* Search Bar */
 .search-section {
-    background-color: white;
-    padding: 1rem 0;
-    border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 3rem;
 }
 
-body.dark .search-section {
-    background-color: #1E293B;
-    border-bottom-color: #334155;
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.search-container {
-    max-width: 768px;
-    margin: 0 auto;
-    padding: 0 1rem;
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
 }
 
-.search-wrapper {
-    position: relative;
-}
-
-.search-dropdown-btn {
-    position: absolute;
-    left: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
     align-items: center;
-    gap: 0.125rem;
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: #4B5563;
-    background-color: white;
-    padding: 0.375rem 0.625rem;
-    border-radius: 8px;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-    transition: all 0.3s;
-    z-index: 20;
+  }
 }
 
-body.dark .search-dropdown-btn {
-    color: #D1D5DB;
-    background-color: #334155;
-    border-color: #4B5563;
+/* Select */
+.select-wrap {
+  position: relative;
+  width: 100%;
 }
 
-.search-dropdown-btn:hover {
-    background-color: #F9FAFB;
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
 }
 
-body.dark .search-dropdown-btn:hover {
-    background-color: #475569;
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.search-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 0.25rem);
-    left: 0.5rem;
-    width: 112px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #F3F4F6;
-    overflow: hidden;
-    display: none;
-    z-index: 30;
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
 }
 
-body.dark .search-dropdown-menu {
-    background-color: #1E293B;
-    border-color: #374151;
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
 }
 
-.search-dropdown-menu.show {
-    display: block;
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
 }
 
-.search-dropdown-item {
-    display: block;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #374151;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-body.dark .search-dropdown-item {
-    color: #D1D5DB;
-}
-
-.search-dropdown-item:hover {
-    background-color: #F9FAFB;
-    color: #3B82F6;
-}
-
-body.dark .search-dropdown-item:hover {
-    background-color: #334155;
+/* Input */
+.search-input-wrap {
+  position: relative;
+  flex: 1;
 }
 
 .search-input {
-    width: 100%;
-    padding: 0.75rem 3rem 0.75rem 7rem;
-    border: none;
-    border-radius: 12px;
-    background-color: #F3F4F6;
-    color: #111827;
-    font-size: 1rem;
-    transition: all 0.3s;
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
 }
 
 body.dark .search-input {
-    background-color: #1E293B;
-    color: white;
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
 }
 
 .search-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #3B82F6;
-    background-color: white;
-}
-
-body.dark .search-input:focus {
-    background-color: #1E293B;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
 }
 
 .search-btn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 0.5rem;
-    border-radius: 8px;
-    background: none;
-    border: none;
-    color: #3B82F6;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
 }
 
-.search-btn:hover {
-    background-color: #E5E7EB;
-}
-
-body.dark .search-btn:hover {
-    background-color: #334155;
-}
 
 /* Main Content */
 main {
@@ -1185,185 +799,552 @@ body.dark .btn-secondary:hover {
 .hidden {
     display: none;
 }
+
+/* === Header Action (New Design) === */
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+body.dark .icon-button {
+    color: #9CA3AF;
+}
+
+.icon-button:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-button:hover {
+    background-color: #334155;
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: #E5E7EB;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: #1F2937;
+}
+
+
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 12rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    z-index: 50;
+}
+
+body.dark .user-dropdown {
+    background-color: #1F2937;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+}
+
+body.dark .user-dropdown a {
+    color: #E5E7EB;
+}
+
+.user-dropdown a:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .user-dropdown a:hover {
+    background-color: #334155;
+}
+
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    position: relative;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-btn {
+    color: #9CA3AF;
+}
+
+body.dark .icon-btn:hover {
+    background-color: #374151;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+
+/* Header Actions (MyPage + Dark Mode) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+
 </style>
-<script>
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-}
 
-function toggleUserDropdown() {
-    const dropdown = document.getElementById('user-dropdown');
-    dropdown.classList.toggle('show');
-}
-
-function toggleSearchDropdown() {
-    const menu = document.getElementById('search-dropdown-menu');
-    menu.classList.toggle('show');
-}
-
-function updateSearchContext(label, placeholder) {
-    document.getElementById('search-dropdown-label').innerText = label;
-    document.getElementById('search-input-field').placeholder = placeholder;
-    document.getElementById('search-dropdown-menu').classList.remove('show');
-}
-
-function performSearch() {
-    const input = document.getElementById('search-input-field');
-    if (input && input.value.trim() !== "") {
-        const query = encodeURIComponent(input.value.trim());
-        window.location.href = `search-result.html?q=${query}`;
-    }
-}
-
-function showLoginModal() {
-    document.getElementById('login-popup').classList.add('show');
-}
-
-function hideLoginModal() {
-    document.getElementById('login-popup').classList.remove('show');
-}
-
-function performLogin() {
-    document.getElementById('dropdown-loggedin').classList.remove('hidden');
-    document.getElementById('dropdown-loggedout').classList.add('hidden');
-    hideLoginModal();
-}
-
-function performLogout() {
-    document.getElementById('dropdown-loggedin').classList.add('hidden');
-    document.getElementById('dropdown-loggedout').classList.remove('hidden');
-    toggleUserDropdown();
-}
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    const userDropdown = document.getElementById('user-dropdown');
-    const userBtn = document.querySelector('.user-dropdown-container button');
-    const searchDropdown = document.getElementById('search-dropdown-menu');
-    const searchBtn = document.querySelector('.search-dropdown-btn');
-
-    if (userDropdown && !userDropdown.contains(event.target) && !userBtn.contains(event.target)) {
-        userDropdown.classList.remove('show');
-    }
-
-    if (searchDropdown && !searchDropdown.contains(event.target) && !searchBtn.contains(event.target)) {
-        searchDropdown.classList.remove('show');
-    }
-});
-
-// Search on Enter key
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('search-input-field');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                performSearch();
-            }
-        });
-    }
-});
-</script>
 </head>
 <body>
-
-<header>
-    <div class="header-container">
-        <a class="logo" href="homepage.html">
-            <div class="logo-icon">N</div>
-            <span class="logo-text">NewsPalette</span>
-        </a>
-
-        <nav>
-            <a class="nav-item society" href="socialcategorypage.html">
-                <span class="nav-blob"></span>
-                <span class="nav-text">사회</span>
-            </a>
-            <a class="nav-item politics" href="politiccategorypage.html">
-                <span class="nav-blob"></span>
-                <span class="nav-text">정치</span>
-            </a>
-            <a class="nav-item economy" href="economycategory.html">
-                <span class="nav-blob"></span>
-                <span class="nav-text">경제</span>
-            </a>
-            <a class="nav-item international" href="universecategory.html">
-                <span class="nav-blob"></span>
-                <span class="nav-text">국제</span>
-            </a>
-            <a class="nav-item tech" href="ITcategory.html">
-                <span class="nav-blob"></span>
-                <span class="nav-text">IT/과학</span>
-            </a>
-        </nav>
-
-        <div class="header-actions">
-            <button class="icon-btn" onclick="toggleDarkMode()">
-                <span class="material-symbols-outlined">dark_mode</span>
-            </button>
-
-            <div class="user-dropdown-container">
-                <button class="icon-btn" onclick="toggleUserDropdown()">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
-                </button>
-
-                <div class="user-dropdown" id="user-dropdown">
-                    <div id="dropdown-loggedin">
-                        <div class="user-info">
-                            <p class="user-name">뉴스팔레트 회원</p>
-                            <p class="user-email">member@newspalette.com</p>
-                        </div>
-                        <a class="dropdown-item" href="mypage.html">
-                            <span class="material-symbols-outlined">account_circle</span>
-                            마이페이지
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item logout" href="#" onclick="performLogout(); return false;">
-                            <span class="material-symbols-outlined">logout</span>
-                            로그아웃
-                        </a>
-                    </div>
-
-                    <div class="hidden" id="dropdown-loggedout">
-                        <a class="dropdown-item" href="login.html">
-                            <span class="material-symbols-outlined">login</span>
-                            로그인
-                        </a>
-                    </div>
-                </div>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="homepage.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
+                </a>
             </div>
-        </div>
-    </div>
-</header>
-
-<div class="search-section">
-    <div class="search-container">
-        <div class="search-wrapper">
-            <button class="search-dropdown-btn" onclick="toggleSearchDropdown()">
-                <span id="search-dropdown-label">제목+본문</span>
-                <span class="material-symbols-outlined">arrow_drop_down</span>
-            </button>
-
-            <div class="search-dropdown-menu" id="search-dropdown-menu">
-                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('제목+본문', '관심있는 뉴스를 검색해보세요'); return false;">제목+본문</a>
-                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('제목', '기사 제목을 검색해 보세요'); return false;">제목</a>
-                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('본문', '기사 본문 내용을 검색해 보세요'); return false;">본문</a>
-                <a class="search-dropdown-item" href="#" onclick="updateSearchContext('키워드', '관심 키워드를 검색해 보세요'); return false;">키워드</a>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-world" href="economycategory.html">국제</a>
+                <a class="nav-splash-item splash-international" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
             </div>
+     <div class="header-actions">
+    <button class="icon-button" onclick="toggleDarkMode()">
+        <span class="material-symbols-outlined">dark_mode</span>
+    </button>
 
-            <input
-                class="search-input"
-                id="search-input-field"
-                placeholder="관심있는 뉴스를 검색해보세요"
-                type="text"
-            />
+    <div class="user-menu">
+        <button class="user-menu-button" onclick="toggleUserMenu()">
+            <div class="user-menu-blob"></div>
+            <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+        </button>
 
-            <button class="search-btn" onclick="performSearch()">
-                <span class="material-symbols-outlined">search</span>
-            </button>
+        <div class="user-dropdown" id="userDropdown">
+            <div id="dropdownContent"></div>
         </div>
     </div>
 </div>
 
+</nav>
+<main>
+<section class="search-section">
+  <div class="search-bar">
+    <div class="select-wrap">
+      <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+        <option value="title_body" selected="">제목+본문</option>
+        <option value="title">제목</option>
+        <option value="body">본문</option>
+        <option value="keyword">키워드</option>
+      </select>
+      <span class="material-symbols-outlined select-caret">expand_more</span>
+    </div>
+
+    <div class="search-input-wrap">
+      <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
+      <button class="search-btn" onclick="performSearch()" aria-label="검색">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+    </div>
+  </div>
+</section>
 <main>
     <div class="content-grid">
         <!-- Left Sidebar -->
@@ -1374,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="material-symbols-outlined">trending_down</span>
                         반대 성향 기사
                     </h3>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag critical">비판적 시각</span>
                         <div class="article-content">
@@ -1387,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </a>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag alternative">다른 관점</span>
                         <div class="article-content">
@@ -1400,7 +1381,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </a>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag analysis">분석</span>
                         <div class="article-content">
@@ -1416,15 +1397,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </aside>
-
+        
         <!-- Main Article -->
         <article class="main-article">
-            <header class="article-header">
+
                 <h1 class="article-headline">
                     글로벌 경제의 대전환점:<br/>
                     <span class="highlight">인공지능</span>이 바꾸는 미래 산업 지형도
                 </h1>
-
+                
                 <div class="article-meta">
                     <div class="author-info">
                         <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
@@ -1433,42 +1414,42 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="author-dept">뉴스팔레트 경제부</div>
                         </div>
                     </div>
-
+                    
                     <div class="article-date">
                         <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
                     </div>
                 </div>
             </header>
-
+            
             <figure class="featured-image">
                 <img alt="AI Connection Network" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoNZSXI4i9jP9Ngp3ktWbr9ZCXaCEMKcVQ7D_m5n5a3PJLldWBicbQwGKWumvP4udJV8kHO2LX5QBVcFIBDm7IFdpxnvHMfnhwgVtPd-d-NmeVdhD8hrhl_djGVrLaYi7dv2ySVrBA2uTOVx2p4EiqLrZO6Rqo1z53SGPQASTSXS3eZ1Spw-ExbjLv3xTH0vl2YjeE-5yLwp9gBPxdOi11jzsWZNczMqL1xMVvgNLandPHEXvwYxRRQCeTE4hC64QS4Py9CLuYo6s"/>
                 <figcaption>
                     셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다.
                 </figcaption>
             </figure>
-
+            
             <div class="article-body">
                 <p>
                     <span class="drop-cap">인</span>
                     공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
                 </p>
-
+                
                 <p>
                     지난 수십 년간 정보화 혁명이 인터넷을 중심으로 이루어졌다면, 이번 AI 혁명은 '지능화'를 핵심으로 한다. 데이터 분석을 넘어 스스로 콘텐츠를 생성하고, 복잡한 의사결정을 지원하며, 인간의 창의성 영역까지 넘보고 있다.
                 </p>
-
+                
                 <blockquote>
                     <p>
                         "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
                     </p>
                     <cite>- 홍수형 경제연구소 수석연구원</cite>
                 </blockquote>
-
+                
                 <p>
                     향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
                 </p>
             </div>
-
+            
             <section class="related-section">
                 <div class="section-header">
                     <h3 class="section-title">
@@ -1476,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         이 기사와 연관된 뉴스
                     </h3>
                 </div>
-
+                
                 <div class="related-grid">
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
@@ -1486,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-
+                    
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Office Plant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhOAQiATb9MVPwOcSMunpaakj2hwYzrxHU5DMhikdzS0xwpjlIr6nviHPtn7zspy_7RSSXMe8SFpKup1Aqb2qyBlBl-SCSYeKwdYMOTjwAeikVFCJnVPnXdsEK40xp1mG3DR11WqhMQ6HPJzOOQys8bsH6W1ah13J6E5GG-6At0R_V1xOqbo_XZMKKMSIa-G18RnVuqIdrAQy_75iOKVOjcmJRzuvOZelbbIRJa4kjNe608NjtGan2e_rRk__UdeWPukPCSzAhhw"/>
@@ -1495,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h4 class="related-title">개발자 없는 개발 시대, 노코드(No-Code) 열풍</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-
+                    
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvWBjc1BBXGwhaWq9bj1Ubp53AVdwo7_BZeiNTcrPVxiyRxIqWM42lxZd8H_qU1CvV1do6jwjtOXSac5Uvyu-QY_VQyE0AxdNi3wgLzWn4fZi8xmyQsSZziskkXld52oT6xHZ-gqMKJguzPdu9MV-9t21uta3p46Bp1lI-AKMEZNgYNuhmIwb3KmUzjmciBOyOfHUaWZLiCfsGNmuIcP7UpsSl9LIwju3lKK2264EzgRA3aJX5hj0cDh7IWaRIVcSj1RufWKbAUuU"/>
@@ -1507,7 +1488,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </section>
         </article>
-
+        
         <!-- Right Sidebar -->
                 <aside class="sidebar">
             <div class="sidebar-sticky">
@@ -1566,7 +1547,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="article-category">날씨</span>
                             </div>
                         </div>
-                    </a>
+                    </a>+
                      <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag trending">실시간 인기</span>
                         <div class="article-content">
@@ -1585,8 +1566,143 @@ document.addEventListener('DOMContentLoaded', function() {
 
     </div>
 </main>
+<script>
+/* ===============================
+   🔥 다크모드 (로컬스토리지)
+================================ */
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem(
+        'darkMode',
+        document.body.classList.contains('dark')
+    );
+}
+
+// 초기 다크모드
+if (
+    localStorage.getItem('darkMode') === 'true' ||
+    (
+        !localStorage.getItem('darkMode') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    )
+) {
+    document.body.classList.add('dark');
+}
+
+/* ===============================
+   🔥 유저 메뉴
+================================ */
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+// 바깥 클릭 시 닫기
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+/* ===============================
+   🔥 로그인 상태 처리
+================================ */
+function toggleLoginState() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+/* ===============================
+   🔥 검색 드롭다운
+================================ */
+function toggleSearchDropdown() {
+    document.getElementById('search-dropdown-menu').classList.toggle('show');
+}
+
+function updateSearchContext(label, placeholder) {
+    document.getElementById('search-dropdown-label').innerText = label;
+    document.getElementById('search-input-field').placeholder = placeholder;
+    document.getElementById('search-dropdown-menu').classList.remove('show');
+}
+
+function performSearch() {
+    const input = document.getElementById('search-input-field');
+    if (input.value.trim()) {
+        location.href = `searchresult.html?q=${encodeURIComponent(input.value.trim())}`;
+    }
+}
+
+/* ===============================
+   🔥 카테고리 active 고정
+================================ */
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = location.pathname.split('/').pop();
+
+    navItems.forEach(item => {
+        item.classList.toggle(
+            'active',
+            item.getAttribute('href') === currentPage
+        );
+    });
+}
+
+/* ===============================
+   🔥 초기 실행
+================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();
+
+    const searchInput = document.getElementById('search-input-field');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') performSearch();
+        });
+    }
+});
+</script>
 
 </body>
 </html>
-
-
+                    
+                    
+       
