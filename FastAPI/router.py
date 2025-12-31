@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
+
 from starlette.middleware.sessions import SessionMiddleware
 # try:
 #     import member
 # except ModuleNotFoundError:
 #     from . import member  # 분리한 파일 임포트
 from . import member
+from . import article
 
 app = FastAPI()
 app.mount("/view", StaticFiles(directory="view"), name="view")
@@ -125,3 +127,24 @@ async def change_information(
     user_id: str = Form(...),
 ):
     pass
+  
+ 
+@app.get("/article/{article_id}", response_class=HTMLResponse)
+async def article_page(request: Request, article_id: str):
+    return RedirectResponse(
+        url=f"/view/personal_article.html?article_id={article_id}",
+        status_code=302
+    )
+
+@app.get("/api/article/{article_id}")
+def get_article(article_id: str):
+    # ES/DB에서 조회
+    main = article.get_article(article_id)
+    related = article.get_related(article_id)
+
+    return {
+        "article": main,
+        "related": related
+    }
+
+
