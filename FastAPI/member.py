@@ -1,7 +1,8 @@
 from util.database import SessionLocal
 from sqlalchemy import text
 from datetime import datetime
-
+import random
+import string
 
 # 아이디 중복 체크
 def check_id(user_id: str):
@@ -82,18 +83,25 @@ def find_id(email: str, security_answer: str):
         return None
 
 # 비밀번호 찾기
-def find_pw(user_id: str, email: str):
+def reset_to_temp_pw(user_id, email):
     with SessionLocal() as connection:
-        query = text("""
-            SELECT user_pw 
-            FROM user_auth 
-            WHERE user_id = :u_id AND user_email = :email
-        """)
-        result = connection.execute(query, {"u_id": user_id, "email": email}).fetchone()
+        # 1. 먼저 유저가 존재하는지 확인
+        query_check = text("SELECT 1 FROM user_auth WHERE user_id = :u_id AND user_email = :email")
+        exists = connection.execute(query_check, {"u_id": user_id, "email": email}).fetchone()
 
-        if result:
-            return result.user_pw  # 비밀번호 반환 ( 비밀번호 재설정 고려 )
-        return None
+        if not exists:
+            return None
+
+        # 2. 임시 비밀번호 생성 (10자리)
+        chars = string.ascii_letters + string.digits + "!@#$"
+        temp_pw = "".join(random.sample(chars, 10))
+
+        # 3. DB 업데이트 (실제 서비스라면 암호화해서 저장해야 함)
+        query_update = text("UPDATE user_auth SET user_pw = :pw WHERE user_id = :u_id")
+        connection.execute(query_update, {"pw": temp_pw, "u_id": user_id})
+        connection.commit()  # 변경사항 저장
+
+        return temp_pw
 
 # 비밀번호 변경
 def change_pw(user_id, current_pw, new_pw):

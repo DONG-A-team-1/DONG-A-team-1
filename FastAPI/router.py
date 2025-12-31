@@ -106,16 +106,18 @@ async def find_user_id(
 
 @app.post("/find-pw")
 async def find_user_pw(
-    user_id: str = Form(...),
-    user_email: str = Form(...)
+        user_id: str = Form(...),
+        user_email: str = Form(...)
 ):
-    user_pw = member.find_pw(user_id, user_email)
-    if user_pw:
-        return {"status": "success", "user_pw": user_pw}
+    temp_pw = member.reset_to_temp_pw(user_id, user_email)
+
+    if temp_pw:
+        return {"status": "success", "temp_pw": temp_pw}
+
     return JSONResponse(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
-)
+    )
 
 
 @app.post("/change-information") # 회원 정보수정 만들어야됨  로그인 돼있는 아이디 받아와서 그거에 맞게 적용시키는 식
