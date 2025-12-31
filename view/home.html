@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     
+
    <style>
       /*다크모드 */
       :root {
@@ -30,6 +30,8 @@
           --muted: #6b7280;
           --border: #e5e7eb;
           --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
           --container: 1280px;
           --gray-100: #f3f4f6;
           --gray-700: #374151;
@@ -160,13 +162,14 @@
       }
 
       .category {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          display: none;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        white-space: nowrap;
       }
 
-      @media (min-width: 768px) {
+      @media (min-width: 850px) {
           .category {
               display: flex;
               align-items: center;
@@ -186,6 +189,7 @@
           z-index: 10;
           color: #4B5563;
           text-decoration: none;
+          white-space: nowrap;
       }
 
       body.dark .nav-splash-item {
@@ -636,29 +640,61 @@
         .top-grid { grid-template-columns: 2fr 1fr; }
       }
 
-      /* Main news card */
+      /* 캐러셀 기본 */
+      .carousel {
+        position: relative;
+      }
+
+      /* 보이는 영역 */
+      .viewport {
+        overflow: hidden;
+        width: 100%;
+      }
+
+      /* 실제로 움직이는 줄 */
+      .track {
+        display: flex;
+        width: 100%;
+        transition: transform 0.4s ease;
+      }
+
+      /* 메인 기사 카드 - 고정 높이 */
+      .news-link {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
       .main-news-card {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        height: 500px; /* 고정 높이 */
         display: grid;
-        cursor:pointer;
-        grid-template-columns: 6fr 4fr;
+        grid-template-columns: 1.5fr 1fr; /* 1:1 비율 */
         gap: 0;
         border-radius: 20px;
         overflow: hidden;
         background: var(--surface);
         position: relative;
-        min-height: 100%;
+        cursor: pointer;
         transition: transform .25s ease, box-shadow .25s ease;
-        align-items:stretch;
-      }
-      .main-news-card:hover { 
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg); 
       }
 
+      .main-news-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      /* 이미지 영역 */
       .main-news-media {
         position: relative;
         width: 100%;
         height: 100%;
+        overflow: hidden;
       }
 
       .main-news-media img {
@@ -701,16 +737,18 @@
 
         box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
       }
-      .trend-chip .material-icons-round { font-size: 16px; }
+      .trend-chip .material-symbols-outlined { font-size: 16px; }
 
+      /* 텍스트 영역 */
       .main-news-body {
-        flex-direction: column;
-        padding: 28px;
-        height: 100%;
+        position: relative;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 24px;
+        height: 100%;
         background: var(--surface);
-        padding-bottom: 28px;
+        overflow: hidden;
       }
 
       html.dark .main-news-body {
@@ -725,65 +763,89 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #fff;
         margin-bottom: 8px;
       }
 
-      .date { font-size: 12px; color: rgba(229,231,235,.9); }
+      .pill {
+        padding: 4px 12px;
+        border-radius: 6px;
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 600;
+      }
 
+      .date {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* 제목 */
       .main-title {
-        margin: 0 0 14px;
-        color: #2b2b2b;
+        margin: 0 0 12px;
+        color: var(--text);;
         font-weight: 800;
-        line-height: 1.2;
-        text-shadow: 0 10px 30px rgba(0,0,0,.35);
-        font-size: 24px;
+        line-height: 1.3;
+        font-size: 28px;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 2; /* 최대 2줄 */
         -webkit-box-orient: vertical;
         overflow: hidden;
+        text-overflow: ellipsis;
       }
+
       html.dark .main-title {
         color: #ffffff;
-        text-shadow: 0 10px 30px rgba(0,0,0,.6);
       }
 
-      @media (min-width: 768px) { .main-title { font-size: 32px; } }
-      @media (min-width: 1024px) { .main-title { font-size: 38px; } }
+      @media (min-width: 768px) {
+        .main-title { font-size: 32px; }
+      }
 
+      /* 설명 */
       .main-desc {
-        margin: 0 0 18px;
-        color: color-mix(in oklab, var(--text) 82%, transparent);
+        margin: 0 0 12px;
+        color: color-mix(in oklab, var(--text) 75%, transparent);
         font-size: 14px;
         line-height: 1.6;
-        text-shadow: 0 10px 30px rgba(0,0,0,.30);
-        display:block;
-      }
-      @media (min-width: 768px) { .main-desc { font-size: 16px; } }
-
-      /* 캐러셀 기본 */
-      .carousel {
-        position: relative;
-      }
-
-      /* 보이는 영역 */
-      .viewport {
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* 최대 3줄 */
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        width: 100%;
+        text-overflow: ellipsis;
+        flex: 1;
       }
 
-      /* 실제로 움직이는 줄 */
-      .track {
+      @media (min-width: 768px) {
+        .main-desc { font-size: 15px; }
+      }
+
+      /* 푸터 - 하단 고정 */
+      .article-footer {
+        margin-top: auto;
+        margin-bottom: 8px;
+      }
+
+      .article-author-info {
         display: flex;
-        width: 100%;
-        transition: transform 0.4s ease;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--muted);
       }
 
-      /* 메인 기사는 한 장씩 */
-      .main-news-card {
-        flex: 0 0 100%;
-        width: 100%;
-        max-width: 100%;
+      .author-name {
+        font-weight: 600;
+      }
+
+      .author-dot::before {
+        content: "•";
+        margin-right: 8px;
+      }
+
+      /* 점수 컨테이너 */
+      .score-container {
+        margin-top: 8px;
       }
 
       /* 화살표 버튼 */
@@ -792,51 +854,75 @@
         top: 50%;
         transform: translateY(-50%);
         z-index: 10;
-        background: rgba(0,0,0,0.4);
+        background: rgba(0,0,0,0.5);
         border: none;
         color: #fff;
-        padding: 8px;
+        padding: 12px;
         cursor: pointer;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
       }
 
-      .arrow.left { left: 8px; }
-      .arrow.right { right: 8px; }
+      .arrow:hover {
+        background: rgba(0,0,0,0.7);
+      }
 
-      /* 신뢰도 점수 각 기사마다 */
-      .trust-score {
-        position: absolute;
-        right: 0;
-        bottom: 0;
+      .arrow.left { left: 12px; }
+      .arrow.right { right: 12px; }
 
+      /* ========== 메인 기사 캐러셀 점수 ========== */
+      .main-news-body .score-container {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .main-news-body .trend-score,
+      .main-news-body .trust-score {
         display: flex;
         align-items: center;
         gap: 6px;
-
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 500;
+      }
+
+      .main-news-body .trend-score {
+        color: #eb2581;
+      }
+
+      .main-news-body .trust-score {
         color: #2563eb;
       }
 
-      .trust-value {
-        padding: 2px 6px;
+      .main-news-body .trend-value {
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: #ffe6f0;
+      }
+
+      .main-news-body .trust-value {
+        padding: 3px 8px;
         border-radius: 6px;
         background: #eff6ff;
       }
-      .main-news-body .trust-score {
-        position: absolute;
-        right: 0;
-        bottom: 0;
 
-        display: flex;
-        align-items: center;
-        gap: 6px;
-
-        font-size: 13px;
-        font-weight: 500;
-        color: #2563eb;
+      html.dark .main-news-body .trend-value {
+        background: rgba(235, 37, 129, 0.25);
       }
-      /* 연관기사 신뢰도 점수 */
-      .trust-score {
+
+      html.dark .main-news-body .trust-value {
+        background: rgba(37, 99, 235, 0.25);
+      }
+
+      /* ========== 연관 기사 & 개인화 기사 신뢰도 점수 (우측 하단) ========== */
+      .related-item .trust-score,
+      .personal-card .trust-score {
         position: absolute;
         right: 16px;
         bottom: 12px;
@@ -853,7 +939,8 @@
         background-color: #eff6ff;
       }
 
-      html.dark .trust-value {
+      html.dark .related-item .trust-score,
+      html.dark .personal-card .trust-score {
         background: rgba(37, 99, 235, 0.25);
       }
 
@@ -891,10 +978,10 @@
       .more-link:hover { color: var(--primary); }
 
       .related-item {
-        margin:10px;
-        position:relative;
+        margin: 10px;
+        position: relative;
         display: flex;
-        cursor:pointer;
+        cursor: pointer;
         gap: 14px;
         height: 106px;
         padding: 12px;
@@ -906,8 +993,8 @@
         min-height: 96px;
       }
       .related-item + .related-item { margin-top: 12px; }
-      .related-item:hover { 
-        box-shadow: var(--shadow-md); 
+      .related-item:hover {
+        box-shadow: var(--shadow-md);
         transform: translateY(-2px);
       }
 
@@ -968,19 +1055,19 @@
 
       .sub-card {
         border-radius: 14px;
-        cursor:pointer;
+        cursor: pointer;
         overflow: hidden;
         border: 1px solid var(--border);
         background: var(--surface);
         box-shadow: var(--shadow-sm);
         display: flex;
         flex-direction: column;
-        transition:box-shadow .2s ease, transform .2s ease;
+        transition: box-shadow .2s ease, transform .2s ease;
       }
       .sub-card:hover {
-        box-shadow: var(--shadow-lg); 
+        box-shadow: var(--shadow-lg);
         transform: translateY(-4px);
-        }
+      }
 
       .sub-media {
         position: relative;
@@ -1021,7 +1108,7 @@
         font-weight: 800;
         cursor: pointer;
         transition: color .15s;
-        color:var(--primary);
+        color: var(--primary);
       }
       .sub-title:hover { color: var(--primary); }
 
@@ -1106,19 +1193,18 @@
 
       /* 한 줄짜리 개인화 기사 */
 
-
       .personalized-wrap {
         max-width: 1280px;
         display: flex;
         flex-direction: column;
         gap: 16px;
-        margin:0 auto;
+        margin: 0 auto;
       }
-      .personalized-header{
+      .personalized-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top:16px;
+        margin-top: 16px;
       }
 
       /* 🔥 링크 밑줄 제거 */
@@ -1128,14 +1214,14 @@
 
       /* 카드 */
       .personal-card {
-        position:relative;
-        transition:box-shadow .2s ease, transform .2s ease;
+        position: relative;
+        transition: box-shadow .2s ease, transform .2s ease;
         cursor: pointer;
-        background:var(--surface);
+        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 16px;
         padding: 24px 28px;
-        min-height: 120PX;
+        min-height: 120px;
       }
 
       .personal-card:hover {
@@ -1153,12 +1239,12 @@
         display: flex;
         align-items: center;
         gap: 16px;
-        min-height: 120PX;
+        min-height: 120px;
         margin-bottom: 10px;
       }
 
       /* 썸네일 */
-      .thumb {
+      .personal-img {
         width: 64px;
         height: 64px;
         border-radius: 12px;
@@ -1166,22 +1252,7 @@
         flex-shrink: 0;
         background: #f3f4f6;
       }
-
-      .thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-      .personal-img{
-        width: 64px;
-        height: 64px;
-        border-radius: 12px;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: #f3f4f6;
-      }
-      .personal-img img{
+      .personal-img img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -1297,50 +1368,50 @@
       }
       .clamp-2 { -webkit-line-clamp: 2; }
       .clamp-3 { -webkit-line-clamp: 3; }
-      
+
       /* Footer */
-        footer {
-            background-color: #ffffff;
-            border-top: 1px solid #e5e7eb;
-            margin-top: 5rem;
-            padding: 3rem 0;
-        }
+      footer {
+        background-color: #ffffff;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 5rem;
+        padding: 3rem 0;
+      }
 
-        body.dark footer {
-            background-color: #1f2937;
-            border-top-color: #374151;
-        }
+      body.dark footer {
+        background-color: #1f2937;
+        border-top-color: #374151;
+      }
 
+      .footer-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
         .footer-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
+          flex-direction: row;
+          justify-content: space-between;
         }
+      }
 
-        @media (min-width: 768px) {
-            .footer-container {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-        }
+      .footer-info {
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-align: center;
+      }
 
-        .footer-info {
-            font-size: 0.875rem;
-            color: #6b7280;
-            text-align: center;
-        }
-
-        body.dark .footer-info {
-            color: #9ca3af;
-        }
+      body.dark .footer-info {
+        color: #9ca3af;
+      }
 
     </style>
 </head>
-  
+
   <body>
     <nav>
       <div class="nav-container">
@@ -1415,66 +1486,270 @@
 
         <!-- ⭐ Main news (캐러셀 적용) -->
         <div class="main-news carousel">
-          
-          <!-- 왼쪽 버튼 --> 
+
+          <!-- 왼쪽 버튼 -->
           <button class="arrow left" id="prevBtn">
             <span class="material-symbols-outlined">chevron_left</span>
           </button>
 
           <!-- 캐러셀 viewport -->
-          <div class="viewport">
+           <div class="viewport">
             <div class="track" id="track">
 
               <!-- ===== 메인기사 슬라이드 1 ===== -->
-              <div class="main-news-card">
-                <div class="main-news-media">
-                  <img
-                    alt="Main News Abstract"
-                    src=""
-                  />
-                  <div class="media-gradient"></div>
-                  <div class="trend-chip">
-                    <span class="material-symbols-outlined">trending_up</span>
-                    트렌드 순위 1위
+              <a href="article-detail.html?id=123" class="news-link">
+                <div class="main-news-card">
+                  <div class="main-news-media">
+                      <img
+                          alt="Main News Abstract"
+                          src="https://via.placeholder.com/800x600"
+                      />
+                      <div class="media-gradient"></div>
+                      <div class="trend-chip">
+                          <span class="material-symbols-outlined">trending_up</span>
+                          트렌드 순위 1위
+                      </div>
+                  </div>
+
+                  <div class="main-news-body">
+                    <div class="meta-row">
+                        <span class="pill"></span>
+                        <span class="date">기간</span>
+                    </div>
+
+                    <h1 class="main-title">
+                        1제에엥에에에에에에에모고오오오오옥
+                    </h1>
+
+                    <p class="main-desc clamp-3">
+                        안녕하세요. 이것은 메인 기사 설명입니다.
+                    </p>
+
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name">기자명</span>
+                            <span class="author-dot">언론사명</span>
+                        </div>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="trend-score">
+                            <span class="trend-label">트렌드</span>
+                            <span class="trend-value"></span>
+                        </div>
+
+                        <div class="trust-score">
+                            <span class="trust-label">신뢰도</span>
+                            <span class="trust-value"></span>
+                        </div>
+                    </div>
                   </div>
                 </div>
-
-                <div class="main-news-body">
-                  <div class="meta-row">
-                    <span class="pill"></span>
-                    <span class="date"></span>
-                  </div>
-
-                  <h1 class="main-title">
-                  </h1>
-
-                  <p class="main-desc clamp-3">
-                    
-                  </p>
-                <div class="article-footer">
-                  <div class="article-author-info">
-                      <span class="author-name"></span>
-                      <span class="author-dot"></span>
-                      <span></span>
-                  </div>
-              </div>
-                  <div class="trust-score" data-score="">
-                    <span class="trust-label">신뢰도</span>
-                    <span class="trust-value"></span>
-                  </div>
-                </div>
-              </div>
+              </a>
 
               <!-- ===== 메인기사 슬라이드 2 ===== -->
-              <div class="main-news-card">
-                <!-- 두 번째 메인 기사 내용 -->
-              </div>
+              <a href="article-detail.html?id=123" class="news-link">
+                <div class="main-news-card">
+                  <div class="main-news-media">
+                      <img
+                          alt="Main News Abstract"
+                          src="https://via.placeholder.com/800x600"
+                      />
+                      <div class="media-gradient"></div>
+                      <div class="trend-chip">
+                          <span class="material-symbols-outlined">trending_up</span>
+                          트렌드 순위 2위
+                      </div>
+                  </div>
+
+                  <div class="main-news-body">
+                    <div class="meta-row">
+                        <span class="pill"></span>
+                        <span class="date">기간</span>
+                    </div>
+
+                    <h1 class="main-title">
+                        2제에엥에에에에에에에모고오오오오옥
+                    </h1>
+
+                    <p class="main-desc clamp-3">
+                        안녕하세요. 이것은 메인 기사 설명입니다.
+                    </p>
+
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name">기자명</span>
+                            <span class="author-dot">언론사명</span>
+                        </div>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="trend-score">
+                            <span class="trend-label">트렌드</span>
+                            <span class="trend-value"></span>
+                        </div>
+
+                        <div class="trust-score">
+                            <span class="trust-label">신뢰도</span>
+                            <span class="trust-value"></span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
 
               <!-- ===== 메인기사 슬라이드 3 ===== -->
-              <div class="main-news-card">
-                <!-- 세 번째 메인 기사 내용 -->
-              </div>
+              <a href="article-detail.html?id=123" class="news-link">
+                <div class="main-news-card">
+                  <div class="main-news-media">
+                      <img
+                          alt="Main News Abstract"
+                          src="https://via.placeholder.com/800x600"
+                      />
+                      <div class="media-gradient"></div>
+                      <div class="trend-chip">
+                          <span class="material-symbols-outlined">trending_up</span>
+                          트렌드 순위 3위
+                      </div>
+                  </div>
 
+                  <div class="main-news-body">
+                    <div class="meta-row">
+                        <span class="pill"></span>
+                        <span class="date">기간/span>
+                    </div>
+
+                    <h1 class="main-title">
+                        3제에엥에에에에에에에모고오오오오옥
+                    </h1>
+
+                    <p class="main-desc clamp-3">
+                        안녕하세요. 이것은 메인 기사 설명입니다.
+                    </p>
+
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name">기자명</span>
+                            <span class="author-dot">언론사명</span>
+                        </div>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="trend-score">
+                            <span class="trend-label">트렌드</span>
+                            <span class="trend-value"></span>
+                        </div>
+
+                        <div class="trust-score">
+                            <span class="trust-label">신뢰도</span>
+                            <span class="trust-value"></span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+
+              <!-- ===== 메인기사 슬라이드 4 ===== -->
+              <a href="article-detail.html?id=123" class="news-link">
+                <div class="main-news-card">
+                  <div class="main-news-media">
+                      <img
+                          alt="Main News Abstract"
+                          src="https://via.placeholder.com/800x600"
+                      />
+                      <div class="media-gradient"></div>
+                      <div class="trend-chip">
+                          <span class="material-symbols-outlined">trending_up</span>
+                          트렌드 순위 4위
+                      </div>
+                  </div>
+
+                  <div class="main-news-body">
+                    <div class="meta-row">
+                        <span class="pill"></span>
+                        <span class="date">기간</span>
+                    </div>
+
+                    <h1 class="main-title">
+                        4제에엥에에에에에에에모고오오오오옥
+                    </h1>
+
+                    <p class="main-desc clamp-3">
+                        안녕하세요. 이것은 메인 기사 설명입니다.
+                    </p>
+
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name">기자명</span>
+                            <span class="author-dot">언론사명</span>
+                        </div>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="trend-score">
+                            <span class="trend-label">트렌드</span>
+                            <span class="trend-value"></span>
+                        </div>
+
+                        <div class="trust-score">
+                            <span class="trust-label">신뢰도</span>
+                            <span class="trust-value"></span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+
+              <!-- ===== 메인기사 슬라이드 5 ===== -->
+              <a href="article-detail.html?id=123" class="news-link">
+                <div class="main-news-card">
+                  <div class="main-news-media">
+                      <img
+                          alt="Main News Abstract"
+                          src="https://via.placeholder.com/800x600"
+                      />
+                      <div class="media-gradient"></div>
+                      <div class="trend-chip">
+                          <span class="material-symbols-outlined">trending_up</span>
+                          트렌드 순위 5위
+                      </div>
+                  </div>
+
+                  <div class="main-news-body">
+                    <div class="meta-row">
+                        <span class="pill"></span>
+                        <span class="date"></span>
+                    </div>
+
+                    <h1 class="main-title">
+                        5제에엥에에에에에에에모고오오오오옥
+                    </h1>
+
+                    <p class="main-desc clamp-3">
+                        안녕하세요. 이것은 메인 기사 설명입니다.
+                    </p>
+
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name">기자명</span>
+                            <span class="author-dot">언론사명</span>
+                        </div>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="trend-score">
+                            <span class="trend-label">트렌드</span>
+                            <span class="trend-value"></span>
+                        </div>
+
+                        <div class="trust-score">
+                            <span class="trust-label">신뢰도</span>
+                            <span class="trust-value"></span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -1482,10 +1757,10 @@
           <button class="arrow right" id="nextBtn">
             <span class="material-symbols-outlined">chevron_right</span>
           </button>
+
         </div>
 
         <!-- Related (연관기사) -->
-        <!-- Related -->
         <aside class="related">
           <div class="related-head">
             <h2 class="section-title">
@@ -1494,12 +1769,12 @@
             </h2>
           </div>
 
-          <a href="#" class="newslink">
+          <a href="/article/${item.article_id}" class="newslink">
             <article class="related-item">
               <div class="thumb">
                 <img
                   alt="Related News 1"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                  src="https://via.placeholder.com/96x96"
                 />
               </div>
               <div class="related-text">
@@ -1508,9 +1783,8 @@
                 </h3>
                 <div class="article-footer">
                     <div class="article-author-info">
-                        <span class="author-name"></span>
-                        <span class="author-dot"></span>
-                        <span></span>
+                        <span class="author-name">기자명</span>
+                        <span class="author-dot">언론사명</span>
                     </div>
                 </div>
               </div>
@@ -1521,23 +1795,22 @@
             </article>
           </a>
 
-          <a href="#" class="newslink">
+          <a href="/article/${item.article_id}" class="newslink">
             <article class="related-item">
               <div class="thumb">
                 <img
-                  alt="Related News 1"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                  alt="Related News 2"
+                  src="https://via.placeholder.com/96x96"
                 />
               </div>
               <div class="related-text">
                 <h3 class="related-title clamp-2">
-                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  연관기사: 글로벌 시장 트렌드 분석
                 </h3>
                 <div class="article-footer">
                     <div class="article-author-info">
-                        <span class="author-name"></span>
-                        <span class="author-dot"></span>
-                        <span></span>
+                        <span class="author-name">기자명</span>
+                        <span class="author-dot">언론사명</span>
                     </div>
                 </div>
               </div>
@@ -1548,23 +1821,22 @@
             </article>
           </a>
 
-          <a href="#" class="newslink">
+          <a href="/article/${item.article_id}" class="newslink">
             <article class="related-item">
               <div class="thumb">
                 <img
-                  alt="Related News 1"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                  alt="Related News 3"
+                  src="https://via.placeholder.com/96x96"
                 />
               </div>
               <div class="related-text">
                 <h3 class="related-title clamp-2">
-                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  연관기사: 신기술 도입과 산업 변화
                 </h3>
                 <div class="article-footer">
                     <div class="article-author-info">
-                        <span class="author-name"></span>
-                        <span class="author-dot"></span>
-                        <span></span>
+                        <span class="author-name">기자명</span>
+                        <span class="author-dot">언론사명</span>
                     </div>
                 </div>
               </div>
@@ -1575,23 +1847,22 @@
             </article>
           </a>
 
-          <a href="#" class="newslink">
+          <a href="/article/${item.article_id}" class="newslink">
             <article class="related-item">
               <div class="thumb">
                 <img
-                  alt="Related News 1"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ9a409QT2sxfYKepqIBgCHu8RpwgiLbcsQDSj3DWSXOQnFb7WdCf1ieSqczDVWP_hsCJffadNLEby4YZ29a5qbENdqd3159vI6JqSpCpx5Ddq0eIw9jn5S5dRjqcX0Z8jvoWzpFvdyXbDfqFKnjRODw3QmvI6X7QcIeJt1eGeRPgWi-giztCJqWS5OOmZO9iGGQkiPSrBwuYmRV11-pIiL5AwHdY5KD3wBvVO7VEvelfVDoJCfigSQEmxA3W4jbHg4g5h0MZZihAR"
+                  alt="Related News 4"
+                  src="https://via.placeholder.com/96x96"
                 />
               </div>
               <div class="related-text">
                 <h3 class="related-title clamp-2">
-                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  연관기사: 정책 변화와 기업 대응 전략
                 </h3>
                 <div class="article-footer">
                     <div class="article-author-info">
-                        <span class="author-name"></span>
-                        <span class="author-dot"></span>
-                        <span></span>
+                        <span class="author-name">기자명</span>
+                        <span class="author-dot">언론사명</span>
                     </div>
                 </div>
               </div>
@@ -1615,12 +1886,12 @@
         </div>
 
         <div class="personalized-list" id="personalizedList">
-          <a href="#" class="news-link">
-            <article class="personal-card list-card" >
+          <a href="/article/${item.article_id}" class="news-link">
+            <article class="personal-card list-card">
               <div class="personal-img">
                 <img
                   alt="개인화 기사 이미지"
-                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                  src="https://via.placeholder.com/64x64"
                 />
               </div>
               <div class="card-text">
@@ -1630,25 +1901,25 @@
                 <span class="card-time">10분 전</span>
               </div>
               <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
+                 <span class="trust-label">신뢰도</span>
+                 <span class="trust-value"></span>
               </div>
             </article>
           </a>
 
-          <a href="#" class="news-link">
-            <article class="personal-card list-card" >
+          <a href="/article/${item.article_id}" class="news-link">
+            <article class="personal-card list-card">
               <div class="personal-img">
                 <img
                   alt="개인화 기사 이미지"
-                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                  src="https://via.placeholder.com/64x64"
                 />
               </div>
               <div class="card-text">
                 <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  개인화 기사: AI 기술의 최신 동향
                 </h3>
-                <span class="card-time">10분 전</span>
+                <span class="card-time">20분 전</span>
               </div>
               <div class="trust-score" data-score="">
                   <span class="trust-label">신뢰도</span>
@@ -1657,19 +1928,19 @@
             </article>
           </a>
 
-          <a href="#" class="news-link">
-            <article class="personal-card list-card" >
+          <a href="/article/${item.article_id}" class="news-link">
+            <article class="personal-card list-card">
               <div class="personal-img">
                 <img
                   alt="개인화 기사 이미지"
-                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                  src="https://via.placeholder.com/64x64"
                 />
               </div>
               <div class="card-text">
                 <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  개인화 기사: 환경 정책의 새로운 방향
                 </h3>
-                <span class="card-time">10분 전</span>
+                <span class="card-time">30분 전</span>
               </div>
               <div class="trust-score" data-score="">
                   <span class="trust-label">신뢰도</span>
@@ -1678,19 +1949,19 @@
             </article>
           </a>
 
-          <a href="#" class="news-link">
-            <article class="personal-card list-card" >
+          <a href="/article/${item.article_id}" class="news-link">
+            <article class="personal-card list-card">
               <div class="personal-img">
                 <img
                   alt="개인화 기사 이미지"
-                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                  src="https://via.placeholder.com/64x64"
                 />
               </div>
               <div class="card-text">
                 <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  개인화 기사: 글로벌 경제 전망
                 </h3>
-                <span class="card-time">10분 전</span>
+                <span class="card-time">1시간 전</span>
               </div>
               <div class="trust-score" data-score="">
                   <span class="trust-label">신뢰도</span>
@@ -1699,19 +1970,19 @@
             </article>
           </a>
 
-          <a href="#" class="news-link">
-            <article class="personal-card list-card" >
+          <a href="/article/${item.article_id}" class="news-link">
+            <article class="personal-card list-card">
               <div class="personal-img">
                 <img
                   alt="개인화 기사 이미지"
-                  src="https://dimg.donga.com/wps/NEWS/IMAGE/2025/12/22/133012855.2.jpg"
+                  src="https://via.placeholder.com/64x64"
                 />
               </div>
               <div class="card-text">
                 <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
+                  개인화 기사: 교육 시스템 혁신 방안
                 </h3>
-                <span class="card-time">10분 전</span>
+                <span class="card-time">2시간 전</span>
               </div>
               <div class="trust-score" data-score="">
                   <span class="trust-label">신뢰도</span>
@@ -1733,8 +2004,12 @@
 
               <div class="side positive">
                 <p class="title">긍정 / 기대</p>
-                <div class="pill">기사1</div>
-                <div class="pill">기사2</div>
+                <a href="/article/${item.article_id}">
+                  <div class="pill">기사1</div>
+                </a>
+                <a href="/article/${item.article_id}">
+                  <div class="pill">기사1</div>
+                </a>
               </div>
 
               <div class="center-topic">
@@ -1744,8 +2019,12 @@
 
               <div class="side negative">
                 <p class="title">부정 / 우려</p>
-                <div class="pill warn">기사1</div>
-                <div class="pill warn">기사2</div>
+                <a href="/article/${item.article_id}">
+                  <div class="pill warn">기사1</div>
+                </a>
+                <a href="/article/${item.article_id}">
+                  <div class="pill warn">기사2</div>
+                </a>
               </div>
 
             </div>
@@ -1772,11 +2051,11 @@
 
   </body>
   <script>
-    // 기사 불러오기 백엔드 해볼려고 작성한건데 맞는지는.. 해봐야 알 것 같아요-----------------------
+    // 기사 불러오기 백엔드 해볼려고 작성한건데 맞는지는.. 해봐야 알 것 같아요
     $(function () {
       $.ajax({
         url: "/api/main-article",
-        method: "POST",//post 방식이 더 보안에 좋음?
+        method: "POST",
         dataType: "json",
         success: function (data) {
           const article = data.main_article;
@@ -1818,7 +2097,7 @@
       });
     });
 
-    // 로그인 상태에 따른 메뉴 렌더링 이건 백엔드 연결해서 어떻게 나오는지 보고 고칠려고염----------------
+    // 로그인 상태에 따른 메뉴 렌더링
     function renderUserDropdown() {
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
@@ -1910,7 +2189,7 @@
     }
 
     // 다크모드 초기화
-    if (localStorage.getItem('darkMode') === 'true' || 
+    if (localStorage.getItem('darkMode') === 'true' ||
         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('darkMode'))) {
       document.body.classList.add('dark');
     }
