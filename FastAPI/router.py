@@ -15,7 +15,7 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 @app.get("/")
 async def read_root():
-    return RedirectResponse(url="/view/mypage.html") # 기본 메인페이지로 지정해야됨
+    return RedirectResponse(url="/view/home.html") # 기본 메인페이지로 지정해야됨
 
 
 @app.get("/check-id")
