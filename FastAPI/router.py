@@ -15,7 +15,7 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 @app.get("/")
 async def read_root():
-    return RedirectResponse(url="/view/logregist.html") # 기본 메인페이지로 지정해야됨
+    return RedirectResponse(url="/view/mypage.html") # 기본 메인페이지로 지정해야됨
 
 
 @app.get("/check-id")
@@ -45,9 +45,9 @@ async def register_user(
 
 @app.post("/login")  # GET보다는 POST 권장 (보안상)
 async def login(
+        req: Request,
         user_id: str = Form(...),
         password: str = Form(...),
-        req: Request = None
 ):
     result = member.login(user_id, password, req.session)
 
@@ -116,3 +116,10 @@ async def find_user_pw(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
 )
+
+
+@app.post("/change-information") # 회원 정보수정 만들어야됨  로그인 돼있는 아이디 받아와서 그거에 맞게 적용시키는 식
+async def change_information(
+    user_id: str = Form(...),
+):
+    pass
