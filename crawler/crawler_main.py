@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import timedelta, timezone
 import traceback
-
+from score.trust.trust_pipline import run_trust_pipeline
 
 from .kbs_crawler import kbs_crawl
 from .donga_crawler import donga_crawl
@@ -24,6 +24,7 @@ from util.cleaner import clean_articles
 from util.elastic import es
 from util.logger import Logger
 from util.elastic_templates import build_error_doc
+from util.repository import upsert_article
 
 from labeler.create_embeddings import create_embedding
 from labeler.categorizer import categorizer
@@ -210,11 +211,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)
-
-    if all_results:
-        print("📊 워드클라우드용 키워드 추출 시작...")
-        asyncio.run(make_wordcloud_data(all_results))
-
     else:
         pass
 

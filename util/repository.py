@@ -91,4 +91,20 @@ def upsert_article(article_list):
 
 
 if __name__ == "__main__":
-    upsert_article(["01101101.20251228190044001"])
+    query = {
+        "_source": ["article_id"],
+        "size": 3000,
+    }
+
+    resp = es.search(index="article_data", body=query)
+    hits = resp.get("hits", {}).get("hits", [])
+
+    article_list = []
+    for h in hits:
+        src = h.get("_source", {})
+        article_id = src.get("article_id")
+        if not article_id:
+            continue
+        else:
+            article_list.append(article_id)
+    upsert_article(article_list)
