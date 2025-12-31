@@ -18,8 +18,6 @@ from .naeil_crawl import naeil_crawl
 from .everyday_crawler import  everyday_crawl
 from .hankookilbo_crawler import hankookilbo_crawl
 
-from wordcloud.wordCloudMaker import make_wordcloud_data
-
 from util.cleaner import clean_articles
 from util.elastic import es
 from util.logger import Logger
@@ -35,7 +33,7 @@ KST = timezone(timedelta(hours=9))
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     now_kst = datetime.now(KST).isoformat(timespec="seconds")
     print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
-    options = webdriver.ChromeOptions() 
+    options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     # options.add_argument("--headless")
 
@@ -211,6 +209,10 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)
+        # 구조상 여기에 넣는 게 맞음.....
+        run_trust_pipeline(success_list)
+        time.sleep(30)
+        upsert_article(success_list)
     else:
         pass
 
