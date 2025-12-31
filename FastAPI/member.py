@@ -96,7 +96,7 @@ def reset_to_temp_pw(user_id, email):
         chars = string.ascii_letters + string.digits + "!@#$"
         temp_pw = "".join(random.sample(chars, 10))
 
-        # 3. DB 업데이트 (실제 서비스라면 암호화해서 저장해야 함)
+        # 3. DB 업데이트
         query_update = text("UPDATE user_auth SET user_pw = :pw WHERE user_id = :u_id")
         connection.execute(query_update, {"pw": temp_pw, "u_id": user_id})
         connection.commit()  # 변경사항 저장
