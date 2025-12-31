@@ -35,6 +35,7 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 soup = BeautifulSoup(res.content, "html.parser")
 
                 article_title =soup.select_one("#article_header h1")
+
                 article_title = article_title.get_text(strip=True)
 
                 # 본문
