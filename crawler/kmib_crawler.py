@@ -35,19 +35,12 @@ async def kmib_crawl(bigkinds_data: List[Dict[str,Any]]):
                 soup = BeautifulSoup(res.content, "html.parser")
 
                 article_title =soup.select_one("#article_header h1")
-
-                if not article_title:
-                    logger.info("제목 태그 없음")
-                    continue
                 article_title = article_title.get_text(strip=True)
 
                 # 본문
                 body = soup.select_one(
                     "div.article_content #articleBody"
                 )
-                if not body:
-                    logger.info("본문 없음 → 제외")
-                    continue
                 for remove in body.select("div.article_recommend"):
                     remove.decompose()
 
