@@ -122,11 +122,11 @@ async def find_user_pw(
     )
 
 
-@app.post("/change-information") # 회원 정보수정 만들어야됨  로그인 돼있는 아이디 받아와서 그거에 맞게 적용시키는 식
-async def change_information(
-    user_id: str = Form(...),
-):
-    pass
+# @app.post("/change-information") # 회원 정보수정 만들어야됨  로그인 돼있는 아이디 받아와서 그거에 맞게 적용시키는 식
+# async def change_information(
+#     user_id: str = Form(...),
+# ):
+#     pass
   
  
 @app.get("/article/{article_id}", response_class=HTMLResponse)
@@ -148,3 +148,62 @@ def get_article(article_id: str):
     }
 
 
+@app.post("/update-info")
+async def api_update_info(request: Request):
+    user_id = request.session.get('loginId')
+    if not user_id:
+        return JSONResponse(status_code=401, content={"message": "로그인이 필요합니다."})
+
+    # JSON 데이터를 딕셔너리로 읽기
+    data = await request.json()
+
+    # JavaScript에서 보낸 key 값과 맞춰서 꺼내기 member 함수에 넣기 위함
+    name = data.get('name')
+    gender = data.get('gender')
+    birth = data.get('birth')
+    email = data.get('email')
+
+    # 필수값 검증 (이름, 이메일, 생일, 성별 모두 필수라면)
+    if not all([name, gender, birth, email]):
+        return JSONResponse(status_code=400, content={"message": "모든 항목을 입력해주세요."})
+
+    member.update_user_info(user_id, name, gender, birth, email)
+    return {"status": "success"}
+
+
+@app.post("/update-password")
+async def api_update_pw(
+        request: Request,
+        current_pw: str = Form(...),
+        new_pw: str = Form(...)
+):
+    user_id = request.session.get('loginId')
+    success = member.update_pw(user_id, current_pw, new_pw)
+    if success: return {"status": "success"}
+    return JSONResponse(status_code=400, content={"message": "현재 비밀번호가 일치하지 않습니다."})
+
+
+@app.get("/get-my-info")
+async def get_my_info(request: Request):
+    user_id = request.session.get('loginId')
+
+    if not user_id:
+        return JSONResponse(status_code=401, content={"message": "로그인이 필요합니다."})
+
+    user = member.get_user_data(user_id)
+
+    if user:
+
+        birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
+
+        return {
+            "status": "success",
+            "data": {
+                "name": user.user_name,
+                "email": user.user_email,
+                "birth": birth_str,
+                "gender": user.user_gender
+            }
+        }
+
+    return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
