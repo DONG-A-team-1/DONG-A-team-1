@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NewsPalette - 아이디 찾기</title>
@@ -386,7 +387,7 @@ body.dark .footer-text {
 <h1 class="header-title">NewsPalette</h1>
 <p class="header-subtitle">아이디 찾기</p>
 </div>
-
+<form class="idsearch-form" onsubmit="handleSubmit(event)">
 <div class="fade-in form-section" id="id-form">
 <div class="form-group">
 <label class="form-label" for="email">이메일</label>
@@ -399,7 +400,13 @@ body.dark .footer-text {
 </div>
 
 <div class="form-group">
-<label class="form-label" for="answer">본인확인 답변</label>
+<label class="form-label" for="answer">본인 확인 질문</label>
+            <select class="form-select" id="security_question" required>
+                <option disabled selected value="">질문을 선택해주세요</option>
+                <option value="school">다녔던 초등학교 이름은?</option>
+                <option value="pet">가장 좋아하는 애완동물 이름은?</option>
+                <option value="treasure">나의 보물 1호는?</option>
+            </select>
 <div class="input-wrapper">
 <div class="input-icon">
 <span class="material-icons-round">chat_bubble_outline</span>
@@ -413,6 +420,7 @@ body.dark .footer-text {
 <span class="material-icons-round">arrow_forward</span>
 </button>
 </div>
+</form>
 
 <div class="hidden-section fade-in result-section" id="id-result">
 <div class="result-header">
@@ -441,42 +449,55 @@ body.dark .footer-text {
 
 <script>
 function showResult() {
-    const emailInput = document.getElementById('email');
-    const answerInput = document.getElementById('answer');
+    // 1. 값 가져오기
+    const emailValue = $('#email').val();
+    const questionValue = $('#security_question').val(); // 질문 선택 여부 확인용
+    const answerValue = $('#answer').val();              // 실제 답변 (백엔드로 보낼 값)
 
-    // Simple validation
-    if (!emailInput.value || !answerInput.value) {
-        alert('모든 항목을 입력해주세요.');
+    // 2. 유효성 검사
+    if (!emailValue || !questionValue || !answerValue) {
+        alert('모든 항목을 입력하고 질문을 선택해주세요.');
         return;
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput.value)) {
-        alert('올바른 이메일 형식을 입력해주세요.');
-        return;
-    }
-
-    // Simulate finding ID logic: Extract part before @ and uppercase it
-    const emailValue = emailInput.value;
-    const extractedId = emailValue.split('@')[0].toUpperCase();
-
-    // Set the found ID text
-    const resultTextElement = document.getElementById('found-id-text');
-    if (resultTextElement) {
-        resultTextElement.textContent = extractedId;
-    }
-
-    document.getElementById('id-form').classList.add('hidden-section');
-    document.getElementById('id-result').classList.remove('hidden-section');
+    // 3. AJAX 요청
+    $.ajax({
+        url: '/find-id',
+        type: 'POST',
+        data: {
+            user_email: emailValue,      // 백엔드의 user_email 매개변수
+            security_answer: answerValue // 백엔드의 security_answer 매개변수
+        },
+        success: function(response) {
+            if (response.status === "success") {
+                // 결과창에 아이디 세팅
+                $('#found-id-text').text(response.user_id);
+                
+                // 화면 전환
+                $('#id-form').addClass('hidden-section');
+                $('#id-result').removeClass('hidden-section');
+            }
+        },
+        error: function(xhr) {
+            // 404 에러 등 (일치 정보 없음) 처리
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "일치하는 정보가 없습니다.";
+            alert(errorMsg);
+        }
+    });
 }
 
 function resetForm() {
-    document.getElementById('id-form').classList.remove('hidden-section');
-    document.getElementById('id-result').classList.add('hidden-section');
-    document.getElementById('email').value = '';
-    document.getElementById('answer').value = '';
-    document.getElementById('found-id-text').textContent = '';
+    $('#id-form').removeClass('hidden-section');
+    $('#id-result').addClass('hidden-section');
+    $('#email').val('');
+    $('#security_question').val('');
+    $('#answer').val('');
+    $('#found-id-text').text('');
+}
+// Form 제출 시 새로고침 방지용
+function handleSubmit(event) {
+    event.preventDefault();
+    showResult();
 }
 
 // Optional: Dark mode toggle
