@@ -130,15 +130,14 @@
 
       .nav-content {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          justify-content: space-between; /* 양쪽 끝으로 배치 */
           height: 64px;
-          position: relative;
+          position: relative; /* 중앙 정렬을 위해 필요 */
       }
 
       .nav-left {
-          display: flex;
-          align-items: center;
+          flex: 0 0 auto;
       }
 
       .logo {
@@ -147,6 +146,7 @@
           gap: 0.5rem;
           text-decoration: none;
           cursor: pointer;
+          /* transform: scale(0.8); */
       }
 
       .logo-icon {
@@ -162,14 +162,13 @@
       }
 
       .category {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: none;
-        white-space: nowrap;
+        position: static;        /* absolute 제거 */
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      @media (min-width: 850px) {
+      @media (min-width: 768px) {
           .category {
               display: flex;
               align-items: center;
@@ -184,6 +183,7 @@
           justify-content: center;
           padding: 0.5rem 1.25rem;
           margin: 0 0.25rem;
+          font-size: 1rem;
           font-weight: 500;
           transition: all 0.3s ease;
           z-index: 10;
@@ -548,7 +548,7 @@
       }
 
       /* Main layout */
-      .main { padding: 10px 16px; }
+      .main { padding: 20px 16px; }
 
       .search-section { margin-bottom: 30px; }
 

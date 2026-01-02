@@ -76,15 +76,14 @@
 
         .nav-content {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between; /* 양쪽 끝으로 배치 */
             height: 64px;
-            position: relative;
+            position: relative; /* 중앙 정렬을 위해 필요 */
         }
 
         .nav-left {
-            display: flex;
-            align-items: center;
+            flex: 0 0 auto;
         }
 
         .logo {
@@ -93,6 +92,7 @@
             gap: 0.5rem;
             text-decoration: none;
             cursor: pointer;
+            /* transform: scale(0.8); */
         }
 
         .logo-icon {
@@ -106,22 +106,21 @@
             color: #3B82F6;
             letter-spacing: -0.025em;
         }
-
+        /* 카테고리----------------------------------- */
         .category {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: none;
-        white-space: nowrap;
-      }
+            position: static;        /* absolute 제거 */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-      @media (min-width: 850px) {
-          .category {
-              display: flex;
-              align-items: center;
-              gap: 0.25rem;
-          }
-      }
+        @media (min-width: 768px) {
+            .categorY {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+        }
 
       .nav-splash-item {
           position: relative;
@@ -130,6 +129,7 @@
           justify-content: center;
           padding: 0.5rem 1.25rem;
           margin: 0 0.25rem;
+          font-size: 1rem;
           font-weight: 500;
           transition: all 0.3s ease;
           z-index: 10;
@@ -193,6 +193,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex: 0 0 auto;
         }
 
         /* 다크모드 버튼 */
@@ -356,7 +357,7 @@
         }
 
         /* Search Section */
-        .main { padding: 32px 16px; }
+        .main { padding: 20px 16px; }
 
         .search-section { margin-bottom: 30px; }
 
