@@ -3,10 +3,30 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette - 정치 뉴스</title>
+<title>NewsPalette -정치 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,19 +34,18 @@
 }
 
 body {
-    font-family: "Noto Sans KR", sans-serif;
-    background-color: #F3F4F6;
-    color: #1F2937;
-    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 body.dark {
-    background-color: #111827;
-    color: #E5E7EB;
-}
-
-.material-symbols-outlined {
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
 }
 
 /* Navigation */
@@ -52,16 +71,26 @@ body.dark nav {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     height: 64px;
-    position: relative;
 }
 
+/* 왼쪽 로고 */
 .nav-left {
-    display: flex;
-    align-items: center;
+    flex: 0 0 auto;
 }
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
 
 .logo {
     display: flex;
@@ -84,11 +113,12 @@ body.dark nav {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
 
 @media (min-width: 768px) {
     .nav-center {
@@ -103,6 +133,7 @@ body.dark nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     padding: 0.5rem 1.25rem;
     margin: 0 0.25rem;
     font-weight: 500;
@@ -125,13 +156,9 @@ body.dark .nav-splash-item {
     height: 160%;
     transform: translate(-50%, -50%) scale(0.6);
     background-color: var(--splash-color);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
     mask-position: center;
-    -webkit-mask-size: contain;
     mask-size: contain;
     opacity: 0;
     z-index: -1;
@@ -158,39 +185,12 @@ body.dark .nav-splash-item {
 
 .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
 .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
-.splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
-.splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
-.splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
-.splash-mypage { --splash-color: #A5B4FC; --splash-text-color: #4338CA; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
 
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.icon-btn {
-    padding: 0.5rem;
-    border-radius: 9999px;
-    color: #6B7280;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.icon-btn:hover {
-    background-color: #F3F4F6;
-}
-
-body.dark .icon-btn {
-    color: #9CA3AF;
-}
-
-body.dark .icon-btn:hover {
-    background-color: #374151;
-}
-
+/* Dropdown */
 .dropdown {
     position: relative;
 }
@@ -298,6 +298,89 @@ body.dark .dropdown-item .material-symbols-outlined {
     color: #EF4444;
 }
 
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
 /* Main Content */
 main {
     max-width: 1280px;
@@ -307,71 +390,111 @@ main {
 
 /* Search Section */
 .search-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
+  margin-bottom: 3rem;
 }
 
-.search-container {
-    position: relative;
-    width: 100%;
-    max-width: 48rem;
-    display: flex;
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
     align-items: center;
+  }
 }
 
-.search-select {
-    position: absolute;
-    left: 0.75rem;
-    height: 100%;
-    padding: 0 0.5rem 0 0.5rem;
-    border: none;
-    background: transparent;
-    color: #6B7280;
-    font-size: 0.875rem;
-    cursor: pointer;
-    z-index: 10;
+.select-wrap {
+  position: relative;
+  width: 100%;
 }
 
-body.dark .search-select {
-    color: #9CA3AF;
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
+
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
 }
 
 .search-input {
-    width: 100%;
-    padding: 0.75rem 3rem 0.75rem 8rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 9999px;
-    background-color: #FFFFFF;
-    color: #111827;
-    font-size: 0.875rem;
-    outline: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
 }
 
 body.dark .search-input {
-    background-color: #1F2937;
-    color: #F3F4F6;
-    border-color: #4B5563;
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
 }
 
 .search-input:focus {
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
 }
 
 .search-btn {
-    position: absolute;
-    right: 1rem;
-    color: #3B82F6;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.search-btn:hover {
-    color: #2563EB;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
 }
 
 /* Section Headers */
@@ -524,10 +647,67 @@ body.dark .article-description {
     font-size: 0.75rem;
     color: #6B7280;
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 body.dark .article-meta {
     color: #6B7280;
+}
+
+.article-source {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Reliability Badge */
+.reliability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reliability-high {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+body.dark .reliability-high {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #6EE7B7;
+}
+
+.reliability-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+body.dark .reliability-medium {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #FCD34D;
+}
+
+.reliability-low {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+body.dark .reliability-low {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+}
+
+.reliability-icon {
+    font-size: 0.875rem;
 }
 
 /* List Section */
@@ -750,6 +930,10 @@ body.dark .list-article-desc {
 .list-article-source {
     font-size: 0.75rem;
     color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 body.dark .list-article-source {
@@ -853,21 +1037,23 @@ body.dark .pagination-btn.page:hover {
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회</a>
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
                 <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-economy" href="economycategory.html">경제</a>
-                <a class="nav-splash-item splash-world" href="universecategory.html">국제</a>
-                <a class="nav-splash-item splash-tech active" href="ITcategory.html">IT/과학</a>
+                <a class="nav-splash-item splash-world" href="world.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
             </div>
-            <div class="nav-right">
-                <button class="icon-btn" onclick="toggleDarkMode()">
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleDarkMode()">
                     <span class="material-symbols-outlined">dark_mode</span>
                 </button>
-                <div class="dropdown">
-                    <button class="icon-btn nav-splash-item splash-mypage" id="mypageBtn" onclick="toggleDropdown()">
-                        <span class="material-symbols-outlined">person</span>
+                <div class="user-menu">
+                    <button class="user-menu-button" onclick="toggleUserMenu()">
+                        <div class="user-menu-blob"></div>
+                        <span class="material-symbols-outlined user-menu-icon">account_circle</span>
                     </button>
-                    <div class="dropdown-menu" id="userDropdown">
+                    <div class="user-dropdown" id="userDropdown">
                         <div id="dropdownContent"></div>
                     </div>
                 </div>
@@ -878,216 +1064,299 @@ body.dark .pagination-btn.page:hover {
 
 <main>
     <section class="search-section">
-        <div class="search-container">
-            <select class="search-select" id="searchScope" onchange="updateSearchPlaceholder(this)">
-                <option value="title_body" selected>제목+본문</option>
-                <option value="title">제목</option>
-                <option value="body">본문</option>
-                <option value="keyword">키워드</option>
-            </select>
-            <input class="search-input" id="searchInput" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
-            <button class="search-btn" onclick="performSearch()">
-                <span class="material-symbols-outlined">search</span>
-            </button>
-        </div>
-    </section>
-
-    <section>
-        <div class="section-header">
-            <h1 class="section-title">정치</h1>
-            <p class="section-subtitle">총 15건의 기사가 검색되었습니다.</p>
-        </div>
-        <div class="article-grid">
-            <a class="article-card" href="article_detail.html">
-                <div class="article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNBm09ovhPsG3TquL8IJpifoVqJX0RNYIYY77fgGbFHR0r-_RwF2XGK8mm8IM07-EHRr-R-cpXmtTDy_AnW0sgRYcknZbRmwOUaMU-zSDY3muLEr_ntVp_6b5dtQrDbdP_QkYqHTJiHVkFWZwB54fU4qF9b9ChMOtvn9zsYzPfxcNXG1UUCUDkz7pXQ2qVH9uFOgYIJA0ZmgFsSQaal7DwdcsedqNyX8TIVZqi9ClDFCTmrgVIwgVrdKd5tNMuZ3UK0_CPTsphOiI" alt="EU Regulation"/>
-                    <span class="article-tag">정책/규제</span>
-                </div>
-                <div class="article-content">
-                    <h3 class="article-title">EU, 세계 최초 'AI 규제법' 최종 승인... 글로벌 표준 되나</h3>
-                    <p class="article-description">유럽연합(EU) 의회가 인공지능 기술을 위험도에 따라 분류하고 규제하는 포괄적인 법안을 통과시켰습니다. 위반 시 막대한 과징금이 부과될 수 있어 기업들의...</p>
-                    <div class="article-meta">
-                        <span>지디넷</span>
-                        <span> • </span>
-                        <span>2시간 전</span>
-                    </div>
-                </div>
-            </a>
-            <a class="article-card" href="article_detail.html">
-                <div class="article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8Ca3tghGwsZOJpPycdo6ei8OrIqAKlPT18qT7dkgiURkvF6z8cVWmQ6pDsq-oU_ykJ52mhmluJwx3mDoF7fVdEfEU9AbMfw00L1cl8IX7vn-PvF3JSshNhHiEurH_SSb0ksZs3FRdGVcc0iDzXlk26PnQXW-PwvaFGVTPFke4r_r0BnPRa7lTw-PGs9uVPTQmLs0nMx6VXElshYoY8RP9jyg-H0hKSsYO5ig93KRAnGPs0AUVaziJ-B4ujXK-erSrcdYkod3kZkA" alt="Semiconductor"/>
-                    <span class="article-tag">반도체</span>
-                </div>
-                <div class="article-content">
-                    <h3 class="article-title">글로벌 반도체 동맹 강화, 공급망 안정화 논의 급물살</h3>
-                    <p class="article-description">주요 반도체 생산국들이 모여 차세대 칩 개발 협력과 공급망 리스크 완화를 위한 다자간 협의체를 구성하기로 했습니다. 국가 간 기술 장벽을 넘어선 협력이...</p>
-                    <div class="article-meta">
-                        <span>블로터</span>
-                        <span> • </span>
-                        <span>4시간 전</span>
-                    </div>
-                </div>
-            </a>
-            <a class="article-card" href="article_detail.html">
-                <div class="article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnY0f8mgE6gXiM6WTCnY8M4IOqZfSPU6jeZhyfAVKL0UyQ7IlpqyVRmE3ukM1wBTaoO9fbxNckJ6JLv389p8S3KVGY8_MQ1rfB6L21K_kj5Ds5fopwMTwTnklOmC2zpoVJ22Yz9TiHEyZgi8SXmzn1CB4oipJmZwZyG99s05H8lVPFuHIFL8ycSIBMzsOS_ukNxqGckrHWB50Cefnlhuw6blww1HkzYuJrKo7capDlFioPGRH0dHOi7kVDFzO0IKl8oriCOgy_8Dg" alt="Data Center"/>
-                    <span class="article-tag">인프라/통신</span>
-                </div>
-                <div class="article-content">
-                    <h3 class="article-title">대규모 데이터센터 화재로 인한 통신 장애, 복구 난항</h3>
-                    <p class="article-description">주요 데이터센터 화재로 다수의 모바일 서비스가 중단된 가운데, 완전한 서비스 정상화까지는 시일이 걸릴 것으로 보입니다. 이번 사태로 서버 이중화의 중요성이...</p>
-                    <div class="article-meta">
-                        <span>IT월드</span>
-                        <span> • </span>
-                        <span>6시간 전</span>
-                    </div>
-                </div>
-            </a>
-              <a class="article-card" href="article_detail.html">
-                <div class="article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9nU0j_cMMgwes_5jUB5pJVQWoYZpuI_FwWk_TnE-s87772qAeQjqxeuVAJsZ2uZ6pL0P8__wFgXsPa5Boavsxgjw4_WSGNIVNaGEh4t_mHkz5qq7ed4D3KdedQrHw414z_C-ivDx7XPNUvf-CrlUROqRu2NTiC8D7eiZgyFi0KujQRZZgQrvihak_pe7ewcGbDjjDBjcQjji7m9zp8ai4fCgdLgy1LhO5P6-dwRygK9WGiVpGOj4ULGUIYfAp6pZrWI05n3_Pq84" alt="AI Competition"/>
-                    <span class="article-tag">인공지능</span>
-                </div>
-                <div class="article-content">
-                    <h3 class="article-title">생성형 AI 주도권 경쟁, 빅테크 기업들의 치열한 각축전</h3>
-                    <p class="article-description">구글, 마이크로소프트, 오픈AI 등 주요 빅테크 기업들이 차세대 AI 모델을 잇달아 발표하며 시장 선점을 위한 기술 경쟁이 심화되고 있습니다. 특히 멀티모달...</p>
-                    <div class="article-meta">
-                        <span>테크크런치</span>
-                        <span> • </span>
-                        <span>30분 전</span>
-                    </div>
-                </div>
-            </a>
-
-    </section>
-
-    <section class="list-section">
-        <div class="list-header">
-            <div class="list-title-row">
-                <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">science</span>
-                <h2 class="list-title">정치</h2>
+        <div class="search-bar">
+            <div class="select-wrap">
+                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option value="title_body" selected>제목+본문</option>
+                    <option value="title">제목</option>
+                    <option value="body">본문</option>
+                    <option value="keyword">키워드</option>
+                </select>
+                <span class="material-icons-round select-caret">expand_more</span>
             </div>
-            <div class="sort-buttons">
-                <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
-                <button class="sort-btn" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
-                <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+            <div class="search-input-wrap">
+                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                    <span class="material-icons-round">search</span>
+                </button>
             </div>
         </div>
-        <div class="article-list" id="articleList">
-            <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="92">
-                <div class="list-article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAi0HzJ2Nf_F0aXMSliLV9Kb-TsH2tad8LM9omA-TCeod20vViYqEo-PKPQdYDSgX6bYk_Oy-05DLpepTWfRQ9-aYLcM0RJR3hysXy1QGREZOJHy16DltlYwvJXkzkh48sGq4umFujndmM52rJXaUi0iyzt4EJWet21tx709S8v4MdfCqsp7-OzIQClGf6z-E_w14c1Nfp_85Lu-5qvmZIQhD8-u0XletL_vJReY2tPUitkV2j4Av4v1s8Fy-6KGmCYcBCGVayxIE" alt="Mobile"/>
-                </div>
-                <div class="list-article-body">
-                    <div class="list-article-tags">
-                        <span class="list-article-category">모바일</span>
-                        <span class="list-article-date">2023.11.15</span>
-                    </div>
-                    <h3 class="list-article-title">삼성전자 vs 애플, 하반기 스마트폰 시장 점유율 전쟁</h3>
-                    <p class="list-article-desc">차세대 폴더블폰과 아이폰 신제품 출시가 임박한 가운데, 양사의 프리미엄 스마트폰 시장 점유율 경쟁이 더욱 치열해질 전망입니다. 혁신적인 기능과 디자인으로...</p>
-                    <div class="list-article-source">
-                        <strong>IT조선</strong>
-                        <span> | </span>
-                        <span>테크리포트</span>
-                    </div>
-                </div>
-            </a>
-            <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
-                <div class="list-article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjLhwtocstGy92RvdR5VRS4qHpdjsHb1Zn3TrE9QnJm0xnhEMzopd1roFJcpSoRg7RFMjKgsbxgIrgFuFqKyqmgBEUxDJlnd_R8qPbYVvu_IfzsoK_gRj2DwM85ku9sk7HPB7_8xg4_sqDMJ0tr9TS8bEktLPvGy66VeQS27gfFBn7dMQ08-DetiR-wT57o0G-dEI85Hzxp0s1ZlMljL6nXIGsoD_4h2NiKEKOLB2E1_w7PwbSPfz91Gm6eCQonNVqTaH_oOOFaFI" alt="Climate"/>
-                </div>
-                <div class="list-article-body">
-                    <div class="list-article-tags">
-                        <span class="list-article-category">환경과학</span>
-                        <span class="list-article-date">2023.11.14</span>
-                    </div>
-                    <h3 class="list-article-title">기후 위기 극복할 탄소 포집 기술, 상용화 눈앞</h3>
-                    <p class="list-article-desc">대기 중 이산화탄소를 직접 포집하여 저장하는 DAC 기술이 경제성을 확보하며 기후 변화 대응의 새로운 해법으로 주목받고 있습니다. 주요 스타트업들이...</p>
-                    <div class="list-article-source">
-                        <strong>사이언스팀</strong>
-                        <span> | </span>
-                        <span>그린테크</span>
-                    </div>
-                </div>
-            </a>
-            <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="98">
-                <div class="list-article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcl-IPWu12Sqfit9-l-FJc1jKY1OIiMSJAaOZir3NA4P_fkNq-S_LlFAFQP4ZWdqGhekDYwUveM2b71dJwCNkI3MuPCzHja0-wbRtlZl37LQbTtLURelO3tZtmTc2G43opvCLaR05Ka6xZhWF3JbPOM54iVyDkMnH-hhpTZjEHTmhQkc4J3CBENODJdEVta9Lmpu8FHdy_qlhT5D4LRDbM9cfU6pfyYUYyMyMlhSDebwQlUR34vPdpPYVTPBm2yOED_kETlWOfB68" alt="Space"/>
-                </div>
-                <div class="list-article-body">
-                    <div class="list-article-tags">
-                        <span class="list-article-category">우주</span>
-                        <span class="list-article-date">2023.11.13</span>
-                    </div>
-                    <h3 class="list-article-title">스페이스X, 차세대 우주선 '스타십' 3차 비행 시험 성공</h3>
-                    <p class="list-article-desc">일론 머스크가 이끄는 스페이스X의 대형 우주선 스타십이 궤도 진입에 성공하며 화성 이주 계획에 한 걸음 더 다가섰습니다. 이번 시험 비행은...</p>
-                    <div class="list-article-source">
-                        <strong>스페이스X 기자</strong>
-                        <span> | </span>
-                        <span>우주과학저널</span>
-                    </div>
-                </div>
-            </a>
-            <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="70">
-                <div class="list-article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5A5IYG0tvF6wIwVJLwUtbgwS0GghEg0Xnosm8MjLSiwYL5BdgqmktFUZMNfWIBKM8mgCG2s2GLINSbYbZXpnK7JFVpio6NWUASF_gdwl-GvFNWeuD1Eqr836P5BXcE1vcCCpCfldc0DXEP7Q3znGRrYbIKJCiGqoYtXbbFzpUX1dYC6tsca8AOAx5xl8Iy0V22eNdhksZuaUsrstDwipYOp1DvVWMMIALPXrk-yezuSc_mTXDdomgZpI3HXJpOI4t56cWTyvgSIo" alt="Game"/>
-                </div>
-                <div class="list-article-body">
-                    <div class="list-article-tags">
-                        <span class="list-article-category">게임/문화</span>
-                        <span class="list-article-date">2023.11.12</span>
-                    </div>
-                    <h3 class="list-article-title">"확률형 아이템 규제하라" 게이머들 트럭 시위 확산</h3>
-                    <p class="list-article-desc">인기 게임의 확률형 아이템 조작 논란에 분노한 이용자들이 게임사 본사 앞에서 트럭 시위를 벌이며 투명한 정보 공개를 요구하고 있습니다. 국회에서도 관련 법안...</p>
-                    <div class="list-article-source">
-                        <strong>게임메카</strong>
-                        <span> | </span>
-                        <span>IT뉴스</span>
-                    </div>
-                </div>
-            </a>
-            <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="75">
-                <div class="list-article-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHHQX99LkH0oPQVhWyatwDmazSnqop2pC_UpwD0_aeyuRCVf3O9ylDkWsmdto7Jjr_VJ7bKLvjoaL9a_nMhFVImnEICYKmSAX13l_bddVdC6A3R2YKiNCsBfiF7BW0IdIzN17VJ4tBu9E4CWlT-ALIaUDDTEY-XTHqRtJnrIX6evEL-2jmvKcbCrNG4VpSEiyhmzg6xWwg5R2BhEXHskn401wTx2hOOCmk9wq2PemoFRXfed1yAJ-HRvlYgekwdijb5n2PnJUlKd0" alt="Blockchain"/>
-                </div>
-                <div class="list-article-body">
-                    <div class="list-article-tags">
-                        <span class="list-article-category">블록체인</span>
-                        <span class="list-article-date">2023.11.11</span>
-                    </div>
-                    <h3 class="list-article-title">비트코인 현물 ETF 승인 이후, 가상자산 시장의 미래는?</h3>
-                    <p class="list-article-desc">미국 SEC의 비트코인 현물 ETF 승인으로 기관 투자자들의 진입이 본격화되면서 가상자산 시장의 제도권 편입이 가속화되고 있습니다. 전문가들은 향후 시장...</p>
-                    <div class="list-article-source">
-                        <strong>코인데스크</strong>
-                        <span> | </span>
-                        <span>디지털자산</span>
-                    </div>
-                </div>
-            </a>
-        </div>
     </section>
-
-    <div class="pagination">
-        <button class="pagination-nav">
-            <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
-        </button>
-        <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
-        <button class="pagination-btn page" onclick="goToPage(2)">2</button>
-        <button class="pagination-btn page" onclick="goToPage(3)">3</button>
-        <button class="pagination-btn page" onclick="goToPage(4)">4</button>
-        <button class="pagination-btn page" onclick="goToPage(5)">5</button>
-        <button class="pagination-nav">
-            <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
-        </button>
+<!-- 카드형 정치 기사 -->
+<section>
+    <div class="section-header">
+        <h1 class="section-title">정치</h1>
+        <p class="section-subtitle">총 15건의 정치 기사가 검색되었습니다.</p>
     </div>
-</main>
+
+    <div class="article-grid">
+
+        <!-- 기사 1 -->
+        <a class="article-card" href="article_detail.html" data-reliability="92">
+            <div class="article-image">
+                <img src="https://images.unsplash.com/photo-1604503468506-a8da13d82791" alt="국회">
+                <span class="article-tag">국회</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-title">여야, 예산안 처리 두고 막판 협상 돌입</h3>
+                <p class="article-description">
+                    여야가 내년도 예산안 처리를 두고
+                    핵심 쟁점에 대한 막판 조율에 들어갔습니다.
+                </p>
+                <div class="article-meta">
+                    <div class="article-source">연합뉴스 • 1시간 전</div>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도92%
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 2 -->
+        <a class="article-card" href="article_detail.html" data-reliability="85">
+            <div class="article-image">
+                <img src="https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1" alt="정부청사">
+                <span class="article-tag">정부</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-title">정부, 민생 경제 안정 위한 추가 대책 발표</h3>
+                <p class="article-description">
+                    정부가 물가 안정과 서민 부담 완화를 위해
+                    세제·금융 지원을 포함한 종합 대책을 내놓았습니다.
+                </p>
+                <div class="article-meta">
+                    <div class="article-source">YTN • 3시간 전</div>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도85%
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 3 -->
+        <a class="article-card" href="article_detail.html" data-reliability="78">
+            <div class="article-image">
+                <img src="https://images.unsplash.com/photo-1555848962-6e79363ec58f" alt="정당회의">
+                <span class="article-tag">정당</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-title">야당 지도부 개편 논의 본격화… 쇄신안 주목</h3>
+                <p class="article-description">
+                    야당 내부에서 지도부 개편과 노선 재정비를 둘러싼
+                    논의가 본격화되며 정치권의 관심이 쏠리고 있습니다.
+                </p>
+                <div class="article-meta">
+                    <div class="article-source">한겨레 • 5시간 전</div>
+                    <span class="reliability-badge reliability-medium">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도78%
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 4 -->
+        <a class="article-card" href="article_detail.html" data-reliability="90">
+            <div class="article-image">
+                <img src="https://images.unsplash.com/photo-1601556123240-462c758a21c3" alt="대통령 연설">
+                <span class="article-tag">대통령실</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-title">대통령, 국정 운영 방향 연설… 협치 강조</h3>
+                <p class="article-description">
+                    대통령이 국회 연설을 통해
+                    여야 협치와 국정 안정의 중요성을 강조했습니다.
+                </p>
+                <div class="article-meta">
+                    <div class="article-source">KBS • 30분 전</div>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도90%
+                    </span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+<section class="list-section">
+    <div class="list-header">
+        <div class="list-title-row">
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">account_balance</span>
+            <h2 class="list-title">정치</h2>
+        </div>
+        <div class="sort-buttons">
+            <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
+            <button class="sort-btn" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
+            <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+        </div>
+    </div>
+
+    <div class="article-list" id="articleList">
+
+        <!-- 기사 1 -->
+        <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="92">
+            <div class="list-article-image">
+                <img src="https://images.unsplash.com/photo-1604908177522-4296f5f7f6d3" alt="national-assembly"/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-article-category">국회</span>
+                    <span class="list-article-date">2023.11.15</span>
+                </div>
+                <h3 class="list-article-title">여야, 내년도 예산안 두고 막판 협상 돌입</h3>
+                <p class="list-article-desc">
+                    여야가 내년도 예산안 처리를 앞두고
+                    핵심 쟁점에 대한 막판 협상에 본격 돌입했습니다.
+                </p>
+                <div class="list-article-source">
+                    <strong>연합뉴스</strong>
+                    <span> | </span>
+                    <span>국회정치</span>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span>신뢰도92%</span>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 2 -->
+        <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
+            <div class="list-article-image">
+                <img src="https://images.unsplash.com/photo-1555848962-6e79363ec58f" alt="government"/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-article-category">정부</span>
+                    <span class="list-article-date">2023.11.14</span>
+                </div>
+                <h3 class="list-article-title">정부, 민생 경제 안정 위한 추가 대책 발표</h3>
+                <p class="list-article-desc">
+                    정부가 물가 안정과 서민 부담 완화를 위해
+                    세제·금융 지원을 포함한 종합 대책을 내놓았습니다.
+                </p>
+                <div class="list-article-source">
+                    <strong>KBS</strong>
+                    <span> | </span>
+                    <span>정부정책</span>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span>신뢰도85%</span>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 3 -->
+        <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="90">
+            <div class="list-article-image">
+                <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620" alt="political-party"/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-article-category">정당</span>
+                    <span class="list-article-date">2023.11.13</span>
+                </div>
+                <h3 class="list-article-title">야당 지도부 개편론 부상… 쇄신 요구 확산</h3>
+                <p class="list-article-desc">
+                    야당 내부에서 지도부 개편과 노선 재정립을 둘러싼
+                    쇄신 요구가 확산되고 있습니다.
+                </p>
+                <div class="list-article-source">
+                    <strong>한겨레</strong>
+                    <span> | </span>
+                    <span>정당동향</span>
+                    <span class="reliability-badge reliability-high">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span>신뢰도90%</span>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 4 -->
+        <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="78">
+            <div class="list-article-image">
+                <img src="https://images.unsplash.com/photo-1580128637422-4c1d77df48a8" alt="president"/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-article-category">대통령실</span>
+                    <span class="list-article-date">2023.11.12</span>
+                </div>
+                <h3 class="list-article-title">대통령, 국정 연설서 협치와 개혁 강조</h3>
+                <p class="list-article-desc">
+                    대통령이 국회 연설을 통해
+                    정치권의 협치와 구조 개혁 필요성을 강조했습니다.
+                </p>
+                <div class="list-article-source">
+                    <strong>YTN</strong>
+                    <span> | </span>
+                    <span>청와대</span>
+                    <span class="reliability-badge reliability-medium">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span>신뢰도78%</span>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 기사 5 -->
+        <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="80">
+            <div class="list-article-image">
+                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf" alt="election"/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-article-category">선거</span>
+                    <span class="list-article-date">2023.11.11</span>
+                </div>
+                <h3 class="list-article-title">총선 앞두고 여야 전략 경쟁 본격화</h3>
+                <p class="list-article-desc">
+                    내년 총선을 앞두고 여야가 공약과 인재 영입을 중심으로
+                    본격적인 선거 준비에 나섰습니다.
+                </p>
+                <div class="list-article-source">
+                    <strong>조선일보</strong>
+                    <span> | </span>
+                    <span>선거정국</span>
+                    <span class="reliability-badge reliability-medium">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span>신뢰도80%</span>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+
+
+
+<div class="pagination">
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
+    </button>
+    <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
+    <button class="pagination-btn page" onclick="goToPage(2)">2</button>
+    <button class="pagination-btn page" onclick="goToPage(3)">3</button>
+    <button class="pagination-btn page" onclick="goToPage(4)">4</button>
+    <button class="pagination-btn page" onclick="goToPage(5)">5</button>
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
+    </button>
+</div>
 
 <div class="spacer"></div>
 
 <script>
-/* ===============================
-   로그인 상태 처리
-================================ */
+function getReliabilityClass(score) {
+    if (score >= 80) return 'reliability-high';
+    if (score >= 60) return 'reliability-medium';
+    return 'reliability-low';
+}
+
 function toggleLoginState() {
     const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
     const dropdownContent = document.getElementById('dropdownContent');
@@ -1130,24 +1399,30 @@ function logout() {
     toggleLoginState();
 }
 
-/* ===============================
-   드롭다운 / 다크모드
-================================ */
-function toggleDropdown() {
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark');
+}
+
+function toggleUserMenu() {
     document.getElementById('userDropdown').classList.toggle('show');
 }
 
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-}
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
 
-/* ===============================
-   🔥 카테고리 선택 색상 고정 (핵심)
-================================ */
 function setActiveCategoryByURL() {
     const navItems = document.querySelectorAll('.nav-splash-item');
     const currentPage = window.location.pathname.split('/').pop();
-
     navItems.forEach(item => {
         const href = item.getAttribute('href');
         if (href === currentPage) {
@@ -1158,9 +1433,6 @@ function setActiveCategoryByURL() {
     });
 }
 
-/* ===============================
-   검색
-================================ */
 function updateSearchPlaceholder(select) {
     const searchInput = document.getElementById('searchInput');
     const placeholders = {
@@ -1176,13 +1448,10 @@ function performSearch() {
     const term = document.getElementById('searchInput').value.trim();
     const scope = document.getElementById('searchScope').value;
     if (term) {
-        location.href = `search_results.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+        location.href = `searchresult.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
     }
 }
 
-/* ===============================
-   정렬
-================================ */
 function sortArticles(type) {
     const container = document.getElementById('articleList');
     const articles = Array.from(container.children);
@@ -1205,9 +1474,6 @@ function sortArticles(type) {
     document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
 }
 
-/* ===============================
-   페이지네이션
-================================ */
 function goToPage(pageNumber) {
     const url = new URL(location.href);
     url.searchParams.set('page', pageNumber);
@@ -1221,20 +1487,9 @@ function updatePaginationUI(activePage) {
     });
 }
 
-/* ===============================
-   초기 실행
-================================ */
 document.addEventListener('DOMContentLoaded', () => {
     toggleLoginState();
-    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
-
-    document.addEventListener('click', e => {
-        const dropdown = document.getElementById('userDropdown');
-        const btn = document.getElementById('mypageBtn');
-        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
+    setActiveCategoryByURL();
 
     const scopeSelect = document.getElementById('searchScope');
     if (scopeSelect) updateSearchPlaceholder(scopeSelect);
