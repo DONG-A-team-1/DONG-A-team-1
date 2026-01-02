@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NewsPalette - 마이페이지</title>
@@ -1391,16 +1390,26 @@ body.dark nav {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     height: 64px;
-    position: relative;
 }
 
+/* 왼쪽 로고 */
 .nav-left {
-    display: flex;
-    align-items: center;
+    flex: 0 0 auto;
 }
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
 
 .logo {
     display: flex;
@@ -1423,11 +1432,12 @@ body.dark nav {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
 
 @media (min-width: 768px) {
     .nav-center {
@@ -1442,6 +1452,7 @@ body.dark nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     padding: 0.5rem 1.25rem;
     margin: 0 0.25rem;
     font-weight: 500;
@@ -1464,13 +1475,9 @@ body.dark .nav-splash-item {
     height: 160%;
     transform: translate(-50%, -50%) scale(0.6);
     background-color: var(--splash-color);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
     mask-position: center;
-    -webkit-mask-size: contain;
     mask-size: contain;
     opacity: 0;
     z-index: -1;
@@ -1721,6 +1728,45 @@ body.dark .user-dropdown {
 .user-dropdown.show {
     display: block;
 }
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
 
 </style>
 </head>
@@ -2002,22 +2048,24 @@ body.dark .user-dropdown {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">이름</label>
-                            <input class="form-input" type="text" id="user-name" /> </div>
+                            <input class="form-input" type="text" value="홍길동"/>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">성별</label>
-                            <select class="form-select" id="user-gender">
-                                <option value="male">남성</option>
-                                <option value="female">여성</option>
-                                <option value="none">선택안함</option>
+                            <select class="form-select">
+                                <option>남성</option>
+                                <option>여성</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">생년월일</label>
-                            <input class="form-input" type="date" id="user-birth" value="2000-01-01"/> </div>
+                            <input class="form-input" type="date" value="1990-01-01"/>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">이메일</label>
-                            <input class="form-input" type="email" id="user-email" value=""/> </div>
+                            <input class="form-input" type="email" value="user@example.com"/>
                         </div>
+                    </div>
                     <div class="form-actions">
                         <button class="btn-primary" onclick="saveUserInfo()">변경 사항 저장</button>
                     </div>
@@ -2085,34 +2133,41 @@ body.dark .user-dropdown {
     /* ===============================
    로그인 상태 처리
 ================================ */
-$(document).ready(function() {
-    // 마이페이지 접속 시 자동으로 정보 불러오기
-    loadMyInfo();
-});
+function toggleLoginState() {
+    const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
+    const dropdownContent = document.getElementById('dropdownContent');
 
-function loadMyInfo() {
-    $.ajax({
-        url: '/get-my-info',
-        type: 'GET',
-        success: function(response) {
-            if (response.status === "success") {
-                const user = response.data;
-                
-                // 각 입력창에 DB에서 가져온 값 할당
-                $('#user-name').val(user.name);
-                $('#user-email').val(user.email);
-                $('#user-birth').val(user.birth);
-                $('#user-gender').val(user.gender); // select 박스
-                
-                // 드롭다운의 "홍길동님" 부분도 업데이트
-                $('.dropdown-title').text(user.name + "님");
-            }
-        },
-        error: function() {
-            alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
-            location.href = 'login.html';
-        }
-    });
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
 }
 
 function logout() {
@@ -2242,71 +2297,31 @@ function handleLogout() {
     }
 }
 
-// 1. 정보 변경 저장
 function saveUserInfo() {
-    const data = {
-        name: $('#user-name').val().trim(),
-        gender: $('#user-gender').val(),
-        birth: $('#user-birth').val(),
-        email: $('#user-email').val().trim()
-    };
-
-    // 모든 필드 필수 체크
-    if(!data.name || !data.gender || !data.birth || !data.email) {
-        alert("모든 정보를 정확히 입력해주세요.");
-        return;
-    }
-
-    $.ajax({
-        url: '/update-info',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data), // 백엔드의 await request.json()과 짝궁
-        success: function(res) {
-            alert("정보가 성공적으로 변경되었습니다.");
-            location.reload();
-        },
-        error: function(xhr) {
-            alert("수정에 실패했습니다: " + (xhr.responseJSON?.message || "알 수 없는 오류"));
-        }
-    });
+    alert('정보가 저장되었습니다.');
 }
 
-// 2. 비밀번호 업데이트
 function updatePassword() {
-    const currentPw = $('#current-password').val();
-    const newPw = $('#new-password').val();
-    const confirmPw = $('#confirm-password').val();
-
-    if (newPw !== confirmPw) {
-        alert("새 비밀번호가 일치하지 않습니다.");
+    const currentPass = document.getElementById('current-password').value;
+    const newPass = document.getElementById('new-password').value;
+    const confirmPass = document.getElementById('confirm-password').value;
+    
+    if (!currentPass || !newPass || !confirmPass) {
+        alert('모든 필드를 입력해주세요.');
         return;
     }
-
-    $.ajax({
-        url: '/update-password',
-        type: 'POST',
-        data: { current_pw: currentPw, new_pw: newPw },
-        success: function() {
-            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
-            logout();
-        },
-        error: function(xhr) {
-            alert(xhr.responseJSON.message);
-        }
-    });
+    
+    if (newPass !== confirmPass) {
+        alert('새 비밀번호가 일치하지 않습니다.');
+        return;
+    }
+    
+    alert('비밀번호가 업데이트되었습니다.');
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
 }
 
-// 3. 회원 탈퇴 확정
-function confirmWithdrawal() {
-    $.post('/withdraw', function() {
-        alert("탈퇴 처리가 완료되었습니다. 이용해 주셔서 감사합니다.");
-        localStorage.setItem('isLoggedIn', 'false');
-        location.href = 'home.html'; // 메인으로 이동
-    });
-}
-
-// 이부분 추후에 수정
 function resetAlgorithm() {
     if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
         const chart = document.getElementById('algorithm-chart');
@@ -2324,6 +2339,14 @@ function resetAlgorithm() {
         alert('개인화 추천 알고리즘이 초기화되었습니다.');
     }
 }
+    function confirmWithdrawal() {
+        if(confirm('정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다.')) {
+            alert('회원탈퇴가 성공적으로 처리되었습니다. 메인 화면으로 이동합니다.');
+            document.getElementById('confirm-dialog').style.display='none';
+            window.location.href = 'homepage.html';
+        }
+    }
+
 
 // Activity List Functions
 function generateArticleHTML(article) {
