@@ -208,4 +208,38 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
+@app.post("/api/search") # 검색 기능
+async def api_search(request: Request):
+    """기사 검색 API"""
+    try:
+        data = await request.json()# 데이터 다 읽을 때까지 기달
+        print("search data:", data)
+        search_type = data.get('search_type','all')
+        # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
+        query = data.get('query','').strip()
+        # 사용자가 입력한 검색어
+        size = data.get('size', 20)
+        # 검색 결과 몇 개 가져올 지 결정하는 숫자
+
+        if not query: # 검색어가 없다면.
+            return JSONResponse(
+                status_code=400,
+                content={"success":False,"message":"검색어를 입력해주세요"}
+            )
+        from FastAPI import search # 현재 폴더의 search.py를 가지고 오라는 명령
+        results = search.search_articles(
+            data.get('search_type','all'),
+            data.get('query',''),
+            data.get('size',20)
+        )
+        print("search results OK")
+        return search.search_articles(search_type, query, size)
+
+    except Exception as e:
+        print("search error: ",e)
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": str(e)}
+        )
+
 # mypage 완성하기, es query  문 이해하기 (사용하기 위해)
