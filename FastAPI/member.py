@@ -118,10 +118,63 @@ def change_pw(user_id, current_pw, new_pw):
         return True
 
 
-# 탈퇴
+# 회원 탈퇴
 def withdraw(user_id):
     with SessionLocal() as connection:
         query = text("UPDATE user_auth SET is_active = 0 WHERE user_id = :u_id")
         connection.execute(query, {"u_id": user_id})
         connection.commit()
         return True
+
+
+# 정보 수정
+def update_user_info(user_id, name, gender, birth, email):
+    with SessionLocal() as connection:
+        # 만약 정보가 두 테이블에 나눠져 있다면 각각 UPDATE 해야 합니다.
+        # 예시: 이메일은 auth 테이블, 나머지는 info 테이블인 경우
+
+        # 1. user_auth 테이블 (이메일 수정)
+        query_auth = text("UPDATE user_auth SET user_email = :email WHERE user_id = :u_id")
+        connection.execute(query_auth, {"email": email, "u_id": user_id})
+
+        # 2. user_info 테이블 (이름, 성별, 생년월일 수정)
+        query_info = text("""
+            UPDATE user_info 
+            SET user_name = :name, user_gender = :gender, date_of_birth = :birth 
+            WHERE user_id = :u_id
+        """)
+        connection.execute(query_info, {"name": name, "gender": gender, "birth": birth, "u_id": user_id})
+
+        connection.commit()
+
+
+# 비밀번호 변경
+def update_pw(user_id, current_pw, new_pw):
+    with SessionLocal() as connection:
+        # 현재 비밀번호 확인
+        check_query = text("SELECT 1 FROM user_auth WHERE user_id = :u_id AND user_pw = :pw")
+        if not connection.execute(check_query, {"u_id": user_id, "pw": current_pw}).fetchone():
+            return False
+
+        # 새 비밀번호 업데이트
+        update_query = text("UPDATE user_auth SET user_pw = :new_pw WHERE user_id = :u_id")
+        connection.execute(update_query, {"new_pw": new_pw, "u_id": user_id})
+        connection.commit()
+        return True
+
+
+def get_user_data(user_id):
+    with SessionLocal() as connection:
+        # user_auth(a)와 user_info(i)를 JOIN 합니다.
+        query = text("""
+            SELECT 
+                i.user_name, 
+                a.user_email, 
+                i.date_of_birth, 
+                i.user_gender
+            FROM user_auth a
+            JOIN user_info i ON a.user_id = i.user_id
+            WHERE a.user_id = :u_id
+        """)
+        user = connection.execute(query, {"u_id": user_id}).fetchone()
+        return user
