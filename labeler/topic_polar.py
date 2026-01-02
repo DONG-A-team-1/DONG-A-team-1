@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import silhouette_score
 
 from util.elastic import es  # Elasticsearch client
-
+from util.repository import upsert_topic_polarity
 # =========================
 # CONFIG
 # =========================
@@ -581,20 +581,34 @@ def build_topic_name(
 ) -> str:
     """
     동사/명사/키워드 기반 템플릿 생성
+    - entity == k1(또는 공백 제거 동일)인 경우 중복 제거
+    - verb(공방) 템플릿은 사용하지 않음
     """
-    kws = [k for k in (keywords or []) if str(k).strip()]
+    def _norm(s: str) -> str:
+        return re.sub(r"\s+", "", (s or "").strip())
+
+    ent = (entity or "").strip()
+    kws = [str(k).strip() for k in (keywords or []) if str(k).strip()]
+
+    # k1/k2
     k1 = kws[0] if len(kws) > 0 else ""
     k2 = kws[1] if len(kws) > 1 else ""
 
-    if entity and verb and k1:
-        return f"{entity}, {k1} 관련 ‘{verb}’ 공방"
-    if entity and k1:
-        return f"{entity} 관련 {k1} 이슈"
+    # ✅ entity와 k1이 사실상 같으면(k1이 인물/기관으로 들어온 케이스) entity 제거
+    if ent and k1 and _norm(ent) == _norm(k1):
+        ent = ""
+
+    # ✅ verb 공방 템플릿 제외 (verb는 받아도 사용 안 함)
+    if ent and k1:
+        return f"{ent} 관련 {k1} 이슈"
     if k1 and k2:
         return f"{k1}·{k2} 이슈"
     if k1:
         return f"{k1} 이슈"
+    if ent:
+        return f"{ent} 이슈"
     return "주요 이슈"
+
 
 # =========================
 # 10) topic doc builders
@@ -842,7 +856,7 @@ def label_polar_entity_centered_to_topics_json(
     index_name: str = "article_data",
     output_path_topics: str = DEFAULT_OUTPUT_PATH,
     debug_output_path: str = DEBUG_OUTPUT_PATH,
-    fetch_size: int = 500,
+    fetch_size: int = 350,
     predicate_lexicon_path: str = r"data/predicate_lexicon.json",
     per_side_limit: int = 5,
     # filters
@@ -893,6 +907,7 @@ def label_polar_entity_centered_to_topics_json(
             ],
             "size": min(fetch_size, len(a_ids)),
             "query": {"terms": {"article_id": a_ids}},
+            "sort": {"collected_at": "desc"}
         }
 
         resp = es.search(index=index_name, body=query)
@@ -981,8 +996,9 @@ def label_polar_entity_centered_to_topics_json(
     print(f" - topic_docs(after filter): {len(topic_docs)}")
 
     # 10) ES 저장(upsert) (topic_name 포함)
-    if save_to_es:
-        upsert_topic_docs_to_es(topic_docs, index_name=topic_index_name)
+
+    upsert_topic_docs_to_es(topic_docs, index_name=topic_index_name)
+    upsert_topic_polarity(topic_docs, fmt_prefix=fmt)
 
     return topic_docs
 
