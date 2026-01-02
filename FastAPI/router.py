@@ -12,6 +12,7 @@ from . import article
 
 app = FastAPI()
 app.mount("/view", StaticFiles(directory="view"), name="view")
+app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 
