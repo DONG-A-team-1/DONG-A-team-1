@@ -600,7 +600,6 @@ body.dark-mode .footer-divider {
 
 
 function handleLogin(event) {
-
     event.preventDefault();
 
     const LoginData = {
@@ -609,18 +608,31 @@ function handleLogin(event) {
     };
 
     $.ajax({
-            url: '/login',
-            type: 'POST',
-            data: LoginData,
-            success: function(response) {
-                $('#success-popup').addClass('show');
-            },
-            error: function(xhr) {
-                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "로그인 중 오류가 발생했습니다.";
-                alert(errorMsg);
+        url: '/login',
+        type: 'POST',
+        data: LoginData,
+        success: function(response) {
+            // ⭐️ 핵심: 서버에서 받은 정보를 브라우저에 저장합니다.
+            // 백엔드에서 "user_name"을 보내주도록 수정했다면 response.user_name을 사용합니다.
+            localStorage.setItem('isLoggedIn', 'true');
+            if (response.user_name) {
+                localStorage.setItem('userName', response.user_name);
             }
-        });
-    }
+
+            // 성공 팝업 띄우기
+            $('#success-popup').addClass('show');
+            
+            // 팝업 확인 버튼 등을 눌렀을 때 이동하게 하거나, 일정 시간 후 이동
+            setTimeout(function() {
+                location.href = '/view/home.html';
+            }, 1500); 
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "로그인 중 오류가 발생했습니다.";
+            alert(errorMsg);
+        }
+    });
+}
 
 function togglePassword() {
     const passwordInput = document.getElementById('password');

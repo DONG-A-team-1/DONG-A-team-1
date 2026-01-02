@@ -51,10 +51,10 @@ async def login(
         user_id: str = Form(...),
         password: str = Form(...),
 ):
-    result = member.login(user_id, password, req.session)
+    result, user_name = member.login(user_id, password, req.session)
 
     if result == "SUCCESS":
-        return {"status": "success", "message": "로그인 성공"}
+        return {"status": "success", "message": "로그인 성공","user_name": user_name}
     elif result == "INACTIVE":
         return JSONResponse(status_code=403, content={"message": "비활성화된 계정"})
     else:
@@ -66,7 +66,7 @@ async def logout(req: Request):
     # 1. 세션 데이터 완전히 삭제
     req.session.clear()
     # 2. 삭제 후 메인페이지로 이동
-    return RedirectResponse(url="/view/mainpage.html") # 메인페이지에 맞게 형식 조정 필요
+    return RedirectResponse(url="/view/home.html") # 메인페이지에 맞게 형식 조정 필요
 
 
 @app.post("/change-password")
@@ -207,3 +207,5 @@ async def get_my_info(request: Request):
         }
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
+
+# mypage 완성하기, es query  문 이해하기 (사용하기 위해)

@@ -56,17 +56,27 @@ def register(data: dict):
 
 
 # 로그인
-def login(user_id, password, session): # 배운대로 세션 넣긴 했는데 수정가능
+def login(user_id, password, session):
     with SessionLocal() as connection:
-        query = text("SELECT user_id, is_active FROM user_auth WHERE user_id = :u_id AND user_pw = :pw")
+        query = text("""
+            SELECT user_id, is_active 
+            FROM user_auth 
+            WHERE user_id = :u_id AND user_pw = :pw
+        """)
         result = connection.execute(query, {"u_id": user_id, "pw": password}).fetchone()
 
         if result:
             if result.is_active == 1:
-                session['loginId'] = result.user_id  # 세션 저장
-                return "SUCCESS"
-            return "INACTIVE"
-        return "FAIL"
+                session['loginId'] = result.user_id
+
+                user_info = get_user_data(result.user_id)
+                user_name = user_info.user_name if user_info else "회원"
+
+                return "SUCCESS", user_name
+
+            return "INACTIVE", None
+
+        return "FAIL", None
 
 # 아이디 찾기
 def find_id(email: str, security_answer: str):

@@ -1729,7 +1729,7 @@ body.dark .user-dropdown {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
@@ -1770,9 +1770,6 @@ body.dark .user-dropdown {
                         <div class="profile-avatar-container">
                             <div class="profile-avatar">
                                 <span class="material-symbols-outlined">person</span>
-                            </div>
-                            <div class="profile-edit-icon">
-                                <span class="material-icons-outlined" style="font-size: 0.875rem; color: #6b7280;">edit</span>
                             </div>
                         </div>
                         <h2 class="profile-name">유저 ID명</h2>
@@ -2082,42 +2079,172 @@ body.dark .user-dropdown {
 </div>
 
 <script>
-    /* ===============================
-   로그인 상태 처리
+/* ===============================
+   통합 로그인 및 유저 정보 처리
 ================================ */
 $(document).ready(function() {
-    // 마이페이지 접속 시 자동으로 정보 불러오기
-    loadMyInfo();
+    // 1. 페이지 로드 시 즉시 실행
+    initApp();
 });
 
-function loadMyInfo() {
+function initApp() {
+    // 로그인 여부 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
+
+    if (isLoggedIn) {
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function fetchUserInfo() {
     $.ajax({
         url: '/get-my-info',
         type: 'GET',
         success: function(response) {
-            if (response.status === "success") {
+            if (response.status === "success" && response.data) {
                 const user = response.data;
                 
-                // 각 입력창에 DB에서 가져온 값 할당
-                $('#user-name').val(user.name);
-                $('#user-email').val(user.email);
-                $('#user-birth').val(user.birth);
-                $('#user-gender').val(user.gender); // select 박스
-                
-                // 드롭다운의 "홍길동님" 부분도 업데이트
-                $('.dropdown-title').text(user.name + "님");
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+                updateProfileUI(user);
             }
         },
-        error: function() {
-            alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
-            location.href = 'login.html';
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
         }
     });
 }
 
+// 드롭다운 내용 생성 함수
+function renderUserMenu(isLoggedIn, userName = "회원") {
+    // 님의 HTML 구조에 정확히 맞춤: #dropdownContent에 삽입
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+// 사이드바 및 폼 정보 업데이트
+function updateProfileUI(user) {
+    // 왼쪽 사이드바 프로필 (ID가 있다면)
+    $('#side-profile-name').text(user.name + "님");
+    $('#side-profile-email').text(user.email);
+    
+    // 마이페이지 입력 폼
+    if($('#user-name').length) $('#user-name').val(user.name);
+    if($('#user-email').length) $('#user-email').val(user.email);
+    if($('#user-birth').length) $('#user-birth').val(user.birth);
+    if($('#user-gender').length) $('#user-gender').val(user.gender);
+}
+
+// 메뉴 토글 함수
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if(dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// 로그아웃
 function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    toggleLoginState();
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+}
+
+// 바깥 클릭 시 드롭다운 닫기
+window.onclick = function(event) {
+    if (!event.target.closest('.user-menu')) {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+}
+
+/* ===============================
+   UI 인터랙션 (기존 기능 유지)
+================================ */
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    dropdown.classList.toggle('show');
+}
+
+// 다크모드, 카테고리 활성화, 달력 로직 등 기존 코드는 이 아래에 그대로 붙여넣으시면 됩니다.
+// (중복된 logout 함수나 checkAuth 함수만 지우시면 됩니다)
+
+function saveUserInfo() {
+    const data = {
+        name: $('#user-name').val().trim(),
+        gender: $('#user-gender').val(),
+        birth: $('#user-birth').val(),
+        email: $('#user-email').val().trim()
+    };
+
+    $.ajax({
+        url: '/update-info',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function() {
+            alert("정보가 변경되었습니다.");
+            location.reload();
+        }
+    });
 }
 
 /* ===============================
@@ -2470,50 +2597,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupGridInteractions();
 });
 
-/* ===============================
-   로그인 상태 처리
-================================ */
-function toggleLoginState() {
-    const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
-    const dropdownContent = document.getElementById('dropdownContent');
-
-    if (isLoggedIn) {
-        dropdownContent.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">홍길동님</p>
-            </div>
-            <a href="mypage.html" class="dropdown-item">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span>마이페이지</span>
-            </a>
-            <button onclick="logout()" class="dropdown-item logout">
-                <span class="material-symbols-outlined">logout</span>
-                <span>로그아웃</span>
-            </button>
-        `;
-    } else {
-        dropdownContent.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title">로그인이 필요합니다</p>
-            </div>
-            <a href="login.html" class="dropdown-item">
-                <span class="material-symbols-outlined">login</span>
-                <span>로그인</span>
-            </a>
-            <a href="logregist.html" class="dropdown-item">
-                <span class="material-symbols-outlined">person_add</span>
-                <span>회원가입</span>
-            </a>
-        `;
-    }
-}
-
-function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    toggleLoginState();
-}
 
 /* ===============================
    드롭다운 / 다크모드
