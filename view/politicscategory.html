@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - 정치 뉴스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans KR", sans-serif;
+    background-color: #F3F4F6;
+    color: #1F2937;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark {
+    background-color: #111827;
+    color: #E5E7EB;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    position: relative;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-mypage { --splash-color: #A5B4FC; --splash-text-color: #4338CA; }
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-btn {
+    color: #9CA3AF;
+}
+
+body.dark .icon-btn:hover {
+    background-color: #374151;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+/* Main Content */
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Search Section */
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 48rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-select {
+    position: absolute;
+    left: 0.75rem;
+    height: 100%;
+    padding: 0 0.5rem 0 0.5rem;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    font-size: 0.875rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+body.dark .search-select {
+    color: #9CA3AF;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 8rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 9999px;
+    background-color: #FFFFFF;
+    color: #111827;
+    font-size: 0.875rem;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+body.dark .search-input {
+    background-color: #1F2937;
+    color: #F3F4F6;
+    border-color: #4B5563;
+}
+
+.search-input:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-btn {
+    position: absolute;
+    right: 1rem;
+    color: #3B82F6;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.search-btn:hover {
+    color: #2563EB;
+}
+
+/* Section Headers */
+.section-header {
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+body.dark .section-header {
+    border-bottom-color: #374151;
+}
+
+.section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+body.dark .section-title {
+    color: #FFFFFF;
+}
+
+.section-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+body.dark .section-subtitle {
+    color: #9CA3AF;
+}
+
+/* Article Grid */
+.article-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .article-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .article-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.article-card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    transition: box-shadow 0.2s;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+body.dark .article-card {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.article-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.article-image {
+    position: relative;
+    height: 12rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.article-card:hover .article-image img {
+    transform: scale(1.05);
+}
+
+.article-tag {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background-color: #7C3AED;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.article-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.article-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+body.dark .article-title {
+    color: #FFFFFF;
+}
+
+.article-card:hover .article-title {
+    color: #3B82F6;
+}
+
+.article-description {
+    font-size: 0.875rem;
+    color: #4B5563;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+body.dark .article-description {
+    color: #9CA3AF;
+}
+
+.article-meta {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: auto;
+}
+
+body.dark .article-meta {
+    color: #6B7280;
+}
+
+/* List Section */
+.list-section {
+    margin-top: 3rem;
+}
+
+.list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .list-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+body.dark .list-header {
+    border-bottom-color: #374151;
+}
+
+.list-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.list-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+body.dark .list-title {
+    color: #E5E7EB;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 0.25rem;
+    background-color: #F3F4F6;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+body.dark .sort-buttons {
+    background-color: #1F2937;
+}
+
+.sort-btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .sort-btn {
+    color: #9CA3AF;
+}
+
+.sort-btn:hover {
+    background-color: #E5E7EB;
+}
+
+body.dark .sort-btn:hover {
+    background-color: #374151;
+}
+
+.sort-btn.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Article List */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.list-article {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+@media (min-width: 640px) {
+    .list-article {
+        flex-direction: row;
+    }
+}
+
+body.dark .list-article {
+    border-bottom-color: #1F2937;
+}
+
+.list-article:last-child {
+    border-bottom: none;
+}
+
+.list-article:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .list-article:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+}
+
+.list-article-image {
+    width: 100%;
+    height: 10rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+@media (min-width: 640px) {
+    .list-article-image {
+        width: 16rem;
+    }
+}
+
+.list-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.list-article:hover .list-article-image img {
+    transform: scale(1.05);
+}
+
+.list-article-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.list-article-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #7C3AED;
+    margin-bottom: 0.5rem;
+}
+
+.list-article-category {
+    background-color: #EDE9FE;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    color: #7C3AED;
+    font-weight: 500;
+}
+
+body.dark .list-article-category {
+    background-color: rgba(124, 58, 237, 0.3);
+}
+
+.list-article-date {
+    color: #9CA3AF;
+}
+
+body.dark .list-article-date {
+    color: #6B7280;
+}
+
+.list-article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .list-article-title {
+    color: #FFFFFF;
+}
+
+.list-article:hover .list-article-title {
+    color: #3B82F6;
+}
+
+.list-article-desc {
+    font-size: 0.875rem;
+    color: #4B5563;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+body.dark .list-article-desc {
+    color: #9CA3AF;
+}
+
+.list-article-source {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .list-article-source {
+    color: #6B7280;
+}
+
+.list-article-source strong {
+    color: #374151;
+    font-weight: 500;
+}
+
+body.dark .list-article-source strong {
+    color: #D1D5DB;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 3rem;
+}
+
+body.dark .pagination {
+    border-top-color: #374151;
+}
+
+.pagination-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-nav {
+    padding: 0.5rem;
+    color: #6B7280;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .pagination-nav {
+    color: #9CA3AF;
+}
+
+.pagination-nav:hover {
+    color: #3B82F6;
+}
+
+.pagination-btn.page {
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .pagination-btn.page {
+    color: #D1D5DB;
+}
+
+.pagination-btn.page:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .pagination-btn.page:hover {
+    background-color: #1F2937;
+}
+
+.pagination-btn.page.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+}
+
+.pagination-btn.page.active:hover {
+    background-color: #2563EB;
+}
+
+.spacer {
+    height: 5rem;
+}
+</style>
+</head>
+<body>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="homepage.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-economy" href="economycategory.html">경제</a>
+                <a class="nav-splash-item splash-world" href="universecategory.html">국제</a>
+                <a class="nav-splash-item splash-tech active" href="ITcategory.html">IT/과학</a>
+            </div>
+            <div class="nav-right">
+                <button class="icon-btn" onclick="toggleDarkMode()">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <div class="dropdown">
+                    <button class="icon-btn nav-splash-item splash-mypage" id="mypageBtn" onclick="toggleDropdown()">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <div id="dropdownContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <section class="search-section">
+        <div class="search-container">
+            <select class="search-select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                <option value="title_body" selected>제목+본문</option>
+                <option value="title">제목</option>
+                <option value="body">본문</option>
+                <option value="keyword">키워드</option>
+            </select>
+            <input class="search-input" id="searchInput" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+            <button class="search-btn" onclick="performSearch()">
+                <span class="material-symbols-outlined">search</span>
+            </button>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-header">
+            <h1 class="section-title">정치</h1>
+            <p class="section-subtitle">총 15건의 기사가 검색되었습니다.</p>
+        </div>
+        <div class="article-grid">
+            <a class="article-card" href="article_detail.html">
+                <div class="article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNBm09ovhPsG3TquL8IJpifoVqJX0RNYIYY77fgGbFHR0r-_RwF2XGK8mm8IM07-EHRr-R-cpXmtTDy_AnW0sgRYcknZbRmwOUaMU-zSDY3muLEr_ntVp_6b5dtQrDbdP_QkYqHTJiHVkFWZwB54fU4qF9b9ChMOtvn9zsYzPfxcNXG1UUCUDkz7pXQ2qVH9uFOgYIJA0ZmgFsSQaal7DwdcsedqNyX8TIVZqi9ClDFCTmrgVIwgVrdKd5tNMuZ3UK0_CPTsphOiI" alt="EU Regulation"/>
+                    <span class="article-tag">정책/규제</span>
+                </div>
+                <div class="article-content">
+                    <h3 class="article-title">EU, 세계 최초 'AI 규제법' 최종 승인... 글로벌 표준 되나</h3>
+                    <p class="article-description">유럽연합(EU) 의회가 인공지능 기술을 위험도에 따라 분류하고 규제하는 포괄적인 법안을 통과시켰습니다. 위반 시 막대한 과징금이 부과될 수 있어 기업들의...</p>
+                    <div class="article-meta">
+                        <span>지디넷</span>
+                        <span> • </span>
+                        <span>2시간 전</span>
+                    </div>
+                </div>
+            </a>
+            <a class="article-card" href="article_detail.html">
+                <div class="article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8Ca3tghGwsZOJpPycdo6ei8OrIqAKlPT18qT7dkgiURkvF6z8cVWmQ6pDsq-oU_ykJ52mhmluJwx3mDoF7fVdEfEU9AbMfw00L1cl8IX7vn-PvF3JSshNhHiEurH_SSb0ksZs3FRdGVcc0iDzXlk26PnQXW-PwvaFGVTPFke4r_r0BnPRa7lTw-PGs9uVPTQmLs0nMx6VXElshYoY8RP9jyg-H0hKSsYO5ig93KRAnGPs0AUVaziJ-B4ujXK-erSrcdYkod3kZkA" alt="Semiconductor"/>
+                    <span class="article-tag">반도체</span>
+                </div>
+                <div class="article-content">
+                    <h3 class="article-title">글로벌 반도체 동맹 강화, 공급망 안정화 논의 급물살</h3>
+                    <p class="article-description">주요 반도체 생산국들이 모여 차세대 칩 개발 협력과 공급망 리스크 완화를 위한 다자간 협의체를 구성하기로 했습니다. 국가 간 기술 장벽을 넘어선 협력이...</p>
+                    <div class="article-meta">
+                        <span>블로터</span>
+                        <span> • </span>
+                        <span>4시간 전</span>
+                    </div>
+                </div>
+            </a>
+            <a class="article-card" href="article_detail.html">
+                <div class="article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnY0f8mgE6gXiM6WTCnY8M4IOqZfSPU6jeZhyfAVKL0UyQ7IlpqyVRmE3ukM1wBTaoO9fbxNckJ6JLv389p8S3KVGY8_MQ1rfB6L21K_kj5Ds5fopwMTwTnklOmC2zpoVJ22Yz9TiHEyZgi8SXmzn1CB4oipJmZwZyG99s05H8lVPFuHIFL8ycSIBMzsOS_ukNxqGckrHWB50Cefnlhuw6blww1HkzYuJrKo7capDlFioPGRH0dHOi7kVDFzO0IKl8oriCOgy_8Dg" alt="Data Center"/>
+                    <span class="article-tag">인프라/통신</span>
+                </div>
+                <div class="article-content">
+                    <h3 class="article-title">대규모 데이터센터 화재로 인한 통신 장애, 복구 난항</h3>
+                    <p class="article-description">주요 데이터센터 화재로 다수의 모바일 서비스가 중단된 가운데, 완전한 서비스 정상화까지는 시일이 걸릴 것으로 보입니다. 이번 사태로 서버 이중화의 중요성이...</p>
+                    <div class="article-meta">
+                        <span>IT월드</span>
+                        <span> • </span>
+                        <span>6시간 전</span>
+                    </div>
+                </div>
+            </a>
+              <a class="article-card" href="article_detail.html">
+                <div class="article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9nU0j_cMMgwes_5jUB5pJVQWoYZpuI_FwWk_TnE-s87772qAeQjqxeuVAJsZ2uZ6pL0P8__wFgXsPa5Boavsxgjw4_WSGNIVNaGEh4t_mHkz5qq7ed4D3KdedQrHw414z_C-ivDx7XPNUvf-CrlUROqRu2NTiC8D7eiZgyFi0KujQRZZgQrvihak_pe7ewcGbDjjDBjcQjji7m9zp8ai4fCgdLgy1LhO5P6-dwRygK9WGiVpGOj4ULGUIYfAp6pZrWI05n3_Pq84" alt="AI Competition"/>
+                    <span class="article-tag">인공지능</span>
+                </div>
+                <div class="article-content">
+                    <h3 class="article-title">생성형 AI 주도권 경쟁, 빅테크 기업들의 치열한 각축전</h3>
+                    <p class="article-description">구글, 마이크로소프트, 오픈AI 등 주요 빅테크 기업들이 차세대 AI 모델을 잇달아 발표하며 시장 선점을 위한 기술 경쟁이 심화되고 있습니다. 특히 멀티모달...</p>
+                    <div class="article-meta">
+                        <span>테크크런치</span>
+                        <span> • </span>
+                        <span>30분 전</span>
+                    </div>
+                </div>
+            </a>
+
+    </section>
+
+    <section class="list-section">
+        <div class="list-header">
+            <div class="list-title-row">
+                <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">science</span>
+                <h2 class="list-title">정치</h2>
+            </div>
+            <div class="sort-buttons">
+                <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
+                <button class="sort-btn" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
+                <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+            </div>
+        </div>
+        <div class="article-list" id="articleList">
+            <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="92">
+                <div class="list-article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAi0HzJ2Nf_F0aXMSliLV9Kb-TsH2tad8LM9omA-TCeod20vViYqEo-PKPQdYDSgX6bYk_Oy-05DLpepTWfRQ9-aYLcM0RJR3hysXy1QGREZOJHy16DltlYwvJXkzkh48sGq4umFujndmM52rJXaUi0iyzt4EJWet21tx709S8v4MdfCqsp7-OzIQClGf6z-E_w14c1Nfp_85Lu-5qvmZIQhD8-u0XletL_vJReY2tPUitkV2j4Av4v1s8Fy-6KGmCYcBCGVayxIE" alt="Mobile"/>
+                </div>
+                <div class="list-article-body">
+                    <div class="list-article-tags">
+                        <span class="list-article-category">모바일</span>
+                        <span class="list-article-date">2023.11.15</span>
+                    </div>
+                    <h3 class="list-article-title">삼성전자 vs 애플, 하반기 스마트폰 시장 점유율 전쟁</h3>
+                    <p class="list-article-desc">차세대 폴더블폰과 아이폰 신제품 출시가 임박한 가운데, 양사의 프리미엄 스마트폰 시장 점유율 경쟁이 더욱 치열해질 전망입니다. 혁신적인 기능과 디자인으로...</p>
+                    <div class="list-article-source">
+                        <strong>IT조선</strong>
+                        <span> | </span>
+                        <span>테크리포트</span>
+                    </div>
+                </div>
+            </a>
+            <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
+                <div class="list-article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjLhwtocstGy92RvdR5VRS4qHpdjsHb1Zn3TrE9QnJm0xnhEMzopd1roFJcpSoRg7RFMjKgsbxgIrgFuFqKyqmgBEUxDJlnd_R8qPbYVvu_IfzsoK_gRj2DwM85ku9sk7HPB7_8xg4_sqDMJ0tr9TS8bEktLPvGy66VeQS27gfFBn7dMQ08-DetiR-wT57o0G-dEI85Hzxp0s1ZlMljL6nXIGsoD_4h2NiKEKOLB2E1_w7PwbSPfz91Gm6eCQonNVqTaH_oOOFaFI" alt="Climate"/>
+                </div>
+                <div class="list-article-body">
+                    <div class="list-article-tags">
+                        <span class="list-article-category">환경과학</span>
+                        <span class="list-article-date">2023.11.14</span>
+                    </div>
+                    <h3 class="list-article-title">기후 위기 극복할 탄소 포집 기술, 상용화 눈앞</h3>
+                    <p class="list-article-desc">대기 중 이산화탄소를 직접 포집하여 저장하는 DAC 기술이 경제성을 확보하며 기후 변화 대응의 새로운 해법으로 주목받고 있습니다. 주요 스타트업들이...</p>
+                    <div class="list-article-source">
+                        <strong>사이언스팀</strong>
+                        <span> | </span>
+                        <span>그린테크</span>
+                    </div>
+                </div>
+            </a>
+            <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="98">
+                <div class="list-article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcl-IPWu12Sqfit9-l-FJc1jKY1OIiMSJAaOZir3NA4P_fkNq-S_LlFAFQP4ZWdqGhekDYwUveM2b71dJwCNkI3MuPCzHja0-wbRtlZl37LQbTtLURelO3tZtmTc2G43opvCLaR05Ka6xZhWF3JbPOM54iVyDkMnH-hhpTZjEHTmhQkc4J3CBENODJdEVta9Lmpu8FHdy_qlhT5D4LRDbM9cfU6pfyYUYyMyMlhSDebwQlUR34vPdpPYVTPBm2yOED_kETlWOfB68" alt="Space"/>
+                </div>
+                <div class="list-article-body">
+                    <div class="list-article-tags">
+                        <span class="list-article-category">우주</span>
+                        <span class="list-article-date">2023.11.13</span>
+                    </div>
+                    <h3 class="list-article-title">스페이스X, 차세대 우주선 '스타십' 3차 비행 시험 성공</h3>
+                    <p class="list-article-desc">일론 머스크가 이끄는 스페이스X의 대형 우주선 스타십이 궤도 진입에 성공하며 화성 이주 계획에 한 걸음 더 다가섰습니다. 이번 시험 비행은...</p>
+                    <div class="list-article-source">
+                        <strong>스페이스X 기자</strong>
+                        <span> | </span>
+                        <span>우주과학저널</span>
+                    </div>
+                </div>
+            </a>
+            <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="70">
+                <div class="list-article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5A5IYG0tvF6wIwVJLwUtbgwS0GghEg0Xnosm8MjLSiwYL5BdgqmktFUZMNfWIBKM8mgCG2s2GLINSbYbZXpnK7JFVpio6NWUASF_gdwl-GvFNWeuD1Eqr836P5BXcE1vcCCpCfldc0DXEP7Q3znGRrYbIKJCiGqoYtXbbFzpUX1dYC6tsca8AOAx5xl8Iy0V22eNdhksZuaUsrstDwipYOp1DvVWMMIALPXrk-yezuSc_mTXDdomgZpI3HXJpOI4t56cWTyvgSIo" alt="Game"/>
+                </div>
+                <div class="list-article-body">
+                    <div class="list-article-tags">
+                        <span class="list-article-category">게임/문화</span>
+                        <span class="list-article-date">2023.11.12</span>
+                    </div>
+                    <h3 class="list-article-title">"확률형 아이템 규제하라" 게이머들 트럭 시위 확산</h3>
+                    <p class="list-article-desc">인기 게임의 확률형 아이템 조작 논란에 분노한 이용자들이 게임사 본사 앞에서 트럭 시위를 벌이며 투명한 정보 공개를 요구하고 있습니다. 국회에서도 관련 법안...</p>
+                    <div class="list-article-source">
+                        <strong>게임메카</strong>
+                        <span> | </span>
+                        <span>IT뉴스</span>
+                    </div>
+                </div>
+            </a>
+            <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="75">
+                <div class="list-article-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHHQX99LkH0oPQVhWyatwDmazSnqop2pC_UpwD0_aeyuRCVf3O9ylDkWsmdto7Jjr_VJ7bKLvjoaL9a_nMhFVImnEICYKmSAX13l_bddVdC6A3R2YKiNCsBfiF7BW0IdIzN17VJ4tBu9E4CWlT-ALIaUDDTEY-XTHqRtJnrIX6evEL-2jmvKcbCrNG4VpSEiyhmzg6xWwg5R2BhEXHskn401wTx2hOOCmk9wq2PemoFRXfed1yAJ-HRvlYgekwdijb5n2PnJUlKd0" alt="Blockchain"/>
+                </div>
+                <div class="list-article-body">
+                    <div class="list-article-tags">
+                        <span class="list-article-category">블록체인</span>
+                        <span class="list-article-date">2023.11.11</span>
+                    </div>
+                    <h3 class="list-article-title">비트코인 현물 ETF 승인 이후, 가상자산 시장의 미래는?</h3>
+                    <p class="list-article-desc">미국 SEC의 비트코인 현물 ETF 승인으로 기관 투자자들의 진입이 본격화되면서 가상자산 시장의 제도권 편입이 가속화되고 있습니다. 전문가들은 향후 시장...</p>
+                    <div class="list-article-source">
+                        <strong>코인데스크</strong>
+                        <span> | </span>
+                        <span>디지털자산</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <div class="pagination">
+        <button class="pagination-nav">
+            <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
+        </button>
+        <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
+        <button class="pagination-btn page" onclick="goToPage(2)">2</button>
+        <button class="pagination-btn page" onclick="goToPage(3)">3</button>
+        <button class="pagination-btn page" onclick="goToPage(4)">4</button>
+        <button class="pagination-btn page" onclick="goToPage(5)">5</button>
+        <button class="pagination-nav">
+            <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
+        </button>
+    </div>
+</main>
+
+<div class="spacer"></div>
+
+<script>
+/* ===============================
+   로그인 상태 처리
+================================ */
+function toggleLoginState() {
+    const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+/* ===============================
+   드롭다운 / 다크모드
+================================ */
+function toggleDropdown() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('dark');
+}
+
+/* ===============================
+   🔥 카테고리 선택 색상 고정 (핵심)
+================================ */
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+/* ===============================
+   검색
+================================ */
+function updateSearchPlaceholder(select) {
+    const searchInput = document.getElementById('searchInput');
+    const placeholders = {
+        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+        title: '제목에서 관심있는 뉴스를 검색해보세요',
+        body: '본문에서 관심있는 뉴스를 검색해보세요',
+        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+    };
+    searchInput.placeholder = placeholders[select.value];
+}
+
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `search_results.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+
+/* ===============================
+   정렬
+================================ */
+function sortArticles(type) {
+    const container = document.getElementById('articleList');
+    const articles = Array.from(container.children);
+
+    articles.sort((a, b) => {
+        const dateA = new Date(a.dataset.date);
+        const dateB = new Date(b.dataset.date);
+        const relA = Number(a.dataset.reliability || 0);
+        const relB = Number(b.dataset.reliability || 0);
+
+        if (type === 'latest') return dateB - dateA;
+        if (type === 'oldest') return dateA - dateB;
+        if (type === 'reliability') return relB - relA;
+    });
+
+    container.innerHTML = '';
+    articles.forEach(a => container.appendChild(a));
+
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+}
+
+/* ===============================
+   페이지네이션
+================================ */
+function goToPage(pageNumber) {
+    const url = new URL(location.href);
+    url.searchParams.set('page', pageNumber);
+    history.pushState({}, '', url);
+    updatePaginationUI(pageNumber);
+}
+
+function updatePaginationUI(activePage) {
+    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.innerText) === activePage);
+    });
+}
+
+/* ===============================
+   초기 실행
+================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
+
+    document.addEventListener('click', e => {
+        const dropdown = document.getElementById('userDropdown');
+        const btn = document.getElementById('mypageBtn');
+        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+
+    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
+    updatePaginationUI(page);
+});
+</script>
+
+</body>
+</html>

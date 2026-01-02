@@ -27,19 +27,16 @@ def similar_articles(article_id):
         source=["article_id", "article_title"]
     )
 
-    hits = [
+    related_articles = [
         {
             "article_id": h["_source"].get("article_id"),
-            "title": h["_source"].get("article_title"),
             "score": h["_score"]
         }
         for h in res["hits"]["hits"]
     ]
-    print(len(hits))
-    print(json.dumps(hits,indent=2,ensure_ascii=False))
+    return related_articles
 
-if __name__ == "__main__":
-    article_id = input("article_id 입력: ").strip()
-    similar_articles(article_id)
+# if __name__ == "__main__":
+    # similar_articles(article_id)
 
 

@@ -1,198 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NewsPalette - 마이페이지</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f9fafb;
-    color: #111827;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-}
 
-body.dark {
-    background-color: #111827;
-    color: #f3f4f6;
-}
-
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-/* Header */
-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.dark header {
-    background-color: #1f2937;
-    border-bottom-color: #374151;
-}
-
-.header-content {
-    height: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.logo:hover {
-    opacity: 0.9;
-}
-
-.logo-icon {
-    position: relative;
-    width: 2.5rem;
-    height: 2.5rem;
-    background: linear-gradient(135deg, #60a5fa, #2563eb);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.25rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
-}
-
-.logo:hover .logo-icon {
-    transform: scale(1.05);
-}
-
-.logo-text {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #111827;
-}
-
-.dark .logo-text {
-    color: white;
-}
-
-.nav {
-    display: none;
-    gap: 1rem;
-}
-
-@media (min-width: 768px) {
-    .nav {
-        display: flex;
-    }
-}
-
-.nav-item {
-    position: relative;
-    width: 4rem;
-    height: 3rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #374151;
-    transition: all 0.3s;
-}
-
-.dark .nav-item {
-    color: #e5e7eb;
-}
-
-.nav-item:hover {
-    color: #111827;
-    transform: scale(1.05);
-}
-
-.dark .nav-item:hover {
-    color: #ffffff;
-}
-
-.nav-blob {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 120%;
-    z-index: -1;
-    opacity: 0.5;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translate(-50%, -50%) scale(0.9);
-    mix-blend-mode: multiply;
-}
-
-.dark .nav-blob {
-    mix-blend-mode: screen;
-    opacity: 0.3;
-}
-
-.nav-item:hover .nav-blob {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
-}
-
-.nav-blob-2 {
-    background: radial-gradient(circle at 70% 30%, rgba(254, 215, 170, 0.7), rgba(253, 186, 116, 0.3));
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    filter: blur(5px);
-}
-
-.nav-blob-3 {
-    background: radial-gradient(circle at 40% 60%, rgba(254, 202, 202, 0.7), rgba(252, 165, 165, 0.3));
-    border-radius: 35% 65% 60% 40% / 30% 60% 40% 70%;
-    filter: blur(5px);
-}
-
-.nav-blob-4 {
-    background: radial-gradient(circle at 60% 40%, rgba(187, 247, 208, 0.7), rgba(134, 239, 172, 0.3));
-    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
-    filter: blur(5px);
-}
-
-.nav-blob-5 {
-    background: radial-gradient(circle at 30% 70%, rgba(199, 210, 254, 0.7), rgba(165, 180, 252, 0.3));
-    border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%;
-    filter: blur(5px);
-}
-
-.nav-blob-6 {
-    background: radial-gradient(circle at 50% 50%, rgba(191, 219, 254, 0.7), rgba(147, 197, 253, 0.3));
-    border-radius: 40% 60% 70% 30% / 50% 60% 30% 60%;
-    filter: blur(5px);
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
 
 .theme-toggle {
     padding: 0.5rem;
@@ -1509,54 +1328,438 @@ main {
 .activity-list-date .material-icons-outlined {
     font-size: 1.25rem;
 }
+
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    position: relative;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-btn {
+    color: #9CA3AF;
+}
+
+body.dark .icon-btn:hover {
+    background-color: #374151;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+
+/* Header Actions (MyPage + Dark Mode) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
 </style>
 </head>
 <body>
-<header>
-    <div class="container">
-        <div class="header-content">
-            <a class="logo" href="homepage.html">
-                <div class="logo-icon">
-                    <span>N</span>
-                </div>
-                <span class="logo-text">NewsPalette</span>
-            </a>
-            <nav class="nav">
-                <a class="nav-item" href="/society">
-                    <div class="nav-blob nav-blob-2"></div>
-                    <span>사회</span>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="homepage.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
                 </a>
-                <a class="nav-item" href="/politics">
-                    <div class="nav-blob nav-blob-3"></div>
-                    <span>정치</span>
-                </a>
-                <a class="nav-item" href="/economy">
-                    <div class="nav-blob nav-blob-4"></div>
-                    <span>경제</span>
-                </a>
-                <a class="nav-item" href="/world">
-                    <div class="nav-blob nav-blob-5"></div>
-                    <span>국제</span>
-                </a>
-                <a class="nav-item" href="/tech">
-                    <div class="nav-blob nav-blob-6"></div>
-                    <span>IT/과학</span>
-                </a>
-            </nav>
-            <div class="header-actions">
-                <button class="theme-toggle" onclick="toggleTheme()">
-                    <span class="material-icons-outlined dark-icon">dark_mode</span>
-                    <span class="material-icons-outlined light-icon">light_mode</span>
-                </button>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
-                    </div>
-                </div>
             </div>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-world" href="world.html">국제</a>
+                <a class="nav-splash-item splash-international" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+            </div>
+     <div class="header-actions">
+    <button class="icon-button" onclick="toggleDarkMode()">
+        <span class="material-symbols-outlined">dark_mode</span>
+    </button>
+
+    <div class="user-menu">
+        <button class="user-menu-button" onclick="toggleUserMenu()">
+            <div class="user-menu-blob"></div>
+            <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+            <div id="dropdownContent"></div>
         </div>
     </div>
-</header>
+</div>
+
+</nav>
 
 <main>
     <div class="container">
@@ -1579,15 +1782,15 @@ main {
                             로그아웃
                         </button>
                     </div>
-
+                    
                     <div class="divider"></div>
-
+                    
                     <div>
                         <div class="section-title" style="margin-bottom: 1.5rem;">
                             <span class="material-icons-outlined" style="color: #6b7280;">history</span>
                             <h3 style="font-weight: bold; color: #111827;">개인 조회 카테고리</h3>
                         </div>
-
+                        
                         <div class="chart-section">
                             <div style="position: relative; margin-bottom: 1.5rem;">
                                 <div class="donut-chart" id="algorithm-chart">
@@ -1598,7 +1801,7 @@ main {
                                     <span class="chart-label chart-label-4">기타</span>
                                 </div>
                             </div>
-
+                            
                             <div class="chart-legend">
                                 <div class="legend-item">
                                     <div class="legend-label">
@@ -1630,7 +1833,7 @@ main {
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;">
                             <button class="reset-btn" onclick="resetAlgorithm()">
                                 <span class="material-icons-outlined" style="font-size: 0.875rem;">restart_alt</span>
@@ -1640,7 +1843,7 @@ main {
                     </div>
                 </div>
             </aside>
-
+            
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <section class="card">
                     <div class="section-header">
@@ -1667,7 +1870,7 @@ main {
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="activity-layout">
                         <div class="activity-main">
                             <div class="calendar-controls">
@@ -1684,7 +1887,7 @@ main {
                                     </button>
                                 </div>
                             </div>
-
+                            
                             <div class="calendar-container">
                                 <div class="calendar-grid" id="calendar-grid">
                                     <div class="calendar-day-header">일</div>
@@ -1694,7 +1897,7 @@ main {
                                     <div class="calendar-day-header">목</div>
                                     <div class="calendar-day-header">금</div>
                                     <div class="calendar-day-header">토</div>
-
+                                    
                                     <div class="calendar-day prev-month">25</div>
                                     <div class="calendar-day prev-month">26</div>
                                     <div class="calendar-day prev-month">27</div>
@@ -1737,7 +1940,7 @@ main {
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="activity-sidebar">
                             <div class="stats-card">
                                 <span class="stats-label">총 기사 조회수</span>
@@ -1745,7 +1948,7 @@ main {
                                     <span class="stats-value">1,245</span>
                                 </div>
                             </div>
-
+                            
                             <div class="activity-list-card">
                                 <div class="activity-list-header">
                                     <div class="activity-list-date">
@@ -1788,7 +1991,7 @@ main {
                         </div>
                     </div>
                 </section>
-
+                
                 <section class="card">
                     <div class="section-header">
                         <div class="section-title">
@@ -1799,29 +2002,27 @@ main {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">이름</label>
-                            <input class="form-input" type="text" value="홍길동"/>
-                        </div>
+                            <input class="form-input" type="text" id="user-name" /> </div>
                         <div class="form-group">
                             <label class="form-label">성별</label>
-                            <select class="form-select">
-                                <option>남성</option>
-                                <option>여성</option>
+                            <select class="form-select" id="user-gender">
+                                <option value="male">남성</option>
+                                <option value="female">여성</option>
+                                <option value="none">선택안함</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">생년월일</label>
-                            <input class="form-input" type="date" value="1990-01-01"/>
-                        </div>
+                            <input class="form-input" type="date" id="user-birth" value="2000-01-01"/> </div>
                         <div class="form-group">
                             <label class="form-label">이메일</label>
-                            <input class="form-input" type="email" value="user@example.com"/>
+                            <input class="form-input" type="email" id="user-email" value=""/> </div>
                         </div>
-                    </div>
                     <div class="form-actions">
                         <button class="btn-primary" onclick="saveUserInfo()">변경 사항 저장</button>
                     </div>
                 </section>
-
+                
                 <section class="card">
                     <div class="section-header">
                         <div class="section-title">
@@ -1847,7 +2048,7 @@ main {
                         <button class="btn-secondary" onclick="updatePassword()">비밀번호 업데이트</button>
                     </div>
                 </section>
-
+                
                 <div style="display: flex; justify-content: flex-end; padding-top: 1rem;">
                     <button class="delete-account-btn" onclick="document.getElementById('confirm-dialog').classList.add('show')">
                         <span class="material-icons-outlined">person_remove</span>
@@ -1881,6 +2082,128 @@ main {
 </div>
 
 <script>
+    /* ===============================
+   로그인 상태 처리
+================================ */
+$(document).ready(function() {
+    // 마이페이지 접속 시 자동으로 정보 불러오기
+    loadMyInfo();
+});
+
+function loadMyInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success") {
+                const user = response.data;
+                
+                // 각 입력창에 DB에서 가져온 값 할당
+                $('#user-name').val(user.name);
+                $('#user-email').val(user.email);
+                $('#user-birth').val(user.birth);
+                $('#user-gender').val(user.gender); // select 박스
+                
+                // 드롭다운의 "홍길동님" 부분도 업데이트
+                $('.dropdown-title').text(user.name + "님");
+            }
+        },
+        error: function() {
+            alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+            location.href = 'login.html';
+        }
+    });
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+/* ===============================
+   드롭다운 / 다크모드
+================================ */
+
+
+/* ===============================
+   다크모드 (로컬스토리지 저장)
+================================ */
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem(
+        'darkMode',
+        document.body.classList.contains('dark')
+    );
+}
+
+// 초기 다크모드 상태
+if (
+    localStorage.getItem('darkMode') === 'true' ||
+    (
+        !localStorage.getItem('darkMode') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    )
+) {
+    document.body.classList.add('dark');
+}
+
+/* ===============================
+   유저 메뉴 토글
+================================ */
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+// 바깥 클릭 시 닫기
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+
+/* ===============================
+   🔥 카테고리 선택 색상 고정 (핵심)
+================================ */
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+
+
+/* ===============================
+   초기 실행
+================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
+
+    document.addEventListener('click', e => {
+        const dropdown = document.getElementById('userDropdown');
+        const btn = document.getElementById('mypageBtn');
+        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+
+    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
+    updatePaginationUI(page);
+});
 // Theme Toggle
 function toggleTheme() {
     document.documentElement.classList.toggle('dark');
@@ -1919,37 +2242,77 @@ function handleLogout() {
     }
 }
 
+// 1. 정보 변경 저장
 function saveUserInfo() {
-    alert('정보가 저장되었습니다.');
+    const data = {
+        name: $('#user-name').val().trim(),
+        gender: $('#user-gender').val(),
+        birth: $('#user-birth').val(),
+        email: $('#user-email').val().trim()
+    };
+
+    // 모든 필드 필수 체크
+    if(!data.name || !data.gender || !data.birth || !data.email) {
+        alert("모든 정보를 정확히 입력해주세요.");
+        return;
+    }
+
+    $.ajax({
+        url: '/update-info',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data), // 백엔드의 await request.json()과 짝궁
+        success: function(res) {
+            alert("정보가 성공적으로 변경되었습니다.");
+            location.reload();
+        },
+        error: function(xhr) {
+            alert("수정에 실패했습니다: " + (xhr.responseJSON?.message || "알 수 없는 오류"));
+        }
+    });
 }
 
+// 2. 비밀번호 업데이트
 function updatePassword() {
-    const currentPass = document.getElementById('current-password').value;
-    const newPass = document.getElementById('new-password').value;
-    const confirmPass = document.getElementById('confirm-password').value;
+    const currentPw = $('#current-password').val();
+    const newPw = $('#new-password').val();
+    const confirmPw = $('#confirm-password').val();
 
-    if (!currentPass || !newPass || !confirmPass) {
-        alert('모든 필드를 입력해주세요.');
+    if (newPw !== confirmPw) {
+        alert("새 비밀번호가 일치하지 않습니다.");
         return;
     }
 
-    if (newPass !== confirmPass) {
-        alert('새 비밀번호가 일치하지 않습니다.');
-        return;
-    }
-
-    alert('비밀번호가 업데이트되었습니다.');
-    document.getElementById('current-password').value = '';
-    document.getElementById('new-password').value = '';
-    document.getElementById('confirm-password').value = '';
+    $.ajax({
+        url: '/update-password',
+        type: 'POST',
+        data: { current_pw: currentPw, new_pw: newPw },
+        success: function() {
+            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+            logout();
+        },
+        error: function(xhr) {
+            alert(xhr.responseJSON.message);
+        }
+    });
 }
 
+// 3. 회원 탈퇴 확정
+function confirmWithdrawal() {
+    $.post('/withdraw', function() {
+        alert("탈퇴 처리가 완료되었습니다. 이용해 주셔서 감사합니다.");
+        localStorage.setItem('isLoggedIn', 'false');
+        location.href = 'home.html'; // 메인으로 이동
+    });
+}
+
+// 이부분 추후에 수정
 function resetAlgorithm() {
     if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
         const chart = document.getElementById('algorithm-chart');
         chart.style.background = 'conic-gradient(#e5e7eb 0% 100%)';
         document.getElementById('algorithm-percent').innerHTML = '0<span class="unit">%</span>';
-
+        
         const listContainer = document.getElementById('list-items');
         listContainer.innerHTML = `
             <div class="activity-empty">
@@ -1959,13 +2322,6 @@ function resetAlgorithm() {
         `;
         document.getElementById('list-count').innerText = '0건';
         alert('개인화 추천 알고리즘이 초기화되었습니다.');
-    }
-}
-
-function confirmWithdrawal() {
-    if(confirm('정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다.')) {
-        alert('탈퇴 처리가 완료되었습니다.');
-        document.getElementById('confirm-dialog').classList.remove('show');
     }
 }
 
@@ -1986,18 +2342,18 @@ function updateList(day) {
     const listContainer = document.getElementById('list-items');
     const listDate = document.getElementById('list-date');
     const listCount = document.getElementById('list-count');
-
+    
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
     const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
     const dateObj = new Date(year, month, day);
     const dayOfWeek = daysOfWeek[dateObj.getDay()];
-
+    
     listDate.textContent = `${month + 1}월 ${day}일 (${dayOfWeek})`;
-
+    
     const articles = activityData[day] || [];
     listCount.textContent = `${articles.length}건`;
-
+    
     if (articles.length > 0) {
         listContainer.innerHTML = articles.map(generateArticleHTML).join('');
     } else {
@@ -2014,15 +2370,15 @@ function updateList(day) {
 function setupGridInteractions() {
     const grid = document.getElementById('calendar-grid');
     const clickableDays = grid.querySelectorAll('.calendar-day:not(.prev-month):not(.next-month)');
-
+    
     clickableDays.forEach(dayEl => {
         dayEl.addEventListener('click', function(e) {
             clickableDays.forEach(d => {
                 d.classList.remove('selected');
             });
-
+            
             this.classList.add('selected');
-
+            
             const dayNum = this.textContent.trim().match(/\d+/)[0];
             updateList(dayNum);
         });
@@ -2039,7 +2395,7 @@ function getWeekNumber(d) {
 function renderGenericGrid(year, month) {
     const grid = document.getElementById('calendar-grid');
     grid.innerHTML = '';
-
+    
     const days = ['일', '월', '화', '수', '목', '금', '토'];
     days.forEach(d => {
         const header = document.createElement('div');
@@ -2047,11 +2403,11 @@ function renderGenericGrid(year, month) {
         header.textContent = d;
         grid.appendChild(header);
     });
-
+    
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthDays = new Date(year, month, 0).getDate();
-
+    
     for (let i = 0; i < firstDay; i++) {
         const dayNum = prevMonthDays - firstDay + 1 + i;
         const day = document.createElement('div');
@@ -2059,11 +2415,11 @@ function renderGenericGrid(year, month) {
         day.textContent = dayNum;
         grid.appendChild(day);
     }
-
+    
     for (let i = 1; i <= daysInMonth; i++) {
         const day = document.createElement('div');
         const hasActivity = Math.random() > 0.7;
-
+        
         if (hasActivity) {
             const rand = Math.random();
             if (rand > 0.66) {
@@ -2076,7 +2432,7 @@ function renderGenericGrid(year, month) {
         } else {
             day.className = 'calendar-day no-activity';
         }
-
+        
         day.textContent = i;
         grid.appendChild(day);
     }
@@ -2090,20 +2446,20 @@ function changeMonth(delta) {
 function updateCalendarUI() {
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
-
+    
     document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
-
+    
     const startWeek = getWeekNumber(new Date(year, month, 1));
     const endWeek = getWeekNumber(new Date(year, month + 1, 0));
     document.getElementById('calendar-weeks').textContent = `Week ${startWeek}-${endWeek}`;
-
+    
     const grid = document.getElementById('calendar-grid');
     if (year === 2024 && month === 2) {
         grid.innerHTML = originalGridHTML;
     } else {
         renderGenericGrid(year, month);
     }
-
+    
     setupGridInteractions();
 }
 
@@ -2113,6 +2469,137 @@ document.addEventListener('DOMContentLoaded', function() {
     originalGridHTML = grid.innerHTML;
     setupGridInteractions();
 });
+
+/* ===============================
+   로그인 상태 처리
+================================ */
+function toggleLoginState() {
+    const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+/* ===============================
+   드롭다운 / 다크모드
+================================ */
+
+
+/* ===============================
+   다크모드 (로컬스토리지 저장)
+================================ */
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem(
+        'darkMode',
+        document.body.classList.contains('dark')
+    );
+}
+
+// 초기 다크모드 상태
+if (
+    localStorage.getItem('darkMode') === 'true' ||
+    (
+        !localStorage.getItem('darkMode') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    )
+) {
+    document.body.classList.add('dark');
+}
+
+/* ===============================
+   유저 메뉴 토글
+================================ */
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+// 바깥 클릭 시 닫기
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+
+/* ===============================
+   🔥 카테고리 선택 색상 고정 (핵심)
+================================ */
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+
+
+/* ===============================
+   초기 실행
+================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
+
+    document.addEventListener('click', e => {
+        const dropdown = document.getElementById('userDropdown');
+        const btn = document.getElementById('mypageBtn');
+        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+
+    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
+    updatePaginationUI(page);
+});
+
 </script>
 </body>
 </html>
