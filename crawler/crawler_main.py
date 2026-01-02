@@ -127,8 +127,14 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             keywords_raw = driver.find_element(By.CSS_SELECTOR, f'td[id="14-{row_no}"]').text
             feature_raw = driver.find_element(By.CSS_SELECTOR, f'td[id="15-{row_no}"]').text  # <-- FIX
 
+            org_raw = driver.find_element(By.CSS_SELECTOR, f'td[id="13-{row_no}"]').text
+            person_raw =driver.find_element(By.CSS_SELECTOR, f'td[id="11-{row_no}"]').text
+
             keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()]
             features = [f.strip() for f in feature_raw.split(",") if f.strip()]
+
+            org = [k.strip() for k in org_raw.split(",") if k.strip()]
+            person = [k.strip() for k in person_raw.split(",") if k.strip()]
 
             data = {
                 "press": driver.find_element(By.CSS_SELECTOR, f'td[id="2-{row_no}"]').text, # 언론사명
@@ -138,7 +144,11 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 "keywords": keywords, # 키워드
                 "features": features, # 가중치순 상위 50개
                 "url": driver.find_element(By.CSS_SELECTOR, f'td[id="17-{row_no}"]').text, # 기사 원문 링크
-                "collected_at": now_kst # 모든 칼럼을 json으로 변환해서 해당 컬럼에 박은 것
+                "collected_at": now_kst ,# 모든 칼럼을 json으로 변환해서 해당 컬럼에 박은 것
+                "entities": {
+                    "org": org,  # 예: ["서울시", "국토교통부"]
+                    "person": person # 예: ["한병용", "김상하"]
+                }
             }
 
             all_results.append(data)
@@ -155,7 +165,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             )
 
         try:
-            # 여기 하단에서부터는 언론사별 개별 크롤링 실행
             if press_name == "동아일보":
                 result = asyncio.run(donga_crawl(press_results))
                 success_list.extend(result)
