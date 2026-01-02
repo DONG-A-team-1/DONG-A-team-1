@@ -209,4 +209,3 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
-# mypage 완성하기, es query  문 이해하기 (사용하기 위해)
