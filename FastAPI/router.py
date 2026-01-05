@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
+from util.elastic import es
 
 import json
 
@@ -214,7 +215,7 @@ async def get_my_info(request: Request):
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
 
-from util.elastic import es
+
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
