@@ -4,6 +4,7 @@ import re
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from elasticsearch import helpers
+from datetime import datetime
 
 model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
 
