@@ -1,9 +1,12 @@
 from util.database import SessionLocal , engine
-from util.elastic import es
 from sqlalchemy import Table, MetaData
 from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.dialects.mysql import insert
+from typing import Any, Dict, List
+from elasticsearch import helpers
+from util.elastic import es
+
 
 metadata = MetaData()
 
@@ -179,6 +182,45 @@ def upsert_topic_polarity(topic_docs, *, fmt_prefix: str):
         raise
     finally:
         db.close()
+
+
+def set_article_topic_polarity_single(
+    topic_rows: List[Dict[str, Any]],
+    *,
+    index_name: str = "article_data",
+    chunk_size: int = 500,
+):
+    """
+    기사 1개당 topic_polarity 1개만 유지하는 방식.
+    -> article_label.topic_polarity 를 길이 1짜리 배열로 '통째로 덮어씀'
+    전제: ES _id == article_id
+    """
+    actions = []
+    for r in topic_rows:
+        aid = str(r.get("article_id") or "").strip()
+        tid = str(r.get("topic_id") or "").strip()
+        if not aid or not tid:
+            continue
+
+        item = {
+            "topic_id": tid,
+            "stance": str(r.get("stance") or "미정"),
+            "intensity": float(r.get("intensity") or 0.0),
+        }
+
+        actions.append({
+            "_op_type": "update",
+            "_index": index_name,
+            "_id": aid,
+            "doc": {
+                "article_label": {
+                    "topic_polarity": [item]
+                }
+            }
+        })
+
+    if actions:
+        helpers.bulk(es, actions, chunk_size=chunk_size, request_timeout=120)
 
 
 

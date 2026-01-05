@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import silhouette_score
 
 from util.elastic import es  # Elasticsearch client
-from util.repository import upsert_topic_polarity
+from util.repository import upsert_topic_polarity, set_article_topic_polarity_single
 # =========================
 # CONFIG
 # =========================
@@ -781,6 +781,33 @@ def to_legacy_debug_json(topic_docs: List[Dict[str, Any]]) -> List[Dict[str, Any
         })
     return out_topics
 
+def build_topic_rows_single(all_rows, *, fmt_prefix: str):
+    out = []
+    for r in all_rows:
+        aid = r.get("article_id")
+        cid = r.get("cluster_id")
+        if not aid or cid is None:
+            continue
+
+        sc = float(r.get("stance_score") or 0.0)
+        cf = float(r.get("confidence") or 0.0)
+        hits = int(r.get("hits") or 0)
+
+        if sc > 0.2:
+            stance = "긍정"
+        elif sc < -0.2:
+            stance = "부정"
+        else:
+            stance = "미정"
+
+        out.append({
+            "article_id": str(aid),
+            "topic_id": f"{fmt_prefix}_{int(cid)}",
+            "stance": stance,
+            "intensity": stance_intensity(sc, cf, hits),
+        })
+    return out
+
 # =========================
 # 12) ES upsert (최소 nested만 저장)
 # =========================
@@ -856,7 +883,7 @@ def label_polar_entity_centered_to_topics_json(
     index_name: str = "article_data",
     output_path_topics: str = DEFAULT_OUTPUT_PATH,
     debug_output_path: str = DEBUG_OUTPUT_PATH,
-    fetch_size: int = 350,
+    fetch_size: int = 1000,
     predicate_lexicon_path: str = r"data/predicate_lexicon.json",
     per_side_limit: int = 5,
     # filters
@@ -864,7 +891,7 @@ def label_polar_entity_centered_to_topics_json(
     require_both_sides: bool = REQUIRE_BOTH_SIDES,
     neutral_ratio_max: float = NEUTRAL_RATIO_MAX,
     # es save
-    save_to_es: bool = True,
+    save_as_data: bool = False,
     topic_index_name: str = TOPIC_INDEX_NAME,
 ) -> List[Dict[str, Any]]:
     # 1) topic clustering
@@ -996,9 +1023,13 @@ def label_polar_entity_centered_to_topics_json(
     print(f" - topic_docs(after filter): {len(topic_docs)}")
 
     # 10) ES 저장(upsert) (topic_name 포함)
-
-    upsert_topic_docs_to_es(topic_docs, index_name=topic_index_name)
-    upsert_topic_polarity(topic_docs, fmt_prefix=fmt)
+    if save_as_data:
+        upsert_topic_docs_to_es(topic_docs, index_name=topic_index_name)
+        upsert_topic_polarity(topic_docs, fmt_prefix=fmt)
+        topic_rows = build_topic_rows_single(all_rows, fmt_prefix=fmt)
+        set_article_topic_polarity_single(topic_rows, index_name=index_name)
+    else:
+        pass
 
     return topic_docs
 
