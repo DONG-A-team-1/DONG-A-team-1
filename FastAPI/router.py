@@ -3,16 +3,30 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 
 from starlette.middleware.sessions import SessionMiddleware
+# router 연결(session)
+from api.session_ping import router as session_ping_router
+from api.session import router as session_router
+from api.session_end import router as session_end_router
+
+from . import member
+from . import article
+
 # try:
 #     import member
 # except ModuleNotFoundError:
 #     from . import member  # 분리한 파일 임포트
-from . import member
-from . import article
 
 app = FastAPI()
+
+# router 연결 === session 관련 ===
+app.include_router(session_router)
+app.include_router(session_ping_router)
+app.include_router(session_end_router)
+# static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
+
+# middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 
