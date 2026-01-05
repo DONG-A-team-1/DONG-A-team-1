@@ -156,9 +156,6 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             all_results.append(data)
             press_results.append(data)
 
-            if all_results:
-                print("📊 워드클라우드용 키워드 추출 시작...")
-                asyncio.run(make_wordcloud_data(all_results))
 
             # 해당 세션에서 수집된 모든 기사의 article_id를 수집하여 리스트 생성,
             # 추후 각기 다른 작업들의 범위를 일정하게, 안정적으로 맞추기 위해서
@@ -210,6 +207,10 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                 )
             )
     driver.quit()
+
+    if all_results:
+        print("📊 워드클라우드용 키워드 추출 시작...")
+        asyncio.run(make_wordcloud_data(all_results))
 
     id_list = [data["article_id"] for data in all_results]
 
