@@ -28,7 +28,7 @@ async def make_wordcloud_data(bigkinds_data):
         result.append({"text": text, "weight": weight})
 
     # 이 데이터를 파일로 저장하거나 API 응답으로 보냅니다.
-    with open("keywords.json", "w", encoding="utf-8") as f:
+    with open("wordcloud/keywords.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False)
 
     print("키워드 데이터 저장 완료: keywords.json")
