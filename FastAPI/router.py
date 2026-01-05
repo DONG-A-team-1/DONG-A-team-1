@@ -2,7 +2,11 @@ from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 
+import json
+
 from starlette.middleware.sessions import SessionMiddleware
+
+from wordcloud.wordCloudMaker import make_wordcloud_data
 # try:
 #     import member
 # except ModuleNotFoundError:
@@ -209,3 +213,17 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
+
+from util.elastic import es
+# main.py (FastAPI 예시)
+@app.get("/api/wordcloud-data")
+async def wordcloud_api():
+    # 1. ES에서 실제 데이터 가져오기 (이전 단계에서 만든 로직)
+    res = es.search(index="article_data", body={"size": 100, "sort": [{"collected_at": "desc"}]})
+    bigkinds_data = [hit['_source'] for hit in res['hits']['hits']]
+
+    # 2. 설계도(Option) 생성
+    options_json = await make_wordcloud_data(bigkinds_data)
+
+    # 3. 브라우저로 전송
+    return json.loads(options_json)
