@@ -9,7 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-
+.article_content p {
+    text-indent: 1em;
+    margin-bottom: 1em;  
+    line-height: 1.7;
+    word-break: keep-all;
+}
 
 
 /* Search Bar */
@@ -1448,34 +1453,33 @@ body.dark {
         <article class="main-article">
 
                 <h1 class="article-headline">
-                    글로벌 경제의 대전환점:<br/>
-                    <span class="highlight">인공지능</span>이 바꾸는 미래 산업 지형도
+
                 </h1>
                 
                 <div class="article-meta">
                     <div class="author-info">
                         <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
                         <div>
-                            <div class="author-name">박지보 기자</div>
-                            <div class="author-dept">뉴스팔레트 경제부</div>
+                            <div class="author-name"></div>
+                            <div class="press"></div>
                         </div>
                     </div>
                     
-                    <div class="article-date">
+                    <div class="upload_date">
                         <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
                     </div>
                 </div>
             </header>
             
             <figure class="featured-image">
-                <img alt="AI Connection Network" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoNZSXI4i9jP9Ngp3ktWbr9ZCXaCEMKcVQ7D_m5n5a3PJLldWBicbQwGKWumvP4udJV8kHO2LX5QBVcFIBDm7IFdpxnvHMfnhwgVtPd-d-NmeVdhD8hrhl_djGVrLaYi7dv2ySVrBA2uTOVx2p4EiqLrZO6Rqo1z53SGPQASTSXS3eZ1Spw-ExbjLv3xTH0vl2YjeE-5yLwp9gBPxdOi11jzsWZNczMqL1xMVvgNLandPHEXvwYxRRQCeTE4hC64QS4Py9CLuYo6s"/>
+                <img class="main_img">
                 <figcaption>
-                    셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다.
+                    <!-- 셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다. -->
                 </figcaption>
             </figure>
             
-            <div class="article-body">
-                <p>
+            <div class="article_content">
+                <!-- <p>
                     <span class="drop-cap">인</span>
                     공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
                 </p>
@@ -1489,11 +1493,11 @@ body.dark {
                         "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
                     </p>
                     <cite>- 홍수형 경제연구소 수석연구원</cite>
-                </blockquote>
+                </blockquote> -->
                 
-                <p>
+                <!-- <p>
                     향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
-                </p>
+                </p> -->
             </div>
             
             <section class="related-section">
@@ -1507,7 +1511,7 @@ body.dark {
                 <div class="related-grid">
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
-                            <img alt="Meeting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDufcOc-rl6P65mCzJ3Mo-WfkGH6L4sQ9NFZPpDn-7rnfV9WjhSGK0V2iwtXl2tRXD1hHAG3ku6TBEmP1QDTExJMrhiabKZwAe2wVPSdhHbodsrWWmiqJZNGn0fjHyBiQZ2XFu_3NeyM4pgIm7f8z_1ppt-Y_YycCrdzIqGvwxU7xqWdYm9enffCzkwXcPViGlJHUKFa9T2ZHV3GELohU2qXwUIc88X9Lfm_cgnSKree619bGKApXvfdQIUcrqOnUlkRYd6OFYhezA"/>
+                            <img alt="Meeting"/>
                             <span class="related-badge">사회</span>
                         </div>
                         <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
@@ -1745,6 +1749,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+$(function () {
+    // 1️⃣ URL에서 article_id 추출
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get("article_id");
+
+    // 2️⃣ AJAX 요청 (GET)
+    $.ajax({
+        url: `/api/article/${articleId}`,
+        method: "GET",
+        dataType: "json",
+        success: function (data) {
+
+            // console.log(data);
+            main_article = data.article
+            $(".article-headline").text(main_article.article_title);
+            $(".author-name").text(main_article.reporter);
+            $(".press").text(main_article.press);
+            data.upload_date
+            $(".upload_date").text(main_article.upload_date);
+            $(".main_img").attr("src", main_article.article_img);
+            $(".article_content").html(renderParagraphs(main_article.article_content, 2));
+
+            const related = data.related || [];
+            const $cards = $(".related-card");
+
+            related.forEach((item, idx) => {
+                const $card = $cards.eq(idx);
+                if ($card.length === 0) return;
+
+                $card.attr("href", `/article/${item.article_id}`);
+
+                $card.find(".related-title").text(item.article_title || "");
+                $card.find(".related-date").text(item.upload_date || "");
+                $card.find(".related-badge").text(item.category || "");
+
+                $card.find("img")
+                    .attr("src", item.article_img || "")
+                    // .on("error", function () {
+                    //     $(this).attr("src", "/static/img/no-image.png");
+                    // });
+            });
+
+
+        },
+        error: function (xhr) {
+            console.error("기사 로드 실패", xhr.status);
+        }
+    });
+});
+
+function renderParagraphs(text, sentencePerPara = 2) {
+    if (!text) return "";
+
+    const sentences = text
+        .split(/(?<=[.?!])\s+/)   // 한글 문장 고려
+        .filter(s => s.trim().length > 0);
+
+    let html = "";
+    for (let i = 0; i < sentences.length; i += sentencePerPara) {
+        // 문장 사이 한 칸 띄어쓰기
+        const chunk = sentences.slice(i, i + sentencePerPara).join(" ");
+        html += `<p>${chunk}</p>`;
+    }
+    return html;
+}
+
+
 </script>
 
 </body>
