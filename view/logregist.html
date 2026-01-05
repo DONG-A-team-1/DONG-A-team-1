@@ -700,10 +700,8 @@ function checkId() {
 
 // 1. 회원가입 전송 함수
 function handleSubmit(event) {
+
     event.preventDefault();
-
-    const pw = $('#password').val();
-
     const signupData = {
         user_id: $('#user_id').val(),
         user_pw: $('#password').val(),

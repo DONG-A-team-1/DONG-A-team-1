@@ -10,55 +10,59 @@ KST = timezone(timedelta(hours=9))
 
 # article_data에서 features 읽기
 
-def article_data_features(hours: int = 1): # 최근 1시간 이내 수집된 기사들의 'features' 필드만 조회
+from datetime import datetime, timedelta, timezone
+from util.elastic import es
 
-    # ES article_data를 '입력 데이터'로 사용
-    now = datetime.now(KST) # 현재 시각 한국 표준시(KST)
-    since = now - timedelta(hours=hours) # 시간의 차이(간격) 객체 hours는 이미 위에서 1 선언
+KST = timezone(timedelta(hours=9))
 
+
+def article_data_features(hours: int = 1):
+    """
+    BigKinds 트렌드용
+    - 이번 사이클에 ES에 적재된 기사들의 features 전부 사용
+    - 시간 / status 조건 ❌
+    """
     query = {
-        "size": 10000, # 최대 10,000개까지 가져와
-        "_source": ["features"], # features 필드만
+        "size": 10000,                      # 최대 10,000개까지 조회
+        "_source": ["features"],            # features 필드만 가져옴
         "query": {
-            "range": {
-                "collected_at": { # since ≤ collected_at ≤ now 가져와
-                    "gte": since.isoformat(), # 1시간 전부터 (막대그래프에서 1시간전 기준 오른쪽)
-                    "lte": now.isoformat() # 현재시간 (막대그래프에서 현재 기준 왼쪽)
-                }
+            "exists": {
+                "field": "features"
             }
         }
     }
 
     res = es.search(index="article_data", body=query)
-    return [hit["_source"] for hit in res["hits"]["hits"]] # hits.hits 실제 문서 리스트
-
+    return [hit["_source"] for hit in res["hits"]["hits"]]
 
 # features 기준 wordcount
 def bigkinds_wordcount(articles):
     """
     - 여러 기사에 등장한 features를 전부 합쳐서
-      '키워드 → 등장 횟수' 형태로 집계 [기사 단위 집계 목적]
-    - articles: [{ "features": [...] }, ...]
-      예)
-      Counter({
-            "이노스페이스": 17,
-            "우주발사체": 14,
-            ...
-          })
+      '키워드 → 등장 횟수(df)' 형태로 집계
+    - 기사 단위 중복 제거
+    - df ≥ 2 조건 적용
     """
     counter = Counter()
-    for article in articles: # ES에서 가져온 기사 리스트
-        for f in article.get("features", []): # 그 기사에 들어있는 각 feature 키워드 순회
-            counter[f] += 1 # 키워드가 등장할 때마다 +1
+
+    for article in articles:
+        # ✅ 기사 단위 중복 제거
+        unique_features = set(article.get("features", []))
+        for f in unique_features:
+            counter[f] += 1
+
+    # ✅ df ≥ 2 필터
+    counter = Counter({k: v for k, v in counter.items() if v >= 2})
+
     return counter
+
 
 
 
 # TrendScore 계산
 def bigkinds_trend_score(rank: int, N: int = 25) -> float:
-    # 공식: (N + 1 - rank) / N * 100
-    # Google Trend랑 스케일 맞추기 (0~100)
-    return round((N + 1 - rank) / N * 100, 4)
+    # 공식: (N + 1 - rank) / N -> Google Trend랑 스케일 맞추기
+    return round((N + 1 - rank) / N, 4)
 
 
 
@@ -103,11 +107,17 @@ def save_bigkinds_trends(trends):
     - 서비스에서 '뉴스 트렌드' 점수로 바로 집계
     """
     doc = {
-        "collected_at": datetime.now(KST).isoformat(timespec="seconds"),
+        # ES 매핑 yyyyMMddHH 일치 시켜줘어ㅔㅇ너래;ㄹ;ㅜㄴㅇㄻㄴㅇ;ㅜ
+        "collected_at": datetime.now(KST).strftime("%Y%m%d%H"),
         "trends": trends
     }
 
-    es.index(index="bigkinds_trends", document=doc)
+    es.index(
+        index="bigkinds_trends",
+        document=doc,
+        refresh="wait_for"  # 새로고침 안되서 자꾸 빈거를 가져와서 0뜸 이거 없으면 진짜안돌아간리ㅓㅜㅏㅁㄴㅇ;라ㅣㅜㅁㄴ어라ㅠㅜ
+    )
+
     logger.info(f"BigKinds 트렌드 {len(trends)}개 저장 완료")
 
 
@@ -136,6 +146,7 @@ def run_bigkinds_trend_pip():
         return
 
     save_bigkinds_trends(trends)
+    return score_dict
 
 if __name__ == "__main__":
     run_bigkinds_trend_pip()

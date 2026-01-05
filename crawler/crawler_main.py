@@ -1,6 +1,8 @@
 import time
 import asyncio
 from datetime import datetime
+
+from wordcloud.wordCloudMaker import make_wordcloud_data
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -33,7 +35,7 @@ KST = timezone(timedelta(hours=9))
 def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     now_kst = datetime.now(KST).isoformat(timespec="seconds")
     print(f"[{now_kst}] 빅카인즈 전체 크롤링 시작")
-    options = webdriver.ChromeOptions() 
+    options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     # options.add_argument("--headless")
 
@@ -144,6 +146,10 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
             all_results.append(data)
             press_results.append(data)
 
+            if all_results:
+                print("📊 워드클라우드용 키워드 추출 시작...")
+                asyncio.run(make_wordcloud_data(all_results))
+
             # 해당 세션에서 수집된 모든 기사의 article_id를 수집하여 리스트 생성,
             # 추후 각기 다른 작업들의 범위를 일정하게, 안정적으로 맞추기 위해서
 
@@ -206,6 +212,7 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
     logger.info("기사 본문 전처리 및 업데이트")
     clean_articles(success_list) # 기사 원문(제목,본문)에 대해서 클리닝 작업 실행 및 article_data의 해당 필드 업데이트
     logger.info("기사별 임베딩 생성")
+
     if success_list:
         create_embedding(success_list)   # 기사별 임베딩 생성 및 article_data의 article_embedding 필드 업데이트
         categorizer(success_list)

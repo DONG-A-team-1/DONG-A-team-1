@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette -국제 뉴스</title>
+<title>NewsPalette -지역 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
@@ -1025,6 +1025,76 @@ body.dark .pagination-btn.page:hover {
 .spacer {
     height: 5rem;
 }
+
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* =============================
+   네비 / 메인
+============================= */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    position: relative;
+}
+
 </style>
 </head>
 <body>
@@ -1083,11 +1153,11 @@ body.dark .pagination-btn.page:hover {
             </div>
         </div>
     </section>
-<!-- 카드형 국제 기사 -->
+<!-- 카드형 지역 기사 -->
 <section>
     <div class="section-header">
-        <h1 class="section-title">국제</h1>
-        <p class="section-subtitle">총 15건의 국제 기사가 검색되었습니다.</p>
+        <h1 class="section-title">지역</h1>
+        <p class="section-subtitle">총 15건의 지역 기사가 검색되었습니다.</p>
     </div>
 
     <div class="article-grid">
@@ -1096,15 +1166,16 @@ body.dark .pagination-btn.page:hover {
         <a class="article-card" href="article_detail.html" data-reliability="92">
             <div class="article-image">
                 <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="">
+              
             </div>
             <div class="article-content">
-                <h3 class="article-title">EU 정상회의 개최, 우크라이나 지원 방안 논의</h3>
+                <h3 class="article-title">서울시, 도심 교통 혼잡 완화 위한 대책 발표</h3>
                 <p class="article-description">
-                    유럽연합(EU) 정상들이 브뤼셀에 모여
-                    우크라이나에 대한 군사·재정 지원 확대 방안을 논의했습니다.
+                    서울시가 출퇴근 시간대 교통 혼잡을 줄이기 위해
+                    버스 전용차로 확대와 스마트 신호 체계 도입을 추진합니다.
                 </p>
                 <div class="article-meta">
-                    <div class="article-source">로이터 • 1시간 전</div>
+                    <div class="article-source">서울신문 • 1시간 전</div>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도92%
                     </span>
@@ -1116,15 +1187,16 @@ body.dark .pagination-btn.page:hover {
         <a class="article-card" href="article_detail.html" data-reliability="85">
             <div class="article-image">
                 <img src="https://images.unsplash.com/photo-1505842465776-3a8d6c39e37b" alt="">
+              
             </div>
             <div class="article-content">
-                <h3 class="article-title">미 연준, 기준금리 동결 결정… 시장 불확실성 지속</h3>
+                <h3 class="article-title">경기도, 청년 주거 지원 확대… 월세 부담 완화</h3>
                 <p class="article-description">
-                    미국 연방준비제도가 기준금리를 동결하며
-                    향후 통화 정책 방향에 대해 신중한 입장을 유지했습니다.
+                    경기도가 청년층의 주거 안정을 위해
+                    월세 지원 대상과 지원 금액을 확대한다고 밝혔습니다.
                 </p>
                 <div class="article-meta">
-                    <div class="article-source">블룸버그 • 3시간 전</div>
+                    <div class="article-source">경기일보 • 3시간 전</div>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도85%
                     </span>
@@ -1136,15 +1208,16 @@ body.dark .pagination-btn.page:hover {
         <a class="article-card" href="article_detail.html" data-reliability="78">
             <div class="article-image">
                 <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b" alt="">
+               
             </div>
             <div class="article-content">
-                <h3 class="article-title">중국, 첨단 산업 육성 정책 발표… 글로벌 공급망 영향</h3>
+                <h3 class="article-title">부산항 물동량 증가, 지역 경제 회복 기대</h3>
                 <p class="article-description">
-                    중국 정부가 반도체·배터리 산업을 중심으로
-                    대규모 지원 정책을 발표하며 국제 시장의 주목을 받고 있습니다.
+                    부산항의 수출입 물동량이 증가하며
+                    항만 물류와 지역 상권 회복에 대한 기대가 커지고 있습니다.
                 </p>
                 <div class="article-meta">
-                    <div class="article-source">신화통신 • 5시간 전</div>
+                    <div class="article-source">부산일보 • 5시간 전</div>
                     <span class="reliability-badge reliability-medium">
                         <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도78%
                     </span>
@@ -1156,15 +1229,16 @@ body.dark .pagination-btn.page:hover {
         <a class="article-card" href="article_detail.html" data-reliability="90">
             <div class="article-image">
                 <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0" alt="">
+                
             </div>
             <div class="article-content">
-                <h3 class="article-title">중동 정세 긴장 고조, 국제 유가 급등</h3>
+                <h3 class="article-title">강원 산간 지역 대설 주의보… 주민 안전 비상</h3>
                 <p class="article-description">
-                    중동 지역의 군사적 긴장이 고조되면서
-                    국제 유가와 글로벌 금융 시장이 민감하게 반응하고 있습니다.
+                    강원도 산간 지역에 대설 특보가 내려진 가운데
+                    지자체가 제설 작업과 안전 점검을 강화하고 있습니다.
                 </p>
                 <div class="article-meta">
-                    <div class="article-source">알자지라 • 30분 전</div>
+                    <div class="article-source">강원도민일보 • 30분 전</div>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도90%
                     </span>
@@ -1175,11 +1249,12 @@ body.dark .pagination-btn.page:hover {
     </div>
 </section>
 
+
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">public</span>
-            <h2 class="list-title">국제</h2>
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">location_city</span>
+            <h2 class="list-title">지역</h2>
         </div>
         <div class="sort-buttons">
             <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
@@ -1193,21 +1268,22 @@ body.dark .pagination-btn.page:hover {
         <!-- 기사 1 -->
         <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="92">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="europe"/>
+                <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="seoul"/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
+                    <span class="list-article-category">지역</span>
                     <span class="list-article-date">2023.11.15</span>
                 </div>
-                <h3 class="list-article-title">EU 정상회의 개최, 우크라이나 추가 지원 논의</h3>
+                <h3 class="list-article-title">서울시, 도심 교통 혼잡 완화 대책 본격 추진</h3>
                 <p class="list-article-desc">
-                    유럽연합(EU) 정상들이 브뤼셀에 모여
-                    우크라이나에 대한 군사·재정 지원 확대 방안을 집중 논의했습니다.
+                    서울시가 출퇴근 시간대 교통 혼잡을 줄이기 위해
+                    스마트 신호 체계와 대중교통 연계 정책을 강화합니다.
                 </p>
                 <div class="list-article-source">
-                    <strong>로이터</strong>
+                    <strong>서울신문</strong>
                     <span> | </span>
-                    <span>유럽정치</span>
+                    <span>시정</span>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>
                         <span>신뢰도92%</span>
@@ -1219,21 +1295,22 @@ body.dark .pagination-btn.page:hover {
         <!-- 기사 2 -->
         <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1505842465776-3a8d6c39e37b" alt="usa"/>
+                <img src="https://images.unsplash.com/photo-1505842465776-3a8d6c39e37b" alt="gyeonggi"/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
+                    <span class="list-article-category">지역</span>
                     <span class="list-article-date">2023.11.14</span>
                 </div>
-                <h3 class="list-article-title">미 연준, 기준금리 동결… 인플레이션 경계 유지</h3>
+                <h3 class="list-article-title">경기도, 청년 월세 지원 확대… 주거 부담 완화</h3>
                 <p class="list-article-desc">
-                    미국 연방준비제도가 기준금리를 동결하며
-                    물가 안정 여부를 면밀히 관찰하겠다는 입장을 밝혔습니다.
+                    경기도가 청년층의 주거 안정을 위해
+                    월세 지원 대상과 지원 기간을 확대한다고 밝혔습니다.
                 </p>
                 <div class="list-article-source">
-                    <strong>블룸버그</strong>
+                    <strong>경기일보</strong>
                     <span> | </span>
-                    <span>미국경제</span>
+                    <span>지역정책</span>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>
                         <span>신뢰도85%</span>
@@ -1245,21 +1322,22 @@ body.dark .pagination-btn.page:hover {
         <!-- 기사 3 -->
         <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="90">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b" alt="china"/>
+                <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b" alt="busan"/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
+                    <span class="list-article-category">지역</span>
                     <span class="list-article-date">2023.11.13</span>
                 </div>
-                <h3 class="list-article-title">중국, 첨단 산업 육성 정책 발표… 글로벌 시장 영향</h3>
+                <h3 class="list-article-title">부산항 물동량 증가, 지역 경제 회복 기대</h3>
                 <p class="list-article-desc">
-                    중국 정부가 반도체·AI 산업을 중심으로
-                    대규모 투자 계획을 발표하며 국제 시장의 주목을 받고 있습니다.
+                    부산항의 수출입 물동량이 늘어나며
+                    항만 물류와 지역 상권 전반에 활력이 돌고 있습니다.
                 </p>
                 <div class="list-article-source">
-                    <strong>신화통신</strong>
+                    <strong>부산일보</strong>
                     <span> | </span>
-                    <span>아시아경제</span>
+                    <span>지역경제</span>
                     <span class="reliability-badge reliability-high">
                         <span class="material-symbols-outlined reliability-icon">verified</span>
                         <span>신뢰도90%</span>
@@ -1271,21 +1349,22 @@ body.dark .pagination-btn.page:hover {
         <!-- 기사 4 -->
         <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="78">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0" alt="middleeast"/>
+                <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0" alt="gangwon"/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
+                    <span class="list-article-category">지역</span>
                     <span class="list-article-date">2023.11.12</span>
                 </div>
-                <h3 class="list-article-title">중동 지역 긴장 고조, 국제 유가 급등</h3>
+                <h3 class="list-article-title">강원 산간 지역 대설 특보… 제설 작업 총력</h3>
                 <p class="list-article-desc">
-                    중동 지역의 군사적 긴장이 고조되며
-                    국제 유가와 금융 시장의 변동성이 확대되고 있습니다.
+                    강원 산간 지역에 대설 특보가 발효되며
+                    지자체가 교통 통제와 제설 작업을 강화하고 있습니다.
                 </p>
                 <div class="list-article-source">
-                    <strong>알자지라</strong>
+                    <strong>강원도민일보</strong>
                     <span> | </span>
-                    <span>국제정세</span>
+                    <span>재난·안전</span>
                     <span class="reliability-badge reliability-medium">
                         <span class="material-symbols-outlined reliability-icon">verified</span>
                         <span>신뢰도78%</span>
@@ -1297,21 +1376,22 @@ body.dark .pagination-btn.page:hover {
         <!-- 기사 5 -->
         <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="80">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf" alt="un"/>
+                <img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf" alt="jeju"/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
+                    <span class="list-article-category">지역</span>
                     <span class="list-article-date">2023.11.11</span>
                 </div>
-                <h3 class="list-article-title">유엔 총회, 기후 변화 대응 공동 선언 채택</h3>
+                <h3 class="list-article-title">제주 관광객 증가세 회복… 지역 상권 기대감</h3>
                 <p class="list-article-desc">
-                    유엔 회원국들이 기후 변화 대응을 위한
-                    공동 선언을 채택하며 국제 공조 강화에 뜻을 모았습니다.
+                    제주를 찾는 관광객 수가 회복세를 보이며
+                    숙박·외식업을 중심으로 지역 경제에 훈풍이 불고 있습니다.
                 </p>
                 <div class="list-article-source">
-                    <strong>UN뉴스</strong>
+                    <strong>제주일보</strong>
                     <span> | </span>
-                    <span>기후외교</span>
+                    <span>관광</span>
                     <span class="reliability-badge reliability-medium">
                         <span class="material-symbols-outlined reliability-icon">verified</span>
                         <span>신뢰도80%</span>
@@ -1322,6 +1402,7 @@ body.dark .pagination-btn.page:hover {
 
     </div>
 </section>
+
 
 
 <div class="pagination">
@@ -1339,7 +1420,7 @@ body.dark .pagination-btn.page:hover {
 </div>
 
 <div class="spacer"></div>
-</main>
+
 <script>
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-high';

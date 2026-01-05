@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - Global Economic Shift</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+.article_content p {
+    text-indent: 1em;
+    margin-bottom: 1em;  
+    line-height: 1.7;
+    word-break: keep-all;
+}
+
+
+/* Search Bar */
+.search-section {
+  margin-bottom: 3rem;
+}
+
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Select */
+.select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
+
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+/* Input */
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
+}
+
+body.dark .search-input {
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+.search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+
+/* Main Content */
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 3fr 6fr 3fr;
+    }
+}
+
+/* Sidebar */
+.sidebar {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .sidebar {
+        display: block;
+    }
+}
+
+.sidebar-sticky {
+    position: sticky;
+    top: 6rem;
+}
+
+.sidebar-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #EF4444;
+    font-weight: bold;
+    font-size: 1.125rem;
+    color: #111827;
+}
+
+body.dark .sidebar-title {
+    color: white;
+}
+
+.sidebar-title.recommend {
+    border-bottom-color: #3B82F6;
+}
+
+.sidebar-title .material-symbols-outlined {
+    color: #EF4444;
+}
+
+.sidebar-title.recommend .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.sidebar-article {
+    display: block;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #E5E7EB;
+}
+
+body.dark .sidebar-article {
+    border-top-color: #374151;
+}
+
+.sidebar-article:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.article-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.article-tag.critical {
+    color: #EF4444;
+}
+
+.article-tag.alternative {
+    color: #F97316;
+}
+
+.article-tag.analysis {
+    color: #A855F7;
+}
+
+.article-tag.personalized {
+    color: #3B82F6;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+.article-tag.popular {
+    color: #EF4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.popular {
+    background-color: rgba(239, 68, 68, 0.3);
+}
+
+.article-tag.trending {
+    color: #F97316;
+    background-color: rgba(249, 115, 22, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.trending {
+    background-color: rgba(249, 115, 22, 0.3);
+}
+
+.article-tag.recommended {
+    color: #6B7280;
+    background-color: #F3F4F6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+body.dark .article-tag.recommended {
+    background-color: #1E293B;
+}
+
+.article-content {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.article-text {
+    flex: 1;
+}
+
+.article-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.3s;
+}
+
+body.dark .article-title {
+    color: #E5E7EB;
+}
+
+.sidebar-article:hover .article-title {
+    color: #3B82F6;
+}
+
+.article-source {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+}
+
+body.dark .article-source {
+    color: #9CA3AF;
+}
+
+.article-category {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.article-thumb {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #E5E7EB;
+}
+
+.article-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s;
+}
+
+.sidebar-article:hover .article-thumb img {
+    opacity: 0.8;
+}
+
+/* Main Article */
+.main-article {
+    grid-column: 1;
+}
+
+@media (min-width: 1024px) {
+    .main-article {
+        grid-column: 2;
+    }
+}
+
+.article-header {
+    margin-bottom: 2rem;
+}
+
+.article-headline {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+body.dark .article-headline {
+    color: white;
+}
+
+@media (min-width: 640px) {
+    .article-headline {
+        font-size: 2.25rem;
+    }
+}
+
+.article-headline .highlight {
+    color: #3B82F6;
+}
+
+.article-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+body.dark .article-meta {
+    border-bottom-color: #334155;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #E5E7EB;
+}
+
+body.dark .author-avatar {
+    border-color: #4B5563;
+}
+
+.author-name {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+}
+
+body.dark .author-name {
+    color: white;
+}
+
+.author-dept {
+    font-size: 0.75rem;
+    color: #3B82F6;
+    font-weight: 500;
+}
+
+.article-date {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-align: right;
+}
+
+body.dark .article-date {
+    color: #9CA3AF;
+}
+
+.article-date .material-symbols-outlined {
+    font-size: 14px;
+    vertical-align: middle;
+    margin-right: 0.25rem;
+}
+
+/* Featured Image */
+.featured-image {
+    margin-bottom: 2rem;
+}
+
+.featured-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.5rem;
+}
+
+figcaption {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-align: center;
+}
+
+body.dark figcaption {
+    color: #9CA3AF;
+}
+
+/* Article Body */
+.article-body {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: #374151;
+    margin-bottom: 3rem;
+}
+
+body.dark .article-body {
+    color: #D1D5DB;
+}
+
+.article-body p {
+    margin-bottom: 1.5rem;
+}
+
+.article-body .drop-cap {
+    float: left;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3B82F6;
+    margin-right: 0.75rem;
+    margin-top: -0.5rem;
+    line-height: 1;
+}
+
+.article-body blockquote {
+    border-left: 4px solid #3B82F6;
+    background-color: #EFF6FF;
+    padding: 1.5rem;
+    border-radius: 0 8px 8px 0;
+    font-style: normal;
+    margin: 2rem 0;
+}
+
+body.dark .article-body blockquote {
+    background-color: rgba(30, 41, 59, 0.5);
+}
+
+.article-body blockquote p {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+body.dark .article-body blockquote p {
+    color: #E5E7EB;
+}
+
+.article-body blockquote cite {
+    font-size: 0.875rem;
+    color: #3B82F6;
+    font-weight: bold;
+    display: block;
+    font-style: normal;
+}
+
+/* Related Articles */
+.related-section {
+    border-top: 2px solid #F3F4F6;
+    padding-top: 2rem;
+}
+
+body.dark .related-section {
+    border-top-color: #1E293B;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark .section-title {
+    color: white;
+}
+
+.title-bar {
+    width: 6px;
+    height: 24px;
+    background-color: #3B82F6;
+    border-radius: 9999px;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .related-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.related-card {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.related-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 0.75rem;
+}
+
+.related-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.related-card:hover .related-image img {
+    transform: scale(1.05);
+}
+
+.related-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 0.625rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+}
+
+.related-title {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #111827;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s;
+}
+
+body.dark .related-title {
+    color: #F3F4F6;
+}
+
+.related-card:hover .related-title {
+    color: #3B82F6;
+}
+
+.related-date {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .related-date {
+    color: #9CA3AF;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    width: 100vw;
+    overflow-y: auto;
+    display: flex;
+    min-height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.modal-content {
+    position: relative;
+    transform: scale(1);
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: white;
+    text-align: left;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 384px;
+    border: 1px solid #E2E8F0;
+}
+
+body.dark .modal-content {
+    background-color: #1E293B;
+    border-color: #334155;
+}
+
+.modal-close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    color: #9CA3AF;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+body.dark .modal-close {
+    color: #6B7280;
+}
+
+.modal-close:hover {
+    color: #6B7280;
+}
+
+body.dark .modal-close:hover {
+    color: #D1D5DB;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.modal-icon {
+    margin: 0 auto;
+    display: flex;
+    height: 56px;
+    width: 56px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #EFF6FF;
+    margin-bottom: 1.25rem;
+}
+
+body.dark .modal-icon {
+    background-color: rgba(59, 130, 246, 0.3);
+}
+
+.modal-icon .material-symbols-outlined {
+    font-size: 1.875rem;
+    color: #3B82F6;
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    line-height: 1.5;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+body.dark .modal-title {
+    color: white;
+}
+
+.modal-description {
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+body.dark .modal-description {
+    color: #9CA3AF;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn {
+    width: 100%;
+    border-radius: 12px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #3B82F6;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+    background-color: #2563EB;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #111827;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
+}
+
+body.dark .btn-secondary {
+    background-color: #334155;
+    color: white;
+    border-color: #4B5563;
+}
+
+.btn-secondary:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .btn-secondary:hover {
+    background-color: #475569;
+}
+
+.hidden {
+    display: none;
+}
+
+/* === Header Action (New Design) === */
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+body.dark .icon-button {
+    color: #9CA3AF;
+}
+
+.icon-button:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-button:hover {
+    background-color: #334155;
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: #E5E7EB;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: #1F2937;
+}
+
+
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 12rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    z-index: 50;
+}
+
+body.dark .user-dropdown {
+    background-color: #1F2937;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+}
+
+body.dark .user-dropdown a {
+    color: #E5E7EB;
+}
+
+.user-dropdown a:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .user-dropdown a:hover {
+    background-color: #334155;
+}
+
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    height: 64px;
+}
+
+/* 왼쪽 로고 */
+.nav-left {
+    flex: 0 0 auto;
+}
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .icon-btn {
+    color: #9CA3AF;
+}
+
+body.dark .icon-btn:hover {
+    background-color: #374151;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+
+/* Header Actions (MyPage + Dark Mode) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+
+</style>
+
+</head>
+<body>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="homepage.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-world" href="economycategory.html">국제</a>
+                <a class="nav-splash-item splash-international" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+            </div>
+     <div class="header-actions">
+    <button class="icon-button" onclick="toggleDarkMode()">
+        <span class="material-symbols-outlined">dark_mode</span>
+    </button>
+
+    <div class="user-menu">
+        <button class="user-menu-button" onclick="toggleUserMenu()">
+            <div class="user-menu-blob"></div>
+            <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+            <div id="dropdownContent"></div>
+        </div>
+    </div>
+</div>
+
+</nav>
+<main>
+<section class="search-section">
+  <div class="search-bar">
+    <div class="select-wrap">
+      <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+        <option value="title_body" selected="">제목+본문</option>
+        <option value="title">제목</option>
+        <option value="body">본문</option>
+        <option value="keyword">키워드</option>
+      </select>
+      <span class="material-symbols-outlined select-caret">expand_more</span>
+    </div>
+
+    <div class="search-input-wrap">
+      <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
+      <button class="search-btn" onclick="performSearch()" aria-label="검색">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+    </div>
+  </div>
+</section>
+<main>
+    <div class="content-grid">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-sticky">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <span class="material-symbols-outlined">trending_down</span>
+                        반대 성향 기사
+                    </h3>
+                    
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag critical">비판적 시각</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">AI 규제, 혁신의 걸림돌인가 필수 안전장치인가?</h4>
+                                <p class="article-source">디지털 타임스</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="AI Robot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClEFKUHwWAoi1RzHlaT0PDkZhh4gN0Hx_4vzjUQt3FqW_8LYS5CpO5HIWCWEDOqeZbUAayheBIxBFwUYb_5bM87mfj_MPjmwz76CImdwphzCfogE4fpbJZF2t_bEqWk1nocuLm7BX5OI0GgmjTgdN-Rdz64vp3P8Q1sBy_RV9HkueL_XGLm7bGcodsMUg2ceWTEDo5GJPf681dh7VJmoe7CoBKx80u5Vm7jqf7uAcXm_TK_KCtNABbmQkmpbB-wrDuUHuEkhNCR18"/>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag alternative">다른 관점</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">일자리 감소 우려, 과장된 공포일 뿐... 새로운 직업 창출 효과 주목</h4>
+                                <p class="article-source">경제 포커스</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="Chart" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJsvQTQ_DfnOxTi26q-UmNIPhVxd1pJPxDzaDx7KGWMWSjTRFvL7srQNZ5x9fCSPTQIxfqX2BSHVCWiNkbayuPRj3aM9ew6H_z5Aqx0q8mPR3tOg-CgWgiHh5mEGeMyl99qTGsBNTCxK2rWstLChGHfmADwKgzUfMy_NwJjuccDVdQgU28vchGUl_23Iv1B042Vf2wL-ie0rBOjtDOKZMAWTJI6k4xfvNJbkAxxvExkI03-PI2m1xgSWrgC9HkIlUCcqfQBROPGX8"/>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag analysis">분석</span>
+                        <div class="article-content">
+                            <div class="article-text">
+                                <h4 class="article-title">전통 산업의 반격, AI만이 답은 아니다. 인간 중심 가치 재조명</h4>
+                                <p class="article-source">위클리 비즈</p>
+                            </div>
+                            <div class="article-thumb">
+                                <img alt="Factory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGcS_zl_pyK-XS6Prexvtol0sPgnIA-3aIVD7jOkmUCKvffshXUIJo8imq5QRpu1dlt5ha4fsuyMnxbyFP_RKWgWLt_avqsBlOgDpAz1GwMCl9hzCYVYlmkTQioCKpo3-jj65ZSgtvGF65mVJo4FPhtMperfOvIK1a-g_kX8Al-8BAkdEcLBUpnAK6Jo8FR9agwILanMf0wQMzVqVdzpKA-iXNzYPXz_c_t4zDuVoxeknYAxihieJSVpzWp5OPe5rcUyRqRbbER-U"/>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Article -->
+        <article class="main-article">
+
+                <h1 class="article-headline">
+
+                </h1>
+                
+                <div class="article-meta">
+                    <div class="author-info">
+                        <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
+                        <div>
+                            <div class="author-name"></div>
+                            <div class="press"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="upload_date">
+                        <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
+                    </div>
+                </div>
+            </header>
+            
+            <figure class="featured-image">
+                <img class="main_img">
+                <figcaption>
+                    <!-- 셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다. -->
+                </figcaption>
+            </figure>
+            
+            <div class="article_content">
+                <!-- <p>
+                    <span class="drop-cap">인</span>
+                    공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
+                </p>
+                
+                <p>
+                    지난 수십 년간 정보화 혁명이 인터넷을 중심으로 이루어졌다면, 이번 AI 혁명은 '지능화'를 핵심으로 한다. 데이터 분석을 넘어 스스로 콘텐츠를 생성하고, 복잡한 의사결정을 지원하며, 인간의 창의성 영역까지 넘보고 있다.
+                </p>
+                
+                <blockquote>
+                    <p>
+                        "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
+                    </p>
+                    <cite>- 홍수형 경제연구소 수석연구원</cite>
+                </blockquote> -->
+                
+                <!-- <p>
+                    향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
+                </p> -->
+            </div>
+            
+            <section class="related-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="title-bar"></span>
+                        이 기사와 연관된 뉴스
+                    </h3>
+                </div>
+                
+                <div class="related-grid">
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Meeting"/>
+                            <span class="related-badge">사회</span>
+                        </div>
+                        <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
+                        <span class="related-date">2023.11.13</span>
+                    </a>
+                    
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Office Plant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhOAQiATb9MVPwOcSMunpaakj2hwYzrxHU5DMhikdzS0xwpjlIr6nviHPtn7zspy_7RSSXMe8SFpKup1Aqb2qyBlBl-SCSYeKwdYMOTjwAeikVFCJnVPnXdsEK40xp1mG3DR11WqhMQ6HPJzOOQys8bsH6W1ah13J6E5GG-6At0R_V1xOqbo_XZMKKMSIa-G18RnVuqIdrAQy_75iOKVOjcmJRzuvOZelbbIRJa4kjNe608NjtGan2e_rRk__UdeWPukPCSzAhhw"/>
+                            <span class="related-badge">기술/과학</span>
+                        </div>
+                        <h4 class="related-title">개발자 없는 개발 시대, 노코드(No-Code) 열풍</h4>
+                        <span class="related-date">2023.11.13</span>
+                    </a>
+                    
+                    <a class="related-card" href="article-detail.html">
+                        <div class="related-image">
+                            <img alt="Fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvWBjc1BBXGwhaWq9bj1Ubp53AVdwo7_BZeiNTcrPVxiyRxIqWM42lxZd8H_qU1CvV1do6jwjtOXSac5Uvyu-QY_VQyE0AxdNi3wgLzWn4fZi8xmyQsSZziskkXld52oT6xHZ-gqMKJguzPdu9MV-9t21uta3p46Bp1lI-AKMEZNgYNuhmIwb3KmUzjmciBOyOfHUaWZLiCfsGNmuIcP7UpsSl9LIwju3lKK2264EzgRA3aJX5hj0cDh7IWaRIVcSj1RufWKbAUuU"/>
+                            <span class="related-badge">경제</span>
+                        </div>
+                        <h4 class="related-title">빅데이터로 본 2024년 경제 전망 리포트</h4>
+                        <span class="related-date">2023.11.10</span>
+                    </a>
+                </div>
+            </section>
+        </article>
+        
+        <!-- Right Sidebar -->
+                <aside class="sidebar">
+            <div class="sidebar-sticky">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title recommend">
+                        <span class="material-symbols-outlined">auto_awesome</span>
+                        개인화 추천 기사
+                    </h3>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag personalized">회원님 취향저격</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Tech" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkm7WqpuOxwQdN1spYTqTnkRsChAHZ-2MQAmxjxR5kbZroJ7e0cISLnHHMphkl4wqAkfRzwC4Xt4X1dbQn5vXc1AMrowdTn57Fk8COoAfmoiRx48VkEgZC0SH_bEMebrKlNH_x2-3HqB8I59AGnBO1cNc2BTbYFezSLsjiPryFmDa5aKZPCoIl-5_cBRqsWxrFEGD1WsvJq9r4U2t6J5Q5bpvfmxfI05krsY_Ycq2GMba2eFEo70tBQPKKrmXdKhLnMxCDKfVHl1A"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">애플, 생성형 AI 탑재된 시리... 언제쯤?</h4>
+                                <span class="article-category">IT/과학</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag popular">많이 본 뉴스</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Tech Green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWi4NaI0I2zpv8_uyFXigfmPr_i8y-7HqttomcXZL8kxSJxinMC1jsTS5wxuQWeY08dmdB5QtSsd6ZB-c99gIyrAaUpa3nk0eYN3fzPWiKyIZWcMnzUUTDTF04eEkBcCWZ-nUjBUP0KiA9v_yvxBY3Txo07C5jI5zZ7DSeq36Sl09isaR1fzxU3y2r1I7fLBX5fDpKzCI9MkIAgXOCWlLGqijx4byzZIqXeMJ6ZA6f_taEPf13OUyAPjY29ll8HU1FJsdy03J-slc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">삼성전자, 3분기 영업익 2.4조... 반등 신호탄?</h4>
+                                <span class="article-category">경제</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>
+                     <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>+
+                     <a class="sidebar-article" href="article-detail.html">
+                        <span class="article-tag trending">실시간 인기</span>
+                        <div class="article-content">
+                            <div class="article-thumb">
+                                <img alt="Weather" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyQyGR65dESoet5vb_Md9OU75ctCli3AILaNCXTCXW07rj1JZjIzWgM3zLG83EKk6DwZiE0b5l8meyMK42jCMXinOt278oiOG20PIwaAFUizC3BgTHBqUxwYBW4HAPS4XoD4UQDVY1AnudNY3FTUQ5nZMH0c9RG6kkz1HOgBOId57ca83ihwepkjlM72-RYCzWaQnNs8CIJviJ3ErnChw5X3XjPgG5ROfhJ4VJJBSOqPioM0AghEvMpLHOj6GfJ-pVKicrD6H_Snc"/>
+                            </div>
+                            <div class="article-text">
+                                <h4 class="article-title">주말 날씨: 전국 맑음, 낮 최고 20도 포근</h4>
+                                <span class="article-category">날씨</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</main>
+<script>
+/* ===============================
+   🔥 다크모드 (로컬스토리지)
+================================ */
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem(
+        'darkMode',
+        document.body.classList.contains('dark')
+    );
+}
+
+// 초기 다크모드
+if (
+    localStorage.getItem('darkMode') === 'true' ||
+    (
+        !localStorage.getItem('darkMode') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    )
+) {
+    document.body.classList.add('dark');
+}
+
+/* ===============================
+   🔥 유저 메뉴
+================================ */
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+// 바깥 클릭 시 닫기
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+/* ===============================
+   🔥 로그인 상태 처리
+================================ */
+function toggleLoginState() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+/* ===============================
+   🔥 검색 드롭다운
+================================ */
+function toggleSearchDropdown() {
+    document.getElementById('search-dropdown-menu').classList.toggle('show');
+}
+
+function updateSearchContext(label, placeholder) {
+    document.getElementById('search-dropdown-label').innerText = label;
+    document.getElementById('search-input-field').placeholder = placeholder;
+    document.getElementById('search-dropdown-menu').classList.remove('show');
+}
+
+function performSearch() {
+    const input = document.getElementById('search-input-field');
+    if (input.value.trim()) {
+        location.href = `searchresult.html?q=${encodeURIComponent(input.value.trim())}`;
+    }
+}
+
+/* ===============================
+   🔥 카테고리 active 고정
+================================ */
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = location.pathname.split('/').pop();
+
+    navItems.forEach(item => {
+        item.classList.toggle(
+            'active',
+            item.getAttribute('href') === currentPage
+        );
+    });
+}
+
+/* ===============================
+   🔥 초기 실행
+================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();
+
+    const searchInput = document.getElementById('search-input-field');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') performSearch();
+        });
+    }
+});
+
+$(function () {
+    // 1️⃣ URL에서 article_id 추출
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get("article_id");
+
+    // 2️⃣ AJAX 요청 (GET)
+    $.ajax({
+        url: `/api/article/${articleId}`,
+        method: "GET",
+        dataType: "json",
+        success: function (data) {
+
+            // console.log(data);
+            main_article = data.article
+            $(".article-headline").text(main_article.article_title);
+            $(".author-name").text(main_article.reporter);
+            $(".press").text(main_article.press);
+            data.upload_date
+            $(".upload_date").text(main_article.upload_date);
+            $(".main_img").attr("src", main_article.article_img);
+            $(".article_content").html(renderParagraphs(main_article.article_content, 2));
+
+            const related = data.related || [];
+            const $cards = $(".related-card");
+
+            related.forEach((item, idx) => {
+                const $card = $cards.eq(idx);
+                if ($card.length === 0) return;
+
+                $card.attr("href", `/article/${item.article_id}`);
+
+                $card.find(".related-title").text(item.article_title || "");
+                $card.find(".related-date").text(item.upload_date || "");
+                $card.find(".related-badge").text(item.category || "");
+
+                $card.find("img")
+                    .attr("src", item.article_img || "")
+                    // .on("error", function () {
+                    //     $(this).attr("src", "/static/img/no-image.png");
+                    // });
+            });
+
+
+        },
+        error: function (xhr) {
+            console.error("기사 로드 실패", xhr.status);
+        }
+    });
+});
+
+function renderParagraphs(text, sentencePerPara = 2) {
+    if (!text) return "";
+
+    const sentences = text
+        .split(/(?<=[.?!])\s+/)   // 한글 문장 고려
+        .filter(s => s.trim().length > 0);
+
+    let html = "";
+    for (let i = 0; i < sentences.length; i += sentencePerPara) {
+        // 문장 사이 한 칸 띄어쓰기
+        const chunk = sentences.slice(i, i + sentencePerPara).join(" ");
+        html += `<p>${chunk}</p>`;
+    }
+    return html;
+}
+
+
+</script>
+
+</body>
+</html>
+                    
+                    
+       

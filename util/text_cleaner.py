@@ -54,3 +54,13 @@ def clean_article_text(text: Optional[str]) -> str:
     s = re.sub(r"\s+", " ", s).strip()
 
     return s
+
+def yyyymmdd_to_iso(date_val):
+    if not date_val:
+        return None
+
+    s = str(date_val)
+    if len(s) != 8 or not s.isdigit():
+        return date_val  # 예상 못한 형식이면 원본 반환
+
+    return f"{s[0:4]}-{s[4:6]}-{s[6:8]}"
