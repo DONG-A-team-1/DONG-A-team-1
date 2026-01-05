@@ -242,4 +242,18 @@ async def api_search(request: Request):
             content={"success": False, "message": str(e)}
         )
 
-# mypage 완성하기, es query  문 이해하기 (사용하기 위해)
+# 카테고리별로 불러오기------해정,하영님 합작
+from . import category
+
+@app.get("/api/category/{category_name}")
+async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
+    """카테고리별 기사 조회 API"""
+    try:
+        results = category.get_articles_by_category(category_name, size, page)
+        return results
+    except Exception as e:
+        print(f"Category error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": str(e)}
+        )
