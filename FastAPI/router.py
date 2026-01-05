@@ -264,6 +264,7 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             content={"success": False, "message": str(e)}
         )
 
+
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
