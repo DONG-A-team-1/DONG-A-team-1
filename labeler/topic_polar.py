@@ -16,36 +16,31 @@ from sklearn.metrics import silhouette_score
 
 from util.elastic import es  # Elasticsearch client
 from util.repository import upsert_topic_polarity, set_article_topic_polarity_single
+
 # =========================
 # CONFIG
 # =========================
 DEBUG = False
 KST = timezone(timedelta(hours=9))
 
-# ES _id prefix (yyyymmdd_hh)
 now = datetime.now(KST)
 fmt = now.strftime("%Y%m%d_%H")
 
-# 클러스터링 대상 기사 범위 설정
 TOPIC_FETCH_SIZE = 1000
 TITLE_BOOST = 2
-COLLECTED_RANGE = "now-1d"  # now-1d ~ now
+COLLECTED_RANGE = "now-1d"
 
-# stance params
 MAX_CHAR_DISTANCE = 250
 MIN_ENTITY_HITS = 1
 MAX_EXAMPLE_SENTS = 2
 
-# output
 DEFAULT_OUTPUT_PATH = "data/topic_entity_stance.json"
 DEBUG_OUTPUT_PATH = "data/topic_entity_stance_debug.json"
 
-# post-filter params
-MIN_CLUSTER_SIZE = 6          # "5개 이하 제거" => 최소 6
-NEUTRAL_RATIO_MAX = 0.6       # 중립 비중이 이 이상이면 제거
-REQUIRE_BOTH_SIDES = True     # pos만/neg만이면 제거
+MIN_CLUSTER_SIZE = 6
+NEUTRAL_RATIO_MAX = 0.6
+REQUIRE_BOTH_SIDES = True
 
-# topic_polarity index name
 TOPIC_INDEX_NAME = "topic_polarity"
 
 # =========================
@@ -249,7 +244,7 @@ def create_topic(
     return {"article_ids": article_ids, "labels": labels_all, "cluster_keywords": cluster_keywords}
 
 # =========================
-# 4) 미리 만들어둔 긍/부정 말뭉치를 기반으로 리스트 생성합니다
+# 4) predicate lexicon
 # =========================
 def load_predicate_lexicon(path: str = r"data/predicate_lexicon.json") -> Dict[str, Counter]:
     with open(path, "r", encoding="utf-8") as f:
@@ -264,7 +259,7 @@ def load_predicate_lexicon(path: str = r"data/predicate_lexicon.json") -> Dict[s
     return dist
 
 # =========================
-# 5) 문장 단위 분리함수
+# 5) sentence split
 # =========================
 _SENT_SPLIT = re.compile(r"(?:[\.?!]\s+|다\.\s+|[\n\r]+)")
 
@@ -275,7 +270,7 @@ def split_sentences(text: str) -> List[str]:
     return [s.strip() for s in _SENT_SPLIT.split(text) if s and s.strip()]
 
 # =========================
-# 6) 키워 토크나이져 통해서 형태소 추출
+# 6) kiwi predicates
 # =========================
 KIWI = Kiwi()
 _PRED_POS = {"VV", "VA"}
@@ -549,16 +544,11 @@ def label_text_by_entities_kiwi(
     }
 
 # =========================
-# 9.5) topic_name 생성 유틸 (동사/명사/키워드 템플릿)
+# 9.5) topic_name 생성 유틸
 # =========================
 _PRED_IN_EVID_RE = re.compile(r"\[pred=([^\]]+)\]")
 
 def extract_preds_from_evidence(evidence_sents: List[str]) -> List[str]:
-    """
-    evidence 문장에 붙은 [pred=...]에서 predicate 리스트를 뽑아 정규화해서 반환
-    예: "… [pred=경고하다, 도입하다]" -> ["경고하다","도입하다"]
-        "… [pred=비판하다(NEG)]" -> ["비판하다"]
-    """
     out: List[str] = []
     for s in evidence_sents or []:
         m = _PRED_IN_EVID_RE.search(s)
@@ -573,32 +563,18 @@ def extract_preds_from_evidence(evidence_sents: List[str]) -> List[str]:
             out.append(p)
     return out
 
-def build_topic_name(
-    *,
-    entity: Optional[str],
-    verb: Optional[str],
-    keywords: List[str],
-) -> str:
-    """
-    동사/명사/키워드 기반 템플릿 생성
-    - entity == k1(또는 공백 제거 동일)인 경우 중복 제거
-    - verb(공방) 템플릿은 사용하지 않음
-    """
+def build_topic_name(*, entity: Optional[str], verb: Optional[str], keywords: List[str]) -> str:
     def _norm(s: str) -> str:
         return re.sub(r"\s+", "", (s or "").strip())
 
     ent = (entity or "").strip()
     kws = [str(k).strip() for k in (keywords or []) if str(k).strip()]
-
-    # k1/k2
     k1 = kws[0] if len(kws) > 0 else ""
     k2 = kws[1] if len(kws) > 1 else ""
 
-    # ✅ entity와 k1이 사실상 같으면(k1이 인물/기관으로 들어온 케이스) entity 제거
     if ent and k1 and _norm(ent) == _norm(k1):
         ent = ""
 
-    # ✅ verb 공방 템플릿 제외 (verb는 받아도 사용 안 함)
     if ent and k1:
         return f"{ent} 관련 {k1} 이슈"
     if k1 and k2:
@@ -608,7 +584,6 @@ def build_topic_name(
     if ent:
         return f"{ent} 이슈"
     return "주요 이슈"
-
 
 # =========================
 # 10) topic doc builders
@@ -620,9 +595,6 @@ def reorder_cluster_features_by_hits(
     article_rows: List[Dict[str, Any]],
     cluster_keywords: Dict[int, List[str]],
 ) -> Dict[int, List[str]]:
-    """
-    cluster_keywords(=top_terms)를, 클러스터 내 기사 features에서의 hit 수 기준으로 재정렬
-    """
     cluster_feat_hits: Dict[int, Counter] = defaultdict(Counter)
     for r in article_rows:
         cid = int(r["cluster_id"])
@@ -684,7 +656,6 @@ def build_topic_docs(
         neg_list.sort(key=lambda x: x["intensity"], reverse=True)
         neu_list.sort(key=lambda x: x["intensity"], reverse=True)
 
-        # ✅ NEW: cluster 대표 entity/verb 추출
         ent_cnt = Counter()
         verb_cnt = Counter()
 
@@ -710,7 +681,7 @@ def build_topic_docs(
 
         topic_doc = {
             "topic_id": str(cid),
-            "topic_name": topic_name,  # ✅ NEW
+            "topic_name": topic_name,
             "topic_features": topic_features,
             "topic_article_count": int(cluster_sizes.get(cid, 0)),
             "topic_analyzed_count": int(len(rows)),
@@ -741,7 +712,6 @@ def filter_topic_docs(
 
         if total < min_cluster_size:
             continue
-
         if require_both_sides and (pos == 0 or neg == 0):
             continue
 
@@ -753,7 +723,7 @@ def filter_topic_docs(
     return out
 
 # =========================
-# 11) debug legacy json (예전 형식 + title/url 포함)
+# 11) debug legacy json
 # =========================
 def to_legacy_debug_json(topic_docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     def _expand(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -772,7 +742,8 @@ def to_legacy_debug_json(topic_docs: List[Dict[str, Any]]) -> List[Dict[str, Any
     for t in topic_docs:
         out_topics.append({
             "topic_id": int(t["topic_id"]),
-            "topic_name": t.get("topic_name", ""),  # ✅ NEW (debug에도 넣어줌)
+            "topic_name": t.get("topic_name", ""),
+            "topic_rank": int(t.get("topic_rank") or t.get("rank") or 0),  # ✅ NEW (debug에도 표시)
             "topic_feature_keywords": t.get("topic_features", []),
             "positive_articles": _expand(t.get("positive_articles", [])),
             "negative_articles": _expand(t.get("negative_articles", [])),
@@ -809,7 +780,33 @@ def build_topic_rows_single(all_rows, *, fmt_prefix: str):
     return out
 
 # =========================
-# 12) ES upsert (최소 nested만 저장)
+# ✅ NEW: cluster별 trend_score 합계 기준 rank 산출
+# =========================
+def apply_topic_rank_by_trend_sum(
+    topic_docs: List[Dict[str, Any]],
+    all_rows: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    trend_sum_by_cluster: Dict[int, float] = defaultdict(float)
+    for r in all_rows:
+        cid = int(r.get("cluster_id"))
+        trend_sum_by_cluster[cid] += float(r.get("trend_score") or 0.0)
+
+    # 필터 통과한 topic_docs만 대상으로 rank 부여
+    sorted_docs = sorted(
+        topic_docs,
+        key=lambda t: trend_sum_by_cluster.get(int(t["topic_id"]), 0.0),
+        reverse=True
+    )
+
+    for rank, t in enumerate(sorted_docs, start=1):
+        cid = int(t["topic_id"])
+        t["trend_sum"] = float(trend_sum_by_cluster.get(cid, 0.0))  # (선택) 디버깅/추적
+        t["rank"] = int(rank)        # ✅ ES 저장 필드명
+        t["topic_rank"] = int(rank)  # ✅ DB 저장 컬럼명
+    return sorted_docs
+
+# =========================
+# 12) ES upsert (topic_polarity)
 # =========================
 def _strip_article_fields_for_es(topic_doc: Dict[str, Any]) -> Dict[str, Any]:
     def _min_items(items):
@@ -824,7 +821,9 @@ def _strip_article_fields_for_es(topic_doc: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "topic_id": topic_doc.get("topic_id"),
-        "topic_name": topic_doc.get("topic_name", ""),  # ✅ NEW
+        "rank": int(topic_doc.get("rank") or 0),            # ✅ NEW
+        "trend_sum": float(topic_doc.get("trend_sum") or 0.0),  # (선택) NEW
+        "topic_name": topic_doc.get("topic_name", ""),
         "topic_features": topic_doc.get("topic_features", []),
         "topic_article_count": int(topic_doc.get("topic_article_count") or 0),
         "topic_analyzed_count": int(topic_doc.get("topic_analyzed_count") or 0),
@@ -886,15 +885,12 @@ def label_polar_entity_centered_to_topics_json(
     fetch_size: int = 1000,
     predicate_lexicon_path: str = r"data/predicate_lexicon.json",
     per_side_limit: int = 5,
-    # filters
     min_cluster_size: int = MIN_CLUSTER_SIZE,
     require_both_sides: bool = REQUIRE_BOTH_SIDES,
     neutral_ratio_max: float = NEUTRAL_RATIO_MAX,
-    # es save
     save_as_data: bool = False,
     topic_index_name: str = TOPIC_INDEX_NAME,
 ) -> List[Dict[str, Any]]:
-    # 1) topic clustering
     raw = create_topic(index_name=index_name, size=TOPIC_FETCH_SIZE, title_boost=TITLE_BOOST)
     article_ids = raw.get("article_ids", [])
     labels = raw.get("labels", [])
@@ -912,11 +908,9 @@ def label_polar_entity_centered_to_topics_json(
         print("[label_polar_entity_centered_to_topics_json] No clusters to process.")
         return []
 
-    # 2) predicate lexicon
     pred_dist = load_predicate_lexicon(predicate_lexicon_path)
     print("[predicate_lexicon] size:", len(pred_dist))
 
-    # 3) article stance
     all_rows: List[Dict[str, Any]] = []
     total_es_hits = 0
 
@@ -925,12 +919,14 @@ def label_polar_entity_centered_to_topics_json(
         if not a_ids:
             continue
 
+        # ✅ NEW: article_label.trend_score 포함
         query = {
             "_source": [
                 "article_id", "article_title", "article_content", "url",
                 "press", "upload_date",
                 "features",
                 "entities", "persons", "organizations",
+                "article_label.trend_score",  # ✅ NEW
             ],
             "size": min(fetch_size, len(a_ids)),
             "query": {"terms": {"article_id": a_ids}},
@@ -969,6 +965,13 @@ def label_polar_entity_centered_to_topics_json(
                 feats = [str(feats)]
             feats = [str(x).strip() for x in feats if str(x).strip()]
 
+            # ✅ NEW: trend_score read
+            al = src.get("article_label") or {}
+            try:
+                trend_score = float(al.get("trend_score") or 0.0)
+            except Exception:
+                trend_score = 0.0
+
             all_rows.append({
                 "cluster_id": int(cid),
                 "article_id": src.get("article_id"),
@@ -978,16 +981,14 @@ def label_polar_entity_centered_to_topics_json(
                 "confidence": out["final"]["confidence"],
                 "hits": out["final"]["hits"],
                 "features": feats,
+                "trend_score": trend_score,  # ✅ NEW
 
-                # ✅ topic_name 재료
                 "main_entity": out.get("main_entity"),
                 "main_evidence": out.get("main_evidence", []),
             })
 
-    # 4) cluster feature: hit 많은 순으로 재정렬
     cluster_keywords = reorder_cluster_features_by_hits(all_rows, cluster_keywords)
 
-    # 5) topic docs 생성 (ES 필드명 + topic_name 포함)
     topic_docs = build_topic_docs(
         all_rows,
         cluster_keywords,
@@ -995,7 +996,6 @@ def label_polar_entity_centered_to_topics_json(
         per_side_limit=per_side_limit,
     )
 
-    # 6) 필터 적용
     topic_docs = filter_topic_docs(
         topic_docs,
         min_cluster_size=min_cluster_size,
@@ -1003,16 +1003,16 @@ def label_polar_entity_centered_to_topics_json(
         neutral_ratio_max=neutral_ratio_max,
     )
 
-    # 7) JSON 저장 (ES 저장용 구조)
+    # ✅ NEW: rank 산출(필터 통과 토픽 대상으로)
+    topic_docs = apply_topic_rank_by_trend_sum(topic_docs, all_rows)
+
     with open(output_path_topics, "w", encoding="utf-8") as f:
         json.dump(topic_docs, f, ensure_ascii=False, indent=2)
 
-    # 8) 확인용 JSON 저장 (예전 형식 + title/url + topic_name)
     legacy_debug = to_legacy_debug_json(topic_docs)
     with open(debug_output_path, "w", encoding="utf-8") as f:
         json.dump(legacy_debug, f, ensure_ascii=False, indent=2)
 
-    # 9) 콘솔 샘플 출력
     print("\n[DEBUG] legacy topic json sample (first 2 topics)")
     print(json.dumps(legacy_debug[:2], ensure_ascii=False, indent=2))
 
@@ -1022,16 +1022,18 @@ def label_polar_entity_centered_to_topics_json(
     print(f" - total_es_hits: {total_es_hits}")
     print(f" - topic_docs(after filter): {len(topic_docs)}")
 
-    # 10) ES 저장(upsert) (topic_name 포함)
     if save_as_data:
+        # 1) ES: topic_polarity upsert (rank 포함)
         upsert_topic_docs_to_es(topic_docs, index_name=topic_index_name)
+
+        # 2) DB: topic_polarity upsert (topic_rank 포함되도록 util.repository 수정 필요)
         upsert_topic_polarity(topic_docs, fmt_prefix=fmt)
+
+        # 3) article_data: topic_polarity 1개만 저장(기사 문서 업데이트)
         topic_rows = build_topic_rows_single(all_rows, fmt_prefix=fmt)
         set_article_topic_polarity_single(topic_rows, index_name=index_name)
-    else:
-        pass
 
     return topic_docs
 
 if __name__ == "__main__":
-    label_polar_entity_centered_to_topics_json()
+    label_polar_entity_centered_to_topics_json(save_as_data=True)
