@@ -206,6 +206,9 @@ def crawl_bigkinds_full(): # 이건 그냥 셀레니움하기위한 셋업
                     }]
                 )
             )
+            if all_results:
+                print("📊 워드클라우드용 키워드 추출 시작...")
+                asyncio.run(make_wordcloud_data(all_results))
     driver.quit()
 
     if all_results:

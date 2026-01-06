@@ -1350,12 +1350,12 @@ body.dark {
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="economycategory.html">국제</a>
-                <a class="nav-splash-item splash-international" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+                <a class="nav-splash-item splash-international" href="localcategory.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
      <div class="header-actions">
     <button class="icon-button" onclick="toggleDarkMode()">
@@ -1665,7 +1665,8 @@ function toggleLoginState() {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">홍길동님</p>
+            const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>

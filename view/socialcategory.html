@@ -1024,6 +1024,11 @@ body.dark .pagination-btn.page:hover {
 .spacer {
     height: 5rem;
 }
+
+body:not(.dark) #articleGrid a.article-card,
+body:not(.dark) #articleList a.list-article {
+    color: #111827 !important;
+}
 </style>
 </head>
 <body>
@@ -1036,13 +1041,13 @@ body.dark .pagination-btn.page:hover {
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
-            <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="world.html">국제</a>
-                <a class="nav-splash-item splash-international active" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+             <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="localcategory.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
             <div class="header-actions">
                 <button class="icon-button" onclick="toggleDarkMode()">
@@ -1082,109 +1087,40 @@ body.dark .pagination-btn.page:hover {
             </div>
         </div>
     </section>
-<!-- 카드형 사회/경제 기사 -->
+
+ <!-- 카드형 기사 -->
 <section>
     <div class="section-header">
-        <h1 class="section-title">사회·경제</h1>
-        <p class="section-subtitle">총 15건의 사회·경제 기사가 검색되었습니다.</p>
+        <h1 class="section-title">사회/경제</h1>
+        <p class="section-subtitle" id="articleCount">기사를 불러오는 중...</p>
     </div>
 
-    <div class="article-grid">
-
-        <!-- 기사 1 -->
-        <a class="article-card" href="personalpagesum.html" data-reliability="92">
+    <div class="article-grid" id="articleGrid">
+        <!-- 카드형 템플릿 (숨김) -->
+        <a class="article-card article-card-template" style="display:none;">
             <div class="article-image">
-                <img src="https://images.unsplash.com/photo-1565372918677-8c6d4e9b3f6b" alt="economy">
-                
+                <img class="card-img" src="" alt="">
             </div>
             <div class="article-content">
-                <h3 class="article-title">정부, 물가 안정 총력… 생활비 부담 완화 대책 추진</h3>
-                <p class="article-description">
-                    정부가 고물가 장기화에 대응하기 위해
-                    에너지·식료품 가격 안정 대책을 본격적으로 추진합니다.
-                </p>
+                <h3 class="card-title"></h3>
+                <p class="card-description"></p>
                 <div class="article-meta">
-                    <div class="article-source">연합뉴스 • 1시간 전</div>
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도92%
+                    <div class="card-source"></div>
+                    <span class="reliability-badge">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span class="card-trust"></span>
                     </span>
                 </div>
             </div>
         </a>
-
-        <!-- 기사 2 -->
-        <a class="article-card" href="article_detail.html" data-reliability="85">
-            <div class="article-image">
-                <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d" alt="finance">
-                
-            </div>
-            <div class="article-content">
-                <h3 class="article-title">한국은행, 기준금리 동결… 경기 둔화 우려 반영</h3>
-                <p class="article-description">
-                    한국은행이 기준금리를 동결하며
-                    물가와 경기 상황을 동시에 고려한 신중한 행보를 보였습니다.
-                </p>
-                <div class="article-meta">
-                    <div class="article-source">YTN • 3시간 전</div>
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도85%
-                    </span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 기사 3 -->
-        <a class="article-card" href="article_detail.html" data-reliability="78">
-            <div class="article-image">
-                <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d" alt="employment">
-               
-            </div>
-            <div class="article-content">
-                <h3 class="article-title">청년 고용 지표 개선세… 체감 회복은 과제</h3>
-                <p class="article-description">
-                    청년 고용률이 소폭 상승했지만
-                    양질의 일자리 부족 문제는 여전히 과제로 남아 있습니다.
-                </p>
-                <div class="article-meta">
-                    <div class="article-source">한겨레 • 5시간 전</div>
-                    <span class="reliability-badge reliability-medium">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도78%
-                    </span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 기사 4 -->
-        <a class="article-card" href="article_detail.html" data-reliability="90">
-            <div class="article-image">
-                <img src="https://images.unsplash.com/photo-1581092918367-7c4c1b4f8b96" alt="real-estate">
-                
-            </div>
-            <div class="article-content">
-                <h3 class="article-title">수도권 집값 보합세… 거래량은 여전히 부진</h3>
-                <p class="article-description">
-                    수도권 아파트 가격이 보합세를 보이고 있지만
-                    금리 부담으로 거래 위축은 계속되고 있습니다.
-                </p>
-                <div class="article-meta">
-                    <div class="article-source">KBS • 30분 전</div>
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도90%
-                    </span>
-                </div>
-            </div>
-        </a>
-
     </div>
 </section>
-
 
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-           <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">groups</span>
-                <h2 class="list-title">사회/경제</h2>
-
+              <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">groups</span>
+            <h2 class="list-title">사회/경제</h2>
         </div>
         <div class="sort-buttons">
             <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
@@ -1194,143 +1130,33 @@ body.dark .pagination-btn.page:hover {
     </div>
 
     <div class="article-list" id="articleList">
-
-    <!-- 기사 1 -->
-    <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="92">
-        <div class="list-article-image">
-            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e" alt="economy"/>
-        </div>
-        <div class="list-article-body">
-            <div class="list-article-tags">
-                <span class="list-article-category">사회/경제</span>
-                <span class="list-article-date">2023.11.15</span>
+        <!-- 리스트형 템플릿 (숨김) -->
+        <a class="list-article list-article-template" style="display:none;">
+            <div class="list-article-image">
+                <img class="list-img" src="" alt=""/>
             </div>
-            <h3 class="list-article-title">물가 상승세 둔화… 정부, 추가 안정 대책 검토</h3>
-            <p class="list-article-desc">
-                최근 소비자 물가 상승률이 다소 둔화된 가운데
-                정부가 체감 물가 안정을 위한 추가 대책을 검토하고 있습니다.
-            </p>
-            <div class="list-article-source">
-                <strong>연합뉴스</strong>
-                <span> | </span>
-                <span>경제정책</span>
-                <span class="reliability-badge reliability-high">
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-category"></span>
+                    <span class="list-date"></span>
+                </div>
+                <h3 class="list-title-text"></h3>
+                <p class="list-desc"></p>
+                    <div class="list-article-source">
+                <span class="list-reporter"></span>
+                <span class="meta-dot">·</span>
+                <strong class="list-source"></strong>
+
+                <span class="reliability-badge">
                     <span class="material-symbols-outlined reliability-icon">verified</span>
-                    <span>신뢰도92%</span>
+                    <span class="list-trust"></span>
                 </span>
             </div>
-        </div>
-    </a>
+            </div>
+        </a>
+    </div>
+</section>
 
-    <!-- 기사 2 -->
-    <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
-        <div class="list-article-image">
-            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f" alt="finance"/>
-        </div>
-        <div class="list-article-body">
-            <div class="list-article-tags">
-                <span class="list-article-category">사회/경제</span>
-                <span class="list-article-date">2023.11.14</span>
-            </div>
-            <h3 class="list-article-title">기준금리 동결 유지… 가계 대출 부담은 지속</h3>
-            <p class="list-article-desc">
-                한국은행이 기준금리를 동결했지만
-                고금리 기조가 이어지며 가계 대출 부담은 여전한 상황입니다.
-            </p>
-            <div class="list-article-source">
-                <strong>KBS</strong>
-                <span> | </span>
-                <span>금융시장</span>
-                <span class="reliability-badge reliability-high">
-                    <span class="material-symbols-outlined reliability-icon">verified</span>
-                    <span>신뢰도85%</span>
-                </span>
-            </div>
-        </div>
-    </a>
-
-    <!-- 기사 3 -->
-    <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="90">
-        <div class="list-article-image">
-            <img src="https://images.unsplash.com/photo-1497493292307-31c376b6e479" alt="labor"/>
-        </div>
-        <div class="list-article-body">
-            <div class="list-article-tags">
-                <span class="list-article-category">사회/경제</span>
-                <span class="list-article-date">2023.11.13</span>
-            </div>
-            <h3 class="list-article-title">최저임금 인상 논의 본격화… 노사 입장차</h3>
-            <p class="list-article-desc">
-                내년도 최저임금 인상을 둘러싸고
-                노동계와 경영계 간 입장 차가 다시 부각되고 있습니다.
-            </p>
-            <div class="list-article-source">
-                <strong>한겨레</strong>
-                <span> | </span>
-                <span>노동시장</span>
-                <span class="reliability-badge reliability-high">
-                    <span class="material-symbols-outlined reliability-icon">verified</span>
-                    <span>신뢰도90%</span>
-                </span>
-            </div>
-        </div>
-    </a>
-
-    <!-- 기사 4 -->
-    <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="78">
-        <div class="list-article-image">
-            <img src="https://images.unsplash.com/photo-1581090700227-1e37b190418e" alt="realestate"/>
-        </div>
-        <div class="list-article-body">
-            <div class="list-article-tags">
-                <span class="list-article-category">사회/경제</span>
-                <span class="list-article-date">2023.11.12</span>
-            </div>
-            <h3 class="list-article-title">주택 거래량 소폭 회복… 시장 관망세 지속</h3>
-            <p class="list-article-desc">
-                최근 주택 거래량이 소폭 회복됐지만
-                금리와 정책 변수로 인해 시장의 관망세는 이어지고 있습니다.
-            </p>
-            <div class="list-article-source">
-                <strong>YTN</strong>
-                <span> | </span>
-                <span>부동산시장</span>
-                <span class="reliability-badge reliability-medium">
-                    <span class="material-symbols-outlined reliability-icon">verified</span>
-                    <span>신뢰도78%</span>
-                </span>
-            </div>
-        </div>
-    </a>
-
-    <!-- 기사 5 -->
-    <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="80">
-        <div class="list-article-image">
-            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216" alt="welfare"/>
-        </div>
-        <div class="list-article-body">
-            <div class="list-article-tags">
-                <span class="list-article-category">사회/경제</span>
-                <span class="list-article-date">2023.11.11</span>
-            </div>
-            <h3 class="list-article-title">정부, 취약계층 지원 확대… 복지 예산 증액</h3>
-            <p class="list-article-desc">
-                정부가 취약계층 보호 강화를 위해
-                복지 예산을 확대하고 맞춤형 지원을 추진합니다.
-            </p>
-            <div class="list-article-source">
-                <strong>조선일보</strong>
-                <span> | </span>
-                <span>사회정책</span>
-                <span class="reliability-badge reliability-medium">
-                    <span class="material-symbols-outlined reliability-icon">verified</span>
-                    <span>신뢰도80%</span>
-                </span>
-            </div>
-        </div>
-    </a>
-
-</div>
 
 
 
@@ -1351,12 +1177,225 @@ body.dark .pagination-btn.page:hover {
 <div class="spacer"></div>
 
 <script>
+// ========== 페이지 로드 시 실행 ==========
+$(document).ready(function() {
+    loadCategoryArticles('사회', 1);  // 문화 카테고리, 1페이지
+    initializeUI();
+});
+
+function initializeUI() {
+    toggleLoginState();
+    setActiveCategoryByURL();
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+}
+
+// ========== 백엔드에서 데이터 가져오기 ==========
+function loadCategoryArticles(categoryName, page = 1) {
+    const itemsPerPage = 9;  // 페이지당 9개 (카드 4 + 리스트 5)
+    const catName = encodeURIComponent(categoryName);
+    console.log(catName);
+    $.ajax({
+        url: `/api/category/${catName}`,
+        type: 'GET',
+        data: {
+            size: itemsPerPage * 5,  // 5페이지분 데이터 (45개)
+            page: page
+        },
+        success: function(response) {
+            if (response.success) {
+                // 총 개수 표시
+                $('#articleCount').text(`총 ${response.total}건의 ${categoryName} 기사`);
+
+                // 현재 페이지에 해당하는 데이터만 추출
+                const startIdx = (page - 1) * itemsPerPage;
+                const endIdx = startIdx + itemsPerPage;
+                const pageArticles = response.articles.slice(startIdx, endIdx);
+
+                // 카드형 4개, 리스트형 5개
+                displayCardArticles(pageArticles.slice(0, 4));
+                displayListArticles(pageArticles.slice(4, 9));
+
+                // 페이지네이션 업데이트
+                updatePaginationUI(page);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('로드 실패:', error);
+            $('#articleCount').text('기사를 불러오는데 실패했습니다.');
+        }
+    });
+}
+
+// ========== 카드형 기사 렌더링 ==========
+function displayCardArticles(articles) {
+    const container = $('#articleGrid');
+    const template = $('.article-card-template');
+
+    // 기존 기사만 삭제 (템플릿 유지)
+    container.find('.article-card:not(.article-card-template)').remove();
+
+    articles.forEach(function(article) {
+        const card = template.clone();
+        card.removeClass('article-card-template');
+        card.css('display', '');
+        card.attr('href', `/article/${article.article_id}`);
+        card.attr('data-reliability', article.trustScore);
+
+        // 이미지
+        const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
+        card.find('.card-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 제목
+        card.find('.card-title').text(article.title);
+
+        // 본문 (100자)
+        const content = (article.content || '').substring(0, 100) + '...';
+        card.find('.card-description').text(content);
+
+        // 출처 & 날짜
+        const sourceText = `${article.source} • ${formatDate(article.upload_date)}`;
+        card.find('.card-source').text(sourceText);
+
+        // 신뢰도
+        const trust = Math.floor(article.trustScore / 100);
+        card.find('.card-trust').text(`신뢰도 ${trust}%`);
+
+        // 신뢰도 배지 색상
+        const reliabilityClass = getReliabilityClass(article.trustScore);
+        card.find('.reliability-badge').addClass(reliabilityClass);
+
+        container.append(card);
+    });
+}
+
+// ========== 리스트형 기사 렌더링 ==========
+function displayListArticles(articles) {
+    const container = $('#articleList');
+    const template = $('.list-article-template');
+
+    // 기존 기사만 삭제 (템플릿 유지)
+    container.find('.list-article:not(.list-article-template)').remove();
+
+    articles.forEach(function(article) {
+        const listItem = template.clone();
+        listItem.removeClass('list-article-template');
+        listItem.css('display', '');
+        listItem.attr('href', `/article/${article.article_id}`);
+        listItem.attr('data-date', article.upload_date);
+        listItem.attr('data-reliability', article.trustScore);
+
+        // 이미지
+        const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
+        listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
+
+        listItem.find('.list-reporter').text(article.reporter);
+
+        // 언론사
+        listItem.find('.list-source').text(article.press);
+
+        // 날짜
+        listItem.find('.list-date').text(formatDateYMD(article.upload_date));
+
+        // 제목
+        listItem.find('.list-title-text').text(article.title);
+
+        // 본문
+        const content = (article.content || '').substring(0, 100) + '...';
+        listItem.find('.list-desc').text(content);
+
+        // 출처
+        listItem.find('.list-source').text(article.source);
+
+        // 신뢰도
+        const trust = Math.floor(article.trustScore / 100);
+        listItem.find('.list-trust').text(`신뢰도 ${trust}%`);
+
+        const reliabilityClass = getReliabilityClass(article.trustScore);
+        listItem.find('.reliability-badge').addClass(reliabilityClass);
+
+        container.append(listItem);
+    });
+}
+
+// ========== 정렬 기능 (리스트만) ==========
+function sortArticles(type) {
+    const container = document.getElementById('articleList');
+    const template = container.querySelector('.list-article-template');
+
+    // 템플릿을 제외한 기사들만 가져오기
+    const articles = Array.from(
+        container.querySelectorAll('.list-article:not(.list-article-template)')
+    );
+
+    articles.sort((a, b) => {
+        const dateA = new Date(a.dataset.date);
+        const dateB = new Date(b.dataset.date);
+        const relA = Number(a.dataset.reliability || 0);
+        const relB = Number(b.dataset.reliability || 0);
+
+        if (type === 'latest') return dateB - dateA;
+        if (type === 'oldest') return dateA - dateB;
+        if (type === 'reliability') return relB - relA;
+        return 0;
+    });
+
+    // 템플릿을 제외하고 다시 추가
+    container.innerHTML = '';
+    container.appendChild(template);  // 템플릿 먼저
+    articles.forEach(a => container.appendChild(a));  // 정렬된 기사들
+
+    // 버튼 활성화
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    const btnId = 'btn' + type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById(btnId).classList.add('active');
+}
+
+// ========== 페이지네이션 ==========
+function goToPage(pageNumber) {
+    loadCategoryArticles('사회', pageNumber);  // 데이터 다시 로드
+    updatePaginationUI(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // 맨 위로 스크롤
+}
+
+function updatePaginationUI(activePage) {
+    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.innerText) === activePage);
+    });
+}
+
+// ========== 유틸리티 함수들 ==========
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-high';
     if (score >= 60) return 'reliability-medium';
     return 'reliability-low';
 }
 
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return '방금 전';
+    if (hours < 24) return `${hours}시간 전`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}일 전`;
+
+    return date.toLocaleDateString('ko-KR');
+}
+
+function formatDateYMD(dateStr) {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+}
+
+// ========== 기타 UI 함수들 ==========
 function toggleLoginState() {
     const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
     const dropdownContent = document.getElementById('dropdownContent');
@@ -1365,7 +1404,8 @@ function toggleLoginState() {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">홍길동님</p>
+                       const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
@@ -1404,7 +1444,8 @@ function toggleDarkMode() {
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
 }
 
-if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+if (localStorage.getItem('darkMode') === 'true' ||
+    (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.body.classList.add('dark');
 }
 
@@ -1448,57 +1489,9 @@ function performSearch() {
     const term = document.getElementById('searchInput').value.trim();
     const scope = document.getElementById('searchScope').value;
     if (term) {
-        location.href = `searchresult.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
     }
 }
-
-function sortArticles(type) {
-    const container = document.getElementById('articleList');
-    const articles = Array.from(container.children);
-
-    articles.sort((a, b) => {
-        const dateA = new Date(a.dataset.date);
-        const dateB = new Date(b.dataset.date);
-        const relA = Number(a.dataset.reliability || 0);
-        const relB = Number(b.dataset.reliability || 0);
-
-        if (type === 'latest') return dateB - dateA;
-        if (type === 'oldest') return dateA - dateB;
-        if (type === 'reliability') return relB - relA;
-    });
-
-    container.innerHTML = '';
-    articles.forEach(a => container.appendChild(a));
-
-    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-}
-
-function goToPage(pageNumber) {
-    const url = new URL(location.href);
-    url.searchParams.set('page', pageNumber);
-    history.pushState({}, '', url);
-    updatePaginationUI(pageNumber);
-}
-
-function updatePaginationUI(activePage) {
-    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
-        btn.classList.toggle('active', Number(btn.innerText) === activePage);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();
-
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
-
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-   
-});
-
 
 </script>
 

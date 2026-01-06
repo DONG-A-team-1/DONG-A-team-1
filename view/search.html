@@ -184,9 +184,10 @@
 
         .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
         .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
-        .splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
-        .splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
-        .splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+        .splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+        .splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+        .splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+        .splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
 
         /* Actions */
         .header-actions {
@@ -1014,7 +1015,7 @@
             <div class="nav-content">
                 <!-- Logo -->
                 <div class="nav-left">
-                    <a class="logo" href="homepage.html">
+                    <a class="logo" href="home.html">
                         <span class="material-symbols-outlined logo-icon">palette</span>
                         <span class="logo-text">NewsPalette</span>
                     </a>
@@ -1024,10 +1025,10 @@
                 <div class="category">
                     <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
                     <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                    <a class="nav-splash-item splash-economy" href="economycategory.html">국제</a>
-                    <a class="nav-splash-item splash-world" href="universecategory.html">지역</a>
-                    <a class="nav-splash-item splash-tech" href="culturecategory.html">문화</a>
-                    <a class="nav-splash-item splash-tech" href="sportscategory.html">스포츠</a>
+                    <a class="nav-splash-item splash-world" href="world.html">국제</a>
+                    <a class="nav-splash-item splash-international" href="international.html">지역</a>
+                    <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                    <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
                 </div>
 
                 <!-- Actions -->
@@ -1068,7 +1069,7 @@
 
                 <div class="search-input-wrap">
                     <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
-                    <button id="searchBtn" class="search-btn" aria-label="검색">
+                    <button id="searchBtn" class="search-btn" aria-label="검색" onclick="searchArticles()">
                         <span class="material-symbols-outlined">search</span>
                     </button>
                 </div>
@@ -1390,7 +1391,107 @@
     </footer>
 
     <script>
-        // 기사 카드에 달리는 카테고리
+        // 로그인 처리----------------------------------------------------
+    $(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+        initApp();
+    });
+
+function initApp() {
+    // 로그인 여부 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
+
+    if (isLoggedIn) {
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
+
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+            }
+        },
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
+    });
+}
+
+// 드롭다운 부분
+function renderUserMenu(isLoggedIn, userName = "회원") {
+
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+        function logout() {
+            if (!confirm("로그아웃 하시겠습니까?")) return;
+            $.ajax({
+                url: '/logout',
+                type: 'GET',
+                success: function() {
+                    localStorage.clear();
+                    alert("로그아웃 되었습니다.");
+                    location.href = 'home.html';
+                },
+                error: function() {
+                    localStorage.clear();
+                    location.reload();
+                }
+            });
+        }
+        // 기사 카드에 달리는 카테고리-------------------------
         function getCategoryClass(category) {
             const categoryMap = {
                 '사회/경제': 'category-society',
@@ -1424,13 +1525,13 @@
         const searchTermEl = document.querySelector(".search-term");
         const countNumberEl = document.querySelector(".count-number");
         const searchWrapper = document.querySelector(".result-header")
-
+        // Eneter 키로 검색
         searchInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 searchBtn.click();
             }
         });
-
+        // 검색 버튼 클릭
         searchBtn.addEventListener("click", () => {
             const keyword = searchInput.value.trim();
             const searchType = searchSelect.value;
@@ -1441,51 +1542,65 @@
             }
 
             // 검색 기준에 따른 메시지 표시
-            let searchTypeText = "";
+            let searchTypeText = ""; // 유저에게 보여주는 한글 텍스트
+            let apiSearchType = ""; // API에 보내는 영어 코드
+
             switch(searchType) {
                 case "제목+본문":
                     searchTypeText = "제목+본문";
-                    break;
+                    apiSearchType = "all";
+                    break
                 case "제목":
                     searchTypeText = "제목";
-                    break;
+                    apiSearchType = "title";
+                    break
                 case "본문":
                     searchTypeText = "본문";
+                    apiSearchType = "content";
                     break;
                 case "키워드":
                     searchTypeText = "키워드";
+                    apiSearchType = "keywords";
                     break;
             }
 
-            searchTermEl.textContent = `'${keyword}' (${searchTypeText})`;
+            searchTermEl.textContent = `'${keyword}' (${searchTypeText})`; // 검색어 표시
 
             // AJAX로 서버에 검색 요청
             $.ajax({
                 url: '/api/search',  // 실제 API 엔드포인트로 변경 필요
-                type: 'GET',
-                data: {
-                    keyword: keyword,
-                    searchType: searchType
-                },
+                type: 'POST',
+                contentType:'application/json',
+                data: JSON.stringify({
+                    search_type:apiSearchType,
+                    query: keyword,
+                    size: 20
+                }),
                 dataType: 'json',
                 success: function(response) {
-                    const results = response.data || [];
+                    if (response.success){
+                        const total = response.total || 0; // response.total이 있으면 그 값 사용, 없으면 0사용
+                        const articles = response.articles || [];
 
-                    if (results.length === 0) {
-                        resultCountEl.innerHTML = `총 <span class="count-number">0</span>건의 기사가 검색되었습니다.`;
-                        searchSection.style.display = "none";
-                        articleSection.style.display = "block";
-                    } else {
-                        resultCountEl.innerHTML = `총 <span class="count-number">${results.length}</span>건의 기사가 검색되었습니다.`;
+                        // 결과 개수 표시
+                        countNumberEl.textContent = total;
 
-                        // 검색 결과로 카드 업데이트
-                        updateSearchResults(results);
-
-                        searchSection.style.display = "block";
-                        articleSection.style.display = "none";
+                        if (articles.length === 0){
+                            articleSection.innerHTML = '<p class="no-results">검색 결과가 없습니다.'
+                        }else{
+                            // 검색 결과 표시
+                            displaySearchResults(articles, keyword);
+                        }
+                        // 검색 결과 섹션 표시
+                        searchSection.style.display= "block";
+                    }else{
+                        alert('검색 실패: '+ response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                // xhr : HTTP요청/응답 전체 정보를 담은 객체
+                // status : 에러타입
+                // error : 에러에 대한 설명 문자열
+                error: function(xhr, status, error) {// ajax 에러 콜백의 매개변수
                     console.error('검색 오류:', error);
                     alert('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
                 }
@@ -1521,49 +1636,6 @@
                 `;
                 cardGrid.innerHTML += card;
             });
-        }
-
-        // 로그인 처리
-        function renderUserDropdown() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
-            if (isLoggedIn) {
-                document.getElementById('dropdownContent').innerHTML = `
-                    <div class="dropdown-header">
-                        <p class="dropdown-subtitle">환영합니다</p>
-                        <p class="dropdown-title">홍길동님</p>
-                    </div>
-                    <a href="mypage.html" class="dropdown-item">
-                        <span class="material-symbols-outlined">account_circle</span>
-                        마이페이지
-                    </a>
-                    <button class="dropdown-item logout-btn" onclick="logout()">
-                        <span class="material-symbols-outlined">logout</span>
-                        로그아웃
-                    </button>
-                `;
-            } else {
-                document.getElementById('dropdownContent').innerHTML = `
-                    <div class="dropdown-header">
-                        <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                        <p class="dropdown-title">로그인이 필요합니다</p>
-                    </div>
-                    <a href="login.html" class="dropdown-item">
-                        <span class="material-symbols-outlined">login</span>
-                        로그인
-                    </a>
-                    <a href="logregist.html" class="dropdown-item">
-                        <span class="material-symbols-outlined">person_add</span>
-                        회원가입
-                    </a>
-                `;
-            }
-        }
-
-        function logout() {
-            localStorage.setItem('isLoggedIn', 'false');
-            renderUserDropdown();
-            document.getElementById('userDropdown').classList.remove('show');
         }
 
         // 유저 메뉴 토글
