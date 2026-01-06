@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette - 문화 뉴스</title>
+<title>NewsPalette -문화 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
@@ -189,7 +189,6 @@ body.dark .nav-splash-item {
 .splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
 .splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
 .splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
-
 
 /* Dropdown */
 .dropdown {
@@ -626,7 +625,7 @@ body.dark .article-title {
 }
 
 .article-card:hover .article-title {
-    color: #3B82F6;
+      color: #111827;
 }
 
 .article-description {
@@ -911,7 +910,7 @@ body.dark .list-article-title {
 }
 
 .list-article:hover .list-article-title {
-    color: #3B82F6;
+     color: #111827;
 }
 
 .list-article-desc {
@@ -1025,6 +1024,59 @@ body.dark .pagination-btn.page:hover {
 .spacer {
     height: 5rem;
 }
+
+.meta-dot {
+    margin: 0 4px;
+    color: #9CA3AF;
+}
+
+    /* =========================
+   🌙 다크모드 가독성 개선
+========================= */
+
+/* 카드 전체 기본 텍스트 */
+body.dark .article-card,
+body.dark .list-article {
+    color: #E5E7EB;
+}
+
+/* 카드 제목 */
+body.dark .article-title,
+body.dark .card-title,
+body.dark .list-title-text {
+    color: #F9FAFB !important;
+}
+
+/* 카드 본문 */
+body.dark .article-description,
+body.dark .card-description,
+body.dark .list-desc {
+    color: #D1D5DB !important;
+}
+
+/* 메타 정보 (기자, 언론사, 날짜) */
+body.dark .article-meta,
+body.dark .card-source,
+body.dark .list-article-source {
+    color: #9CA3AF;
+}
+    /* 모든 기사 링크 색상 통제 */
+#articleGrid a,
+#articleList a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* hover 시에도 파란색 금지 */
+#articleGrid a:hover,
+#articleList a:hover {
+    color: inherit;
+}
+/* 다크모드 이미지 가독성 */
+body.dark .article-image img,
+body.dark .list-article-image img {
+    filter: brightness(1.1) contrast(1.05);
+}
 </style>
 </head>
 <body>
@@ -1037,13 +1089,13 @@ body.dark .pagination-btn.page:hover {
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
-            <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="world.html">국제</a>
-                <a class="nav-splash-item splash-international active" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+           <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="localcategorycategory.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
             <div class="header-actions">
                 <button class="icon-button" onclick="toggleDarkMode()">
@@ -1083,103 +1135,39 @@ body.dark .pagination-btn.page:hover {
             </div>
         </div>
     </section>
-
 <!-- 카드형 기사 -->
 <section>
-<div class="section-header">
-    <h1 class="section-title">문화</h1>
-    <p class="section-subtitle">총 15건의 문화 기사가 검색되었습니다.</p>
-</div>
+    <div class="section-header">
+        <h1 class="section-title">문화</h1>
+        <p class="section-subtitle" id="articleCount">기사를 불러오는 중...</p>
+    </div>
 
-<div class="article-grid">
-
-<a class="article-card" href="article_detail.html" data-reliability="90">
-    <div class="article-image">
-        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba" alt="">
-        
+    <div class="article-grid" id="articleGrid">
+        <!-- 카드형 템플릿 (숨김) -->
+        <a class="article-card article-card-template" style="display:none;">
+            <div class="article-image">
+                <img class="card-img" src="" alt="">
+            </div>
+            <div class="article-content">
+                <h3 class="card-title"></h3>
+                <p class="card-description"></p>
+                <div class="article-meta">
+                    <div class="card-source"></div>
+                    <span class="reliability-badge">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span class="card-trust"></span>
+                    </span>
+                </div>
+            </div>
+        </a>
     </div>
-    <div class="article-content">
-        <h3 class="article-title">독립영화 화제작, 개봉 전부터 관객 기대 집중</h3>
-        <p class="article-description">
-            참신한 연출과 메시지로 평단의 호평을 받은 작품이
-            개봉을 앞두고 문화계의 주목을 받고 있습니다.
-        </p>
-        <div class="article-meta">
-            <div class="article-source">무비위클리 • 1시간 전</div>
-            <span class="reliability-badge reliability-high">
-                <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도90%
-            </span>
-        </div>
-    </div>
-</a>
-
-<a class="article-card" href="article_detail.html" data-reliability="85">
-    <div class="article-image">
-        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4" alt="">
-       
-    </div>
-    <div class="article-content">
-        <h3 class="article-title">인디 뮤지션 신보 공개, 음악 팬들 호평 이어져</h3>
-        <p class="article-description">
-            감성적인 사운드와 진솔한 가사가 담긴 앨범이
-            리스너들 사이에서 입소문을 타고 있습니다.
-        </p>
-        <div class="article-meta">
-            <div class="article-source">음악춘추 • 3시간 전</div>
-            <span class="reliability-badge reliability-high">
-                <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도85%
-            </span>
-        </div>
-    </div>
-</a>
-
-<a class="article-card" href="article_detail.html" data-reliability="78">
-    <div class="article-image">
-        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="">
-        
-    </div>
-    <div class="article-content">
-        <h3 class="article-title">국립미술관 기획전 개막, 관람객 발길 이어져</h3>
-        <p class="article-description">
-            동시대 미술의 흐름을 조명하는 전시가
-            문화계 안팎에서 큰 관심을 모으고 있습니다.
-        </p>
-        <div class="article-meta">
-            <div class="article-source">아트인컬처 • 5시간 전</div>
-            <span class="reliability-badge reliability-medium">
-                <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도78%
-            </span>
-        </div>
-    </div>
-</a>
-
-<a class="article-card" href="article_detail.html" data-reliability="88">
-    <div class="article-image">
-        <img src="https://images.unsplash.com/photo-1507676184212-d03ab07a01bf" alt="">
-       
-    </div>
-    <div class="article-content">
-        <h3 class="article-title">신작 드라마 첫 방송, 화제성과 시청률 모두 잡아</h3>
-        <p class="article-description">
-            배우들의 열연과 탄탄한 스토리로
-            첫 회부터 시청자들의 호평을 이끌어냈습니다.
-        </p>
-        <div class="article-meta">
-            <div class="article-source">방송연예뉴스 • 30분 전</div>
-            <span class="reliability-badge reliability-high">
-                <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도88%
-            </span>
-        </div>
-    </div>
-</a>
-
-</div>
 </section>
+
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">theater_comedy</span>
-                <h2 class="list-title">문화</h2>
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">account_balance</span>
+            <h2 class="list-title">문화</h2>
         </div>
         <div class="sort-buttons">
             <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
@@ -1189,129 +1177,35 @@ body.dark .pagination-btn.page:hover {
     </div>
 
     <div class="article-list" id="articleList">
-
-        <!-- 기사 1 -->
-        <a class="list-article" href="article_detail.html" data-date="2023-11-15" data-reliability="90">
+        <!-- 리스트형 템플릿 (숨김) -->
+        <a class="list-article list-article-template" style="display:none;">
             <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba" alt="movie"/>
+                <img class="list-img" src="" alt=""/>
             </div>
             <div class="list-article-body">
                 <div class="list-article-tags">
-                    <span class="list-article-category">문화</span>
-                    <span class="list-article-date">2023.11.15</span>
+                    <span class="list-category"></span>
+                    <span class="list-date"></span>
                 </div>
-                <h3 class="list-article-title">독립영화 기대작, 개봉 전부터 평단 호평</h3>
-                <p class="list-article-desc">
-                    참신한 연출과 메시지로 문화계의 주목을 받으며
-                    올해 가장 기대되는 독립영화로 꼽히고 있습니다.
-                </p>
+                <h3 class="list-title-text"></h3>
+                <p class="list-desc"></p>
                 <div class="list-article-source">
-                    <strong>무비위클리</strong> | 영화
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도90%
-                    </span>
-                </div>
+                <span class="list-reporter"></span>
+                <span class="meta-dot">·</span>
+                <strong class="list-source"></strong>
+
+                <span class="reliability-badge">
+                    <span class="material-symbols-outlined reliability-icon">verified</span>
+                    <span class="list-trust"></span>
+                </span>
+            </div>
+
             </div>
         </a>
-
-        <!-- 기사 2 -->
-        <a class="list-article" href="article_detail.html" data-date="2023-11-14" data-reliability="85">
-            <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4" alt="music"/>
-            </div>
-            <div class="list-article-body">
-                <div class="list-article-tags">
-                    <span class="list-article-category">문화</span>
-                    <span class="list-article-date">2023.11.14</span>
-                </div>
-                <h3 class="list-article-title">인디 뮤지션 신보 발매, 음악 팬들 호평</h3>
-                <p class="list-article-desc">
-                    감성적인 멜로디와 진솔한 가사가 담긴 앨범이
-                    리스너들 사이에서 빠르게 입소문을 타고 있습니다.
-                </p>
-                <div class="list-article-source">
-                    <strong>음악춘추</strong> | 대중음악
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도85%
-                    </span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 기사 3 -->
-        <a class="list-article" href="article_detail.html" data-date="2023-11-13" data-reliability="78">
-            <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="exhibition"/>
-            </div>
-            <div class="list-article-body">
-                <div class="list-article-tags">
-                    <span class="list-article-category">문화</span>
-                    <span class="list-article-date">2023.11.13</span>
-                </div>
-                <h3 class="list-article-title">국립현대미술관 기획전, 관람객 발길 이어져</h3>
-                <p class="list-article-desc">
-                    동시대 미술의 흐름을 조명하는 전시가
-                    개막과 동시에 큰 관심을 받고 있습니다.
-                </p>
-                <div class="list-article-source">
-                    <strong>아트인컬처</strong> | 미술
-                    <span class="reliability-badge reliability-medium">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도78%
-                    </span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 기사 4 -->
-        <a class="list-article" href="article_detail.html" data-date="2023-11-12" data-reliability="88">
-            <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1507676184212-d03ab07a01bf" alt="drama"/>
-            </div>
-            <div class="list-article-body">
-                <div class="list-article-tags">
-                    <span class="list-article-category">문화</span>
-                    <span class="list-article-date">2023.11.12</span>
-                </div>
-                <h3 class="list-article-title">신작 드라마 첫 방송, 화제성·시청률 동시 상승</h3>
-                <p class="list-article-desc">
-                    배우들의 열연과 탄탄한 스토리로
-                    첫 회부터 시청자들의 호평을 이끌어냈습니다.
-                </p>
-                <div class="list-article-source">
-                    <strong>방송연예뉴스</strong> | 드라마
-                    <span class="reliability-badge reliability-high">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도88%
-                    </span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 기사 5 -->
-        <a class="list-article" href="article_detail.html" data-date="2023-11-11" data-reliability="80">
-            <div class="list-article-image">
-                <img src="https://images.unsplash.com/photo-1497032205916-ac775f0649ae" alt="performance"/>
-            </div>
-            <div class="list-article-body">
-                <div class="list-article-tags">
-                    <span class="list-article-category">문화</span>
-                    <span class="list-article-date">2023.11.11</span>
-                </div>
-                <h3 class="list-article-title">연말 공연 성수기 돌입, 뮤지컬·연극 흥행 예고</h3>
-                <p class="list-article-desc">
-                    연말을 앞두고 다양한 공연이 무대에 오르며
-                    공연계 전반에 활기가 돌고 있습니다.
-                </p>
-                <div class="list-article-source">
-                    <strong>공연예술저널</strong> | 공연
-                    <span class="reliability-badge reliability-medium">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>신뢰도80%
-                    </span>
-                </div>
-            </div>
-        </a>
-
     </div>
 </section>
+
+
 
 
 <div class="pagination">
@@ -1329,14 +1223,232 @@ body.dark .pagination-btn.page:hover {
 </div>
 
 <div class="spacer"></div>
-
+</main>
 <script>
+// ========== 페이지 로드 시 실행 ==========
+$(document).ready(function() {
+    loadCategoryArticles('문화', 1);  // 문화 카테고리, 1페이지
+    initializeUI();
+});
+
+function initializeUI() {
+    toggleLoginState();
+    setActiveCategoryByURL();
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+}
+
+// ========== 백엔드에서 데이터 가져오기 ==========
+function loadCategoryArticles(categoryName, page = 1) {
+    const itemsPerPage = 9;  // 페이지당 9개 (카드 4 + 리스트 5)
+
+    $.ajax({
+        url: `/api/category/${encodeURIComponent(categoryName)}`,
+        type: 'GET',
+        data: {
+            size: itemsPerPage * 5,  // 5페이지분 데이터 (45개)
+            page: page
+        },
+        success: function(response) {
+            if (response.success) {
+                // 총 개수 표시
+                $('#articleCount').text(`총 ${response.total}건의 ${categoryName} 기사`);
+
+                // 현재 페이지에 해당하는 데이터만 추출
+                const startIdx = (page - 1) * itemsPerPage;
+                const endIdx = startIdx + itemsPerPage;
+                const pageArticles = response.articles.slice(startIdx, endIdx);
+
+                // 카드형 4개, 리스트형 5개
+                displayCardArticles(pageArticles.slice(0, 4));
+                displayListArticles(pageArticles.slice(4, 9));
+
+                // 페이지네이션 업데이트
+                updatePaginationUI(page);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('로드 실패:', error);
+            $('#articleCount').text('기사를 불러오는데 실패했습니다.');
+        }
+    });
+}
+
+// ========== 카드형 기사 렌더링 ==========
+function displayCardArticles(articles) {
+    const container = $('#articleGrid');
+    const template = $('.article-card-template');
+
+    // 기존 기사만 삭제 (템플릿 유지)
+    container.find('.article-card:not(.article-card-template)').remove();
+
+    articles.forEach(function(article) {
+        const card = template.clone();
+        card.removeClass('article-card-template');
+        card.css('display', '');
+        card.attr('href', `/article/${article.article_id}`);
+        card.attr('data-reliability', article.trustScore);
+
+        // 이미지
+        const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
+        card.find('.card-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 제목
+        card.find('.card-title').text(article.title);
+
+        // 본문 (100자)
+        const content = (article.content || '').substring(0, 100) + '...';
+        card.find('.card-description').text(content);
+
+        // 출처 & 날짜
+        const sourceText = `${article.source} • ${formatDate(article.upload_date)}`;
+        card.find('.card-source').text(sourceText);
+
+        // 신뢰도
+        const trust = Math.floor(article.trustScore / 100);
+        card.find('.card-trust').text(`신뢰도 ${trust}%`);
+
+
+        // 신뢰도 배지 색상
+        const reliabilityClass = getReliabilityClass(article.trustScore);
+        card.find('.reliability-badge').addClass(reliabilityClass);
+
+        container.append(card);
+    });
+}
+
+// ========== 리스트형 기사 렌더링 ==========
+function displayListArticles(articles) {
+    const container = $('#articleList');
+    const template = $('.list-article-template');
+
+    // 기존 기사만 삭제 (템플릿 유지)
+    container.find('.list-article:not(.list-article-template)').remove();
+
+    articles.forEach(function(article) {
+        const listItem = template.clone();
+        listItem.removeClass('list-article-template');
+        listItem.css('display', '');
+        listItem.attr('href', `/article/${article.article_id}`);
+        listItem.attr('data-date', article.upload_date);
+        listItem.attr('data-reliability', article.trustScore);
+
+        // 이미지
+        const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
+        listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 카테고리
+        // 기자 이름 (없으면 빈 값 처리)
+
+       listItem.find('.list-reporter').text(article.reporter);
+
+        // 언론사
+        listItem.find('.list-source').text(article.press);
+
+
+        // 날짜
+        listItem.find('.list-date').text(formatDateYMD(article.upload_date));
+
+        // 제목
+        listItem.find('.list-title-text').text(article.title);
+
+        // 본문
+        const content = (article.content || '').substring(0, 100) + '...';
+        listItem.find('.list-desc').text(content);
+
+        // 출처
+        listItem.find('.list-source').text(article.source);
+
+        // 신뢰도
+        const trust = Math.floor(article.trustScore / 100);
+        listItem.find('.list-trust').text(`신뢰도 ${trust}%`);
+
+
+        const reliabilityClass = getReliabilityClass(article.trustScore);
+        listItem.find('.reliability-badge').addClass(reliabilityClass);
+
+        container.append(listItem);
+    });
+}
+
+// ========== 정렬 기능 (리스트만) ==========
+function sortArticles(type) {
+    const container = document.getElementById('articleList');
+    const template = container.querySelector('.list-article-template');
+
+    // 템플릿을 제외한 기사들만 가져오기
+    const articles = Array.from(
+        container.querySelectorAll('.list-article:not(.list-article-template)')
+    );
+
+    articles.sort((a, b) => {
+        const dateA = new Date(a.dataset.date);
+        const dateB = new Date(b.dataset.date);
+        const relA = Number(a.dataset.reliability || 0);
+        const relB = Number(b.dataset.reliability || 0);
+
+        if (type === 'latest') return dateB - dateA;
+        if (type === 'oldest') return dateA - dateB;
+        if (type === 'reliability') return relB - relA;
+        return 0;
+    });
+
+    // 템플릿을 제외하고 다시 추가
+    container.innerHTML = '';
+    container.appendChild(template);  // 템플릿 먼저
+    articles.forEach(a => container.appendChild(a));  // 정렬된 기사들
+
+    // 버튼 활성화
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    const btnId = 'btn' + type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById(btnId).classList.add('active');
+}
+
+// ========== 페이지네이션 ==========
+function goToPage(pageNumber) {
+    loadCategoryArticles('문화', pageNumber);  // 데이터 다시 로드
+    updatePaginationUI(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // 맨 위로 스크롤
+}
+
+function updatePaginationUI(activePage) {
+    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.innerText) === activePage);
+    });
+}
+
+// ========== 유틸리티 함수들 ==========
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-high';
     if (score >= 60) return 'reliability-medium';
     return 'reliability-low';
 }
 
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return '방금 전';
+    if (hours < 24) return `${hours}시간 전`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}일 전`;
+
+    return date.toLocaleDateString('ko-KR');
+}
+
+function formatDateYMD(dateStr) {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+}
+
+// ========== 기타 UI 함수들 ==========
 function toggleLoginState() {
     const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
     const dropdownContent = document.getElementById('dropdownContent');
@@ -1384,7 +1496,8 @@ function toggleDarkMode() {
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
 }
 
-if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+if (localStorage.getItem('darkMode') === 'true' ||
+    (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.body.classList.add('dark');
 }
 
@@ -1428,55 +1541,93 @@ function performSearch() {
     const term = document.getElementById('searchInput').value.trim();
     const scope = document.getElementById('searchScope').value;
     if (term) {
-        location.href = `searchresult.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+    $(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+    initApp();
+});
+
+function initApp() {
+    // 로그인 여부 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
+
+    if (isLoggedIn) {
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
     }
 }
 
-function sortArticles(type) {
-    const container = document.getElementById('articleList');
-    const articles = Array.from(container.children);
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
 
-    articles.sort((a, b) => {
-        const dateA = new Date(a.dataset.date);
-        const dateB = new Date(b.dataset.date);
-        const relA = Number(a.dataset.reliability || 0);
-        const relB = Number(b.dataset.reliability || 0);
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
 
-        if (type === 'latest') return dateB - dateA;
-        if (type === 'oldest') return dateA - dateB;
-        if (type === 'reliability') return relB - relA;
-    });
-
-    container.innerHTML = '';
-    articles.forEach(a => container.appendChild(a));
-
-    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-}
-
-function goToPage(pageNumber) {
-    const url = new URL(location.href);
-    url.searchParams.set('page', pageNumber);
-    history.pushState({}, '', url);
-    updatePaginationUI(pageNumber);
-}
-
-function updatePaginationUI(activePage) {
-    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
-        btn.classList.toggle('active', Number(btn.innerText) === activePage);
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+            }
+        },
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();
+// 드롭다운 부분
+function renderUserMenu(isLoggedIn, userName = "회원") {
 
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
 
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-});
+    if (isLoggedIn) {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                      const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
 </script>
 
 </body>
