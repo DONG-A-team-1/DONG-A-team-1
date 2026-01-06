@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette Admin - 관리자 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+:root {
+    --primary: #3B82F6;
+    --primary-hover: #2563EB;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --success: #10B981;
+    --success-bg: #D1FAE5;
+    --warning: #F59E0B;
+    --warning-bg: #FEF3C7;
+    --error: #EF4444;
+    --error-bg: #FEE2E2;
+    --info: #3B82F6;
+    --info-bg: #DBEAFE;
+    --sidebar-width: 260px;
+    --header-height: 64px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Layout */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--surface-light);
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease, background-color 0.2s, border-color 0.2s;
+}
+
+body.dark .sidebar {
+    background: var(--surface-dark);
+    border-right-color: var(--gray-700);
+}
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+body.dark .sidebar-header {
+    border-bottom-color: var(--gray-700);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.sidebar-logo-icon {
+    color: var(--primary);
+    font-size: 1.75rem;
+}
+
+.sidebar-logo-text {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--primary);
+}
+
+.sidebar-badge {
+    background: linear-gradient(135deg, var(--primary), #8B5CF6);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+}
+
+body.dark .nav-section-title {
+    color: var(--gray-500);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--gray-600);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+body.dark .nav-item {
+    color: var(--gray-400);
+}
+
+.nav-item:hover {
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+body.dark .nav-item:hover {
+    background: var(--gray-800);
+    color: var(--gray-100);
+}
+
+.nav-item.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    border-right: 3px solid var(--primary);
+}
+
+body.dark .nav-item.active {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.nav-item .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+.nav-item-badge {
+    margin-left: auto;
+    background: var(--error);
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    min-width: 1.25rem;
+    text-align: center;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+body.dark .sidebar-footer {
+    border-top-color: var(--gray-700);
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark .sidebar-user-name {
+    color: var(--gray-100);
+}
+
+.sidebar-user-role {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-height);
+    background: var(--surface-light);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+body.dark .admin-header {
+    background: var(--surface-dark);
+    border-bottom-color: var(--gray-700);
+}
+
+.header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+body.dark .header-title {
+    color: var(--gray-100);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+body.dark .icon-btn:hover {
+    background: var(--gray-800);
+    color: var(--gray-300);
+}
+
+/* Page Content */
+.page-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.page-section {
+    display: none;
+}
+
+.page-section.active {
+    display: block;
+}
+
+/* Cards */
+.card {
+    background: var(--surface-light);
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+body.dark .card {
+    background: var(--surface-dark);
+    border-color: var(--gray-700);
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+body.dark .card-header {
+    border-bottom-color: var(--gray-700);
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark .card-title {
+    color: var(--gray-100);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: var(--surface-light);
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+body.dark .stat-card {
+    background: var(--surface-dark);
+    border-color: var(--gray-700);
+}
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon.blue { background: var(--info-bg); color: var(--info); }
+.stat-icon.green { background: var(--success-bg); color: var(--success); }
+.stat-icon.yellow { background: var(--warning-bg); color: var(--warning); }
+.stat-icon.red { background: var(--error-bg); color: var(--error); }
+
+body.dark .stat-icon.blue { background: rgba(59, 130, 246, 0.2); }
+body.dark .stat-icon.green { background: rgba(16, 185, 129, 0.2); }
+body.dark .stat-icon.yellow { background: rgba(245, 158, 11, 0.2); }
+body.dark .stat-icon.red { background: rgba(239, 68, 68, 0.2); }
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+body.dark .stat-value {
+    color: var(--gray-100);
+}
+
+.stat-change {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.stat-change.up { color: var(--success); }
+.stat-change.down { color: var(--error); }
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+body.dark .filter-label {
+    color: var(--gray-400);
+}
+
+.filter-select {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    background: var(--surface-light);
+    color: var(--gray-700);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+}
+
+body.dark .filter-select {
+    background-color: var(--gray-800);
+    border-color: var(--gray-600);
+    color: var(--gray-300);
+}
+
+.filter-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    background: var(--surface-light);
+    color: var(--gray-700);
+    min-width: 200px;
+}
+
+body.dark .filter-input {
+    background-color: var(--gray-800);
+    border-color: var(--gray-600);
+    color: var(--gray-300);
+}
+
+.filter-input::placeholder {
+    color: var(--gray-400);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+}
+
+body.dark .btn-secondary {
+    background: var(--gray-800);
+    color: var(--gray-300);
+    border-color: var(--gray-600);
+}
+
+.btn-secondary:hover {
+    background: var(--gray-200);
+}
+
+body.dark .btn-secondary:hover {
+    background: var(--gray-700);
+}
+
+.btn-danger {
+    background: var(--error);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #DC2626;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+}
+
+.btn .material-symbols-outlined {
+    font-size: 1rem;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+body.dark .data-table th,
+body.dark .data-table td {
+    border-bottom-color: var(--gray-700);
+}
+
+.data-table th {
+    font-weight: 600;
+    color: var(--gray-500);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--gray-50);
+}
+
+body.dark .data-table th {
+    background: rgba(55, 65, 81, 0.3);
+    color: var(--gray-400);
+}
+
+.data-table tr:hover td {
+    background: var(--gray-50);
+}
+
+body.dark .data-table tr:hover td {
+    background: rgba(55, 65, 81, 0.3);
+}
+
+.data-table td {
+    color: var(--gray-700);
+}
+
+body.dark .data-table td {
+    color: var(--gray-300);
+}
+
+/* Log Badges */
+.log-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.log-badge.error {
+    background: var(--error-bg);
+    color: #991B1B;
+}
+
+.log-badge.warning {
+    background: var(--warning-bg);
+    color: #92400E;
+}
+
+.log-badge.info {
+    background: var(--info-bg);
+    color: #1E40AF;
+}
+
+.log-badge.success {
+    background: var(--success-bg);
+    color: #065F46;
+}
+
+body.dark .log-badge.error { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+body.dark .log-badge.warning { background: rgba(245,158,11,0.2); color: #FCD34D; }
+body.dark .log-badge.info { background: rgba(59,130,246,0.2); color: #93C5FD; }
+body.dark .log-badge.success { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-badge.active { background: var(--success-bg); color: #065F46; }
+.status-badge.active::before { background: var(--success); }
+
+.status-badge.inactive { background: var(--gray-100); color: var(--gray-600); }
+.status-badge.inactive::before { background: var(--gray-400); }
+
+.status-badge.suspended { background: var(--error-bg); color: #991B1B; }
+.status-badge.suspended::before { background: var(--error); }
+
+body.dark .status-badge.active { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+body.dark .status-badge.inactive { background: rgba(107,114,128,0.2); color: var(--gray-400); }
+body.dark .status-badge.suspended { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+
+/* Label Chips */
+.label-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.label-chip {
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.label-chip.society { background: #DBEAFE; color: #1E40AF; }
+.label-chip.politics { background: #FEE2E2; color: #991B1B; }
+.label-chip.world { background: #D1FAE5; color: #065F46; }
+.label-chip.culture { background: #EDE9FE; color: #5B21B6; }
+.label-chip.sports { background: #DCFCE7; color: #166534; }
+.label-chip.economy { background: #FEF3C7; color: #92400E; }
+
+body.dark .label-chip.society { background: rgba(59,130,246,0.2); color: #93C5FD; }
+body.dark .label-chip.politics { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+body.dark .label-chip.world { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+body.dark .label-chip.culture { background: rgba(139,92,246,0.2); color: #C4B5FD; }
+body.dark .label-chip.sports { background: rgba(34,197,94,0.2); color: #86EFAC; }
+body.dark .label-chip.economy { background: rgba(245,158,11,0.2); color: #FCD34D; }
+
+/* Actions */
+.action-btns {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.action-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+body.dark .action-btn:hover {
+    background: var(--gray-700);
+    color: var(--gray-300);
+}
+
+.action-btn.delete:hover {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.action-btn .material-symbols-outlined {
+    font-size: 1.125rem;
+}
+
+/* User Avatar in Table */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    flex-shrink: 0;
+}
+
+.user-details {
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark .user-name {
+    color: var(--gray-100);
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* Log Message */
+.log-message {
+    font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+    font-size: 0.8125rem;
+    color: var(--gray-700);
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark .log-message {
+    color: var(--gray-300);
+}
+
+/* Article Title in Table */
+.article-title-cell {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+/* Pagination */
+.table-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+body.dark .table-footer {
+    border-top-color: var(--gray-700);
+}
+
+.table-info {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.page-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: transparent;
+    color: var(--gray-600);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.page-btn:hover {
+    background: var(--gray-100);
+}
+
+body.dark .page-btn {
+    color: var(--gray-400);
+}
+
+body.dark .page-btn:hover {
+    background: var(--gray-800);
+}
+
+.page-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.page-btn.active:hover {
+    background: var(--primary-hover);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: var(--surface-light);
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 32rem;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+body.dark .modal {
+    background: var(--surface-dark);
+}
+
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+body.dark .modal-header {
+    border-bottom-color: var(--gray-700);
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+body.dark .modal-title {
+    color: var(--gray-100);
+}
+
+.modal-close {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: var(--gray-100);
+}
+
+body.dark .modal-close:hover {
+    background: var(--gray-800);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+body.dark .modal-footer {
+    border-top-color: var(--gray-700);
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+body.dark .form-label {
+    color: var(--gray-300);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: var(--surface-light);
+    color: var(--gray-900);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+body.dark .form-input,
+body.dark .form-select,
+body.dark .form-textarea {
+    background: var(--gray-800);
+    border-color: var(--gray-600);
+    color: var(--gray-100);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.form-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.form-checkbox-item input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--primary);
+}
+
+.form-checkbox-label {
+    font-size: 0.875rem;
+    color: var(--gray-700);
+}
+
+body.dark .form-checkbox-label {
+    color: var(--gray-300);
+}
+
+/* Activity Timeline */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--gray-50);
+}
+
+body.dark .activity-item {
+    background: rgba(55,65,81,0.3);
+}
+
+.activity-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activity-icon.login { background: var(--info-bg); color: var(--info); }
+.activity-icon.view { background: var(--success-bg); color: var(--success); }
+.activity-icon.action { background: var(--warning-bg); color: var(--warning); }
+
+body.dark .activity-icon.login { background: rgba(59,130,246,0.2); }
+body.dark .activity-icon.view { background: rgba(16,185,129,0.2); }
+body.dark .activity-icon.action { background: rgba(245,158,11,0.2); }
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+body.dark .activity-title {
+    color: var(--gray-100);
+}
+
+.activity-desc {
+    font-size: 0.8125rem;
+    color: var(--gray-600);
+}
+
+body.dark .activity-desc {
+    color: var(--gray-400);
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+.menu-toggle {
+    display: none;
+}
+
+/* Toast Notification */
+.toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--surface-light);
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: slideIn 0.3s ease;
+}
+
+body.dark .toast {
+    background: var(--surface-dark);
+    border-color: var(--gray-700);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast.success .toast-icon { color: var(--success); }
+.toast.error .toast-icon { color: var(--error); }
+.toast.warning .toast-icon { color: var(--warning); }
+.toast.info .toast-icon { color: var(--info); }
+
+.toast-message {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+body.dark .toast-message {
+    color: var(--gray-300);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--gray-300);
+    margin-bottom: 1rem;
+}
+
+body.dark .empty-icon {
+    color: var(--gray-600);
+}
+
+.empty-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+body.dark .empty-title {
+    color: var(--gray-300);
+}
+
+.empty-desc {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-logo" href="home.html">
+                <span class="material-symbols-outlined sidebar-logo-icon">palette</span>
+                <span class="sidebar-logo-text">NewsPalette</span>
+            </a>
+            <span class="sidebar-badge">Admin</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">대시보드</div>
+                <button class="nav-item active" data-page="dashboard">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>개요</span>
+                </button>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">모니터링</div>
+                <button class="nav-item" data-page="logs">
+                    <span class="material-symbols-outlined">terminal</span>
+                    <span>시스템 로그</span>
+                    <span class="nav-item-badge" id="errorCount">3</span>
+                </button>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">관리</div>
+                <button class="nav-item" data-page="users">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>사용자 관리</span>
+                </button>
+                <button class="nav-item" data-page="articles">
+                    <span class="material-symbols-outlined">article</span>
+                    <span>기사 관리</span>
+                </button>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">설정</div>
+                <button class="nav-item" data-page="settings">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>시스템 설정</span>
+                </button>
+            </div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">관</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">관리자</div>
+                    <div class="sidebar-user-role">Super Admin</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="admin-header">
+            <button class="icon-btn menu-toggle" onclick="toggleSidebar()">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h1 class="header-title" id="pageTitle">대시보드 개요</h1>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleDarkMode()">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+            </div>
+        </header>
+        
+        <main class="page-content">
+            <!-- Dashboard Page -->
+            <section class="page-section active" id="page-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <span class="material-symbols-outlined">group</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">총 사용자</div>
+                            <div class="stat-value">12,847</div>
+                            <div class="stat-change up">↑ 12% 이번 달</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <span class="material-symbols-outlined">article</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">총 기사</div>
+                            <div class="stat-value">45,231</div>
+                            <div class="stat-change up">↑ 8% 이번 달</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">오늘 조회수</div>
+                            <div class="stat-value">24,521</div>
+                            <div class="stat-change up">↑ 5% 어제 대비</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <span class="material-symbols-outlined">error</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">오류 발생</div>
+                            <div class="stat-value">3</div>
+                            <div class="stat-change down">↓ 2 어제 대비</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">history</span>
+                            최근 활동
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon login">
+                                    <span class="material-symbols-outlined">login</span>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">새 사용자 가입</div>
+                                    <div class="activity-desc">user1234@email.com 님이 가입했습니다.</div>
+                                </div>
+                                <div class="activity-time">5분 전</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon action">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">기사 라벨 수정</div>
+                                    <div class="activity-desc">"북한, 동해상으로 탄도미사일 발사" 기사 라벨이 수정되었습니다.</div>
+                                </div>
+                                <div class="activity-time">12분 전</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon view">
+                                    <span class="material-symbols-outlined">trending_up</span>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">트래픽 증가</div>
+                                    <div class="activity-desc">사회/경제 카테고리 조회수가 평소 대비 150% 증가했습니다.</div>
+                                </div>
+                                <div class="activity-time">1시간 전</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Logs Page -->
+            <section class="page-section" id="page-logs">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">terminal</span>
+                            시스템 로그
+                        </h2>
+                        <div class="filter-bar">
+                            <div class="filter-group">
+                                <label class="filter-label">유형:</label>
+                                <select class="filter-select" id="logTypeFilter" onchange="filterLogs()">
+                                    <option value="all">전체</option>
+                                    <option value="error">오류</option>
+                                    <option value="warning">경고</option>
+                                    <option value="info">정보</option>
+                                    <option value="success">성공</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label class="filter-label">기간:</label>
+                                <select class="filter-select" id="logPeriodFilter" onchange="filterLogs()">
+                                    <option value="today">오늘</option>
+                                    <option value="week">이번 주</option>
+                                    <option value="month">이번 달</option>
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <input type="text" class="filter-input" placeholder="로그 검색..." id="logSearchInput" oninput="filterLogs()">
+                            <button class="btn btn-secondary" onclick="refreshLogs()">
+                                <span class="material-symbols-outlined">refresh</span>
+                                새로고침
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>시간</th>
+                                    <th>유형</th>
+                                    <th>소스</th>
+                                    <th>메시지</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-info">총 <strong id="logsTotalCount">0</strong>개의 로그</div>
+                        <div class="pagination" id="logsPagination">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Users Page -->
+            <section class="page-section" id="page-users">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">group</span>
+                            사용자 관리
+                        </h2>
+                        <div class="filter-bar">
+                            <div class="filter-group">
+                                <label class="filter-label">상태:</label>
+                                <select class="filter-select" id="userStatusFilter" onchange="filterUsers()">
+                                    <option value="all">전체</option>
+                                    <option value="active">활성</option>
+                                    <option value="inactive">비활성</option>
+                                    <option value="suspended">정지</option>
+                                </select>
+                            </div>
+                            <input type="text" class="filter-input" placeholder="이름 또는 이메일 검색..." id="userSearchInput" oninput="filterUsers()">
+                            <button class="btn btn-primary">
+                                <span class="material-symbols-outlined">person_add</span>
+                                사용자 추가
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>사용자</th>
+                                    <th>가입일</th>
+                                    <th>마지막 활동</th>
+                                    <th>상태</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-info">총 <strong id="usersTotalCount">0</strong>명의 사용자</div>
+                        <div class="pagination" id="usersPagination">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Articles Page -->
+            <section class="page-section" id="page-articles">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">article</span>
+                            기사 관리
+                        </h2>
+                        <div class="filter-bar">
+                            <div class="filter-group">
+                                <label class="filter-label">카테고리:</label>
+                                <select class="filter-select" id="articleCategoryFilter" onchange="filterArticles()">
+                                    <option value="all">전체</option>
+                                    <option value="society">사회/경제</option>
+                                    <option value="politics">정치</option>
+                                    <option value="world">국제</option>
+                                    <option value="culture">문화</option>
+                                    <option value="sports">스포츠</option>
+                                </select>
+                            </div>
+                            <input type="text" class="filter-input" placeholder="기사 제목 검색..." id="articleSearchInput" oninput="filterArticles()">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="articlesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>제목</th>
+                                    <th>카테고리</th>
+                                    <th>라벨</th>
+                                    <th>등록일</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="articlesTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-info">총 <strong id="articlesTotalCount">0</strong>개의 기사</div>
+                        <div class="pagination" id="articlesPagination">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Settings Page -->
+            <section class="page-section" id="page-settings">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">settings</span>
+                            시스템 설정
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined empty-icon">construction</span>
+                            <div class="empty-title">준비 중</div>
+                            <div class="empty-desc">시스템 설정 페이지는 현재 개발 중입니다.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- User Edit Modal -->
+<div class="modal-overlay" id="userEditModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">사용자 정보 수정</h3>
+            <button class="modal-close" onclick="closeModal('userEditModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">이름</label>
+                <input type="text" class="form-input" id="editUserName" placeholder="사용자 이름">
+            </div>
+            <div class="form-group">
+                <label class="form-label">이메일</label>
+                <input type="email" class="form-input" id="editUserEmail" placeholder="이메일 주소">
+            </div>
+            <div class="form-group">
+                <label class="form-label">상태</label>
+                <select class="form-select" id="editUserStatus">
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
+                    <option value="suspended">정지</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('userEditModal')">취소</button>
+            <button class="btn btn-primary" onclick="saveUserEdit()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- User Activity Modal -->
+<div class="modal-overlay" id="userActivityModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">사용자 활동 내역</h3>
+            <button class="modal-close" onclick="closeModal('userActivityModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="activity-list" id="userActivityList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('userActivityModal')">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Article Edit Modal -->
+<div class="modal-overlay" id="articleEditModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">기사 정보 수정</h3>
+            <button class="modal-close" onclick="closeModal('articleEditModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">기사 제목</label>
+                <input type="text" class="form-input" id="editArticleTitle" placeholder="기사 제목">
+            </div>
+            <div class="form-group">
+                <label class="form-label">카테고리</label>
+                <select class="form-select" id="editArticleCategory">
+                    <option value="society">사회/경제</option>
+                    <option value="politics">정치</option>
+                    <option value="world">국제</option>
+                    <option value="culture">문화</option>
+                    <option value="sports">스포츠</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">라벨</label>
+                <div class="form-checkbox-group">
+                    <label class="form-checkbox-item">
+                        <input type="checkbox" id="labelPositive" value="positive">
+                        <span class="form-checkbox-label">긍정</span>
+                    </label>
+                    <label class="form-checkbox-item">
+                        <input type="checkbox" id="labelNegative" value="negative">
+                        <span class="form-checkbox-label">부정</span>
+                    </label>
+                    <label class="form-checkbox-item">
+                        <input type="checkbox" id="labelNeutral" value="neutral">
+                        <span class="form-checkbox-label">중립</span>
+                    </label>
+                    <label class="form-checkbox-item">
+                        <input type="checkbox" id="labelBreaking" value="breaking">
+                        <span class="form-checkbox-label">속보</span>
+                    </label>
+                    <label class="form-checkbox-item">
+                        <input type="checkbox" id="labelExclusive" value="exclusive">
+                        <span class="form-checkbox-label">단독</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('articleEditModal')">취소</button>
+            <button class="btn btn-primary" onclick="saveArticleEdit()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal" style="max-width: 24rem;">
+        <div class="modal-header">
+            <h3 class="modal-title">삭제 확인</h3>
+            <button class="modal-close" onclick="closeModal('deleteConfirmModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="deleteConfirmMessage">정말로 이 항목을 삭제하시겠습니까?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">취소</button>
+            <button class="btn btn-danger" id="confirmDeleteBtn">삭제</button>
+        </div>
+    </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal-overlay" id="logDetailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">로그 상세</h3>
+            <button class="modal-close" onclick="closeModal('logDetailModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">시간</label>
+                <div id="logDetailTime" style="color: var(--gray-600);"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">유형</label>
+                <div id="logDetailType"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">소스</label>
+                <div id="logDetailSource" style="color: var(--gray-600);"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">메시지</label>
+                <div id="logDetailMessage" class="log-message" style="white-space: pre-wrap; max-width: 100%;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">스택 트레이스</label>
+                <pre id="logDetailStack" style="background: var(--gray-100); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; overflow-x: auto; color: var(--gray-700);"></pre>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('logDetailModal')">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// Sample Data
+const logsData = [
+    { id: 1, time: '2026-01-06 14:32:15', type: 'error', source: 'API Server', message: 'Database connection timeout after 30s', stack: 'Error: Connection timeout\n  at DBClient.connect (/app/db.js:45)\n  at async Server.start (/app/server.js:12)' },
+    { id: 2, time: '2026-01-06 14:30:42', type: 'warning', source: 'Auth Service', message: 'Multiple failed login attempts from IP 192.168.1.100', stack: '' },
+    { id: 3, time: '2026-01-06 14:28:11', type: 'info', source: 'Scheduler', message: 'Daily article cleanup job started', stack: '' },
+    { id: 4, time: '2026-01-06 14:25:33', type: 'success', source: 'API Server', message: 'Successfully synced 150 articles from external source', stack: '' },
+    { id: 5, time: '2026-01-06 14:20:18', type: 'error', source: 'ML Pipeline', message: 'Failed to classify article: model not loaded', stack: 'ModelError: Model file not found\n  at Classifier.load (/app/ml/classifier.js:23)' },
+    { id: 6, time: '2026-01-06 14:15:05', type: 'info', source: 'Cache', message: 'Cache invalidated for category: politics', stack: '' },
+    { id: 7, time: '2026-01-06 14:10:22', type: 'success', source: 'User Service', message: 'New user registration: user5678@email.com', stack: '' },
+    { id: 8, time: '2026-01-06 14:05:44', type: 'warning', source: 'Storage', message: 'Storage usage at 85% capacity', stack: '' },
+    { id: 9, time: '2026-01-06 14:00:01', type: 'info', source: 'Scheduler', message: 'Hourly analytics aggregation completed', stack: '' },
+    { id: 10, time: '2026-01-06 13:55:30', type: 'error', source: 'Email Service', message: 'Failed to send notification email: SMTP connection refused', stack: 'SMTPError: Connection refused\n  at Mailer.send (/app/mail.js:89)' },
+];
+
+const usersData = [
+    { id: 1, name: '김민준', email: 'minjun.kim@email.com', joinDate: '2025-12-15', lastActive: '2026-01-06 14:30', status: 'active' },
+    { id: 2, name: '이서윤', email: 'seoyun.lee@email.com', joinDate: '2025-11-20', lastActive: '2026-01-06 12:15', status: 'active' },
+    { id: 3, name: '박지훈', email: 'jihoon.park@email.com', joinDate: '2025-10-05', lastActive: '2026-01-05 18:45', status: 'active' },
+    { id: 4, name: '정수현', email: 'suhyun.jung@email.com', joinDate: '2025-09-12', lastActive: '2025-12-28 09:30', status: 'inactive' },
+    { id: 5, name: '최예린', email: 'yerin.choi@email.com', joinDate: '2025-08-25', lastActive: '2025-11-15 14:20', status: 'suspended' },
+    { id: 6, name: '강도현', email: 'dohyun.kang@email.com', joinDate: '2025-12-01', lastActive: '2026-01-06 13:55', status: 'active' },
+    { id: 7, name: '윤하은', email: 'haeun.yoon@email.com', joinDate: '2025-11-10', lastActive: '2026-01-06 11:00', status: 'active' },
+    { id: 8, name: '임시우', email: 'siwoo.lim@email.com', joinDate: '2025-10-18', lastActive: '2026-01-04 16:30', status: 'active' },
+];
+
+const articlesData = [
+    { id: 'A001', title: '마두로 베네수엘라 대통령 체포', category: 'world', labels: ['breaking', 'negative'], date: '2026-01-06' },
+    { id: 'A002', title: '이재명 대통령, 시진핑과 정상회담', category: 'politics', labels: ['neutral'], date: '2026-01-06' },
+    { id: 'A003', title: '북한, 동해상으로 탄도미사일 발사', category: 'politics', labels: ['breaking', 'negative'], date: '2026-01-06' },
+    { id: 'A004', title: '삼성전자, 2분기 실적 발표...영업이익 50% 증가', category: 'society', labels: ['positive'], date: '2026-01-05' },
+    { id: 'A005', title: '차준환, 3연속 올림픽 출전권 획득', category: 'sports', labels: ['positive', 'exclusive'], date: '2026-01-05' },
+    { id: 'A006', title: '에코프로, 기술 리더십 강화로 글로벌 시장 재도전', category: 'society', labels: ['positive'], date: '2026-01-05' },
+    { id: 'A007', title: '임재범, 40주년 투어 후 은퇴 선언', category: 'culture', labels: ['neutral'], date: '2026-01-05' },
+    { id: 'A008', title: '기후변화로 인한 해수면 상승 가속화', category: 'world', labels: ['negative'], date: '2026-01-04' },
+];
+
+const userActivities = [
+    { type: 'login', title: '로그인', desc: 'Chrome / Windows에서 로그인', time: '오늘 14:30' },
+    { type: 'view', title: '기사 조회', desc: '"마두로 베네수엘라 대통령 체포" 기사 조회', time: '오늘 14:25' },
+    { type: 'view', title: '기사 조회', desc: '"이재명 대통령, 시진핑과 정상회담" 기사 조회', time: '오늘 14:20' },
+    { type: 'action', title: '댓글 작성', desc: '기사에 댓글을 작성했습니다.', time: '오늘 14:18' },
+    { type: 'login', title: '로그인', desc: 'Safari / macOS에서 로그인', time: '어제 18:45' },
+    { type: 'view', title: '기사 조회', desc: '"차준환, 3연속 올림픽 출전권 획득" 기사 조회', time: '어제 18:40' },
+];
+
+// State
+let currentEditUserId = null;
+let currentEditArticleId = null;
+let deleteCallback = null;
+let filteredLogs = [...logsData];
+let filteredUsers = [...usersData];
+let filteredArticles = [...articlesData];
+
+// Page Titles
+const pageTitles = {
+    dashboard: '대시보드 개요',
+    logs: '시스템 로그',
+    users: '사용자 관리',
+    articles: '기사 관리',
+    settings: '시스템 설정'
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initDarkMode();
+    initNavigation();
+    renderLogs();
+    renderUsers();
+    renderArticles();
+    updateErrorCount();
+});
+
+// Dark Mode
+function initDarkMode() {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark');
+    }
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+// Sidebar
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Navigation
+function initNavigation() {
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+            navigateTo(page);
+        });
+    });
+}
+
+function navigateTo(page) {
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    
+    // Update page sections
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(`page-${page}`).classList.add('active');
+    
+    // Update title
+    document.getElementById('pageTitle').textContent = pageTitles[page];
+    
+    // Close sidebar on mobile
+    document.getElementById('sidebar').classList.remove('open');
+}
+
+// Logs
+function renderLogs() {
+    const tbody = document.getElementById('logsTableBody');
+    tbody.innerHTML = filteredLogs.map(log => `
+        <tr>
+            <td>${log.time}</td>
+            <td><span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span></td>
+            <td>${log.source}</td>
+            <td><span class="log-message">${escapeHtml(log.message)}</span></td>
+            <td>
+                <div class="action-btns">
+                    <button class="action-btn" onclick="viewLogDetail(${log.id})" title="상세 보기">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    document.getElementById('logsTotalCount').textContent = filteredLogs.length;
+    renderPagination('logsPagination', filteredLogs.length);
+}
+
+function getLogTypeLabel(type) {
+    const labels = { error: '오류', warning: '경고', info: '정보', success: '성공' };
+    return labels[type] || type;
+}
+
+function filterLogs() {
+    const type = document.getElementById('logTypeFilter').value;
+    const search = document.getElementById('logSearchInput').value.toLowerCase();
+    
+    filteredLogs = logsData.filter(log => {
+        const matchesType = type === 'all' || log.type === type;
+        const matchesSearch = log.message.toLowerCase().includes(search) || log.source.toLowerCase().includes(search);
+        return matchesType && matchesSearch;
+    });
+    
+    renderLogs();
+}
+
+function refreshLogs() {
+    showToast('로그를 새로고침했습니다.', 'info');
+    renderLogs();
+}
+
+function viewLogDetail(logId) {
+    const log = logsData.find(l => l.id === logId);
+    if (!log) return;
+    
+    document.getElementById('logDetailTime').textContent = log.time;
+    document.getElementById('logDetailType').innerHTML = `<span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span>`;
+    document.getElementById('logDetailSource').textContent = log.source;
+    document.getElementById('logDetailMessage').textContent = log.message;
+    document.getElementById('logDetailStack').textContent = log.stack || '스택 트레이스 없음';
+    
+    openModal('logDetailModal');
+}
+
+function updateErrorCount() {
+    const errorCount = logsData.filter(l => l.type === 'error').length;
+    document.getElementById('errorCount').textContent = errorCount;
+}
+
+// Users
+function renderUsers() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = filteredUsers.map(user => `
+        <tr>
+            <td>
+                <div class="user-cell">
+                    <div class="user-avatar">${user.name.charAt(0)}</div>
+                    <div class="user-details">
+                        <div class="user-name">${escapeHtml(user.name)}</div>
+                        <div class="user-email">${escapeHtml(user.email)}</div>
+                    </div>
+                </div>
+            </td>
+            <td>${user.joinDate}</td>
+            <td>${user.lastActive}</td>
+            <td><span class="status-badge ${user.status}">${getStatusLabel(user.status)}</span></td>
+            <td>
+                <div class="action-btns">
+                    <button class="action-btn" onclick="viewUserActivity(${user.id})" title="활동 내역">
+                        <span class="material-symbols-outlined">history</span>
+                    </button>
+                    <button class="action-btn" onclick="editUser(${user.id})" title="수정">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="action-btn delete" onclick="confirmDeleteUser(${user.id})" title="삭제">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    document.getElementById('usersTotalCount').textContent = filteredUsers.length;
+    renderPagination('usersPagination', filteredUsers.length);
+}
+
+function getStatusLabel(status) {
+    const labels = { active: '활성', inactive: '비활성', suspended: '정지' };
+    return labels[status] || status;
+}
+
+function filterUsers() {
+    const status = document.getElementById('userStatusFilter').value;
+    const search = document.getElementById('userSearchInput').value.toLowerCase();
+    
+    filteredUsers = usersData.filter(user => {
+        const matchesStatus = status === 'all' || user.status === status;
+        const matchesSearch = user.name.toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
+        return matchesStatus && matchesSearch;
+    });
+    
+    renderUsers();
+}
+
+function editUser(userId) {
+    const user = usersData.find(u => u.id === userId);
+    if (!user) return;
+    
+    currentEditUserId = userId;
+    document.getElementById('editUserName').value = user.name;
+    document.getElementById('editUserEmail').value = user.email;
+    document.getElementById('editUserStatus').value = user.status;
+    
+    openModal('userEditModal');
+}
+
+function saveUserEdit() {
+    const user = usersData.find(u => u.id === currentEditUserId);
+    if (!user) return;
+    
+    user.name = document.getElementById('editUserName').value;
+    user.email = document.getElementById('editUserEmail').value;
+    user.status = document.getElementById('editUserStatus').value;
+    
+    filterUsers();
+    closeModal('userEditModal');
+    showToast('사용자 정보가 수정되었습니다.', 'success');
+}
+
+function viewUserActivity(userId) {
+    const list = document.getElementById('userActivityList');
+    list.innerHTML = userActivities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon ${activity.type}">
+                <span class="material-symbols-outlined">${getActivityIcon(activity.type)}</span>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${escapeHtml(activity.title)}</div>
+                <div class="activity-desc">${escapeHtml(activity.desc)}</div>
+            </div>
+            <div class="activity-time">${activity.time}</div>
+        </div>
+    `).join('');
+    
+    openModal('userActivityModal');
+}
+
+function getActivityIcon(type) {
+    const icons = { login: 'login', view: 'visibility', action: 'edit' };
+    return icons[type] || 'info';
+}
+
+function confirmDeleteUser(userId) {
+    const user = usersData.find(u => u.id === userId);
+    if (!user) return;
+    
+    document.getElementById('deleteConfirmMessage').textContent = `"${user.name}" 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    deleteCallback = () => {
+        const index = usersData.findIndex(u => u.id === userId);
+        if (index > -1) {
+            usersData.splice(index, 1);
+            filterUsers();
+            showToast('사용자가 삭제되었습니다.', 'success');
+        }
+        closeModal('deleteConfirmModal');
+    };
+    document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
+    
+    openModal('deleteConfirmModal');
+}
+
+// Articles
+function renderArticles() {
+    const tbody = document.getElementById('articlesTableBody');
+    tbody.innerHTML = filteredArticles.map(article => `
+        <tr>
+            <td>${article.id}</td>
+            <td><span class="article-title-cell">${escapeHtml(article.title)}</span></td>
+            <td><span class="label-chip ${article.category}">${getCategoryLabel(article.category)}</span></td>
+            <td>
+                <div class="label-chips">
+                    ${article.labels.map(label => `<span class="label-chip ${getLabelClass(label)}">${getLabelText(label)}</span>`).join('')}
+                </div>
+            </td>
+            <td>${article.date}</td>
+            <td>
+                <div class="action-btns">
+                    <button class="action-btn" onclick="editArticle('${article.id}')" title="수정">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="action-btn delete" onclick="confirmDeleteArticle('${article.id}')" title="삭제">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    document.getElementById('articlesTotalCount').textContent = filteredArticles.length;
+    renderPagination('articlesPagination', filteredArticles.length);
+}
+
+function getCategoryLabel(category) {
+    const labels = { society: '사회/경제', politics: '정치', world: '국제', culture: '문화', sports: '스포츠' };
+    return labels[category] || category;
+}
+
+function getLabelClass(label) {
+    const classes = { positive: 'sports', negative: 'politics', neutral: 'society', breaking: 'economy', exclusive: 'culture' };
+    return classes[label] || 'society';
+}
+
+function getLabelText(label) {
+    const texts = { positive: '긍정', negative: '부정', neutral: '중립', breaking: '속보', exclusive: '단독' };
+    return texts[label] || label;
+}
+
+function filterArticles() {
+    const category = document.getElementById('articleCategoryFilter').value;
+    const search = document.getElementById('articleSearchInput').value.toLowerCase();
+    
+    filteredArticles = articlesData.filter(article => {
+        const matchesCategory = category === 'all' || article.category === category;
+        const matchesSearch = article.title.toLowerCase().includes(search);
+        return matchesCategory && matchesSearch;
+    });
+    
+    renderArticles();
+}
+
+function editArticle(articleId) {
+    const article = articlesData.find(a => a.id === articleId);
+    if (!article) return;
+    
+    currentEditArticleId = articleId;
+    document.getElementById('editArticleTitle').value = article.title;
+    document.getElementById('editArticleCategory').value = article.category;
+    
+    // Reset checkboxes
+    document.querySelectorAll('#articleEditModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+    article.labels.forEach(label => {
+        const cb = document.getElementById('label' + label.charAt(0).toUpperCase() + label.slice(1));
+        if (cb) cb.checked = true;
+    });
+    
+    openModal('articleEditModal');
+}
+
+function saveArticleEdit() {
+    const article = articlesData.find(a => a.id === currentEditArticleId);
+    if (!article) return;
+    
+    article.title = document.getElementById('editArticleTitle').value;
+    article.category = document.getElementById('editArticleCategory').value;
+    
+    const labels = [];
+    document.querySelectorAll('#articleEditModal input[type="checkbox"]:checked').forEach(cb => {
+        labels.push(cb.value);
+    });
+    article.labels = labels;
+    
+    filterArticles();
+    closeModal('articleEditModal');
+    showToast('기사 정보가 수정되었습니다.', 'success');
+}
+
+function confirmDeleteArticle(articleId) {
+    const article = articlesData.find(a => a.id === articleId);
+    if (!article) return;
+    
+    document.getElementById('deleteConfirmMessage').textContent = `"${article.title}" 기사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    deleteCallback = () => {
+        const index = articlesData.findIndex(a => a.id === articleId);
+        if (index > -1) {
+            articlesData.splice(index, 1);
+            filterArticles();
+            showToast('기사가 삭제되었습니다.', 'success');
+        }
+        closeModal('deleteConfirmModal');
+    };
+    document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
+    
+    openModal('deleteConfirmModal');
+}
+
+// Pagination (simplified)
+function renderPagination(containerId, totalItems) {
+    const container = document.getElementById(containerId);
+    const totalPages = Math.ceil(totalItems / 10) || 1;
+    
+    let html = '<button class="page-btn"><span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span></button>';
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `<button class="page-btn ${i === 1 ? 'active' : ''}">${i}</button>`;
+    }
+    html += '<button class="page-btn"><span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span></button>';
+    
+    container.innerHTML = html;
+}
+
+// Modal
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// Toast
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const icons = {
+        success: 'check_circle',
+        error: 'error',
+        warning: 'warning',
+        info: 'info'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <span class="material-symbols-outlined">${icons[type]}</span>
+        </div>
+        <span class="toast-message">${escapeHtml(message)}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Utility
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.classList.remove('active');
+        }
+    });
+});
+</script>
+</body>
+</html>
