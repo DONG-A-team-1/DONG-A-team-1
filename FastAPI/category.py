@@ -108,7 +108,7 @@ def get_articles_by_category(category_name: str, size: int = 20, page: int = 1):
 
     # 카테고리 매핑
     category_map = {
-        "사회/경제": "사회/경제",
+        "사회/경제": "사회/경제/산업",
         "정치": "정치",
         "국제": "국제",
         "지역": "지역",
@@ -152,11 +152,22 @@ def get_articles_by_category(category_name: str, size: int = 20, page: int = 1):
         label = src.get("article_label") or {}
 
         # trustScore 안전하게 처리
-        trust_score = label.get("article_trust_score", 0)
-        if trust_score:
-            trust_score = int(float(trust_score) * 100)  # 0.9 → 90
-        else:
+        raw_score = label.get("article_trust_score")
+
+        if raw_score is None:
             trust_score = 0
+        else:
+            raw_score = float(raw_score)
+
+            if raw_score <= 1:
+                # 0~1 확률형
+                trust_score = round(raw_score * 100)
+            elif raw_score <= 100:
+                # 이미 퍼센트
+                trust_score = round(raw_score)
+            else:
+                # 0~4095 같은 raw 모델 점수
+                trust_score = round((raw_score / 4095) * 100)
 
         articles.append({
             "article_id": src.get("article_id"),

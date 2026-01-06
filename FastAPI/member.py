@@ -200,7 +200,6 @@ def search_articles(search_type: str, query: str, size: int = 20):
 
     # 검색 타입별 쿼리 생성
     if search_type == "all" or search_type == "title_body":
-        # 제목 + 본문 검색
         es_query = {
             "bool": {
                 "should": [
@@ -209,22 +208,13 @@ def search_articles(search_type: str, query: str, size: int = 20):
                 ]
             }
         }
-
     elif search_type == "title":
-        # 제목만 검색
         es_query = {"match": {"article_title": query}}
-
     elif search_type == "content" or search_type == "body":
-        # 본문만 검색
         es_query = {"match": {"article_content": query}}
-
     elif search_type == "keywords" or search_type == "keyword":
-        # 키워드 검색
-        es_query = {"match": {"keywords.raw": query}} # keywords=메인필드 , 정확한 일치만 검색
-        # 서브필드 kewords.raw=타입 text 분석기 nori로 유연한 검색 가능함.
-
+        es_query = {"match": {"keywords.raw": query}}
     else:
-        # 기본: 제목 + 본문
         es_query = {
             "bool": {
                 "should": [
@@ -239,12 +229,14 @@ def search_articles(search_type: str, query: str, size: int = 20):
         "_source": [
             "article_id",
             "press",
+            "reporter",
             "upload_date",
             "article_title",
             "article_content",
             "article_img",
             "url",
             "article_label",
+            "trend_score",
             "keywords"
         ],
         "size": size,
@@ -265,21 +257,25 @@ def search_articles(search_type: str, query: str, size: int = 20):
 
         # trustScore 안전하게 처리
         raw_score = label.get("article_trust_score")
-
         if raw_score is None:
             trust_score = 0
         else:
             raw_score = float(raw_score)
-
             if raw_score <= 1:
-                # 0~1 확률형
                 trust_score = round(raw_score * 100)
             elif raw_score <= 100:
-                # 이미 퍼센트
                 trust_score = round(raw_score)
             else:
-                # 0~4095 같은 raw 모델 점수
                 trust_score = round((raw_score / 4095) * 100)
+
+        # trendScore (0~100 점수로 정규화)
+        raw_trend = label.get("trend_score")
+
+        if raw_trend is None:
+            trend_score = 0
+        else:
+            normalized = float(raw_trend) / 1000  # scaled_float 보정 (0~1)
+            trend_score = round(normalized * 100)  # 0~100 점수
 
         articles.append({
             "article_id": src.get("article_id"),
@@ -289,14 +285,20 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "category": label.get("category"),
             "source": src.get("press"),
             "upload_date": yyyymmdd_to_iso(src.get("upload_date")),
+            "reporter": src.get("reporter"),
             "trustScore": trust_score,
+            "trendScore": trend_score,
             "keywords": src.get("keywords", [])
         })
+
+    # 트렌드 점수 순으로 정렬된 top4
+    trending = sorted(articles, key=lambda x: x.get("trendScore", 0), reverse=True)[:4]
 
     return {
         "success": True,
         "query": query,
         "search_type": search_type,
         "total": resp['hits']['total']['value'],
-        "articles": articles
+        "articles": articles,
+        "trending": trending
     }
