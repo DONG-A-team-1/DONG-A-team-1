@@ -1666,7 +1666,8 @@ function toggleLoginState() {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                 <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+            const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
