@@ -1,14 +1,17 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
-
 from starlette.middleware.sessions import SessionMiddleware
-# try:
-#     import member
-# except ModuleNotFoundError:
-#     from . import member  # 분리한 파일 임포트
+from pydantic import BaseModel
+from typing import List
+
 from . import member
 from . import article
+from . import topic
+
+from util.logger import Logger
+
+logger = Logger().get_logger(__name__)
 
 app = FastAPI()
 app.mount("/view", StaticFiles(directory="view"), name="view")
@@ -209,3 +212,24 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
+@app.get("/topics", response_class=HTMLResponse)
+async def topic_page(request: Request):
+    return RedirectResponse(
+        url=f"/view/polar.html",
+        status_code=302
+    )
+
+@app.get("/api/topic")
+def get_topics():
+    result = topic.get_topic_from_es()
+    return result
+
+class TopicArticleReq(BaseModel):
+    pos_ids: List[str]
+    neg_ids: List[str]
+    neu_ids: List[str]
+
+@app.post("/api/topic_article")
+def get_topic_article(body:TopicArticleReq):
+    result = topic.get_topic_article(body)
+    return result

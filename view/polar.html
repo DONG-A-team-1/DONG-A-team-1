@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - 사회/경제 뉴스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+  
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    height: 64px;
+}
+
+/* 왼쪽 로고 */
+.nav-left {
+    flex: 0 0 auto;
+}
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+/* Main Content */
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 3rem;
+}
+
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
+
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
+}
+
+body.dark .search-input {
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+.search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+/* Section Headers */
+.section-header {
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+body.dark .section-header {
+    border-bottom-color: #374151;
+}
+
+.section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+body.dark .section-title {
+    color: #FFFFFF;
+}
+
+.section-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+body.dark .section-subtitle {
+    color: #9CA3AF;
+}
+
+/* Article Grid */
+.article-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .article-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .article-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.article-card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    transition: box-shadow 0.2s;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+body.dark .article-card {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.article-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.article-image {
+    position: relative;
+    height: 12rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.article-card:hover .article-image img {
+    transform: scale(1.05);
+}
+
+.article-tag {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background-color: #7C3AED;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.article-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.article-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+body.dark .article-title {
+    color: #FFFFFF;
+}
+
+.article-card:hover .article-title {
+    color: #3B82F6;
+}
+
+.article-description {
+    font-size: 0.875rem;
+    color: #4B5563;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+body.dark .article-description {
+    color: #9CA3AF;
+}
+
+.article-meta {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+body.dark .article-meta {
+    color: #6B7280;
+}
+
+.article-source {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Reliability Badge */
+.reliability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reliability-high {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+body.dark .reliability-high {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #6EE7B7;
+}
+
+.reliability-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+body.dark .reliability-medium {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #FCD34D;
+}
+
+.reliability-low {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+body.dark .reliability-low {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+}
+
+.reliability-icon {
+    font-size: 0.875rem;
+}
+
+/* List Section */
+.list-section {
+    margin-top: 3rem;
+}
+
+.list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .list-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+body.dark .list-header {
+    border-bottom-color: #374151;
+}
+
+.list-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.list-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+body.dark .list-title {
+    color: #E5E7EB;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 0.25rem;
+    background-color: #F3F4F6;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+body.dark .sort-buttons {
+    background-color: #1F2937;
+}
+
+.sort-btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .sort-btn {
+    color: #9CA3AF;
+}
+
+.sort-btn:hover {
+    background-color: #E5E7EB;
+}
+
+body.dark .sort-btn:hover {
+    background-color: #374151;
+}
+
+.sort-btn.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Article List */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.list-article {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+@media (min-width: 640px) {
+    .list-article {
+        flex-direction: row;
+    }
+}
+
+body.dark .list-article {
+    border-bottom-color: #1F2937;
+}
+
+.list-article:last-child {
+    border-bottom: none;
+}
+
+.list-article:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .list-article:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+}
+
+.list-article-image {
+    width: 100%;
+    height: 10rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+@media (min-width: 640px) {
+    .list-article-image {
+        width: 16rem;
+    }
+}
+
+.list-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.list-article:hover .list-article-image img {
+    transform: scale(1.05);
+}
+
+.list-article-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.list-article-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #7C3AED;
+    margin-bottom: 0.5rem;
+}
+
+.list-article-category {
+    background-color: #EDE9FE;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    color: #7C3AED;
+    font-weight: 500;
+}
+
+body.dark .list-article-category {
+    background-color: rgba(124, 58, 237, 0.3);
+}
+
+.list-article-date {
+    color: #9CA3AF;
+}
+
+body.dark .list-article-date {
+    color: #6B7280;
+}
+
+.list-article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .list-article-title {
+    color: #FFFFFF;
+}
+
+.list-article:hover .list-article-title {
+    color: #3B82F6;
+}
+
+.list-article-desc {
+    font-size: 0.875rem;
+    color: #4B5563;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+body.dark .list-article-desc {
+    color: #9CA3AF;
+}
+
+.list-article-source {
+    font-size: 0.75rem;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+body.dark .list-article-source {
+    color: #6B7280;
+}
+
+.list-article-source strong {
+    color: #374151;
+    font-weight: 500;
+}
+
+body.dark .list-article-source strong {
+    color: #D1D5DB;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 3rem;
+}
+
+body.dark .pagination {
+    border-top-color: #374151;
+}
+
+.pagination-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-nav {
+    padding: 0.5rem;
+    color: #6B7280;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .pagination-nav {
+    color: #9CA3AF;
+}
+
+.pagination-nav:hover {
+    color: #3B82F6;
+}
+
+.pagination-btn.page {
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .pagination-btn.page {
+    color: #D1D5DB;
+}
+
+.pagination-btn.page:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .pagination-btn.page:hover {
+    background-color: #1F2937;
+}
+
+.pagination-btn.page.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+}
+
+.pagination-btn.page.active:hover {
+    background-color: #2563EB;
+}
+
+.spacer {
+    height: 5rem;
+}
+
+/* =========================
+   Today's Topics Banner (Top 10)
+   - 배너는 라이트/다크 모두 "다크 카드"로 유지 (스크린샷 스타일)
+   - 레이어(overlay/blur) 안전장치 포함
+========================= */
+.today-topics{
+  margin: 0 auto 2.25rem;
+}
+
+/* 배너 컨테이너 */
+.today-topics .topics-banner{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.20);
+  background: #0B1220;
+  isolation: isolate; /* z-index 격리 */
+}
+
+/* (선택) 배경 레이어가 있을 때만 사용 — 지금 HTML에 있고 CSS가 없어서 안전장치만 둠 */
+.today-topics .topics-banner-bg{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1;
+}
+
+.today-topics .topics-banner-content{
+  position: relative;
+  z-index: 1;
+  padding: 18px 18px 16px;
+  color: #F9FAFB;
+}
+
+.today-topics .topics-banner-header{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 14px;
+}
+
+.today-topics .topics-date{
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 18px;
+  color: #FBBF24;
+}
+
+.today-topics .topics-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px 22px;
+}
+
+@media (min-width: 840px){
+  .today-topics .topics-grid{ grid-template-columns: 1fr 1fr; }
+}
+
+.today-topics .topic-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.today-topics .topic-item{
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  text-decoration: none;
+}
+
+.today-topics .topic-item:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.16);
+}
+
+/* ✅ topic-rank 충돌 방지: 배너에서만 원형 뱃지 */
+.today-topics .topic-rank{
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(255,255,255,0.14);
+  color: #E5E7EB;
+}
+
+.today-topics .topic-title{
+  font-size: 14px;
+  line-height: 1.35;
+  color: #F9FAFB;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.today-topics .topic-count{
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(229,231,235,0.90);
+  padding-left: 8px;
+  white-space: nowrap;
+}
+
+.today-topics .topics-caption{
+  margin-top: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(229,231,235,0.75);
+}
+
+
+/* =========================
+   Today Topic (관점 A/B + 관련 기사)
+   - 라이트: 라이트 카드
+   - 다크: 다크 카드
+   - 중복/충돌 제거한 단일 정의
+========================= */
+.today-topic{
+  margin: 1.5rem 0 2.5rem;
+}
+
+.today-topic-header{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.today-topic-title{
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #111827;
+}
+body.dark .today-topic-title{ color: #FFFFFF; }
+
+.today-topic-sub{
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+body.dark .today-topic-sub{ color: #9CA3AF; }
+
+.today-topic-more{
+  font-size: 0.875rem;
+  color: #3B82F6;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 카드 */
+.today-topic-card{
+  background: var(--surface-light);
+  border: 1px solid var(--gray-200);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1rem;
+}
+body.dark .today-topic-card{
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+/* 상단 메타 */
+.topic-meta{
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+@media (min-width: 640px){
+  .topic-meta{
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.topic-name{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  color: #111827;
+}
+body.dark .topic-name{ color: #FFFFFF; }
+
+/* ✅ topic-rank 충돌 방지: 카드 메타에서만 pill */
+.today-topic-card .topic-meta .topic-rank{
+  width: auto;
+  height: auto;
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  background: rgba(59,130,246,0.12);
+  color: #2563EB;
+}
+
+.topic-chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip{
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.06);
+  color: #374151;
+  font-weight: 600;
+}
+body.dark .chip{
+  background: rgba(255,255,255,0.08);
+  color: #D1D5DB;
+}
+
+/* ✅ 관점 A/B 좌우 배치 */
+.today-topic-card .topic-articles{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+  align-items: start;
+}
+@media (max-width: 900px){
+  .today-topic-card .topic-articles{ grid-template-columns: 1fr; }
+}
+
+/* A/B 컬럼 & 중립 블록 공통 */
+.today-topic-card .topic-articles .col,
+.today-topic-card .neutral-block{
+  min-width: 0;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(0,0,0,0.03);
+}
+body.dark .today-topic-card .topic-articles .col,
+body.dark .today-topic-card .neutral-block{
+  border-color: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
+}
+
+/* 헤더(점 + 텍스트) */
+.today-topic-card .topic-articles .col-head,
+.today-topic-card .neutral-block .col-head{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px 0;
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* 점 */
+.today-topic-card .topic-articles .col-head::before,
+.today-topic-card .neutral-block .col-head::before{
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 8px;
+}
+.today-topic-card #col-pos .col-head::before{ background: rgba(34,197,94,.95); }
+.today-topic-card #col-neg .col-head::before{ background: rgba(239,68,68,.95); }
+.today-topic-card .neutral-block .col-head::before{ background: rgba(59,130,246,.95); }
+
+/* 리스트 */
+.today-topic-card .col-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* mini-article (이미지 포함) */
+.today-topic-card .mini-article{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background-color 0.15s;
+}
+.today-topic-card .mini-article:hover{
+  background: rgba(59,130,246,0.10);
+}
+body.dark .today-topic-card .mini-article:hover{
+  background: rgba(255,255,255,0.06);
+}
+
+.today-topic-card .mini-thumb{
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0,0,0,.04);
+}
+body.dark .today-topic-card .mini-thumb{
+  background: rgba(255,255,255,0.06);
+}
+
+.today-topic-card .mini-thumb img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.today-topic-card .mini-body{
+  min-width: 0;
+  flex: 1;
+}
+
+.today-topic-card .mini-title{
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.35;
+}
+body.dark .today-topic-card .mini-title{ color: #FFFFFF; }
+
+.today-topic-card .mini-meta{
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6B7280;
+  font-weight: 600;
+}
+body.dark .today-topic-card .mini-meta{ color: #9CA3AF; }
+
+/* Neutral 리스트 */
+.today-topic-card .neutral-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.today-topic-card .neutral-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+.today-topic-card .neutral-item:hover{
+  background: rgba(59,130,246,0.10);
+}
+body.dark .today-topic-card .neutral-item:hover{
+  background: rgba(255,255,255,0.06);
+}
+
+.today-topic-card .neutral-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #9CA3AF;
+  flex: 0 0 auto;
+}
+
+.today-topic-card .neutral-title{
+  min-width: 0;
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.dark .today-topic-card .neutral-title{ color: #E5E7EB; }
+
+/* =========================
+   PATCH: A/B 영역과 neutral-block 사이 간격을
+   A/B gap(=14px)과 동일하게 맞추기
+   (CSS 맨 아래에 추가)
+========================= */
+
+/* gap 값을 한 곳에서만 관리 */
+.today-topic-card{
+  --topic-gap: 14px;
+}
+
+/* A/B 컬럼 사이 간격 */
+.today-topic-card .topic-articles{
+  gap: var(--topic-gap) !important;
+}
+
+/* ✅ A/B 아래(=neutral-block 위) 간격을 동일하게 */
+.today-topic-card .neutral-block{
+  margin-top: var(--topic-gap) !important;
+}
+
+/* =========================
+   PATCH: today-topics 섹션 라이트모드에서도 다크로 고정되는 문제 해제
+   (CSS 맨 아래에 추가)
+========================= */
+
+/* 라이트모드에서 배너 카드 자체를 라이트로 */
+body:not(.dark) .today-topics .topics-banner{
+  background: var(--surface-light) !important;
+  border-color: var(--gray-200) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
+
+/* 라이트모드에서 배너 텍스트 전부 다크 톤으로 */
+body:not(.dark) .today-topics .topics-banner-content{
+  color: var(--text-main-light) !important;
+}
+
+/* 날짜/캡션/제목/카운트 색 복구 */
+body:not(.dark) .today-topics .topics-date{
+  color: #111827 !important;
+}
+body:not(.dark) .today-topics .topics-caption{
+  color: var(--text-sub-light) !important;
+}
+body:not(.dark) .today-topics .topic-title{
+  color: #111827 !important;
+}
+body:not(.dark) .today-topics .topic-count{
+  color: var(--text-sub-light) !important;
+}
+
+/* 라이트모드에서 topic-item 배경도 라이트 톤으로 */
+body:not(.dark) .today-topics .topic-item{
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.06) !important;
+}
+body:not(.dark) .today-topics .topic-item:hover{
+  background: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+
+/* 라이트모드에서 랭크 배지(원)도 라이트 톤 */
+body:not(.dark) .today-topics .topic-rank{
+  background: rgba(0,0,0,0.08) !important;
+  color: #374151 !important;
+}
+
+
+</style>
+</head>
+<body>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="home.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-world" href="world.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleDarkMode()">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <div class="user-menu">
+                    <button class="user-menu-button" onclick="toggleUserMenu()">
+                        <div class="user-menu-blob"></div>
+                        <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div id="dropdownContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <section class="search-section">
+        <div class="search-bar">
+            <div class="select-wrap">
+                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option value="title_body" selected>제목+본문</option>
+                    <option value="title">제목</option>
+                    <option value="body">본문</option>
+                    <option value="keyword">키워드</option>
+                </select>
+                <span class="material-icons-round select-caret">expand_more</span>
+            </div>
+            <div class="search-input-wrap">
+                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                    <span class="material-icons-round">search</span>
+                </button>
+            </div>
+        </div>
+    </section>
+<!-- 여기부터 추가 -->
+<section class="today-topics">
+  <div class="topics-banner">
+    <div class="topics-banner-bg"></div>
+
+    <div class="topics-banner-content">
+      <div class="topics-banner-header">
+        <div class="topics-date" id="topicsDate">2026년 01월 05일 (월)</div>
+      </div>
+
+      <div class="topics-grid">
+        <!-- LEFT (1~5) -->
+        <div class="topic-list" id="topicsLeft">
+          <a class="topic-item">
+            <span class="topic-rank">1</span>
+            <span class="topic-title">마두로 베네수엘라 대통령 체포</span>
+            <span class="topic-count">110건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">2</span>
+            <span class="topic-title">이재명 대통령, 시진핑과 정상회담</span>
+            <span class="topic-count">94건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">3</span>
+            <span class="topic-title">북한, 동해상으로 탄도미사일 발사</span>
+            <span class="topic-count">93건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">4</span>
+            <span class="topic-title">이태원 참사 허위정보 유포 및 살인 사건 구속</span>
+            <span class="topic-count">45건</span>
+          </a>
+          <a class="topic-item" >
+            <span class="topic-rank">5</span>
+            <span class="topic-title">장동혁 대표, 민주당에 특검 수사 촉구</span>
+            <span class="topic-count">42건</span>
+          </a>
+        </div>
+
+        <!-- RIGHT (6~10) -->
+        <div class="topic-list" id="topicsRight">
+          <a class="topic-item">
+            <span class="topic-rank">6</span>
+            <span class="topic-title">차준환, 3연속 올림픽 출전권 획득</span>
+            <span class="topic-count">33건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">7</span>
+            <span class="topic-title">에코프로, 기술 리더십 강화로 글로벌 시장 재도전</span>
+            <span class="topic-count">31건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">8</span>
+            <span class="topic-title">임재범, 40주년 투어 후 은퇴 선언</span>
+            <span class="topic-count">29건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">9</span>
+            <span class="topic-title">이혜훈 후보자, 구명 요청 보도 반박</span>
+            <span class="topic-count">27건</span>
+          </a>
+          <a class="topic-item">
+            <span class="topic-rank">10</span>
+            <span class="topic-title">손희 이승철 경감에 녹조근정훈장 선추서</span>
+            <span class="topic-count">26건</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="topics-caption">뉴스 팔레트가 오늘 분석한 주제들입니다.</div>
+    </div>
+  </div>
+</section>
+<!-- 추가 끝 -->
+
+<!-- 오늘의 토픽 (검색바 아래, 사회/경제 섹션 위) -->
+<section class="today-topic">
+  <div class="today-topic-header">
+    <div class="today-topic-title-wrap">
+      <h2 class="today-topic-title">오늘의 토픽</h2>
+      <p class="today-topic-sub">같은 이슈를 다른 관점으로 비교해보세요.</p>
+    </div>
+    <a class="today-topic-more" href="topicpage.html">전체 보기 →</a>
+  </div>
+
+  <!-- 토픽 카드 -->
+  <div class="today-topic-card">
+    <div class="topic-meta">
+      <div class="topic-name">
+        <span class="topic-rank"></span>
+        <span class="topic-text">통</span>
+      </div>
+      <div class="topic-chips">
+        <span class="chip">특검</span>
+        <span class="chip">수사</span>
+        <span class="chip">국민의힘</span>
+      </div>
+    </div>
+
+    <div class="topic-articles">
+      <div class="col" id="col-pos">
+        <div class="col-head">관점 A</div>
+        <div class="col-list" id="posList"></div>
+      </div>
+
+      <div class="col" id="col-neg">
+        <div class="col-head">관점 B</div>
+        <div class="col-list" id="negList"></div>
+      </div>
+    </div>
+
+    <div class="neutral-block">
+      <div class="col-head">주제 관련 기사</div>
+      <div class="neutral-list" id="neuList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- <div class="pagination">
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
+    </button>
+    <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
+    <button class="pagination-btn page" onclick="goToPage(2)">2</button>
+    <button class="pagination-btn page" onclick="goToPage(3)">3</button>
+    <button class="pagination-btn page" onclick="goToPage(4)">4</button>
+    <button class="pagination-btn page" onclick="goToPage(5)">5</button>
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
+    </button>
+</div>
+
+<div class="spacer"></div> -->
+
+<script>
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+
+function renderMiniArticles($container, articles){
+  if (!articles || articles.length === 0){
+    $container.html(`<div class="empty">표시할 기사가 없습니다.</div>`);
+    return;
+  }
+
+  const html = articles.map(a => {
+    const title = escapeHtml(a.article_title || a.title || "");
+    const press = escapeHtml(a.press || "");
+    const time  = escapeHtml(a.upload_date || a.time || "");
+    const url   = escapeHtml(`/article/${a.article_id}`);
+
+    // 이미지 있으면 쓰고, 없으면 이미지 영역 자체를 빼거나 placeholder
+    const img = a.article_img || a.img || a.image_url || "";
+    const imgHtml = img
+      ? `<div class="mini-thumb"><img src="${escapeHtml(img)}" alt=""></div>`
+      : ``;
+
+    return `
+      <a class="mini-article" href="${url}">
+        ${imgHtml}
+        <div class="mini-body">
+          <div class="mini-title">${title}</div>
+          <div class="mini-meta">${press}${press && time ? " · " : ""}${time}</div>
+        </div>
+      </a>
+    `;
+  }).join("");
+
+  $container.html(html);
+}
+
+function renderNeutralList($container, articles){
+  if (!articles || articles.length === 0){
+    $container.html(`<div class="empty">표시할 기사가 없습니다.</div>`);
+    return;
+  }
+
+  const html = articles.map(a => {
+    const title = escapeHtml(a.article_title || a.title || "");
+    const url   = escapeHtml(`/article/${a.article_id}`);
+    return `
+      <a class="neutral-item" href="${url}">
+        <span class="neutral-dot"></span>
+        <span class="neutral-title">${title}</span>
+      </a>
+    `;
+  }).join("");
+
+  $container.html(html);
+}
+
+
+function getReliabilityClass(score) {
+    if (score >= 80) return 'reliability-high';
+    if (score >= 60) return 'reliability-medium';
+    return 'reliability-low';
+}
+
+function toggleLoginState() {
+    const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    if (isLoggedIn) {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title">홍길동님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        dropdownContent.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.setItem('isLoggedIn', 'false');
+    toggleLoginState();
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark');
+}
+
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = window.location.pathname.split('/').pop();
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+function updateSearchPlaceholder(select) {
+    const searchInput = document.getElementById('searchInput');
+    const placeholders = {
+        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+        title: '제목에서 관심있는 뉴스를 검색해보세요',
+        body: '본문에서 관심있는 뉴스를 검색해보세요',
+        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+    };
+    searchInput.placeholder = placeholders[select.value];
+}
+
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `searchresult.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+
+function sortArticles(type) {
+    const container = document.getElementById('articleList');
+    const articles = Array.from(container.children);
+
+    articles.sort((a, b) => {
+        const dateA = new Date(a.dataset.date);
+        const dateB = new Date(b.dataset.date);
+        const relA = Number(a.dataset.reliability || 0);
+        const relB = Number(b.dataset.reliability || 0);
+
+        if (type === 'latest') return dateB - dateA;
+        if (type === 'oldest') return dateA - dateB;
+        if (type === 'reliability') return relB - relA;
+    });
+
+    container.innerHTML = '';
+    articles.forEach(a => container.appendChild(a));
+
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+}
+
+function goToPage(pageNumber) {
+    const url = new URL(location.href);
+    url.searchParams.set('page', pageNumber);
+    history.pushState({}, '', url);
+    updatePaginationUI(pageNumber);
+}
+
+function updatePaginationUI(activePage) {
+    document.querySelectorAll('.pagination-btn.page').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.innerText) === activePage);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    toggleLoginState();
+    setActiveCategoryByURL();
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+
+    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
+    updatePaginationUI(page);
+   
+});
+
+$(function(){
+  const params = new URLSearchParams(window.location.search);
+  const topic_id = params.get("topic_id");
+
+  $.ajax({
+    url:'/api/topic',
+    method: "GET",
+    dataType: "json",
+    success: function(data){
+      const $cards = $(".topic-item");
+      window.TOPICS = data;
+      window.TOPICS.forEach((item, idx) => {
+        const $card = $cards.eq(idx);
+        // console.log(item)
+        $card.attr("data-index", idx);
+        $card.attr("topic-rank", item.rank);
+        $card.attr("topic-title", item.topic_name);
+
+        $card.find(".topic-rank").text(item.rank || "");
+        $card.find(".topic-title").text(item.topic_name || "");
+        $card.find(".topic-count").text(`${item.topic_article_count}건` || "");
+
+        const articleIdGroups = {
+          pos: item.positive_articles.map(a => a.article_id),
+          neg: item.negative_articles.map(a => a.article_id),
+          neu: item.neutral_articles.map(a => a.article_id),
+        };
+        $card.attr("data-article-groups", JSON.stringify(articleIdGroups));
+    
+    });
+      const $first = $(".topic-item").first();
+      if ($first.length) $first.trigger("click")
+    },
+    error: function(error){
+      console.log(error)
+    }
+  })
+})
+
+$(document).on("click", ".topic-item", function () {
+  const $item = $(this); 
+
+  const idx = $(this).attr("data-index");
+  const title = $item.attr("topic-title");
+  const rank  = $item.attr("topic-rank");
+  const topic = window.TOPICS[Number(idx)];
+
+  if (!topic) return;
+  const raw = $(this).attr("data-article-groups"); // string
+  if (!raw) return;
+
+  let groups;
+  try {
+    groups = JSON.parse(raw); // ✅ 중요
+  } catch (e) {
+    console.error("data-article-groups JSON parse failed:", raw, e);
+    return;
+  }
+
+  $.ajax({
+    url: `/api/topic_article`,
+    method: "post",
+    contentType: "application/json",
+    dataType: "json",
+    data : JSON.stringify({
+      pos_ids: groups.pos || [],
+      neg_ids: groups.neg || [],
+      neu_ids: groups.neu || [],
+    }), 
+    traditional: true,
+    success: function (data) {
+      renderMiniArticles($("#posList"), data[0] || data.positive_articles);
+      renderMiniArticles($("#negList"), data[1] || data.negative_articles);
+      renderNeutralList($("#neuList"), data[2] || data.neutral_articles);
+
+      $(".today-topic-card > .topic-meta > .topic-name > .topic-rank").text(rank)
+      $(".today-topic-card > .topic-meta > .topic-name > .topic-text").text(title)
+    },
+    error: function (error) {
+      console.log(error);
+    }
+  })
+});
+
+function setTodayDate() {
+  const el = document.getElementById("topicsDate");
+  if (!el) return;
+
+  const now = new Date();
+
+  // 요일 (한국어)
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const date = String(now.getDate()).padStart(2, "0");
+  const day  = days[now.getDay()];
+
+  el.textContent = `${year}년 ${month}월 ${date}일 (${day})`;
+}
+
+document.addEventListener("DOMContentLoaded", setTodayDate);
+
+
+</script>
+</body>
+</html>
