@@ -1634,7 +1634,6 @@ body:not(.dark) .today-topics .topic-rank{
       <h2 class="today-topic-title">오늘의 토픽</h2>
       <p class="today-topic-sub">같은 이슈를 다른 관점으로 비교해보세요.</p>
     </div>
-    <a class="today-topic-more" href="topicpage.html">전체 보기 →</a>
   </div>
 
   <!-- 토픽 카드 -->
@@ -1642,7 +1641,7 @@ body:not(.dark) .today-topics .topic-rank{
     <div class="topic-meta">
       <div class="topic-name">
         <span class="topic-rank"></span>
-        <span class="topic-text">통</span>
+        <span class="topic-text"></span>
       </div>
       <div class="topic-chips">
         <span class="chip">특검</span>
@@ -1914,6 +1913,7 @@ $(function(){
         $card.attr("data-index", idx);
         $card.attr("topic-rank", item.rank);
         $card.attr("topic-title", item.topic_name);
+        $card.attr("keywords", item.topic_features);
 
         $card.find(".topic-rank").text(item.rank || "");
         $card.find(".topic-title").text(item.topic_name || "");
@@ -1942,8 +1942,20 @@ $(document).on("click", ".topic-item", function () {
   const idx = $(this).attr("data-index");
   const title = $item.attr("topic-title");
   const rank  = $item.attr("topic-rank");
+  const keywords  = $item.attr("keywords");
+
+  const keywordsArr = Array.isArray(keywords)
+    ? keywords
+    : String(keywords ?? "").split(",");
+
+  const top3 = keywordsArr
+    .map(s => String(s).trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
   const topic = window.TOPICS[Number(idx)];
 
+  console.log(keywords)
   if (!topic) return;
   const raw = $(this).attr("data-article-groups"); // string
   if (!raw) return;
@@ -1974,6 +1986,9 @@ $(document).on("click", ".topic-item", function () {
 
       $(".today-topic-card > .topic-meta > .topic-name > .topic-rank").text(rank)
       $(".today-topic-card > .topic-meta > .topic-name > .topic-text").text(title)
+      $(".today-topic-card > .topic-meta > .topic-chips").html(
+        top3.map(k => `<span class="chip">${k}</span>`).join("")
+      );
     },
     error: function (error) {
       console.log(error);
