@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette -정치 뉴스</title>
+<title>NewsPalette - 사회/경제 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
@@ -625,7 +625,7 @@ body.dark .article-title {
 }
 
 .article-card:hover .article-title {
-      color: #111827;
+    color: #3B82F6;
 }
 
 .article-description {
@@ -802,7 +802,6 @@ body.dark .sort-btn:hover {
 }
 
 .list-article {
-    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -911,7 +910,7 @@ body.dark .list-article-title {
 }
 
 .list-article:hover .list-article-title {
-     color: #111827;
+    color: #3B82F6;
 }
 
 .list-article-desc {
@@ -1026,57 +1025,9 @@ body.dark .pagination-btn.page:hover {
     height: 5rem;
 }
 
-.meta-dot {
-    margin: 0 4px;
-    color: #9CA3AF;
-}
-
-    /* =========================
-   🌙 다크모드 가독성 개선
-========================= */
-
-/* 카드 전체 기본 텍스트 */
-body.dark .article-card,
-body.dark .list-article {
-    color: #E5E7EB;
-}
-
-/* 카드 제목 */
-body.dark .article-title,
-body.dark .card-title,
-body.dark .list-title-text {
-    color: #F9FAFB !important;
-}
-
-/* 카드 본문 */
-body.dark .article-description,
-body.dark .card-description,
-body.dark .list-desc {
-    color: #D1D5DB !important;
-}
-
-/* 메타 정보 (기자, 언론사, 날짜) */
-body.dark .article-meta,
-body.dark .card-source,
-body.dark .list-article-source {
-    color: #9CA3AF;
-}
-    /* 모든 기사 링크 색상 통제 */
-#articleGrid a,
-#articleList a {
-    color: inherit;
-    text-decoration: none;
-}
-
-/* hover 시에도 파란색 금지 */
-#articleGrid a:hover,
-#articleList a:hover {
-    color: inherit;
-}
-/* 다크모드 이미지 가독성 */
-body.dark .article-image img,
-body.dark .list-article-image img {
-    filter: brightness(1.1) contrast(1.05);
+body:not(.dark) #articleGrid a.article-card,
+body:not(.dark) #articleList a.list-article {
+    color: #111827 !important;
 }
 </style>
 </head>
@@ -1090,11 +1041,11 @@ body.dark .list-article-image img {
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
-           <div class="nav-center">
+             <div class="nav-center">
                 <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
                 <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
                 <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
-                <a class="nav-splash-item splash-international active" href="localcategorycategory.html">지역</a>
+                <a class="nav-splash-item splash-international active" href="localcategory.html">지역</a>
                 <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
                 <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
@@ -1136,7 +1087,8 @@ body.dark .list-article-image img {
             </div>
         </div>
     </section>
-<!-- 카드형 기사 -->
+
+ <!-- 카드형 기사 -->
 <section>
     <div class="section-header">
         <h1 class="section-title">사회/경제</h1>
@@ -1167,7 +1119,7 @@ body.dark .list-article-image img {
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">account_balance</span>
+              <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">groups</span>
             <h2 class="list-title">사회/경제</h2>
         </div>
         <div class="sort-buttons">
@@ -1190,7 +1142,7 @@ body.dark .list-article-image img {
                 </div>
                 <h3 class="list-title-text"></h3>
                 <p class="list-desc"></p>
-                <div class="list-article-source">
+                    <div class="list-article-source">
                 <span class="list-reporter"></span>
                 <span class="meta-dot">·</span>
                 <strong class="list-source"></strong>
@@ -1200,7 +1152,6 @@ body.dark .list-article-image img {
                     <span class="list-trust"></span>
                 </span>
             </div>
-
             </div>
         </a>
     </div>
@@ -1224,11 +1175,11 @@ body.dark .list-article-image img {
 </div>
 
 <div class="spacer"></div>
-</main>
+
 <script>
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
-    loadCategoryArticles('사회/경제/산업', 1);  // 문화 카테고리, 1페이지
+    loadCategoryArticles('사회', 1);  // 문화 카테고리, 1페이지
     initializeUI();
 });
 
@@ -1243,12 +1194,12 @@ function initializeUI() {
 // ========== 백엔드에서 데이터 가져오기 ==========
 function loadCategoryArticles(categoryName, page = 1) {
     const itemsPerPage = 9;  // 페이지당 9개 (카드 4 + 리스트 5)
-
+    const catName = encodeURIComponent(categoryName);
+    console.log(catName);
     $.ajax({
-        url: `/api/category`,
+        url: `/api/category/${catName}`,
         type: 'GET',
         data: {
-            category: categoryName,  // ✅ 쿼리 파라미터로 추가
             size: itemsPerPage * 5,  // 5페이지분 데이터 (45개)
             page: page
         },
@@ -1311,7 +1262,6 @@ function displayCardArticles(articles) {
         const trust = Math.floor(article.trustScore / 100);
         card.find('.card-trust').text(`신뢰도 ${trust}%`);
 
-
         // 신뢰도 배지 색상
         const reliabilityClass = getReliabilityClass(article.trustScore);
         card.find('.reliability-badge').addClass(reliabilityClass);
@@ -1340,14 +1290,10 @@ function displayListArticles(articles) {
         const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
         listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
 
-        // 카테고리
-        // 기자 이름 (없으면 빈 값 처리)
-
-       listItem.find('.list-reporter').text(article.reporter);
+        listItem.find('.list-reporter').text(article.reporter);
 
         // 언론사
         listItem.find('.list-source').text(article.press);
-
 
         // 날짜
         listItem.find('.list-date').text(formatDateYMD(article.upload_date));
@@ -1365,7 +1311,6 @@ function displayListArticles(articles) {
         // 신뢰도
         const trust = Math.floor(article.trustScore / 100);
         listItem.find('.list-trust').text(`신뢰도 ${trust}%`);
-
 
         const reliabilityClass = getReliabilityClass(article.trustScore);
         listItem.find('.reliability-badge').addClass(reliabilityClass);
@@ -1409,7 +1354,7 @@ function sortArticles(type) {
 
 // ========== 페이지네이션 ==========
 function goToPage(pageNumber) {
-    loadCategoryArticles('사회/경제/산업', pageNumber);  // 데이터 다시 로드
+    loadCategoryArticles('사회', pageNumber);  // 데이터 다시 로드
     updatePaginationUI(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });  // 맨 위로 스크롤
 }
@@ -1454,12 +1399,12 @@ function formatDateYMD(dateStr) {
 function toggleLoginState() {
     const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
     const dropdownContent = document.getElementById('dropdownContent');
-    const userName = localStorage.getItem('userName') || '회원';
 
     if (isLoggedIn) {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
+                       const userName = localStorage.getItem('userName') || '회원';
                 <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
@@ -1547,90 +1492,7 @@ function performSearch() {
         location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
     }
 }
-    $(document).ready(function() {
-    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
-    initApp();
-});
 
-function initApp() {
-    // 로그인 여부 확인
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const savedName = localStorage.getItem('userName') || "회원";
-
-    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
-    renderUserMenu(isLoggedIn, savedName);
-
-    if (isLoggedIn) {
-        // 3. 서버에서 최신 정보 가져와 동기화
-        fetchUserInfo();
-    }
-}
-
-function fetchUserInfo() {
-    $.ajax({
-        url: '/get-my-info',
-        type: 'GET',
-        success: function(response) {
-            if (response.status === "success" && response.data) {
-                const user = response.data;
-
-                // 브라우저 저장소 갱신
-                localStorage.setItem('userName', user.name);
-                localStorage.setItem('isLoggedIn', 'true');
-
-                // UI 업데이트 (드롭다운 & 사이드바)
-                renderUserMenu(true, user.name);
-            }
-        },
-        error: function(xhr) {
-            console.error("인증 로드 실패:", xhr.status);
-            if(xhr.status === 401) {
-                localStorage.setItem('isLoggedIn', 'false');
-                renderUserMenu(false);
-            }
-        }
-    });
-}
-
-// 드롭다운 부분
-function renderUserMenu(isLoggedIn, userName = "회원") {
-
-    const content = document.getElementById('dropdownContent');
-    if (!content) return;
-
-    if (isLoggedIn) {
-        content.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">환영합니다!</p>
-                      const userName = localStorage.getItem('userName') || '회원';
-                <p class="dropdown-title">${userName}님</p>
-            </div>
-            <a href="mypage.html" class="dropdown-item">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span>마이페이지</span>
-            </a>
-            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
-                <span class="material-symbols-outlined">logout</span>
-                <span>로그아웃</span>
-            </button>
-        `;
-    } else {
-        content.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
-            </div>
-            <a href="login.html" class="dropdown-item">
-                <span class="material-symbols-outlined">login</span>
-                <span>로그인</span>
-            </a>
-            <a href="logregist.html" class="dropdown-item">
-                <span class="material-symbols-outlined">person_add</span>
-                <span>회원가입</span>
-            </a>
-        `;
-    }
-}
 </script>
 
 </body>
