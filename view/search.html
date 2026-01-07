@@ -1281,11 +1281,7 @@
                 <button onclick="goToPrevPage()">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
-                <button class="page-number active" onclick="goToPage(1)">1</button>
-                <button class="page-number" onclick="goToPage(2)">2</button>
-                <button class="page-number" onclick="goToPage(3)">3</button>
-                <button class="page-number" onclick="goToPage(4)">4</button>
-                <button class="page-number" onclick="goToPage(5)">5</button>
+                <!-- 페이지 번호 버튼은 JavaScript로 동적 생성 -->
                 <button onclick="goToNextPage()">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
@@ -1382,7 +1378,7 @@ function performSearch() {
         data: JSON.stringify({
             search_type: apiSearchType,
             query: keyword,
-            size: 50  // 많이 가져와서 프론트에서 나눔
+            size: 1500 // 기사 리스트에 보여질 기사들인데 50이면 10페이지밖에 안 나와서 늘림
         }),
         dataType: 'json',
         success: function(response) {
@@ -1431,6 +1427,35 @@ function displayPage(page) {
 
     updatePaginationUI(page);
     currentPage = page;
+
+    if (pageArticles.length === 0){
+        displayEmptyMessage(); // 기사 없을 때,
+    } else {
+        displayListArticles(pageArticles); // 기사 있을 때
+    }
+}
+
+// ==========리스트형 기사 없을 경우===========
+function displayEmptyMessage() {
+    const container = document.getElementById('articleList'); // 또는 $('#articleList')
+
+    // 템플릿 제외하고 기존 기사만 삭제
+    container.querySelectorAll('.article-item:not(.article-item-template)').forEach(item => {
+        item.remove();
+    });
+
+    // 빈 메시지 추가 css까지 여기에 포함
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'empty-message';
+    emptyDiv.style.cssText = 'text-align: center; padding: 4rem 2rem; color: #999;';
+    emptyDiv.innerHTML = `
+        <span class="material-symbols-outlined" style="font-size: 4rem; display: block; margin-bottom: 1rem;">
+            description
+        </span>
+        <h3 style="margin-bottom: 0.5rem;">더 이상 표시할 기사가 없습니다</h3>
+        <p>이전 페이지로 돌아가거나 다른 검색어를 시도해보세요.</p>
+    `;
+    container.appendChild(emptyDiv);
 }
 
 // ========== 카드형 렌더링 ==========
@@ -1526,31 +1551,87 @@ function sortArticles(type) {
 }
 
 // ========== 페이지네이션 ==========
+
+// 특정 페이지로 이동하는 함수
 function goToPage(pageNumber) {
-    displayPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    currentPage = pageNumber;  // 현재 페이지 업데이트
+    displayPage(pageNumber);   // 해당 페이지의 게시글 표시
+    updatePaginationUI();      // 페이지네이션 버튼 다시 렌더링
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // 페이지 상단으로 스크롤
 }
 
+/**
+ * 이전 페이지로 이동하는 함수
+ */
 function goToPrevPage() {
-    if (currentPage > 1) {
+    if (currentPage > 1) {  // 1페이지보다 클 때만 이동
         goToPage(currentPage - 1);
     }
 }
 
+/**
+ * 다음 페이지로 이동하는 함수
+ */
 function goToNextPage() {
-    const maxPage = Math.ceil(allArticles.length / 5);  // 5개씩
-    if (currentPage < maxPage) {
+    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수 계산 (5개씩)
+    if (currentPage < maxPage) {  // 마지막 페이지가 아닐 때만 이동
         goToPage(currentPage + 1);
     }
 }
 
-function updatePaginationUI(activePage) {
-    document.querySelectorAll('.page-number').forEach(btn => {
-        btn.classList.toggle('active', Number(btn.innerText) === activePage);
-    });
+/**
+ * 페이지네이션 UI를 동적으로 업데이트하는 함수
+ * 현재 페이지를 중심으로 최대 5개의 페이지 버튼을 표시
+ */
+function updatePaginationUI() {
+    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수
+    // Math.ceil 올림함수 -> 4.1->5 // 5.0->5
+    const maxVisible = 5;  // 한 블록당 페이지 버튼 개수
+
+    // 현재 페이지가 속한 블록 계산
+    // 예: 1~5페이지 → 블록 0, 6~10페이지 → 블록 1
+    const currentBlock = Math.floor((currentPage - 1) / maxVisible);
+
+    // 시작 페이지와 끝 페이지 계산
+    const startPage = currentBlock * maxVisible + 1;
+    const endPage = Math.min(startPage + maxVisible - 1, maxPage);
+
+    // 페이지네이션 컨테이너 찾기
+    const pagination = document.querySelector('.pagination');
+
+    // 기존 페이지 번호 버튼 모두 제거
+    const oldButtons = pagination.querySelectorAll('.page-number');
+    oldButtons.forEach(btn => btn.remove());
+
+    // next 버튼 참조 (새 버튼들을 이 앞에 삽입하기 위해)
+    const nextButton = pagination.querySelector('button:last-child');
+
+    // 계산된 블록 범위만큼 페이지 버튼 동적 생성
+    for (let i = startPage; i <= endPage; i++) {
+        const button = document.createElement('button');
+        button.className = 'page-number';
+
+        // 현재 페이지에 active 클래스 추가
+        if (i === currentPage) {
+            button.classList.add('active');
+        }
+
+        button.innerText = i;  // 버튼 텍스트에 페이지 번호 표시
+        button.onclick = () => goToPage(i);  // 클릭 시 해당 페이지로 이동
+
+        // next 버튼 앞에 삽입
+        pagination.insertBefore(button, nextButton);
+    }
 }
 
-// ========== 유틸리티 함수 ==========
+/**
+ * 페이지 로드 시 초기 페이지네이션 UI 생성
+ */
+window.addEventListener('DOMContentLoaded', () => {
+    updatePaginationUI();  // 페이지 버튼 초기 렌더링
+});
+
+// ========== 유틸리티 함수 ================================
 function getCategoryClass(category) {
     const categoryMap = {
         '사회/경제': 'category-society',
