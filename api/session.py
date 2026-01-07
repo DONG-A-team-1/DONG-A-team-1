@@ -14,12 +14,12 @@ class SessionStartRequest(BaseModel):
     프론트엔드에서 /session/start 호출 했을 때 보내져야할 고정적인 형식
     예시:
     {
-        "user_id": 123,
+        "user_id": "jimin",
         "article_id": "01100401.20260102170115001"
     }
     user_id가 없으면 에러 / 타입 다르면 에러 → FastAPI 자동검증 설정
     """
-    user_id: int
+    user_id: str
     article_id: str
 
 # Router 설정

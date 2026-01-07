@@ -31,11 +31,11 @@ def session_ping(req: SessionPingRequest):
     es.update(
         index="session_data",
         id=req.session_id,
+        retry_on_conflict=3,
         doc={
             "seq": next_seq,
             "last_ping_at": now,
-            "scroll_depth": req.scroll_depth,
-            "is_end": False
+            "scroll_depth": req.scroll_depth
         }
     )
 
