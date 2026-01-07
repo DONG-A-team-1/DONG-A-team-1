@@ -300,7 +300,6 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             content={"success": False, "message": str(e)}
         )
 
-
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
@@ -310,6 +309,5 @@ async def wordcloud_api():
 
     # 2. 설계도(Option) 생성
     options_json = await make_wordcloud_data(bigkinds_data)
-
     # 3. 브라우저로 전송
     return json.loads(options_json)

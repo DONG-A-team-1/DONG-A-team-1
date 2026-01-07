@@ -1,25 +1,25 @@
-from urllib.parse import urlparse, urlunparse
-from datetime import datetime, timezone, timedelta
 import httpx
+import os
+import inspect
+
 from bs4 import BeautifulSoup
 from util.logger import Logger
 from util.elastic_templates import build_error_doc
 from typing import List, Dict, Any
 from util.elastic import es
-import os
-import inspect
-
+from urllib.parse import urlparse, urlunparse
+from datetime import datetime, timezone, timedelta
 
 logger = Logger().get_logger(__name__)
-# base_url = "<https://www.hani.co.kr/arti>"
 
 filename = os.path.basename(__file__)
 funcname = inspect.currentframe().f_back.f_code.co_name
-
 logger_name = f"{filename}:{funcname}"
-now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
+
 KST = timezone(timedelta(hours=+9))
-now_kst = datetime.now(KST).strftime("%Y%m%d%H%M%S")
+now_kst_iso = datetime.now(KST).isoformat()
+now_run_id = datetime.now(KST).strftime("%Y%m%d_%H")  # yyyymmdd_hh
+
 HEADERS = {
   "User-Agent": "...Chrome...",
   "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -29,78 +29,83 @@ HEADERS = {
   "Referer": "https://www.hani.co.kr/"
 }
 
-# 웹에서 브라우저인 척 하고 긁어오기 위해서 넣은 구문
-# 브라우저처럼 보이게 해서 정상 HTML 받기 위해서
-# User Agent가 비어있거나 기본 https값이면 에러
-
 def force_https(url: str) -> str:
     if not url:
         return url
 
     parsed = urlparse(url)
 
-    # http → https로 변경
     if parsed.scheme == "http":
         parsed = parsed._replace(scheme="https")
         return urlunparse(parsed)
 
-    # 스킴이 없고 //로 시작하는 경우: 프로토콜 상대 URL
     if parsed.scheme == "" and url.startswith("//"):
         return "https:" + url
 
-    # 이미 https 이거나, 다른 스킴이면 그대로 반환
     return url
 
-async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로 가져오기
+async def hani_crawl(bigkinds_data: List[Dict[str, Any]]):
     id_list = [data["article_id"] for data in bigkinds_data]
     url_list = [data["url"] for data in bigkinds_data]
 
-    article_list = []
-    error_list =[]
-    empty_articles = []
+    error_list: List[Dict[str, Any]] = []
+    empty_articles: List[Dict[str, Any]] = []
 
-    async with httpx.AsyncClient(timeout=10.0, headers=HEADERS, http2=True,  follow_redirects=True) as client:
-        # 기본 최신기사 링크 가져와서 크롤링
+    async with httpx.AsyncClient(
+        timeout=10.0, headers=HEADERS, http2=True, follow_redirects=True
+    ) as client:
         for article_id, url in zip(id_list, url_list):
+            if not url:
+                error_list.append({
+                    "article_id": article_id,
+                    "error_url": url,
+                    "error_type": "EmptyURL",
+                    "error_message": "url is empty"
+                })
+                continue
+
             try:
-                url = force_https(url) # 아예 원본 기사 하나 가져옴
+                url = force_https(url)
                 res = await client.get(url)
+                res.raise_for_status()
+
                 soup = BeautifulSoup(res.text, "html.parser")
                 logger.info(f"crawling {url}")
-    
-                # 제목 art_name
+
+                # 제목
                 title_tag = soup.select_one('h3.ArticleDetailView_title__9kRU_')
-                article_title = title_tag.get_text(strip=True)
-    
+                article_title = title_tag.get_text(strip=True) if title_tag else None
+
                 # 본문
                 paragraphs = soup.select('div.article-text p.text')
-    
-                article_content = " ".join(p.get_text(strip=True) for p in paragraphs[:-1])
-    
-                # 대표 이미지 저장
+                if paragraphs:
+                    article_content = " ".join(p.get_text(strip=True) for p in paragraphs[:-1])
+                else:
+                    article_content = None
+
+                # 대표 이미지
                 image = soup.select_one('picture img')
-                article_img = image.get('src')
-    
-    
+                article_img = image.get('src') if image else None
+
                 es.update(
                     index="article_data",
                     id=article_id,
-                    doc={
-                        "article_img": article_img,
-                    }
+                    body={"doc": {"article_img": article_img}}
                 )
-    
-                article_raw ={
+
+                article_raw = {
                     "article_id": article_id,
                     "article_title": article_title,
                     "article_content": article_content,
                     "collected_at": now_kst_iso
                 }
+
             except Exception as e:
                 error_list.append({
+                    "article_id": article_id,
                     "error_url": url,
                     "error_type": type(e).__name__,
-                    "error_message": f"{str(e)}"
+                    "error_message": str(e)
                 })
                 continue
 
@@ -109,29 +114,52 @@ async def hani_crawl(bigkinds_data: List[Dict[str,Any]]):  # 뷰티풀 숩으로
                 es.index(index="article_raw", id=article_id, document=article_raw)
             else:
                 empty_articles.append({
-                    "article_id": article_id
+                    "article_id": article_id,
+                    "reason": "null_fields_in_article_raw",
+                    "null_count": null_count
                 })
                 es.delete(index="article_data", id=article_id)
 
-        # 에러 로그 업로드
-        if len(error_list) > 0:
-            error_doc = build_error_doc(
-                message=f"{len(error_list)}개 에러 발생",
-                samples=error_list
-            )
-            es.index(index="error_log", document=error_doc)
+    # ✅ 요약 로그 1건만 저장 (에러 or 결측이 하나라도 있으면)
+    if error_list or empty_articles:
+        samples: List[Dict[str, Any]] = []
+        samples.extend(error_list[:10])
+        if len(samples) < 10:
+            samples.extend(empty_articles[: (10 - len(samples))])
 
-        if len(empty_articles) > 0:
-            es.index(
-                index="error_log",
-                document=build_error_doc(
-                    message=f"{len(empty_articles)}개 결측치 발생",
-                    samples=empty_articles
-                )
-            )
+        doc = build_error_doc(
+            message=f"한겨레 상세 크롤링 요약: 에러 {len(error_list)}건, 결측 {len(empty_articles)}건",
+
+            service_name="crawler",
+            service_environment=os.getenv("APP_ENV", "dev"),
+
+            pipeline_run_id=now_run_id,
+            pipeline_job="hani_crawl",
+            pipeline_step="article_content",
+
+            event_severity=3,
+            event_outcome="failure",
+
+            metrics={
+                "error_count": len(error_list),
+                "empty_count": len(empty_articles),
+                "total_targets": len(id_list),
+                "success_count": len(id_list) - len(error_list) - len(empty_articles),
+            },
+
+            context={
+                "press": "한겨레",
+                "total_targets": len(id_list),
+            },
+
+            samples=samples,
+            tags=["crawler", "hani", "detail", "summary"],
+        )
+        es.index(index="error_log", document=doc)
 
     empty_ids = {x["article_id"] for x in empty_articles}
-    result = list(set(id_list) - empty_ids)
-    print(f"==== 한겨례 상세 크롤링 완료: {len(result)}개 성공====")
-    return result
+    error_ids = {x["article_id"] for x in error_list}
+    result = list(set(id_list) - empty_ids - error_ids)
 
+    print(f"==== 한겨레 상세 크롤링 완료: {len(result)}개 성공====")
+    return result
