@@ -1029,6 +1029,53 @@ body:not(.dark) #articleGrid a.article-card,
 body:not(.dark) #articleList a.list-article {
     color: #111827 !important;
 }
+        /* =========================
+   🌙 다크모드 가독성 개선
+========================= */
+
+/* 카드 전체 기본 텍스트 */
+body.dark .article-card,
+body.dark .list-article {
+    color: #E5E7EB;
+}
+
+/* 카드 제목 */
+body.dark .article-title,
+body.dark .card-title,
+body.dark .list-title-text {
+    color: #F9FAFB !important;
+}
+
+/* 카드 본문 */
+body.dark .article-description,
+body.dark .card-description,
+body.dark .list-desc {
+    color: #D1D5DB !important;
+}
+
+/* 메타 정보 (기자, 언론사, 날짜) */
+body.dark .article-meta,
+body.dark .card-source,
+body.dark .list-article-source {
+    color: #9CA3AF;
+}
+    /* 모든 기사 링크 색상 통제 */
+#articleGrid a,
+#articleList a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* hover 시에도 파란색 금지 */
+#articleGrid a:hover,
+#articleList a:hover {
+    color: inherit;
+}
+/* 다크모드 이미지 가독성 */
+body.dark .article-image img,
+body.dark .list-article-image img {
+    filter: brightness(1.1) contrast(1.05);
+}
 </style>
 </head>
 <body>
@@ -1036,7 +1083,7 @@ body:not(.dark) #articleList a.list-article {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
@@ -1173,7 +1220,7 @@ body:not(.dark) #articleList a.list-article {
         <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
     </button>
 </div>
-
+</main>
 <div class="spacer"></div>
 
 <script>
