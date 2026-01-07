@@ -1137,22 +1137,42 @@ body.dark .activity-desc {
     white-space: nowrap;
 }
 
-/* Responsive */
+/* Responsive - Keep sidebar always visible */
 @media (max-width: 1024px) {
-    .sidebar {
-        transform: translateX(-100%);
+    :root {
+        --sidebar-width: 200px;
     }
     
-    .sidebar.open {
-        transform: translateX(0);
+    .sidebar {
+        width: var(--sidebar-width);
     }
     
     .main-content {
-        margin-left: 0;
+        margin-left: var(--sidebar-width);
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 180px;
     }
     
-    .menu-toggle {
-        display: flex;
+    .nav-item {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+    
+    .sidebar-header {
+        padding: 1rem;
+    }
+    
+    .sidebar-logo-text {
+        font-size: 1rem;
+    }
+    
+    .sidebar-badge {
+        font-size: 0.5625rem;
+        padding: 0.125rem 0.25rem;
     }
 }
 
@@ -1253,6 +1273,260 @@ body.dark .empty-title {
     font-size: 0.875rem;
     color: var(--gray-500);
 }
+
+/* Settings Page */
+.settings-section {
+    margin-bottom: 2rem;
+}
+
+.settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.settings-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+body.dark .settings-section-title {
+    color: var(--gray-100);
+}
+
+.settings-section-desc {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    margin-bottom: 1.25rem;
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+body.dark .settings-item {
+    border-bottom-color: var(--gray-700);
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item-info {
+    flex: 1;
+    min-width: 0;
+    padding-right: 1rem;
+}
+
+.settings-item-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+body.dark .settings-item-title {
+    color: var(--gray-100);
+}
+
+.settings-item-desc {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+}
+
+/* Switch Toggle */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-300);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+body.dark .slider {
+    background-color: var(--gray-600);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .slider {
+    background-color: var(--primary);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Topic Article Labels */
+.topic-stats {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.topic-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.topic-stat.positive {
+    background: var(--success-bg);
+    color: #065F46;
+}
+
+.topic-stat.negative {
+    background: var(--error-bg);
+    color: #991B1B;
+}
+
+.topic-stat.neutral {
+    background: var(--info-bg);
+    color: #1E40AF;
+}
+
+body.dark .topic-stat.positive {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6EE7B7;
+}
+
+body.dark .topic-stat.negative {
+    background: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+}
+
+body.dark .topic-stat.neutral {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93C5FD;
+}
+
+/* Topic Articles List in Modal */
+.topic-articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.topic-article-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+}
+
+body.dark .topic-article-item {
+    background: rgba(55, 65, 81, 0.3);
+    border-color: var(--gray-700);
+}
+
+.topic-article-title {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark .topic-article-title {
+    color: var(--gray-300);
+}
+
+.topic-article-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.topic-article-actions select {
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--gray-300);
+    background: var(--surface-light);
+    color: var(--gray-700);
+}
+
+body.dark .topic-article-actions select {
+    background: var(--gray-800);
+    border-color: var(--gray-600);
+    color: var(--gray-300);
+}
+
+.topic-article-delete-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: transparent;
+    color: var(--gray-400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.topic-article-delete-btn:hover {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+body.dark .topic-article-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.topic-article-delete-btn .material-symbols-outlined {
+    font-size: 1rem;
+}
 </style>
 </head>
 <body>
@@ -1294,6 +1568,10 @@ body.dark .empty-title {
                 <button class="nav-item" data-page="articles">
                     <span class="material-symbols-outlined">article</span>
                     <span>기사 관리</span>
+                </button>
+                <button class="nav-item" data-page="topics">
+                    <span class="material-symbols-outlined">category</span>
+                    <span>토픽 관리</span>
                 </button>
             </div>
             
@@ -1583,6 +1861,48 @@ body.dark .empty-title {
                 </div>
             </section>
             
+            <!-- Topics Page -->
+            <section class="page-section" id="page-topics">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="material-symbols-outlined">category</span>
+                            토픽 관리
+                        </h2>
+                        <div class="filter-bar">
+                            <input type="text" class="filter-input" placeholder="토픽 검색..." id="topicSearchInput" oninput="filterTopics()">
+                            <button class="btn btn-primary" onclick="openAddTopicModal()">
+                                <span class="material-symbols-outlined">add</span>
+                                토픽 추가
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="topicsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>토픽명</th>
+                                    <th>기사 수</th>
+                                    <th>긍정/부정/중립</th>
+                                    <th>생성일</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topicsTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-info">총 <strong id="topicsTotalCount">0</strong>개의 토픽</div>
+                        <div class="pagination" id="topicsPagination">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
             <!-- Settings Page -->
             <section class="page-section" id="page-settings">
                 <div class="card">
@@ -1593,10 +1913,77 @@ body.dark .empty-title {
                         </h2>
                     </div>
                     <div class="card-body">
-                        <div class="empty-state">
-                            <span class="material-symbols-outlined empty-icon">construction</span>
-                            <div class="empty-title">준비 중</div>
-                            <div class="empty-desc">시스템 설정 페이지는 현재 개발 중입니다.</div>
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">자동화 설정</h3>
+                            <p class="settings-section-desc">시스템 자동화 기능을 활성화하거나 비활성화합니다.</p>
+                            
+                            <div class="settings-list">
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 기사 분류</div>
+                                        <div class="settings-item-desc">새 기사가 등록되면 AI가 자동으로 카테고리와 라벨을 분류합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingAutoClassify" checked onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 토픽 생성</div>
+                                        <div class="settings-item-desc">관련 기사가 일정 수 이상 모이면 자동으로 토픽을 생성합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingAutoTopic" checked onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 감성 분석</div>
+                                        <div class="settings-item-desc">기사의 긍정/부정/중립 성향을 자동으로 분석합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingSentiment" checked onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 크롤링</div>
+                                        <div class="settings-item-desc">외부 뉴스 소스에서 기사를 주기적으로 수집합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingCrawling" onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 알림 발송</div>
+                                        <div class="settings-item-desc">속보나 중요 이벤트 발생 시 사용자에게 알림을 자동 발송합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingNotification" onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="settings-item">
+                                    <div class="settings-item-info">
+                                        <div class="settings-item-title">자동 로그 정리</div>
+                                        <div class="settings-item-desc">30일이 지난 로그를 자동으로 삭제합니다.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="settingLogCleanup" checked onchange="saveSettings()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1772,6 +2159,56 @@ body.dark .empty-title {
     </div>
 </div>
 
+<!-- Topic Edit Modal -->
+<div class="modal-overlay" id="topicEditModal">
+    <div class="modal" style="max-width: 40rem;">
+        <div class="modal-header">
+            <h3 class="modal-title">토픽 수정</h3>
+            <button class="modal-close" onclick="closeModal('topicEditModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">토픽명</label>
+                <input type="text" class="form-input" id="editTopicName" placeholder="토픽 이름">
+            </div>
+            <div class="form-group">
+                <label class="form-label">포함 기사 및 감성 라벨</label>
+                <div class="topic-articles-list" id="topicArticlesList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('topicEditModal')">취소</button>
+            <button class="btn btn-primary" onclick="saveTopicEdit()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Topic Modal -->
+<div class="modal-overlay" id="addTopicModal">
+    <div class="modal" style="max-width: 32rem;">
+        <div class="modal-header">
+            <h3 class="modal-title">새 토픽 추가</h3>
+            <button class="modal-close" onclick="closeModal('addTopicModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">토픽명</label>
+                <input type="text" class="form-input" id="newTopicName" placeholder="새 토픽 이름">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('addTopicModal')">취소</button>
+            <button class="btn btn-primary" onclick="addNewTopic()">추가</button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1821,13 +2258,40 @@ const userActivities = [
     { type: 'view', title: '기사 조회', desc: '"차준환, 3연속 올림픽 출전권 획득" 기사 조회', time: '어제 18:40' },
 ];
 
+// Topics Data
+const topicsData = [
+    { id: 'T001', name: '마두로 베네수엘라 대통령 체포', articles: [
+        { id: 'A001', title: '마두로 베네수엘라 대통령 체포', sentiment: 'negative' },
+        { id: 'A009', title: '베네수엘라 시민들, 거리로 몰려나와', sentiment: 'neutral' },
+        { id: 'A010', title: '국제사회, 마두로 체포에 환영 의사', sentiment: 'positive' },
+    ], date: '2026-01-06' },
+    { id: 'T002', name: '이재명 대통령 한중 정상회담', articles: [
+        { id: 'A002', title: '이재명 대통령, 시진핑과 정상회담', sentiment: 'neutral' },
+        { id: 'A011', title: '한중 경제협력 강화 합의', sentiment: 'positive' },
+    ], date: '2026-01-06' },
+    { id: 'T003', name: '북한 미사일 발사', articles: [
+        { id: 'A003', title: '북한, 동해상으로 탄도미사일 발사', sentiment: 'negative' },
+        { id: 'A012', title: '한미일, 북한 미사일 발사 규탄', sentiment: 'negative' },
+        { id: 'A013', title: '전문가 분석: 북한의 의도는?', sentiment: 'neutral' },
+    ], date: '2026-01-06' },
+    { id: 'T004', name: '삼성전자 실적 발표', articles: [
+        { id: 'A004', title: '삼성전자, 2분기 실적 발표...영업이익 50% 증가', sentiment: 'positive' },
+        { id: 'A014', title: '반도체 시장 회복세, 삼성 수혜', sentiment: 'positive' },
+    ], date: '2026-01-05' },
+    { id: 'T005', name: '차준환 올림픽 출전', articles: [
+        { id: 'A005', title: '차준환, 3연속 올림픽 출전권 획득', sentiment: 'positive' },
+    ], date: '2026-01-05' },
+];
+
 // State
 let currentEditUserId = null;
 let currentEditArticleId = null;
+let currentEditTopicId = null;
 let deleteCallback = null;
 let filteredLogs = [...logsData];
 let filteredUsers = [...usersData];
 let filteredArticles = [...articlesData];
+let filteredTopics = [...topicsData];
 
 // Page Titles
 const pageTitles = {
@@ -1835,6 +2299,7 @@ const pageTitles = {
     logs: '시스템 로그',
     users: '사용자 관리',
     articles: '기사 관리',
+    topics: '토픽 관리',
     settings: '시스템 설정'
 };
 
@@ -1845,7 +2310,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLogs();
     renderUsers();
     renderArticles();
+    renderTopics();
     updateErrorCount();
+    loadSettings();
 });
 
 // Dark Mode
@@ -2251,6 +2718,187 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Topics
+function renderTopics() {
+    const tbody = document.getElementById('topicsTableBody');
+    tbody.innerHTML = filteredTopics.map(topic => {
+        const positive = topic.articles.filter(a => a.sentiment === 'positive').length;
+        const negative = topic.articles.filter(a => a.sentiment === 'negative').length;
+        const neutral = topic.articles.filter(a => a.sentiment === 'neutral').length;
+        
+        return `
+            <tr>
+                <td>${topic.id}</td>
+                <td><span class="article-title-cell">${escapeHtml(topic.name)}</span></td>
+                <td>${topic.articles.length}</td>
+                <td>
+                    <div class="topic-stats">
+                        <span class="topic-stat positive">긍정 ${positive}</span>
+                        <span class="topic-stat negative">부정 ${negative}</span>
+                        <span class="topic-stat neutral">중립 ${neutral}</span>
+                    </div>
+                </td>
+                <td>${topic.date}</td>
+                <td>
+                    <div class="action-btns">
+                        <button class="action-btn" onclick="editTopic('${topic.id}')" title="수정">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="action-btn delete" onclick="confirmDeleteTopic('${topic.id}')" title="삭제">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    document.getElementById('topicsTotalCount').textContent = filteredTopics.length;
+    renderPagination('topicsPagination', filteredTopics.length);
+}
+
+function filterTopics() {
+    const search = document.getElementById('topicSearchInput').value.toLowerCase();
+    
+    filteredTopics = topicsData.filter(topic => {
+        return topic.name.toLowerCase().includes(search);
+    });
+    
+    renderTopics();
+}
+
+function editTopic(topicId) {
+    const topic = topicsData.find(t => t.id === topicId);
+    if (!topic) return;
+    
+    currentEditTopicId = topicId;
+    document.getElementById('editTopicName').value = topic.name;
+    
+    const list = document.getElementById('topicArticlesList');
+    list.innerHTML = topic.articles.map((article, idx) => `
+        <div class="topic-article-item" data-article-idx="${idx}">
+            <span class="topic-article-title">${escapeHtml(article.title)}</span>
+            <div class="topic-article-actions">
+                <select data-article-idx="${idx}" onchange="updateTopicArticleSentiment(this)">
+                    <option value="positive" ${article.sentiment === 'positive' ? 'selected' : ''}>긍정</option>
+                    <option value="negative" ${article.sentiment === 'negative' ? 'selected' : ''}>부정</option>
+                    <option value="neutral" ${article.sentiment === 'neutral' ? 'selected' : ''}>중립</option>
+                </select>
+                <button class="topic-article-delete-btn" onclick="deleteTopicArticle(${idx})" title="기사 제거">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    openModal('topicEditModal');
+}
+
+function updateTopicArticleSentiment(select) {
+    // This updates in real-time when saved
+}
+
+function deleteTopicArticle(articleIdx) {
+    const topic = topicsData.find(t => t.id === currentEditTopicId);
+    if (!topic) return;
+    
+    topic.articles.splice(articleIdx, 1);
+    editTopic(currentEditTopicId); // Re-render the list
+    showToast('기사가 토픽에서 제거되었습니다.', 'success');
+}
+
+function saveTopicEdit() {
+    const topic = topicsData.find(t => t.id === currentEditTopicId);
+    if (!topic) return;
+    
+    topic.name = document.getElementById('editTopicName').value;
+    
+    // Update sentiments
+    const selects = document.querySelectorAll('#topicArticlesList select');
+    selects.forEach(select => {
+        const idx = parseInt(select.dataset.articleIdx);
+        topic.articles[idx].sentiment = select.value;
+    });
+    
+    filterTopics();
+    closeModal('topicEditModal');
+    showToast('토픽이 수정되었습니다.', 'success');
+}
+
+function openAddTopicModal() {
+    document.getElementById('newTopicName').value = '';
+    openModal('addTopicModal');
+}
+
+function addNewTopic() {
+    const name = document.getElementById('newTopicName').value.trim();
+    if (!name) {
+        showToast('토픽 이름을 입력해주세요.', 'warning');
+        return;
+    }
+    
+    const newId = 'T' + String(topicsData.length + 1).padStart(3, '0');
+    const today = new Date().toISOString().split('T')[0];
+    
+    topicsData.push({
+        id: newId,
+        name: name,
+        articles: [],
+        date: today
+    });
+    
+    filterTopics();
+    closeModal('addTopicModal');
+    showToast('새 토픽이 추가되었습니다.', 'success');
+}
+
+function confirmDeleteTopic(topicId) {
+    const topic = topicsData.find(t => t.id === topicId);
+    if (!topic) return;
+    
+    document.getElementById('deleteConfirmMessage').textContent = `"${topic.name}" 토픽을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    deleteCallback = () => {
+        const index = topicsData.findIndex(t => t.id === topicId);
+        if (index > -1) {
+            topicsData.splice(index, 1);
+            filterTopics();
+            showToast('토픽이 삭제되었습니다.', 'success');
+        }
+        closeModal('deleteConfirmModal');
+    };
+    document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
+    
+    openModal('deleteConfirmModal');
+}
+
+// Settings
+function saveSettings() {
+    const settings = {
+        autoClassify: document.getElementById('settingAutoClassify').checked,
+        autoTopic: document.getElementById('settingAutoTopic').checked,
+        sentiment: document.getElementById('settingSentiment').checked,
+        crawling: document.getElementById('settingCrawling').checked,
+        notification: document.getElementById('settingNotification').checked,
+        logCleanup: document.getElementById('settingLogCleanup').checked
+    };
+    
+    localStorage.setItem('adminSettings', JSON.stringify(settings));
+    showToast('설정이 저장되었습니다.', 'success');
+}
+
+function loadSettings() {
+    const saved = localStorage.getItem('adminSettings');
+    if (saved) {
+        const settings = JSON.parse(saved);
+        document.getElementById('settingAutoClassify').checked = settings.autoClassify ?? true;
+        document.getElementById('settingAutoTopic').checked = settings.autoTopic ?? true;
+        document.getElementById('settingSentiment').checked = settings.sentiment ?? true;
+        document.getElementById('settingCrawling').checked = settings.crawling ?? false;
+        document.getElementById('settingNotification').checked = settings.notification ?? false;
+        document.getElementById('settingLogCleanup').checked = settings.logCleanup ?? true;
+    }
 }
 
 // Close modals on overlay click
