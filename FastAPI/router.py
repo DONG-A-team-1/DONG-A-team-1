@@ -14,6 +14,7 @@ from wordcloud.wordCloudMaker import make_wordcloud_data
 #     from . import member  # 분리한 파일 임포트
 from . import member
 from . import article
+from .admin import get_admin_data
 
 app = FastAPI()
 app.mount("/view", StaticFiles(directory="view"), name="view")
@@ -276,5 +277,8 @@ async def wordcloud_api():
     # 3. 브라우저로 전송
     return json.loads(options_json)
 
-@app.get("/api.admin")
+
+@app.get("/api/admin")
 def admin_data():
+    result = get_admin_data()
+    return result
