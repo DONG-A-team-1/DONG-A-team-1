@@ -7,14 +7,21 @@ from starlette.middleware.sessions import SessionMiddleware
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
+from pydantic import BaseModel
+from typing import List
+
+import json
 
 from . import member
 from . import article
+from . import topic
+from . import category
+from wordcloud.wordCloudMaker import make_wordcloud_data
+from util.logger import Logger
+from util.elastic import es
 
-# try:
-#     import member
-# except ModuleNotFoundError:
-#     from . import member  # 분리한 파일 임포트
+logger = Logger().get_logger(__name__)
+
 
 app = FastAPI()
 
@@ -223,3 +230,86 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
+@app.get("/topics", response_class=HTMLResponse)
+async def topic_page(request: Request):
+    return RedirectResponse(
+        url=f"/view/polar.html",
+        status_code=302
+    )
+
+@app.get("/api/topic")
+def get_topics():
+    result = topic.get_topic_from_es()
+    return result
+
+class TopicArticleReq(BaseModel):
+    pos_ids: List[str]
+    neg_ids: List[str]
+    neu_ids: List[str]
+
+@app.post("/api/topic_article")
+def get_topic_article(body:TopicArticleReq):
+    result = topic.get_topic_article(body)
+    return result
+@app.post("/api/search") # 검색 기능
+async def api_search(request: Request):
+    """기사 검색 API"""
+    try:
+        data = await request.json()# 데이터 다 읽을 때까지 기달
+        print("search data:", data)
+        search_type = data.get('search_type','all')
+        # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
+        query = data.get('query','').strip()
+        # 사용자가 입력한 검색어
+        size = data.get('size', 20)
+        # 검색 결과 몇 개 가져올 지 결정하는 숫자
+
+        if not query: # 검색어가 없다면.
+            return JSONResponse(
+                status_code=400,
+                content={"success":False,"message":"검색어를 입력해주세요"}
+            )
+        from FastAPI import search # 현재 폴더의 search.py를 가지고 오라는 명령
+        results = search.search_articles(
+            data.get('search_type','all'),
+            data.get('query',''),
+            data.get('size',20)
+        )
+        print("search results OK")
+        return search.search_articles(search_type, query, size)
+
+    except Exception as e:
+        print("search error: ",e)
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": str(e)}
+        )
+
+# 카테고리별로 불러오기------해정,하영님 합작
+
+@app.get("/api/category/{category_name}")
+async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
+    """카테고리별 기사 조회 API"""
+    try:
+        results = category.get_articles_by_category(category_name, size, page)
+        return results
+    except Exception as e:
+        print(f"Category error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": str(e)}
+        )
+
+
+# main.py (FastAPI 예시)
+@app.get("/api/wordcloud-data")
+async def wordcloud_api():
+    # 1. ES에서 실제 데이터 가져오기 (이전 단계에서 만든 로직)
+    res = es.search(index="article_data", body={"size": 100, "sort": [{"collected_at": "desc"}]})
+    bigkinds_data = [hit['_source'] for hit in res['hits']['hits']]
+
+    # 2. 설계도(Option) 생성
+    options_json = await make_wordcloud_data(bigkinds_data)
+
+    # 3. 브라우저로 전송
+    return json.loads(options_json)
