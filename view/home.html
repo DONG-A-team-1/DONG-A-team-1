@@ -1399,6 +1399,25 @@
         color: #9ca3af;
       }
 
+      /* 캐러셀 컨테이너 */
+      .viewport {
+        overflow: hidden; /* 영역 밖으로 나가는 카드는 숨김 */
+        width: 100%;      /* 부모 너비에 맞춤 */
+      }
+
+      /* 카드가 나란히 배치되는 트랙 */
+      .track {
+        display: flex;          /* 카드들을 가로로 나열 */
+        transition: transform 0.4s ease; /* 이동 애니메이션 */
+        will-change: transform;
+      }
+
+      /* 각 뉴스 카드 링크 */
+      .news-link {
+        flex: 0 0 100%;        /* 한 번에 하나씩 보일 때 (슬라이드 형태) */
+        text-decoration: none;
+        color: inherit;
+      }
     </style>
 </head>
 
@@ -1483,259 +1502,40 @@
           </button>
 
           <!-- 캐러셀 viewport -->
-           <div class="viewport">
+          <div class="viewport">
             <div class="track" id="track">
-
-              <!-- ===== 메인기사 슬라이드 1 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
+              <a href="#" class="news-link" id="main-news-template" style="display:none;">
                 <div class="main-news-card">
                   <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 1위
-                      </div>
+                    <img class="article-img" src="" alt="news" />
+                    <div class="media-gradient"></div>
+                    <div class="trend-chip">
+                      <span class="material-symbols-outlined">trending_up</span>
+                      <span class="rank-text"></span>
+                    </div>
                   </div>
-
                   <div class="main-news-body">
                     <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
+                      <span class="pill category-pill">뉴스</span>
+                      <span class="date article-date"></span>
                     </div>
-
-                    <h1 class="main-title">
-                        1제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
+                    <h1 class="main-title article-title"></h1>
+                    <p class="main-desc clamp-3 article-desc"></p>
                     <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 2 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 2위
+                      <div class="article-author-info">
+                        <span class="author-name reporter-name"></span>
+                        <span class="author-dot press-name"></span>
                       </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
                     </div>
-
-                    <h1 class="main-title">
-                        2제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
                     <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 3 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 3위
+                      <!-- <div class="trend-score">
+                        <span class="trend-label">트렌드</span>
+                        <span class="trend-value score-val"></span>
+                      </div> --> <!-- 트랜드 스코어 제외함 -->
+                      <div class="trust-score">
+                        <span class="trust-label">신뢰도</span>
+                        <span class="trust-value trust-val"></span>
                       </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간/span>
-                    </div>
-
-                    <h1 class="main-title">
-                        3제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 4 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 4위
-                      </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
-                    </div>
-
-                    <h1 class="main-title">
-                        4제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 5 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 5위
-                      </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date"></span>
-                    </div>
-
-                    <h1 class="main-title">
-                        5제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
                     </div>
                   </div>
                 </div>
@@ -1751,114 +1551,28 @@
         </div>
 
         <!-- Related (연관기사) -->
-        <aside class="related">
+        <aside class="related" id="related-container">
           <div class="related-head">
-            <h2 class="section-title">
-              <span class="title-bar"></span>
-              연관 기사
-            </h2>
+            <h2 class="section-title"><span class="title-bar"></span>연관 기사</h2>
           </div>
 
-          <a href="/article/${item.article_id}" class="newslink">
+          <a href="#" class="newslink" id="related-template" style="display:none;">
             <article class="related-item">
               <div class="thumb">
-                <img
-                  alt="Related News 1"
-                  src="https://via.placeholder.com/96x96"
-                />
+                <img class="rel-img" src="" alt="Related News" />
               </div>
               <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
-                </h3>
+                <h3 class="related-title clamp-2 rel-title"></h3>
                 <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
+                  <div class="article-author-info">
+                    <span class="author-name rel-author"></span>
+                    <span class="author-dot rel-press"></span>
+                  </div>
                 </div>
               </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 2"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 글로벌 시장 트렌드 분석
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 3"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 신기술 도입과 산업 변화
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 4"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 정책 변화와 기업 대응 전략
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
+              <div class="trust-score">
+                <span class="trust-label">신뢰도</span>
+                <span class="trust-value rel-trust"></span>
               </div>
             </article>
           </a>
@@ -2041,6 +1755,129 @@
 
   </body>
   <script>
+$(document).ready(function () {
+    let globalArticles = []; 
+
+    function loadNews() {
+        $.ajax({
+            url: "/api/main-trending",
+            type: "GET",
+            success: function (response) {
+                if (response.success && response.articles) {
+                    globalArticles = response.articles;
+                    const $track = $('#track');
+                    const $template = $('#main-news-template');
+
+                    $track.find('.news-link:not(#main-news-template)').remove();
+
+                    globalArticles.forEach((data, index) => {
+                        const $clone = $template.clone();
+                        $clone.removeAttr('id').css('display', 'block');
+                        
+                        $clone.attr('href', `article-detail.html?id=${data.article_id}`);
+                        $clone.find('.pill').text(data.category);
+                        $clone.find('.article-img').attr('src', data.image);
+                        $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
+                        $clone.find('.article-title').text(data.title);
+                        $clone.find('.reporter-name').text(data.reporter);
+                        $clone.find('.press-name').text(data.source);
+                        $clone.find('.trust-val').text(data.trustScore + '점');
+
+                        $track.append($clone);
+                    });
+
+                    initCustomCarousel();
+                    
+                    // 첫 로드 시 연관기사 로드
+                    if (globalArticles.length > 0) {
+                        loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
+                    }
+                }
+            }
+        });
+    }
+
+    function initCustomCarousel() {
+        const $track = $('#track');
+        let index = 0;
+
+        // 오른쪽 버튼 클릭
+        $('#nextBtn').off('click').on('click', function() {
+            const $cards = $track.find('.news-link:not(#main-news-template)');
+            const totalCards = $cards.length;
+
+            if (index < totalCards - 1) {
+                index++; // 다음 칸으로
+            } else {
+                index = 0; // 마지막이면 첫 번째로 돌아감
+            }
+            moveSlide($cards, index);
+        });
+
+        // 왼쪽 버튼 클릭
+        $('#prevBtn').off('click').on('click', function() {
+            const $cards = $track.find('.news-link:not(#main-news-template)');
+            const totalCards = $cards.length;
+
+            if (index > 0) {
+                index--; // 이전 칸으로
+            } else {
+                index = totalCards - 1; // 첫 번째면 마지막으로 돌아감
+            }
+            moveSlide($cards, index);
+        });
+
+        // 슬라이드 이동 및 연관기사 로드 함수
+        function moveSlide($cards, currentIndex) {
+            const cardWidth = $cards.outerWidth(true);
+            $track.css({
+                'transform': `translateX(${-currentIndex * cardWidth}px)`,
+                'transition': 'transform 0.4s ease-in-out' // 부드러운 이동 효과 추가
+            });
+
+            // 현재 슬라이드 데이터로 연관기사 업데이트
+            if (globalArticles[currentIndex]) {
+                const currentId = globalArticles[currentIndex].article_id; 
+                const currentTitle = globalArticles[currentIndex].title;
+                loadRelatedArticles(currentId, currentTitle);
+            }
+        }
+    }
+
+    loadNews();
+});
+
+// 연관기사 함수
+function loadRelatedArticles(mainArticleId, mainArticleTitle) {
+    $.ajax({
+        url: "/api/related-articles",
+        type: "GET",
+        data: { 
+            id: mainArticleId,
+            title: mainArticleTitle 
+        },
+        success: function(response) {
+            if (response.success && response.articles) {
+                const $container = $('#related-container');
+                const $template = $('#related-template');
+                $container.find('.newslink:not(#related-template)').remove();
+
+                response.articles.forEach(data => {
+                    const $clone = $template.clone();
+                    $clone.removeAttr('id').css('display', 'block');
+                    $clone.attr('href', `article-detail.html?id=${data.article_id}`);
+                    $clone.find('.rel-img').attr('src', data.image);
+                    $clone.find('.rel-title').text(data.title);
+                    $clone.find('.rel-author').text(data.reporter);
+                    $clone.find('.rel-press').text(data.source);
+                    $clone.find('.rel-trust').text(data.trustScore + '점');
+                    $container.append($clone);
+                });
+            }
+        }
+    });
+}
+
     $(document).ready(function() {
     // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
     initApp();
@@ -2171,33 +2008,6 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         }
     });
 }
-
-    // 기사 불러오기 백엔드 해볼려고 작성한건데 맞는지는.. 해봐야 알 것 같아요
-    $(function () {
-      $.ajax({
-        url: "/api/main-article",
-        method: "POST",
-        dataType: "json",
-        success: function (data) {
-          const article = data.main_article;
-
-          $(".main-news-media img")
-            .attr("src", article.image_url)
-            .attr("alt", article.title);
-
-          $(".pill").text(article.category);
-          $(".date").text(article.upload_date);
-          $(".main-title").text(article.article_title);
-          $(".main-desc").text(article.article_content);
-          $(".author-name").text(article.reporter);
-          $(".author-dot").text(article.press_name);
-          $(".trust-value").text(`${article.trust_score}점`);
-        },
-        error: function () {
-          console.error("백엔드 연결 실패");
-        }
-      });
-    });
 
     // 로그인 처리
     $(document).ready(function () {

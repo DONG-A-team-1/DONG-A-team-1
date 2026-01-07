@@ -10,6 +10,8 @@ import json
 from . import member
 from . import article
 from . import topic
+from . import search
+
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
@@ -299,3 +301,34 @@ async def wordcloud_api():
 
     # 3. 브라우저로 전송
     return json.loads(options_json)
+
+
+@app.get("/api/main-trending")
+async def get_main_trending():
+    try:
+        # search.py에서 결과 가져오기
+        result = search.es_search_articles(search_type="all", query="", size=5)
+        # 만약 결과가 딕셔너리고 그 안에 'articles' 리스트가 있다면
+        if isinstance(result, dict) and result.get("success"):
+            return {"success": True, "articles": result["articles"]}
+        return {"success": False, "articles": [], "message": "No data found"}
+    except Exception as e:
+        return {"success": False, "articles": [], "error": str(e)}
+
+
+@app.get("/api/related-articles")
+async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제목을 받아옵니다.
+    try:
+        # 제목(title)이 있다면 그 제목을 검색어로 사용해 연관된 기사를 찾습니다.
+        # 검색어(title)가 있으면 'search_type="title"'로 유사도를 측정합니다.
+        result = search.es_search_articles(search_type="title", query=title, size=5)
+
+        if result.get("success"):
+            # 현재 보고 있는 기사가 연관 기사 목록에 포함될 수 있으므로,
+            # ID가 같은 기사는 제외하는 필터링을 거치면 더 완벽합니다.
+            filtered_articles = [a for a in result["articles"] if a["article_id"] != id]
+            return {"success": True, "articles": filtered_articles[:4]}  # 최종 4개 반환
+
+        return {"success": False, "articles": []}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
