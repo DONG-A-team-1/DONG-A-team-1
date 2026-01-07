@@ -1336,13 +1336,13 @@
           flex-direction: column;
       }
 
-      #wordCloudChart {
+      /* #wordCloudChart {
           width: 100%;
-          height: 100%; /* 부모 div를 꽉 채우도록 */
-          background-color: #93C5FD;
+          height: 100%; /* 부모 div를 꽉 채우도록 
+          background-color: #ffffff;
           flex-grow: 1;
           margin: 0 auto;
-      }
+      } */
       
       #wordCloudChart {
         width: 100%;
@@ -1717,8 +1717,10 @@
               </div>
 
               <div class="center-topic">
+                <a href="polar.html">
                 <p class="small">HOT TOPIC</p>
                 <h4>AI 기술<br>규제 법안</h4>
+                </a>
               </div>
 
               <div class="side negative">
@@ -1774,7 +1776,7 @@ $(document).ready(function () {
                         const $clone = $template.clone();
                         $clone.removeAttr('id').css('display', 'block');
                         
-                        $clone.attr('href', `article-detail.html?id=${data.article_id}`);
+                        $clone.attr('href', `/article/${data.article_id}`);
                         $clone.find('.pill').text(data.category);
                         $clone.find('.article-img').attr('src', data.image);
                         $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
@@ -1865,7 +1867,7 @@ function loadRelatedArticles(mainArticleId, mainArticleTitle) {
                 response.articles.forEach(data => {
                     const $clone = $template.clone();
                     $clone.removeAttr('id').css('display', 'block');
-                    $clone.attr('href', `article-detail.html?id=${data.article_id}`);
+                    $clone.attr('href', `/article/${data.article_id}`);
                     $clone.find('.rel-img').attr('src', data.image);
                     $clone.find('.rel-title').text(data.title);
                     $clone.find('.rel-author').text(data.reporter);

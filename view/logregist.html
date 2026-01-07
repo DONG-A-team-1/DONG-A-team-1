@@ -598,7 +598,7 @@ body.dark .modal-description {
         <div class="form-group">
             <label class="form-label" for="birthdate">생년월일</label>
             <div class="date-input-wrapper">
-                <input class="form-input input-with-icon" id="birthdate" onblur="this.type='text'" onfocus="this.type='date'" placeholder="연도-월-일" type="text" required/>
+                <input class="form-input input-with-icon" id="birthdate" onblur="this.type='text'" onfocus="this.type='date'" placeholder="연도-월-일" type="text" max="9999-12-31" oninput="checkYearLength(this)" required/>
                 <div class="input-icon non-clickable">
                     <span class="material-icons-outlined">calendar_today</span>
                 </div>
@@ -638,11 +638,25 @@ body.dark .modal-description {
         <div class="modal-icon"><span class="material-icons-outlined">check_circle</span></div>
         <h3 class="modal-title">가입을 축하합니다!</h3>
         <p class="modal-description">회원가입이 성공적으로 완료되었습니다.</p>
-        <a class="modal-button" href="homepage.html">홈으로 이동하기</a>
+        <a class="modal-button" href="home.html">홈으로 이동하기</a>
     </div>
 </div>
 
 <script>
+    function checkYearLength(input) {
+    // date 타입일 때만 작동
+    if (input.type === 'date' && input.value) {
+        const dateParts = input.value.split('-'); // [YYYY, MM, DD]
+        const year = dateParts[0];
+
+        // 연도가 4자리를 초과하면 (예: 20261) 앞의 4자리만 남기고 자름
+        if (year.length > 4) {
+            dateParts[0] = year.slice(0, 4);
+            input.value = dateParts.join('-');
+        }
+    }
+}
+
 $(document).ready(function() {
     // 비밀번호 일치 확인
     $('#password_confirm, #password').on('keyup', function() {
