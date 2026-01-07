@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette - 문화 뉴스</title>
+<title>NewsPalette -정치 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
@@ -189,7 +189,6 @@ body.dark .nav-splash-item {
 .splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
 .splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
 .splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
-
 
 /* Dropdown */
 .dropdown {
@@ -626,7 +625,7 @@ body.dark .article-title {
 }
 
 .article-card:hover .article-title {
-    color: #3B82F6;
+      color: #111827;
 }
 
 .article-description {
@@ -803,6 +802,7 @@ body.dark .sort-btn:hover {
 }
 
 .list-article {
+    background-color:#ffffff;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -911,7 +911,7 @@ body.dark .list-article-title {
 }
 
 .list-article:hover .list-article-title {
-    color: #3B82F6;
+     color: #111827;
 }
 
 .list-article-desc {
@@ -1025,6 +1025,59 @@ body.dark .pagination-btn.page:hover {
 .spacer {
     height: 5rem;
 }
+
+.meta-dot {
+    margin: 0 4px;
+    color: #9CA3AF;
+}
+
+    /* =========================
+   🌙 다크모드 가독성 개선
+========================= */
+
+/* 카드 전체 기본 텍스트 */
+body.dark .article-card,
+body.dark .list-article {
+    color: #E5E7EB;
+}
+
+/* 카드 제목 */
+body.dark .article-title,
+body.dark .card-title,
+body.dark .list-title-text {
+    color: #F9FAFB !important;
+}
+
+/* 카드 본문 */
+body.dark .article-description,
+body.dark .card-description,
+body.dark .list-desc {
+    color: #D1D5DB !important;
+}
+
+/* 메타 정보 (기자, 언론사, 날짜) */
+body.dark .article-meta,
+body.dark .card-source,
+body.dark .list-article-source {
+    color: #9CA3AF;
+}
+    /* 모든 기사 링크 색상 통제 */
+#articleGrid a,
+#articleList a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* hover 시에도 파란색 금지 */
+#articleGrid a:hover,
+#articleList a:hover {
+    color: inherit;
+}
+/* 다크모드 이미지 가독성 */
+body.dark .article-image img,
+body.dark .list-article-image img {
+    filter: brightness(1.1) contrast(1.05);
+}
 </style>
 </head>
 <body>
@@ -1037,13 +1090,13 @@ body.dark .pagination-btn.page:hover {
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
-            <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="world.html">국제</a>
-                <a class="nav-splash-item splash-international active" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+           <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="localcategorycategory.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
             <div class="header-actions">
                 <button class="icon-button" onclick="toggleDarkMode()">
@@ -1083,7 +1136,6 @@ body.dark .pagination-btn.page:hover {
             </div>
         </div>
     </section>
-
 <!-- 카드형 기사 -->
 <section>
     <div class="section-header">
@@ -1115,7 +1167,7 @@ body.dark .pagination-btn.page:hover {
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">theater_comedy</span>
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">account_balance</span>
             <h2 class="list-title">문화</h2>
         </div>
         <div class="sort-buttons">
@@ -1139,16 +1191,22 @@ body.dark .pagination-btn.page:hover {
                 <h3 class="list-title-text"></h3>
                 <p class="list-desc"></p>
                 <div class="list-article-source">
-                    <strong class="list-source"></strong> | <span class="list-category-sub"></span>
-                    <span class="reliability-badge">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>
-                        <span class="list-trust"></span>
-                    </span>
-                </div>
+                <span class="list-reporter"></span>
+                <span class="meta-dot">·</span>
+                <strong class="list-source"></strong>
+
+                <span class="reliability-badge">
+                    <span class="material-symbols-outlined reliability-icon">verified</span>
+                    <span class="list-trust"></span>
+                </span>
+            </div>
+
             </div>
         </a>
     </div>
 </section>
+
+
 
 
 <div class="pagination">
@@ -1166,11 +1224,11 @@ body.dark .pagination-btn.page:hover {
 </div>
 
 <div class="spacer"></div>
-
+</main>
 <script>
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
-    loadCategoryArticles('문화', 1);  // 문화 카테고리, 1페이지
+    loadCategoryArticles('정치', 1);  // 문화 카테고리, 1페이지
     initializeUI();
 });
 
@@ -1249,7 +1307,9 @@ function displayCardArticles(articles) {
         card.find('.card-source').text(sourceText);
 
         // 신뢰도
-        card.find('.card-trust').text(`신뢰도${article.trustScore}%`);
+        const trust = Math.floor(article.trustScore / 100);
+        card.find('.card-trust').text(`신뢰도 ${trust}%`);
+
 
         // 신뢰도 배지 색상
         const reliabilityClass = getReliabilityClass(article.trustScore);
@@ -1280,8 +1340,13 @@ function displayListArticles(articles) {
         listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
 
         // 카테고리
-        listItem.find('.list-category').text(article.category);
-        listItem.find('.list-category-sub').text(article.category);
+        // 기자 이름 (없으면 빈 값 처리)
+
+       listItem.find('.list-reporter').text(article.reporter);
+
+        // 언론사
+        listItem.find('.list-source').text(article.press);
+
 
         // 날짜
         listItem.find('.list-date').text(formatDateYMD(article.upload_date));
@@ -1297,7 +1362,9 @@ function displayListArticles(articles) {
         listItem.find('.list-source').text(article.source);
 
         // 신뢰도
-        listItem.find('.list-trust').text(`신뢰도${article.trustScore}%`);
+        const trust = Math.floor(article.trustScore / 100);
+        listItem.find('.list-trust').text(`신뢰도 ${trust}%`);
+
 
         const reliabilityClass = getReliabilityClass(article.trustScore);
         listItem.find('.reliability-badge').addClass(reliabilityClass);
@@ -1341,7 +1408,7 @@ function sortArticles(type) {
 
 // ========== 페이지네이션 ==========
 function goToPage(pageNumber) {
-    loadCategoryArticles('문화', pageNumber);  // 데이터 다시 로드
+    loadCategoryArticles('정치', pageNumber);  // 데이터 다시 로드
     updatePaginationUI(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });  // 맨 위로 스크롤
 }
@@ -1386,12 +1453,12 @@ function formatDateYMD(dateStr) {
 function toggleLoginState() {
     const isLoggedIn = (typeof(Storage) !== "undefined" && localStorage.getItem('isLoggedIn') === 'true');
     const dropdownContent = document.getElementById('dropdownContent');
+    const userName = localStorage.getItem('userName') || '회원';
 
     if (isLoggedIn) {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                 const userName = localStorage.getItem('userName') || '회원';
                 <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
@@ -1534,7 +1601,8 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+                      const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
