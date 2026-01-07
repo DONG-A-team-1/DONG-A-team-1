@@ -1,7 +1,12 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
+
 from starlette.middleware.sessions import SessionMiddleware
+# router 연결(session)
+from api.session_ping import router as session_ping_router
+from api.session import router as session_router
+from api.session_end import router as session_end_router
 from pydantic import BaseModel
 from typing import List
 
@@ -12,15 +17,25 @@ from . import article
 from . import topic
 from . import search
 
+from . import category
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
 
+
 app = FastAPI()
+
+# router 연결 === session 관련 ===
+app.include_router(session_router)
+app.include_router(session_ping_router)
+app.include_router(session_end_router)
+# static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
+
+# middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 
@@ -273,7 +288,6 @@ async def api_search(request: Request):
         )
 
 # 카테고리별로 불러오기------해정,하영님 합작
-from . import category
 
 @app.get("/api/category/{category_name}")
 async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
@@ -288,7 +302,6 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             content={"success": False, "message": str(e)}
         )
 
-
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
@@ -298,7 +311,6 @@ async def wordcloud_api():
 
     # 2. 설계도(Option) 생성
     options_json = await make_wordcloud_data(bigkinds_data)
-
     # 3. 브라우저로 전송
     return json.loads(options_json)
 

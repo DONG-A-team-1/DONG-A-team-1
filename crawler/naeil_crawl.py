@@ -4,66 +4,64 @@ from datetime import datetime, timedelta, timezone
 from util.elastic import es
 from util.logger import Logger
 from util.elastic_templates import build_error_doc
-import inspect
 import os
 
 timeout = httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=10.0)
-
-filename = os.path.basename(__file__)
-funcname = inspect.currentframe().f_back.f_code.co_name
-
-logger_name = f"{filename}:{funcname}"
-now_kst_iso = datetime.now(timezone(timedelta(hours=9))).isoformat()
-
 logger = Logger().get_logger(__name__)
 
-
 KST = timezone(timedelta(hours=9))
-now_kst = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
+now_kst_iso = datetime.now(KST).isoformat()
+now_run_id = datetime.now(KST).strftime("%Y%m%d_%H")  # yyyymmdd_hh
+
 domain = "naeil"
 
 async def naeil_crawl(bigkinds_data):
-    print(f"구동시작:{now_kst}")
-    id_list = [data["article_id"] for data in bigkinds_data]
-    url_list = [data["url"] for data in bigkinds_data] #빅카인즈에서 받아온 데이터의 url 부분만 리스트로 변경하여 준비합니다
+    print(f"구동시작: {now_run_id}")
 
-    article_list = []
+    id_list = [data["article_id"] for data in bigkinds_data]
+    url_list = [data["url"] for data in bigkinds_data]
+
     error_list = []
     empty_articles = []
 
-    async with httpx.AsyncClient(timeout = timeout) as client:
+    async with httpx.AsyncClient(timeout=timeout) as client:
         for article_id, url in zip(id_list, url_list):
+            if not url:
+                error_list.append({
+                    "article_id": article_id,
+                    "error_url": url,
+                    "error_type": "EmptyURL",
+                    "error_message": "url is empty"
+                })
+                continue
+
             try:
                 resp = await client.get(url)
-                soup = BeautifulSoup(resp.text, "html.parser")
+                resp.raise_for_status()
 
+                soup = BeautifulSoup(resp.text, "html.parser")
 
                 title = soup.select_one('#container > section > div > header > h1')
                 article_title = title.get_text(strip=True) if title else None
 
                 content = soup.select('div.article-view p')
                 if content:
-                    # 리스트 안의 각 p 태그에서 텍스트를 뽑아와서 줄바꿈(\n)으로 합칩니다.
-                    article_content = "\n".join([p.get_text(strip=True) for p in content if p.get_text(strip=True)])
+                    article_content = "\n".join(
+                        [p.get_text(strip=True) for p in content if p.get_text(strip=True)]
+                    )
                 else:
                     article_content = None
 
-                # article_img = soup.select_one("#contents > div.view_body > div > div.main_view > section.news_view > figure > div > img")["src"]
-
-                img = soup.select_one(
-                    "figure.article-img img.fade")
+                img = soup.select_one("figure.article-img img.fade")
                 article_img = img.get("src") if img else None
-
 
                 es.update(
                     index="article_data",
                     id=article_id,
-                    doc={
-                        "article_img": article_img,
-                    }
+                    body={"doc": {"article_img": article_img}}
                 )
 
-                article_raw ={
+                article_raw = {
                     "article_id": article_id,
                     "article_title": article_title,
                     "article_content": article_content,
@@ -72,9 +70,10 @@ async def naeil_crawl(bigkinds_data):
 
             except Exception as e:
                 error_list.append({
+                    "article_id": article_id,
                     "error_url": url,
                     "error_type": type(e).__name__,
-                    "error_message": f"{str(e)}"
+                    "error_message": str(e)
                 })
                 continue
 
@@ -83,31 +82,53 @@ async def naeil_crawl(bigkinds_data):
                 es.index(index="article_raw", id=article_id, document=article_raw)
             else:
                 empty_articles.append({
-                    "article_id": article_id
+                    "article_id": article_id,
+                    "reason": "null_fields_in_article_raw",
+                    "null_count": null_count
                 })
                 es.delete(index="article_data", id=article_id)
 
-        # 에러 로그 업로드
-        if len(error_list) > 0:
-            error_doc = build_error_doc(
-                message=f"{len(error_list)}개 에러 발생",
-                samples=error_list
-            )
-            es.index(index="error_log", document=error_doc)
+    # ✅ 요약 로그 1건만 저장 (에러 or 결측이 하나라도 있으면)
+    if error_list or empty_articles:
+        samples = []
+        samples.extend(error_list[:10])
+        if len(samples) < 10:
+            samples.extend(empty_articles[: (10 - len(samples))])
 
-        if len(empty_articles) > 0:
-            es.index(
-                index="error_log",
-                document=build_error_doc(
-                    message=f"{len(empty_articles)}개 결측치 발생",
-                    samples=empty_articles
-                )
-            )
+        doc = build_error_doc(
+            message=f"내일신문 상세 크롤링 요약: 에러 {len(error_list)}건, 결측 {len(empty_articles)}건",
+
+            service_name="crawler",
+            service_environment=os.getenv("APP_ENV", "dev"),
+
+            pipeline_run_id=now_run_id,
+            pipeline_job="naeil_crawl",
+            pipeline_step="article_content",
+
+            event_severity=3,
+            event_outcome="failure",
+
+            metrics={
+                "error_count": len(error_list),
+                "empty_count": len(empty_articles),
+                "total_targets": len(id_list),
+                "success_count": len(id_list) - len(error_list) - len(empty_articles),
+            },
+
+            context={
+                "press": "내일신문",
+                "domain": domain,
+                "total_targets": len(id_list),
+            },
+
+            samples=samples,
+            tags=["crawler", "naeil", "detail", "summary"],
+        )
+        es.index(index="error_log", document=doc)
+
     empty_ids = {x["article_id"] for x in empty_articles}
-    result = list(set(id_list) - empty_ids)
-    print(f"==== 조선일보 상세 크롤링 완료: {len(result)}개 성공====")
+    error_ids = {x["article_id"] for x in error_list}
+    result = list(set(id_list) - empty_ids - error_ids)
+
+    print(f"==== 내일신문 상세 크롤링 완료: {len(result)}개 성공 ====")
     return result
-
-
-
-

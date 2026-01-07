@@ -14,7 +14,6 @@ def similar_articles(article_id):
         raise ValueError("No document found for article_id")
 
     query_vec = hits[0]["_source"]["article_embedding"]
-    # print(query_vec)
     res = es.search(
         index="article_data",
         size=5,
