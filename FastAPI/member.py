@@ -214,7 +214,11 @@ def search_articles(search_type: str, query: str, size: int = 20):
     elif search_type == "content" or search_type == "body":
         es_query = {"match": {"article_content": query}}
     elif search_type == "keywords" or search_type == "keyword":
-        es_query = {"match": {"keywords.raw": query}}
+        es_query = {
+            "match_phrase": {  # 완전한 구문 매칭
+                "keywords": query
+            }
+        }
     else:
         es_query = {
             "bool": {
@@ -267,41 +271,20 @@ def search_articles(search_type: str, query: str, size: int = 20):
         src = hit.get("_source", {})
         label = src.get("article_label") or {}
 
-        # trustScore 안전하게 처리
+        # trustScore 처리
         raw_score = label.get("article_trust_score")
         if raw_score is None:
             trust_score = 0
         else:
-            raw_score = float(raw_score)
-            if raw_score <= 1:
-                trust_score = round(raw_score * 100)
-            elif raw_score <= 100:
-                trust_score = round(raw_score)
-            else:
-                trust_score = round((raw_score / 4095) * 100)
+            # 이미 1~100 범위이므로 소수점만 반올림
+            trust_score = round(float(raw_score))
 
-        # ✅ 트렌드 점수 처리 (신뢰도와 동일한 방식)
-        trend_score = label.get("trend_score", 0)
-        if trend_score:
-            trend_score = float(trend_score)
-            # 0~1 범위를 0~100으로 변환
-            if trend_score <= 1:
-                trend_score = round(trend_score * 100, 1)  # 0.004 → 0.4
-            else:
-                trend_score = round(trend_score, 1)
-
-        # ✅ 신뢰도 점수 처리
-        raw_score = label.get("article_trust_score")
-        if raw_score is None:
-            trust_score = 0
+        # trendScore 처리 (동일)
+        raw_trend = label.get("trend_score")
+        if raw_trend is None:
+            trend_score = 0
         else:
-            raw_score = float(raw_score)
-            if raw_score <= 1:
-                trust_score = round(raw_score * 100)
-            elif raw_score <= 100:
-                trust_score = round(raw_score)
-            else:
-                trust_score = round((raw_score / 4095) * 100)
+            trend_score = round(float(raw_trend))
 
         articles.append({
             "article_id": src.get("article_id"),
