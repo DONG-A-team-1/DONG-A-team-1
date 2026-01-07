@@ -292,6 +292,13 @@ async def get_category_articles(
             content={"success": False, "message": str(e)}
         )
 
+@app.get("/category/{category}")
+def category_page(request: Request, category: str):
+    return templates.TemplateResponse(
+        "category.html",
+        {"request": request, "category": category}
+    )
+
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
