@@ -1151,7 +1151,7 @@ body.dark .list-article-image img {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
@@ -1289,7 +1289,7 @@ body.dark .list-article-image img {
 </div>
 
 <div class="spacer"></div>
-
+</main>
 <script>
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
@@ -1403,9 +1403,6 @@ function displayListArticles(articles) {
         const imageUrl = article.image || 'https://via.placeholder.com/400x300?text=No+Image';
         listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
 
-        // 카테고리
-        // 기자 이름 (없으면 빈 값 처리)
-        const reporter = article.reporter || '';
         listItem.find('.list-reporter').text(article.reporter);
 
         // 언론사
@@ -1521,7 +1518,8 @@ function toggleLoginState() {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">홍길동님</p>
+                   const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>

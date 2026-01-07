@@ -122,6 +122,7 @@ def get_articles_by_category(category_name: str, size: int = 20, page: int = 1):
     body = {
         "_source": [
             "article_id",
+            "reporter",
             "press",
             "upload_date",
             "article_title",
@@ -160,6 +161,7 @@ def get_articles_by_category(category_name: str, size: int = 20, page: int = 1):
 
         articles.append({
             "article_id": src.get("article_id"),
+            "reporter": src.get("reporter"),
             "title": src.get("article_title", ""),
             "content": src.get("article_content", ""),
             "image": src.get("article_img"),
