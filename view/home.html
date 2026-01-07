@@ -1472,20 +1472,19 @@
       <section class="search-section">
         <div class="search-bar">
           <div class="select-wrap">
-            <select class="select">
-              <option>제목+본문</option>
-              <option>제목</option>
-              <option>본문</option>
-              <option>키워드</option>
+            <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+              <option style="color: black;" value="title_body">제목+본문</option>
+              <option style="color: black;" value="title">제목</option>
+              <option style="color: black;" value="body">본문</option>
+              <option style="color: black;" value="keyword">키워드</option>
             </select>
             <span class="material-symbols-outlined select-caret">expand_more</span>
           </div>
-
           <div class="search-input-wrap">
-            <input class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
-            <button class="search-btn" aria-label="검색">
-              <span class="material-symbols-outlined">search</span>
-            </button>
+              <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+              <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                  <span class="material-symbols-outlined">search</span>
+              </button>
           </div>
         </div>
       </section>
@@ -1757,6 +1756,25 @@
 
   </body>
   <script>
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+
+function updateSearchPlaceholder(select) {
+    const searchInput = document.getElementById('searchInput');
+    const placeholders = {
+        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+        title: '제목에서 관심있는 뉴스를 검색해보세요',
+        body: '본문에서 관심있는 뉴스를 검색해보세요',
+        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+    };
+    searchInput.placeholder = placeholders[select.value];
+}
+
 $(document).ready(function () {
     let globalArticles = []; 
 
