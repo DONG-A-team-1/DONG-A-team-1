@@ -616,9 +616,8 @@ def build_topic_docs(
     article_rows: List[Dict[str, Any]],
     cluster_keywords: Dict[int, List[str]],
     cluster_sizes: Mapping[int, int],
-    *,
-    per_side_limit: int = 5,
 ) -> List[Dict[str, Any]]:
+
     by_topic: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
     for r in article_rows:
         by_topic[int(r["cluster_id"])].append(r)
@@ -652,22 +651,21 @@ def build_topic_docs(
             else:
                 neu_list.append(item); neu += 1
 
+        # 🔹 intensity 기준 정렬만 유지
         pos_list.sort(key=lambda x: x["intensity"], reverse=True)
         neg_list.sort(key=lambda x: x["intensity"], reverse=True)
         neu_list.sort(key=lambda x: x["intensity"], reverse=True)
 
+        # topic name 생성 로직 그대로
         ent_cnt = Counter()
         verb_cnt = Counter()
-
         for r in rows:
             me = (r.get("main_entity") or "").strip()
             if me:
                 ent_cnt[me] += 1
-
             preds = extract_preds_from_evidence(r.get("main_evidence") or [])
             for p in preds:
-                if p:
-                    verb_cnt[p] += 1
+                verb_cnt[p] += 1
 
         top_entity = ent_cnt.most_common(1)[0][0] if ent_cnt else None
         top_verb = verb_cnt.most_common(1)[0][0] if verb_cnt else None
@@ -685,15 +683,19 @@ def build_topic_docs(
             "topic_features": topic_features,
             "topic_article_count": int(cluster_sizes.get(cid, 0)),
             "topic_analyzed_count": int(len(rows)),
-            "positive_articles": pos_list[:per_side_limit],
-            "negative_articles": neg_list[:per_side_limit],
-            "neutral_articles": neu_list[:per_side_limit],
+
+            # ✅ 이제 전부 전체
+            "positive_articles": pos_list,
+            "negative_articles": neg_list,
+            "neutral_articles": neu_list,
+
             "stats": {"pos": pos, "neg": neg, "neutral": neu},
             "calculated_at": now_iso,
         }
         out.append(topic_doc)
 
     return out
+
 
 def filter_topic_docs(
     topic_docs: List[Dict[str, Any]],
@@ -821,18 +823,22 @@ def _strip_article_fields_for_es(topic_doc: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "topic_id": topic_doc.get("topic_id"),
-        "rank": int(topic_doc.get("rank") or 0),            # ✅ NEW
-        "trend_sum": float(topic_doc.get("trend_sum") or 0.0),  # (선택) NEW
+        "rank": int(topic_doc.get("rank") or 0),
+        "trend_sum": float(topic_doc.get("trend_sum") or 0.0),
         "topic_name": topic_doc.get("topic_name", ""),
         "topic_features": topic_doc.get("topic_features", []),
         "topic_article_count": int(topic_doc.get("topic_article_count") or 0),
         "topic_analyzed_count": int(topic_doc.get("topic_analyzed_count") or 0),
+
+        # ✅ 이제 전체 들어감 (슬라이싱 없음)
         "positive_articles": _min_items(topic_doc.get("positive_articles")),
         "negative_articles": _min_items(topic_doc.get("negative_articles")),
         "neutral_articles": _min_items(topic_doc.get("neutral_articles")),
+
         "stats": topic_doc.get("stats", {}),
         "calculated_at": topic_doc.get("calculated_at"),
     }
+
 
 def upsert_topic_docs_to_es(
     topic_docs: List[Dict[str, Any]],
@@ -992,8 +998,7 @@ def label_polar_entity_centered_to_topics_json(
     topic_docs = build_topic_docs(
         all_rows,
         cluster_keywords,
-        cluster_sizes,
-        per_side_limit=per_side_limit,
+        cluster_sizes
     )
 
     topic_docs = filter_topic_docs(

@@ -108,7 +108,7 @@ def get_articles_by_category(category_name: str, size: int = 20, page: int = 1):
 
     # 카테고리 매핑
     category_map = {
-        "사회/경제": "사회/경제",
+        "사회": "사회/경제/산업",
         "정치": "정치",
         "국제": "국제",
         "지역": "지역",

@@ -13,6 +13,8 @@ from score.trend.article_trend_pipeline import run_article_trend_pipeline
 
 from util.elastic import es
 from util.elastic_templates import build_error_doc, build_info_docs  # ✅ info_logs 추가
+from api.session_timeout import close_timeout_sessions
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -318,6 +320,14 @@ def main():
         max_instances=1,     # 겹침 방지
         coalesce=True,       # 밀린 실행 합치기
         misfire_grace_time=300
+    )
+    # 1분마다 세션 타임아웃 검사
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="session_timeout_job",
+        replace_existing=True,
+        max_instances=1
     )
 
     # 매일 05:00 실행
