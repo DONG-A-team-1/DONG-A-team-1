@@ -7,6 +7,9 @@ from crawler.crawler_main import crawl_bigkinds_full
 from labeler.topic_polar import label_polar_entity_centered_to_topics_json
 
 from score.trend.article_trend_pipeline import run_article_trend_pipeline
+from api.session_timeout import close_timeout_sessions
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -47,6 +50,14 @@ def main():
         max_instances=1,     # 겹침 방지
         coalesce=True,       # 밀린 실행 합치기
         misfire_grace_time=300
+    )
+    # 1분마다 세션 타임아웃 검사
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="session_timeout_job",
+        replace_existing=True,
+        max_instances=1
     )
 
     scheduler.add_job(
