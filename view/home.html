@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1338,12 +1339,12 @@
 
       /* #wordCloudChart {
           width: 100%;
-          height: 100%; /* 부모 div를 꽉 채우도록 
+          height: 100%; /* 부모 div를 꽉 채우도록
           background-color: #ffffff;
           flex-grow: 1;
           margin: 0 auto;
       } */
-      
+
       #wordCloudChart {
         width: 100%;
         height: 100%; /* 350px~450px 정도는 되어야 풍성해 보입니다 */
@@ -1776,7 +1777,7 @@ function updateSearchPlaceholder(select) {
 }
 
 $(document).ready(function () {
-    let globalArticles = []; 
+    let globalArticles = [];
 
     function loadNews() {
         $.ajax({
@@ -1793,7 +1794,7 @@ $(document).ready(function () {
                     globalArticles.forEach((data, index) => {
                         const $clone = $template.clone();
                         $clone.removeAttr('id').css('display', 'block');
-                        
+
                         $clone.attr('href', `/article/${data.article_id}`);
                         $clone.find('.pill').text(data.category);
                         $clone.find('.article-img').attr('src', data.image);
@@ -1807,7 +1808,7 @@ $(document).ready(function () {
                     });
 
                     initCustomCarousel();
-                    
+
                     // 첫 로드 시 연관기사 로드
                     if (globalArticles.length > 0) {
                         loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
@@ -1857,7 +1858,7 @@ $(document).ready(function () {
 
             // 현재 슬라이드 데이터로 연관기사 업데이트
             if (globalArticles[currentIndex]) {
-                const currentId = globalArticles[currentIndex].article_id; 
+                const currentId = globalArticles[currentIndex].article_id;
                 const currentTitle = globalArticles[currentIndex].title;
                 loadRelatedArticles(currentId, currentTitle);
             }
@@ -1872,9 +1873,9 @@ function loadRelatedArticles(mainArticleId, mainArticleTitle) {
     $.ajax({
         url: "/api/related-articles",
         type: "GET",
-        data: { 
+        data: {
             id: mainArticleId,
-            title: mainArticleTitle 
+            title: mainArticleTitle
         },
         success: function(response) {
             if (response.success && response.articles) {
@@ -1929,7 +1930,7 @@ function loadWordCloud() {
             // 1. div 요소 찾기
             const chartDom = document.getElementById('wordCloudChart');
             const myChart = echarts.init(chartDom);
-            
+
             // 2. 백엔드에서 받은 옵션 적용
             myChart.setOption(options);
 
@@ -1952,7 +1953,7 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
+
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
