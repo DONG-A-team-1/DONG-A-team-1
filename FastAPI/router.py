@@ -289,10 +289,10 @@ async def api_search(request: Request):
 # 카테고리별로 불러오기------해정,하영님 합작
 
 @app.get("/api/category/{category_name}")
-async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
-    """카테고리별 기사 조회 API"""
+async def get_category_articles(category_name: str, size: int = 20, page: int = 1, sort_type: str = "latest"):
     try:
-        results = category.get_articles_by_category(category_name, size, page)
+        # sort_type을 넘겨줍니다.
+        results = category.get_articles_by_category(category_name, size, page, sort_type)
         return results
     except Exception as e:
         print(f"Category error: {e}")

@@ -1301,29 +1301,27 @@ const categoryInfo = {
     '스포츠': { icon: 'sports_soccer' }
 };
 
+// [추가] 현재 정렬 상태를 추적하기 위한 전역 변수
+let currentSortType = 'latest'; 
+
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentCategory = urlParams.get('cat') || '사회'; // URL 파라미터가 없으면 '사회' 기본값
+    const currentCategory = urlParams.get('cat') || '사회'; 
 
-    // 1. UI 초기 세팅 (제목, 아이콘, 메뉴 활성화)
     initializeUI(currentCategory);
     
-    // 2. 데이터 로드 (첫 페이지)
-    loadCategoryArticles(currentCategory, 1);
+    // 초기 로드 시 기본 정렬(최신순)로 호출
+    loadCategoryArticles(currentCategory, 1, 'latest');
 });
 
 function initializeUI(category) {
-    // 세션 및 메뉴 초기화
     initApp(); 
-    
-    // 제목 및 아이콘 변경
     $('.section-title').text(category);
     $('.list-title').text(category);
     const iconName = categoryInfo[category]?.icon || 'newspaper';
     $('.list-title-row .material-symbols-outlined').text(iconName);
 
-    // 네비게이션 활성화
     $('.nav-splash-item').removeClass('active');
     $(`.nav-splash-item`).each(function() {
         if ($(this).attr('href').includes(`cat=${category}`)) {
@@ -1335,37 +1333,53 @@ function initializeUI(category) {
     if (scopeSelect) updateSearchPlaceholder(scopeSelect);
 }
 
-// ========== 백엔드에서 데이터 가져오기 ==========
-function loadCategoryArticles(categoryName, page = 1) {
-    const itemsPerPage = 9; 
+// ========== 백엔드에서 데이터 가져오기 (정렬 파라미터 추가) ==========
+function loadCategoryArticles(categoryName, page = 1, sortType = currentSortType) {
+    currentSortType = sortType;
 
     $.ajax({
         url: `/api/category/${encodeURIComponent(categoryName)}`,
         type: 'GET',
-        data: { size: 45, page: page }, // 넉넉히 가져와서 프론트 슬라이싱
+        data: { 
+            size: 10, // 리스트에 보여줄 개수
+            page: page, 
+            sort_type: sortType 
+        },
         success: function(response) {
             if (response.success) {
-                const allArticles = response.articles || [];
-                $('#articleCount').text(`총 ${response.total || allArticles.length}건의 ${categoryName} 기사`);
+                $('#articleCount').text(`총 ${response.total}건의 ${categoryName} 기사`);
 
-                // 페이지별 데이터 분할 (카드 4개 + 리스트 5개)
-                const startIdx = (page - 1) * itemsPerPage;
-                const pageItems = allArticles.slice(startIdx, startIdx + itemsPerPage);
+                // 1. 상단 카드는 트렌드 기사(trend_articles)로 렌더링 (정렬 영향 X)
+                displayCardArticles(response.trend_articles);
 
-                displayCardArticles(pageItems.slice(0, 4));
-                displayListArticles(pageItems.slice(4, 9));
+                // 2. 하단 리스트는 정렬된 기사(list_articles)로 렌더링
+                displayListArticles(response.list_articles);
 
                 updatePaginationUI(page);
             }
-        },
-        error: function(xhr) {
-            console.error('로드 실패:', xhr);
-            $('#articleCount').text('기사를 불러오는데 실패했습니다.');
         }
     });
 }
 
-// ========== 카드형 기사 렌더링 ==========
+// ========== 정렬 버튼 (스크롤 튀기 방지) ==========
+function sortArticles(type, event) {
+    // 1. 링크 클릭 시 위로 튀는 기본 동작 차단
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCategory = urlParams.get('cat') || '사회';
+
+    $('.sort-btn').removeClass('active');
+    $(`#btn${type.charAt(0).toUpperCase() + type.slice(1)}`).addClass('active');
+
+    // 2. 서버 요청 (scrollTo 삭제됨)
+    loadCategoryArticles(currentCategory, 1, type);
+}
+
+// ========== 카드형 기사 렌더링 (이미지 및 신뢰도 로직 수정) ==========
 function displayCardArticles(articles) {
     const container = $('#articleGrid');
     const template = $('.article-card-template');
@@ -1376,19 +1390,18 @@ function displayCardArticles(articles) {
         const card = template.clone().removeClass('article-card-template').show();
         
         card.attr('href', `/article/${article.article_id}`);
-        card.find('.card-img').attr('src', article.image || 'https://via.placeholder.com/400x300?text=No+Image');
+        // 백엔드에서 처리된 이미지를 사용
+        card.find('.card-img').attr('src', article.image);
         card.find('.card-title').text(article.title);
         card.find('.card-description').text((article.content || '').substring(0, 80) + '...');
         
-        // 출처 및 날짜 (백엔드 필드 source 사용)
         const dateText = formatDate(article.upload_date);
         card.find('.card-source').text(`${article.source || '뉴스'} • ${dateText}`);
 
-        // 신뢰도 점수 (백엔드 필드 trustScore 사용)
-        const trust = Math.floor(article.trustScore / 100);
+        // 백엔드에서 온 정수값(예: 85)을 그대로 사용
+        const trust = article.trustScore || 0;
         card.find('.card-trust').text(`신뢰도 ${trust}%`);
 
-        // 점수에 따른 클래스 부여
         const reliabilityClass = getReliabilityClass(trust);
         card.find('.reliability-badge').removeClass('reliability-high reliability-medium reliability-low').addClass(reliabilityClass);
 
@@ -1396,7 +1409,7 @@ function displayCardArticles(articles) {
     });
 }
 
-// ========== 리스트형 기사 렌더링 ==========
+// ========== 리스트형 기사 렌더링 (이미지 및 신뢰도 로직 수정) ==========
 function displayListArticles(articles) {
     const container = $('#articleList');
     const template = $('.list-article-template');
@@ -1407,11 +1420,8 @@ function displayListArticles(articles) {
         const item = template.clone().removeClass('list-article-template').show();
         
         item.attr('href', `/article/${article.article_id}`);
-        // 정렬을 위한 데이터 속성 저장
-        item.attr('data-date', article.upload_date);
-        item.attr('data-reliability', article.trustScore);
-
-        item.find('.list-img').attr('src', article.image || 'https://via.placeholder.com/400x300?text=No+Image');
+        
+        item.find('.list-img').attr('src', article.image);
         item.find('.list-category').text(article.category || '기타');
         item.find('.list-date').text(formatDateYMD(article.upload_date));
         item.find('.list-title-text').text(article.title);
@@ -1419,7 +1429,7 @@ function displayListArticles(articles) {
         item.find('.list-reporter').text(article.reporter || '');
         item.find('.list-source').text(article.source || '');
         
-        const trust = Math.floor(article.trustScore / 100);
+        const trust = article.trustScore || 0;
         item.find('.list-trust').text(`신뢰도 ${trust}%`);
         
         const reliabilityClass = getReliabilityClass(trust);
@@ -1429,42 +1439,23 @@ function displayListArticles(articles) {
     });
 }
 
-// ========== 정렬 기능 (리스트 대상) ==========
-function sortArticles(type) {
-    const container = document.getElementById('articleList');
-    const template = container.querySelector('.list-article-template');
-    const articles = Array.from(container.querySelectorAll('.list-article:not(.list-article-template)'));
-
-    articles.sort((a, b) => {
-        if (type === 'latest') return new Date(b.dataset.date) - new Date(a.dataset.date);
-        if (type === 'oldest') return new Date(a.dataset.date) - new Date(b.dataset.date);
-        if (type === 'reliability') return Number(b.dataset.reliability) - Number(a.dataset.reliability);
-        return 0;
-    });
-
-    $(container).find('.list-article:not(.list-article-template)').remove();
-    articles.forEach(a => container.appendChild(a));
-
-    $('.sort-btn').removeClass('active');
-    $(`#btn${type.charAt(0).toUpperCase() + type.slice(1)}`).addClass('active');
-}
-
 // ========== 페이지네이션 ==========
 function goToPage(pageNumber) {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentCategory = urlParams.get('cat') || '지역';
+    const currentCategory = urlParams.get('cat') || '사회';
     
-    loadCategoryArticles(currentCategory, pageNumber);
+    // 페이지 이동 시에도 현재 설정된 정렬 기준을 유지합니다.
+    loadCategoryArticles(currentCategory, pageNumber, currentSortType);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// [이하 원본과 동일한 유틸리티 함수 및 세션 관련 함수들...]
 function updatePaginationUI(activePage) {
     $('.pagination-btn.page').each(function() {
         $(this).toggleClass('active', Number($(this).text()) === activePage);
     });
 }
 
-// ========== 유틸리티 함수 ==========
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-high';
     if (score >= 50) return 'reliability-medium';
@@ -1488,7 +1479,6 @@ function formatDateYMD(dateStr) {
     return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
-// ========== 사용자 세션 관련 (기존 유지) ==========
 function initApp() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
@@ -1539,11 +1529,6 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
     }
 }
 
-function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-}
-
 function toggleUserMenu() {
     $('#userDropdown').toggleClass('show');
 }
@@ -1564,37 +1549,29 @@ function performSearch() {
     if (term) location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
 }
 
-// 카테고리 선택 색상 고정
-    function setActiveCategoryByURL() {
-      const navItems = document.querySelectorAll('.nav-splash-item');
-      const currentPage = window.location.pathname.split('/').pop();
+function setActiveCategoryByURL() {
+    const navItems = document.querySelectorAll('.nav-splash-item');
+    const currentPage = window.location.search; 
 
-      navItems.forEach(item => {
+    navItems.forEach(item => {
         const href = item.getAttribute('href');
-        if (href === currentPage) {
-          item.classList.add('active');
+        if (currentPage.includes(href.split('?')[1])) {
+            item.classList.add('active');
         } else {
-          item.classList.remove('active');
+            item.classList.remove('active');
         }
-      });
-    }
-
-    // 다크모드 토글
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-    }
-
-    // 다크모드 초기화
-    if (localStorage.getItem('darkMode') === 'true' ||
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('darkMode'))) {
-      document.body.classList.add('dark');
-    }
-
-    // 초기 실행
-    document.addEventListener('DOMContentLoaded', () => {
-      setActiveCategoryByURL();
     });
+}
+
+if (localStorage.getItem('darkMode') === 'true' ||
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('darkMode'))) {
+    document.body.classList.add('dark');
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
 </script>
 
 </body>
