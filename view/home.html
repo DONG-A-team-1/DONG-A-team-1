@@ -556,80 +556,166 @@
 
       .search-section { margin-bottom: 30px; }
 
-      .search-bar {
-        max-width: 896px;
-        margin: 0 auto;
-        padding: 8px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        box-shadow: var(--shadow-sm);
+        .search-bar {
+            max-width: 896px;
+            margin: 0 auto;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
 
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
+        /* ✅ 다크모드 search-bar */
+        body.dark .search-bar {
+            background: var(--surface);
+            border-color: var(--border);
+        }
 
-      @media (min-width: 640px) {
-        .search-bar { flex-direction: row; align-items: center; }
-      }
+        @media (min-width: 640px) {
+            .search-bar { flex-direction: row; align-items: center; }
+        }
 
-      .select-wrap { position: relative; width: 100%; }
-      @media (min-width: 640px) { .select-wrap { width: auto; } }
+        .select-wrap {
+            position: relative;
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .select-wrap { width: auto; }
+        }
 
-      .select {
-        appearance: none;
-        width: 100%;
-        padding: 12px 36px 12px 16px;
-        border: 0;
-        border-radius: 10px;
-        background: color-mix(in oklab, var(--text) 6%, transparent);
-        color: color-mix(in oklab, var(--text) 88%, transparent);
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-      }
-      @media (min-width: 640px) { .select { width: 128px; } }
+        .select {
+            appearance: none;
+            width: 100%;
+            padding: 12px 36px 12px 16px;
+            border: 0;
+            border-radius: 10px;
+            background: color-mix(in oklab, var(--text) 6%, transparent);
+            color: color-mix(in oklab, var(--text) 88%, transparent);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+        @media (min-width: 640px) {
+            .select { width: 128px; }
+        }
 
-      .select-caret {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: var(--muted);
-        pointer-events: none;
-      }
+        .select-caret {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--muted);
+            pointer-events: none;
+        }
 
-      .search-input-wrap { position: relative; width: 100%; flex: 1; }
-      .search-input {
-        width: 100%;
-        padding: 12px 44px 12px 16px;
-        border-radius: 10px;
-        border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-        background: var(--surface);
-        color: var(--text);
-        outline: none;
-        transition: box-shadow .15s, border-color .15s;
-      }
-      .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
-      .search-input:focus {
-        border-color: transparent;
-        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-      }
+        .search-input-wrap {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            background: transparent;  /* ✅ 추가 */
+            overflow: hidden;  /* ✅ 노이즈 방지 */
+            border-radius: 10px;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
 
-      .search-btn {
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        border: 0;
-        background: transparent;
-        color: var(--primary);
-        cursor: pointer;
-      }
-      .search-btn .material-icons-round { font-size: 26px; }
+        .search-input {
+            width: 100%;
+            padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
+            border-radius: 10px;
+            border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            color: var(--text);
+            outline: none !important;  /* ✅ !important 추가 */
+            transition: box-shadow .15s, border-color .15s;
+            box-sizing: border-box;  /* ✅ 추가 */
+            -webkit-appearance: none;  /* ✅ 추가 */
+            appearance: none;  /* ✅ 추가 */
+            backface-visibility: hidden;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+
+        .search-input::placeholder {
+            color: color-mix(in oklab, var(--text) 35%, transparent);
+        }
+
+        .search-input:focus {
+            border-color: transparent;
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        .search-input:focus-visible,
+        .search-input:active {
+            background: var(--surface) !important;
+            border-color: transparent;
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        /* ✅ select 열릴 때도 input 배경 유지 */
+        .select-wrap:focus-within ~ .search-input-wrap .search-input {
+            background: var(--surface) !important;
+        }
+
+        /* ✅ 다크모드 명시 */
+        body.dark .search-input,
+        body.dark .search-input:focus,
+        body.dark .search-input:active,
+        body.dark .search-input:focus-visible {
+            background: var(--surface) !important;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        body.dark .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        /* ✅ 브라우저 자동완성 배경 제거 */
+        .search-input:-webkit-autofill,
+        .search-input:-webkit-autofill:hover,
+        .search-input:-webkit-autofill:focus,
+        .search-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        /*webkit-autofill : 브라우저 자동완성 스타일 제어하는 css 선택자 */
+        body.dark .search-input:-webkit-autofill,
+        body.dark .search-input:-webkit-autofill:hover,
+        body.dark .search-input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        .search-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%) translateZ(0);  /* ✅ GPU 가속 추가 */
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;  /* ✅ 클릭 영역 */
+            display: flex;  /* ✅ 추가 */
+            align-items: center;  /* ✅ 추가 */
+            justify-content: center;  /* ✅ 추가 */
+            z-index: 2;  /* ✅ 추가 */
+            border-radius: 4px;  /* ✅ 추가 */
+        }
+
+        .search-btn .material-symbols-outlined {
+            font-size: 26px;
+            display: block;  /* ✅ 추가 */
+            line-height: 1;  /* ✅ 추가 */
+        }
 
 
       /* Top grid */
@@ -1482,7 +1568,7 @@
             <span class="material-symbols-outlined select-caret">expand_more</span>
           </div>
           <div class="search-input-wrap">
-              <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+              <input id="searchInput" class="search-input" type="text" spellcheck="false" placeholder="관심있는 뉴스 기사를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
               <button class="search-btn" onclick="performSearch()" aria-label="검색">
                   <span class="material-symbols-outlined">search</span>
               </button>
@@ -1765,16 +1851,16 @@ function performSearch() {
     }
 }
 
-function updateSearchPlaceholder(select) {
-    const searchInput = document.getElementById('searchInput');
-    const placeholders = {
-        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
-        title: '제목에서 관심있는 뉴스를 검색해보세요',
-        body: '본문에서 관심있는 뉴스를 검색해보세요',
-        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
-    };
-    searchInput.placeholder = placeholders[select.value];
-}
+// function updateSearchPlaceholder(select) {
+//     const searchInput = document.getElementById('searchInput');
+//     const placeholders = {
+//         title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+//         title: '제목에서 관심있는 뉴스를 검색해보세요',
+//         body: '본문에서 관심있는 뉴스를 검색해보세요',
+//         keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+//     };
+//     searchInput.placeholder = placeholders[select.value];
+// }
 
 $(document).ready(function () {
     let globalArticles = [];
