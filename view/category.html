@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NewsPalette - 카테고리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    height: 64px;
+}
+
+/* 왼쪽 로고 */
+.nav-left {
+    flex: 0 0 auto;
+}
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+.nav-center {
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+@media (min-width: 768px) {
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    border: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 0.25rem;
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.125rem;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+/* Main Content */
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 3rem;
+}
+
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
+
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
+}
+
+body.dark .search-input {
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+.search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+/* Section Headers */
+.section-header {
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+body.dark .section-header {
+    border-bottom-color: #374151;
+}
+
+.section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+body.dark .section-title {
+    color: #FFFFFF;
+}
+
+.section-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+body.dark .section-subtitle {
+    color: #9CA3AF;
+}
+
+/* Article Grid */
+.article-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .article-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .article-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.article-card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    transition: box-shadow 0.2s;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+body.dark .article-card {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+.article-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.article-image {
+    position: relative;
+    height: 12rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.article-card:hover .article-image img {
+    transform: scale(1.05);
+}
+
+.article-tag {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background-color: #7C3AED;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.article-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.article-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+body.dark .article-title {
+    color: #FFFFFF;
+}
+
+.article-card:hover .article-title {
+    color: #3B82F6;
+}
+
+.article-description {
+    font-size: 0.875rem;
+    color: #4B5563;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+body.dark .article-description {
+    color: #9CA3AF;
+}
+
+.article-meta {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+body.dark .article-meta {
+    color: #6B7280;
+}
+
+.article-source {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Reliability Badge */
+.reliability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reliability-high {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+body.dark .reliability-high {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #6EE7B7;
+}
+
+.reliability-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+body.dark .reliability-medium {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #FCD34D;
+}
+
+.reliability-low {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+body.dark .reliability-low {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+}
+
+.reliability-icon {
+    font-size: 0.875rem;
+}
+
+/* List Section */
+.list-section {
+    margin-top: 3rem;
+}
+
+.list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .list-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+body.dark .list-header {
+    border-bottom-color: #374151;
+}
+
+.list-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.list-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+body.dark .list-title {
+    color: #E5E7EB;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 0.25rem;
+    background-color: #F3F4F6;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+body.dark .sort-buttons {
+    background-color: #1F2937;
+}
+
+.sort-btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .sort-btn {
+    color: #9CA3AF;
+}
+
+.sort-btn:hover {
+    background-color: #E5E7EB;
+}
+
+body.dark .sort-btn:hover {
+    background-color: #374151;
+}
+
+.sort-btn.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Article List */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.list-article {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+@media (min-width: 640px) {
+    .list-article {
+        flex-direction: row;
+    }
+}
+
+body.dark .list-article {
+    border-bottom-color: #1F2937;
+}
+
+.list-article:last-child {
+    border-bottom: none;
+}
+
+.list-article:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .list-article:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+}
+
+.list-article-image {
+    width: 100%;
+    height: 10rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+@media (min-width: 640px) {
+    .list-article-image {
+        width: 16rem;
+    }
+}
+
+.list-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.list-article:hover .list-article-image img {
+    transform: scale(1.05);
+}
+
+.list-article-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.list-article-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #7C3AED;
+    margin-bottom: 0.5rem;
+}
+
+.list-article-category {
+    background-color: #EDE9FE;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    color: #7C3AED;
+    font-weight: 500;
+}
+
+body.dark .list-article-category {
+    background-color: rgba(124, 58, 237, 0.3);
+}
+
+.list-article-date {
+    color: #9CA3AF;
+}
+
+body.dark .list-article-date {
+    color: #6B7280;
+}
+
+.list-article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .list-article-title {
+    color: #FFFFFF;
+}
+
+.list-article:hover .list-article-title {
+    color: #3B82F6;
+}
+
+.list-article-desc {
+    font-size: 0.875rem;
+    color: #4B5563;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+body.dark .list-article-desc {
+    color: #9CA3AF;
+}
+
+.list-article-source {
+    font-size: 0.75rem;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+body.dark .list-article-source {
+    color: #6B7280;
+}
+
+.list-article-source strong {
+    color: #374151;
+    font-weight: 500;
+}
+
+body.dark .list-article-source strong {
+    color: #D1D5DB;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 3rem;
+}
+
+body.dark .pagination {
+    border-top-color: #374151;
+}
+
+.pagination-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-nav {
+    padding: 0.5rem;
+    color: #6B7280;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+body.dark .pagination-nav {
+    color: #9CA3AF;
+}
+
+.pagination-nav:hover {
+    color: #3B82F6;
+}
+
+.pagination-btn.page {
+    color: #4B5563;
+    background: transparent;
+}
+
+body.dark .pagination-btn.page {
+    color: #D1D5DB;
+}
+
+.pagination-btn.page:hover {
+    background-color: #F3F4F6;
+}
+
+body.dark .pagination-btn.page:hover {
+    background-color: #1F2937;
+}
+
+.pagination-btn.page.active {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+}
+
+.pagination-btn.page.active:hover {
+    background-color: #2563EB;
+}
+
+.spacer {
+    height: 5rem;
+}
+
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
+}
+
+/* =============================
+   네비 / 메인
+============================= */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    position: relative;
+}
+
+
+
+    /* =========================
+   🌙 다크모드 가독성 개선
+========================= */
+
+/* 카드 전체 기본 텍스트 */
+body.dark .article-card,
+body.dark .list-article {
+    color: #E5E7EB;
+}
+
+/* 카드 제목 */
+body.dark .article-title,
+body.dark .card-title,
+body.dark .list-title-text {
+    color: #F9FAFB !important;
+}
+
+/* 카드 본문 */
+body.dark .article-description,
+body.dark .card-description,
+body.dark .list-desc {
+    color: #D1D5DB !important;
+}
+
+/* 메타 정보 (기자, 언론사, 날짜) */
+body.dark .article-meta,
+body.dark .card-source,
+body.dark .list-article-source {
+    color: #9CA3AF;
+}
+    /* 모든 기사 링크 색상 통제 */
+#articleGrid a,
+#articleList a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* hover 시에도 파란색 금지 */
+#articleGrid a:hover,
+#articleList a:hover {
+    color: inherit;
+}
+/* 다크모드 이미지 가독성 */
+body.dark .article-image img,
+body.dark .list-article-image img {
+    filter: brightness(1.1) contrast(1.05);
+}
+</style>
+</head>
+<body>
+<nav>
+    <div class="nav-container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a class="logo" href="home.html">
+                    <span class="material-symbols-outlined logo-icon">palette</span>
+                    <span class="logo-text">NewsPalette</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleDarkMode()">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <div class="user-menu">
+                    <button class="user-menu-button" onclick="toggleUserMenu()">
+                        <div class="user-menu-blob"></div>
+                        <span class="material-symbols-outlined user-menu-icon">account_circle</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div id="dropdownContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <section class="search-section">
+        <div class="search-bar">
+            <div class="select-wrap">
+                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option value="title_body" selected>제목+본문</option>
+                    <option value="title">제목</option>
+                    <option value="body">본문</option>
+                    <option value="keyword">키워드</option>
+                </select>
+                <span class="material-icons-round select-caret">expand_more</span>
+            </div>
+            <div class="search-input-wrap">
+                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                    <span class="material-icons-round">search</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+<!-- 카드형 기사 -->
+<section>
+    <div class="section-header">
+        <h1 class="section-title">사회</h1>
+        <p class="section-subtitle" id="articleCount">기사를 불러오는 중...</p>
+    </div>
+
+    <div class="article-grid" id="articleGrid">
+        <!-- 카드형 템플릿 (숨김) -->
+        <a class="article-card article-card-template" style="display:none;">
+            <div class="article-image">
+                <img class="card-img" src="" alt="">
+            </div>
+            <div class="article-content">
+                <h3 class="card-title"></h3>
+                <p class="card-description"></p>
+                <div class="article-meta">
+                    <div class="card-source"></div>
+                    <span class="reliability-badge">
+                        <span class="material-symbols-outlined reliability-icon">verified</span>
+                        <span class="card-trust"></span>
+                    </span>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="list-section">
+    <div class="list-header">
+        <div class="list-title-row">
+             <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">location_city</span>
+            <h2 class="list-title">사회</h2>
+        </div>
+        <div class="sort-buttons">
+            <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
+            <button class="sort-btn" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
+            <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+        </div>
+    </div>
+
+    <div class="article-list" id="articleList">
+        <!-- 리스트형 템플릿 (숨김) -->
+        <a class="list-article list-article-template" style="display:none;">
+            <div class="list-article-image">
+                <img class="list-img" src="" alt=""/>
+            </div>
+            <div class="list-article-body">
+                <div class="list-article-tags">
+                    <span class="list-category"></span>
+                    <span class="list-date"></span>
+                </div>
+                <h3 class="list-title-text"></h3>
+                <p class="list-desc"></p>
+                <div class="list-article-source">
+                <span class="list-reporter"></span>
+                <span class="meta-dot">·</span>
+                <strong class="list-source"></strong>
+
+                <span class="reliability-badge">
+                    <span class="material-symbols-outlined reliability-icon">verified</span>
+                    <span class="list-trust"></span>
+                </span>
+            </div>
+
+            </div>
+        </a>
+    </div>
+</section>
+
+
+<div class="pagination">
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
+    </button>
+    <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
+    <button class="pagination-btn page" onclick="goToPage(2)">2</button>
+    <button class="pagination-btn page" onclick="goToPage(3)">3</button>
+    <button class="pagination-btn page" onclick="goToPage(4)">4</button>
+    <button class="pagination-btn page" onclick="goToPage(5)">5</button>
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
+    </button>
+</div>
+
+<div class="spacer"></div>
+</main>
+<script>
+// ========== 전역 변수 및 설정 ==========
+const categoryInfo = {
+    '사회/경제': { icon: 'payments' },
+    '정치': { icon: 'policy' },
+    '국제': { icon: 'public' },
+    '지역': { icon: 'location_city' },
+    '문화': { icon: 'theater_comedy' },
+    '스포츠': { icon: 'sports_soccer' }
+};
+
+// ========== 페이지 로드 시 실행 ==========
+$(document).ready(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCategory = urlParams.get('cat') || '사회'; // URL 파라미터가 없으면 '사회' 기본값
+
+    // 1. UI 초기 세팅 (제목, 아이콘, 메뉴 활성화)
+    initializeUI(currentCategory);
+    
+    // 2. 데이터 로드 (첫 페이지)
+    loadCategoryArticles(currentCategory, 1);
+});
+
+function initializeUI(category) {
+    // 세션 및 메뉴 초기화
+    initApp(); 
+    
+    // 제목 및 아이콘 변경
+    $('.section-title').text(category);
+    $('.list-title').text(category);
+    const iconName = categoryInfo[category]?.icon || 'newspaper';
+    $('.list-title-row .material-symbols-outlined').text(iconName);
+
+    // 네비게이션 활성화
+    $('.nav-splash-item').removeClass('active');
+    $(`.nav-splash-item`).each(function() {
+        if ($(this).attr('href').includes(`cat=${category}`)) {
+            $(this).addClass('active');
+        }
+    });
+
+    const scopeSelect = document.getElementById('searchScope');
+    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+}
+
+// ========== 백엔드에서 데이터 가져오기 ==========
+function loadCategoryArticles(categoryName, page = 1) {
+    const itemsPerPage = 9; 
+
+    $.ajax({
+        url: `/api/category/${encodeURIComponent(categoryName)}`,
+        type: 'GET',
+        data: { size: 45, page: page }, // 넉넉히 가져와서 프론트 슬라이싱
+        success: function(response) {
+            if (response.success) {
+                const allArticles = response.articles || [];
+                $('#articleCount').text(`총 ${response.total || allArticles.length}건의 ${categoryName} 기사`);
+
+                // 페이지별 데이터 분할 (카드 4개 + 리스트 5개)
+                const startIdx = (page - 1) * itemsPerPage;
+                const pageItems = allArticles.slice(startIdx, startIdx + itemsPerPage);
+
+                displayCardArticles(pageItems.slice(0, 4));
+                displayListArticles(pageItems.slice(4, 9));
+
+                updatePaginationUI(page);
+            }
+        },
+        error: function(xhr) {
+            console.error('로드 실패:', xhr);
+            $('#articleCount').text('기사를 불러오는데 실패했습니다.');
+        }
+    });
+}
+
+// ========== 카드형 기사 렌더링 ==========
+function displayCardArticles(articles) {
+    const container = $('#articleGrid');
+    const template = $('.article-card-template');
+
+    container.find('.article-card').not('.article-card-template').remove();
+
+    articles.forEach(function(article) {
+        const card = template.clone().removeClass('article-card-template').show();
+        
+        card.attr('href', `/article/${article.article_id}`);
+        card.find('.card-img').attr('src', article.image || 'https://via.placeholder.com/400x300?text=No+Image');
+        card.find('.card-title').text(article.title);
+        card.find('.card-description').text((article.content || '').substring(0, 80) + '...');
+        
+        // 출처 및 날짜 (백엔드 필드 source 사용)
+        const dateText = formatDate(article.upload_date);
+        card.find('.card-source').text(`${article.source || '뉴스'} • ${dateText}`);
+
+        // 신뢰도 점수 (백엔드 필드 trustScore 사용)
+        const trust = Math.floor(article.trustScore / 100);
+        card.find('.card-trust').text(`신뢰도 ${trust}%`);
+
+        // 점수에 따른 클래스 부여
+        const reliabilityClass = getReliabilityClass(trust);
+        card.find('.reliability-badge').removeClass('reliability-high reliability-medium reliability-low').addClass(reliabilityClass);
+
+        container.append(card);
+    });
+}
+
+// ========== 리스트형 기사 렌더링 ==========
+function displayListArticles(articles) {
+    const container = $('#articleList');
+    const template = $('.list-article-template');
+
+    container.find('.list-article').not('.list-article-template').remove();
+
+    articles.forEach(function(article) {
+        const item = template.clone().removeClass('list-article-template').show();
+        
+        item.attr('href', `/article/${article.article_id}`);
+        // 정렬을 위한 데이터 속성 저장
+        item.attr('data-date', article.upload_date);
+        item.attr('data-reliability', article.trustScore);
+
+        item.find('.list-img').attr('src', article.image || 'https://via.placeholder.com/400x300?text=No+Image');
+        item.find('.list-category').text(article.category || '기타');
+        item.find('.list-date').text(formatDateYMD(article.upload_date));
+        item.find('.list-title-text').text(article.title);
+        item.find('.list-desc').text((article.content || '').substring(0, 120) + '...');
+        item.find('.list-reporter').text(article.reporter || '');
+        item.find('.list-source').text(article.source || '');
+        
+        const trust = Math.floor(article.trustScore / 100);
+        item.find('.list-trust').text(`신뢰도 ${trust}%`);
+        
+        const reliabilityClass = getReliabilityClass(trust);
+        item.find('.reliability-badge').removeClass('reliability-high reliability-medium reliability-low').addClass(reliabilityClass);
+
+        container.append(item);
+    });
+}
+
+// ========== 정렬 기능 (리스트 대상) ==========
+function sortArticles(type) {
+    const container = document.getElementById('articleList');
+    const template = container.querySelector('.list-article-template');
+    const articles = Array.from(container.querySelectorAll('.list-article:not(.list-article-template)'));
+
+    articles.sort((a, b) => {
+        if (type === 'latest') return new Date(b.dataset.date) - new Date(a.dataset.date);
+        if (type === 'oldest') return new Date(a.dataset.date) - new Date(b.dataset.date);
+        if (type === 'reliability') return Number(b.dataset.reliability) - Number(a.dataset.reliability);
+        return 0;
+    });
+
+    $(container).find('.list-article:not(.list-article-template)').remove();
+    articles.forEach(a => container.appendChild(a));
+
+    $('.sort-btn').removeClass('active');
+    $(`#btn${type.charAt(0).toUpperCase() + type.slice(1)}`).addClass('active');
+}
+
+// ========== 페이지네이션 ==========
+function goToPage(pageNumber) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCategory = urlParams.get('cat') || '지역';
+    
+    loadCategoryArticles(currentCategory, pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updatePaginationUI(activePage) {
+    $('.pagination-btn.page').each(function() {
+        $(this).toggleClass('active', Number($(this).text()) === activePage);
+    });
+}
+
+// ========== 유틸리티 함수 ==========
+function getReliabilityClass(score) {
+    if (score >= 80) return 'reliability-high';
+    if (score >= 50) return 'reliability-medium';
+    return 'reliability-low';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return '방금 전';
+    if (hours < 24) return `${hours}시간 전`;
+    return date.toLocaleDateString('ko-KR');
+}
+
+function formatDateYMD(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// ========== 사용자 세션 관련 (기존 유지) ==========
+function initApp() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+    renderUserMenu(isLoggedIn, savedName);
+    if (isLoggedIn) fetchUserInfo();
+}
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                localStorage.setItem('userName', response.data.name);
+                localStorage.setItem('isLoggedIn', 'true');
+                renderUserMenu(true, response.data.name);
+            }
+        },
+        error: function(xhr) {
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
+    });
+}
+
+function renderUserMenu(isLoggedIn, userName = "회원") {
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+    if (isLoggedIn) {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item"><span class="material-symbols-outlined">account_circle</span><span>마이페이지</span></a>
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
+                <span class="material-symbols-outlined">logout</span><span>로그아웃</span>
+            </button>`;
+    } else {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item"><span class="material-symbols-outlined">login</span><span>로그인</span></a>
+            <a href="logregist.html" class="dropdown-item"><span class="material-symbols-outlined">person_add</span><span>회원가입</span></a>`;
+    }
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+function toggleUserMenu() {
+    $('#userDropdown').toggleClass('show');
+}
+
+function updateSearchPlaceholder(select) {
+    const placeholders = {
+        title_body: '제목+본문에서 검색해보세요',
+        title: '제목에서 검색해보세요',
+        body: '본문에서 검색해보세요',
+        keyword: '키워드로 검색해보세요'
+    };
+    $('#searchInput').attr('placeholder', placeholders[select.value]);
+}
+
+function performSearch() {
+    const term = $('#searchInput').val().trim();
+    const scope = $('#searchScope').val();
+    if (term) location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+}
+</script>
+
+</body>
+</html>
