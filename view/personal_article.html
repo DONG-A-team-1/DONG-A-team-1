@@ -1767,31 +1767,77 @@ document.addEventListener('click', (e) => {
 /* ===============================
    🔥 로그인 상태 처리
 ================================ */
-function toggleLoginState() {
+$(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+    initApp();
+});
+
+function initApp() {
+    // 로그인 여부 확인
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userName = localStorage.getItem('userName') || '회원';
-    const dropdownContent = document.getElementById('dropdownContent');
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
 
     if (isLoggedIn) {
-        dropdownContent.innerHTML = `
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
+                
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+            }
+        },
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
+    });
+}
+
+// 드롭다운 부분
+function renderUserMenu(isLoggedIn, userName = "회원") {
+
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">${userName}님</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
                 <span>마이페이지</span>
             </a>
-            <button onclick="logout()" class="dropdown-item logout">
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
                 <span class="material-symbols-outlined">logout</span>
                 <span>로그아웃</span>
             </button>
         `;
     } else {
-        dropdownContent.innerHTML = `
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title">로그인이 필요합니다</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
             </div>
             <a href="login.html" class="dropdown-item">
                 <span class="material-symbols-outlined">login</span>
@@ -1803,11 +1849,6 @@ function toggleLoginState() {
             </a>
         `;
     }
-}
-
-function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    toggleLoginState();
 }
 
 /* ===============================
