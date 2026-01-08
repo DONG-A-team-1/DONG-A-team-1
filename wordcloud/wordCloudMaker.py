@@ -29,7 +29,7 @@ async def make_wordcloud_data(bigkinds_data):
             tooltip_opts=opts.TooltipOpts(is_show=True),
         )
     )
-    print(word_data)
+    # print(word_data)
     # 핵심: 차트의 설정값(Option)만 JSON으로 반환
     return wordcloud.dump_options_with_quotes()
 

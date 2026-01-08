@@ -1615,7 +1615,7 @@ body.dark {
     </div>
 </main>
 <script>
-window.LOGIN_USER_ID = "jimin"; // 임시 테스트용 나중에 지울 거임
+<!--window.LOGIN_USER_ID = "jimin"; // 임시 테스트용 나중에 지울 거임-->
  // 0. 서버에서 내려준 값들
 /*
 article_id : URL 쿼리스트링에서 가져온 기사 ID / user_id    : 로그인 세션에서 내려준 사용자 ID
@@ -1624,7 +1624,7 @@ article_id : URL 쿼리스트링에서 가져온 기사 ID / user_id    : 로그
 
 const urlParams = new URLSearchParams(window.location.search);
 const articleId = urlParams.get("article_id");
-const userId = window.LOGIN_USER_ID;  // 없으면 null
+const userId = localStorage.getItem('userId')
 
 
 //  1. 스크롤 깊이 계산 함수
@@ -1793,10 +1793,10 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userId', user.user_id);
 
                 // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
