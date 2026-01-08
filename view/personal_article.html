@@ -9,45 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-    :root {
-    --primary: #3B82F6;
-    --bg-light: #F3F4F6;
-    --bg-dark: #111827;
-    --surface-light: #FFFFFF;
-    --surface-dark: #1F2937;
-    --text-main-light: #111827;
-    --text-main-dark: #F9FAFB;
-    --text-sub-light: #6B7280;
-    --text-sub-dark: #9CA3AF;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-
-    /* 검색창을 위한 변수 추가 */
-    --surface: #FFFFFF;
-    --border: #e5e7eb;
-    --text: #111827;
-    --muted: #6b7280;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* 다크모드 변수도 추가 */
-body.dark {
-    background-color: var(--bg-dark);
-    color: var(--text-main-dark);
-
-    /* 다크모드 검색창 변수 */
-    --surface: #1F2937;
-    --border: #374151;
-    --text: #F9FAFB;
-    --muted: #9CA3AF;
-}
 .article_content p {
     text-indent: 1em;
-    margin-bottom: 1em;
+    margin-bottom: 1em;  
     line-height: 1.7;
     word-break: keep-all;
 }
@@ -55,174 +19,114 @@ body.dark {
 
 /* Search Bar */
 .search-section {
-    margin-top: 20px;
-    margin-bottom: 3rem;
+  margin-bottom: 3rem;
 }
 
 .search-bar {
-    max-width: 896px;
-    margin: 0 auto;
-    padding: 8px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 body.dark .search-bar {
-    background: var(--surface);
-    border-color: var(--border);
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
 }
 
 @media (min-width: 640px) {
-    .search-bar {
-        flex-direction: row;
-        align-items: center;
-    }
+  .search-bar {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
+/* Select */
 .select-wrap {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 
 @media (min-width: 640px) {
-    .select-wrap {
-        width: auto;
-    }
+  .select-wrap {
+    width: auto;
+  }
 }
 
 .select {
-    appearance: none;
-    width: 100%;
-    padding: 12px 36px 12px 16px;
-    border: 0;
-    border-radius: 10px;
-    background: color-mix(in oklab, var(--text) 6%, transparent);
-    color: color-mix(in oklab, var(--text) 88%, transparent);
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    outline: none;
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
 }
 
 @media (min-width: 640px) {
-    .select {
-        width: 128px;
-    }
+  .select {
+    width: 128px;
+  }
 }
 
 .select-caret {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: var(--muted);
-    pointer-events: none;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
 }
 
+/* Input */
 .search-input-wrap {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    background: transparent;
-    overflow: hidden;
-    border-radius: 10px;
-    transform: translateZ(0);
+  position: relative;
+  flex: 1;
 }
 
 .search-input {
-    caret-color:#ffffff;
-    width: 100%;
-    padding: 12px 44px 12px 16px !important;
-    border-radius: 10px;
-    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-    background: var(--surface) !important;
-    color: var(--text);
-    outline: none !important;
-    transition: box-shadow .15s, border-color .15s;
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    appearance: none;
-    backface-visibility: hidden;
-    transform: translateZ(0);
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
 }
 
-.search-input::placeholder {
-    color: color-mix(in oklab, var(--text) 35%, transparent);
+body.dark .search-input {
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
 }
 
 .search-input:focus {
-    border-color: transparent;
-    background: var(--surface) !important;
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-}
-
-.search-input:focus-visible,
-.search-input:active {
-    background: var(--surface) !important;
-    border-color: transparent;
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-}
-
-.select-wrap:focus-within ~ .search-input-wrap .search-input {
-    background: var(--surface) !important;
-}
-
-body.dark .search-input,
-body.dark .search-input:focus,
-body.dark .search-input:active,
-body.dark .search-input:focus-visible {
-    background: var(--surface) !important;
-    color: var(--text);
-    border-color: var(--border);
-}
-
-body.dark .search-input::placeholder {
-    color: var(--muted);
-}
-
-.search-input:-webkit-autofill,
-.search-input:-webkit-autofill:hover,
-.search-input:-webkit-autofill:focus,
-.search-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
-    -webkit-text-fill-color: var(--text) !important;
-}
-
-body.dark .search-input:-webkit-autofill,
-body.dark .search-input:-webkit-autofill:hover,
-body.dark .search-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
-    -webkit-text-fill-color: var(--text) !important;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
 }
 
 .search-btn {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%) translateZ(0);
-    border: 0;
-    background: transparent;
-    color: var(--primary);
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    border-radius: 4px;
-}
-
-.search-btn .material-symbols-outlined {
-    font-size: 26px;
-    display: block;
-    line-height: 1;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
 }
 
 
@@ -1085,7 +989,7 @@ body.dark nav {
 
 .logo-icon {
     color: #3B82F6;
-    font-size: 24px;
+    font-size: 1.875rem;
 }
 
 .logo-text {
@@ -1445,12 +1349,12 @@ body.dark {
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
-                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
-                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
-                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
-                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
-                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
+                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
+                <a class="nav-splash-item splash-world" href="economycategory.html">국제</a>
+                <a class="nav-splash-item splash-international" href="international.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
             </div>
      <div class="header-actions">
     <button class="icon-button" onclick="toggleDarkMode()">
@@ -1483,7 +1387,7 @@ body.dark {
     </div>
 
     <div class="search-input-wrap">
-      <input id="searchInput" class="search-input" type="text" spellcheck="false" placeholder="관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
+      <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
       <button class="search-btn" onclick="performSearch()" aria-label="검색">
         <span class="material-symbols-outlined">search</span>
       </button>
@@ -1500,7 +1404,7 @@ body.dark {
                         <span class="material-symbols-outlined">trending_down</span>
                         반대 성향 기사
                     </h3>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag critical">비판적 시각</span>
                         <div class="article-content">
@@ -1513,7 +1417,7 @@ body.dark {
                             </div>
                         </div>
                     </a>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag alternative">다른 관점</span>
                         <div class="article-content">
@@ -1526,7 +1430,7 @@ body.dark {
                             </div>
                         </div>
                     </a>
-
+                    
                     <a class="sidebar-article" href="article-detail.html">
                         <span class="article-tag analysis">분석</span>
                         <div class="article-content">
@@ -1542,14 +1446,14 @@ body.dark {
                 </div>
             </div>
         </aside>
-
+        
         <!-- Main Article -->
         <article class="main-article">
 
                 <h1 class="article-headline">
 
                 </h1>
-
+                
                 <div class="article-meta">
                     <div class="author-info">
                         <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
@@ -1558,42 +1462,42 @@ body.dark {
                             <div class="press"></div>
                         </div>
                     </div>
-
+                    
                     <div class="upload_date">
                         <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
                     </div>
                 </div>
             </header>
-
+            
             <figure class="featured-image">
                 <img class="main_img">
                 <figcaption>
                     <!-- 셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다. -->
                 </figcaption>
             </figure>
-
+            
             <div class="article_content">
                 <!-- <p>
                     <span class="drop-cap">인</span>
                     공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
                 </p>
-
+                
                 <p>
                     지난 수십 년간 정보화 혁명이 인터넷을 중심으로 이루어졌다면, 이번 AI 혁명은 '지능화'를 핵심으로 한다. 데이터 분석을 넘어 스스로 콘텐츠를 생성하고, 복잡한 의사결정을 지원하며, 인간의 창의성 영역까지 넘보고 있다.
                 </p>
-
+                
                 <blockquote>
                     <p>
                         "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
                     </p>
                     <cite>- 홍수형 경제연구소 수석연구원</cite>
                 </blockquote> -->
-
+                
                 <!-- <p>
                     향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
                 </p> -->
             </div>
-
+            
             <section class="related-section">
                 <div class="section-header">
                     <h3 class="section-title">
@@ -1601,7 +1505,7 @@ body.dark {
                         이 기사와 연관된 뉴스
                     </h3>
                 </div>
-
+                
                 <div class="related-grid">
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
@@ -1611,7 +1515,7 @@ body.dark {
                         <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-
+                    
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Office Plant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhOAQiATb9MVPwOcSMunpaakj2hwYzrxHU5DMhikdzS0xwpjlIr6nviHPtn7zspy_7RSSXMe8SFpKup1Aqb2qyBlBl-SCSYeKwdYMOTjwAeikVFCJnVPnXdsEK40xp1mG3DR11WqhMQ6HPJzOOQys8bsH6W1ah13J6E5GG-6At0R_V1xOqbo_XZMKKMSIa-G18RnVuqIdrAQy_75iOKVOjcmJRzuvOZelbbIRJa4kjNe608NjtGan2e_rRk__UdeWPukPCSzAhhw"/>
@@ -1620,7 +1524,7 @@ body.dark {
                         <h4 class="related-title">개발자 없는 개발 시대, 노코드(No-Code) 열풍</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-
+                    
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvWBjc1BBXGwhaWq9bj1Ubp53AVdwo7_BZeiNTcrPVxiyRxIqWM42lxZd8H_qU1CvV1do6jwjtOXSac5Uvyu-QY_VQyE0AxdNi3wgLzWn4fZi8xmyQsSZziskkXld52oT6xHZ-gqMKJguzPdu9MV-9t21uta3p46Bp1lI-AKMEZNgYNuhmIwb3KmUzjmciBOyOfHUaWZLiCfsGNmuIcP7UpsSl9LIwju3lKK2264EzgRA3aJX5hj0cDh7IWaRIVcSj1RufWKbAUuU"/>
@@ -1632,7 +1536,7 @@ body.dark {
                 </div>
             </section>
         </article>
-
+        
         <!-- Right Sidebar -->
                 <aside class="sidebar">
             <div class="sidebar-sticky">
@@ -1711,34 +1615,39 @@ body.dark {
     </div>
 </main>
 <script>
-    //검색어바 수정
-function performSearch() {
-const term = document.getElementById('searchInput').value.trim();
-const scope = document.getElementById('searchScope').value;
-if (term) {
-    location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
-}
-}
-window.LOGIN_USER_ID = "jimin"; // 임시 테스트용 나중에 지울 거임
- // 0. 서버에서 내려준 값들
 /*
-article_id : URL 쿼리스트링에서 가져온 기사 ID / user_id    : 로그인 세션에서 내려준 사용자 ID
-- 비로그인 허용의 경우 null 처리 가능
+@ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
+기사 페이지 1회 체류 = session 1개
+새로고침 / BFCache / JS 재실행해도 session 중복 생성 방지
+ping / 종료 신호를 안정적으로 서버에 전달
+
+@ 핵심
+- sessionStorage를 이용해 "현재 탭의 세션"을 단 하나만 유지 / ES에는 실시간 기록 / RDB 저장은 batch에서 단 1회만
 */
 
+
+
+//   0. 서버에서 내려준 값 (임시)
+// 추후 아래 코드 주석처리 필요
+// window.LOGIN_USER_ID = "jimin"; // 테스트용으로 jimin 넣어놨는데 본인 DB에 등록된 회원ID 넣으면 구동 될 거임
 const urlParams = new URLSearchParams(window.location.search);
 const articleId = urlParams.get("article_id");
-const userId = window.LOGIN_USER_ID;  // 없으면 null
+const userId = localStorage.getItem('userId')
 
-
+// 로그인 안 한 유저는 로그 수집X
+if (!userId || !articleId) {
+  console.warn("[SESSION] userId or articleId missing → tracking disabled");
+}
 //  1. 스크롤 깊이 계산 함수
 
+<!--1. 세션 저장 키 sessionStorage → 탭 단위 유지 (새로고침 유지, 탭 닫으면 삭제) -->
+const SESSION_KEY = "article_session_id";
+
+
+<!--   2. 스크롤 깊이 계산-->
 /*
-  scrollTop      : 현재 스크롤 위치
-  windowHeight   : 화면에 보이는 영역 높이
-  documentHeight : 전체 문서 높이
-  (scrollTop + windowHeight) / documentHeight
-  → 현재 문서를 얼마나 읽었는지 (0 ~ 1)
+(scrollTop + windowHeight) / documentHeight
+→ 0 ~ 1 사이 값
 */
 
 function getScrollDepth() {
@@ -1753,18 +1662,24 @@ function getScrollDepth() {
   return Math.min(1, Math.max(0, depth));
 }
 
-//   2. 세션 시작 (/session/start)
 
-let sessionId = null;
+<!--   3. 세션 시작 (중복 방지)-->
+/*
+- 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
+- "기사 페이지 진입 1회 = 세션 1개"
+*/
 
-// 기사 페이지 진입 즉시 세션 생성
-async function startSession() {
-if (!userId) return;   // 비로그인 유저면 세션 생성 안 함
+let sessionId = sessionStorage.getItem(SESSION_KEY);
+
+async function startSessionOnce() {
+  // 비로그인 or 이미 세션 존재 → 종료
+  if (!userId || sessionId) return;
+
+  console.log("[SESSION] start");
+
   const res = await fetch("/session/start", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       user_id: userId,
       article_id: articleId
@@ -1772,13 +1687,23 @@ if (!userId) return;   // 비로그인 유저면 세션 생성 안 함
   });
 
   const data = await res.json();
+
   sessionId = data.session_id;
+
+  // 탭 단위로 세션 고정
+  sessionStorage.setItem(SESSION_KEY, sessionId);
 }
 
-// 페이지 로드 시 바로 실행
-startSession();
+// 최초 로드 시 1회만 실행
+startSessionOnce();
 
-// 3. Ping 전송 (30초마다)
+<!-- 4. Ping 전송 (체류 중)-->
+/*
+@ 역할
+- 사용자가 "아직 읽고 있다"는 신호
+- batch가 종료 여부 판단하는 기준 데이터
+@ 주기 10초
+*/
 
 let pingTimer = null;
 
@@ -1788,46 +1713,56 @@ function startPing() {
 
     fetch("/session/ping", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         session_id: sessionId,
         scroll_depth: getScrollDepth()
       })
     });
-  }, 10_000); // 10초
+  }, 10_000);
 }
 
 // 세션 생성 후 ping 시작
 setTimeout(startPing, 1000);
 
-// 4. 세션 종료 (/session/end)
+<!--   5. 세션 종료 (단 1회만)-->
 /*
-페이지 이동
-탭 닫기
-뒤로가기
+@ 종료 조건
+- 탭 닫기
+- 페이지 이동
+- 백그라운드 전환
+
+- sendBeacon 사용 → 페이지 종료 중에도 안정적으로 전송
+- sessionStorage 정리 → 다음 진입 시 새 세션 생성 가능
 */
-let sessionEnded = false;
-function endSession() {
-  if (!sessionId || sessionEnded) return;
-  sessionEnded = true;
+
+let ended = false;
+
+function endSessionOnce() {
+  if (!sessionId || ended) return;
+  ended = true;
+
+  console.log("[SESSION] end");
+
   navigator.sendBeacon(
     `/session/end?session_id=${sessionId}`
   );
+
+  // 세션 정리
+  sessionStorage.removeItem(SESSION_KEY);
+
   if (pingTimer) clearInterval(pingTimer);
 }
 
-
-// 탭 전환 / 백그라운드
+// 탭이 백그라운드로 갈 때
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
-    endSession();
+    endSessionOnce();
   }
 });
 
-// 페이지 종료 / 이동
-window.addEventListener("pagehide", endSession);
+// 페이지 이동 / 닫기
+window.addEventListener("pagehide", endSessionOnce);
 
 
 /* ===============================
@@ -1897,7 +1832,7 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-
+                
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
@@ -2076,6 +2011,6 @@ function renderParagraphs(text, sentencePerPara = 2) {
 
 </body>
 </html>
-
-
-
+                    
+                    
+       
