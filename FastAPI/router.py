@@ -252,7 +252,7 @@ def get_topic_article(body:TopicArticleReq):
     result = topic.get_topic_article(body)
     return result
 
-@app.post("/api/search") # 검색 기능
+@app.post("/api/search") # 검색 기능-----
 async def api_search(request: Request):
     """기사 검색 API"""
     try:

@@ -217,7 +217,8 @@ def search_articles(search_type: str, query: str, size: int = 20):
                 "keywords": query
             }
         }
-    else:
+    #     키워드 매칭 확인해주세요 제대로 되는지
+    else: 
         es_query = {
             "bool": {
                 "should": [
