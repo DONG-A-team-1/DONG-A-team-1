@@ -1735,12 +1735,12 @@ body.dark .user-dropdown {
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="world.html">국제</a>
-                <a class="nav-splash-item splash-international" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
             </div>
      <div class="header-actions">
     <button class="icon-button" onclick="toggleDarkMode()">
@@ -2212,6 +2212,89 @@ window.onclick = function(event) {
     }
 }
 
+// 1. 정보 변경 저장
+function saveUserInfo() {
+    const data = {
+        name: $('#user-name').val().trim(),
+        gender: $('#user-gender').val(),
+        birth: $('#user-birth').val(),
+        email: $('#user-email').val().trim()
+    };
+
+    // 모든 필드 필수 체크
+    if(!data.name || !data.gender || !data.birth || !data.email) {
+        alert("모든 정보를 정확히 입력해주세요.");
+        return;
+    }
+
+    $.ajax({
+        url: '/update-info',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data), // 백엔드의 await request.json()과 짝궁
+        success: function(res) {
+            alert("정보가 성공적으로 변경되었습니다.");
+            location.reload();
+        },
+        error: function(xhr) {
+            alert("수정에 실패했습니다: " + (xhr.responseJSON?.message || "알 수 없는 오류"));
+        }
+    });
+}
+
+// 2. 비밀번호 업데이트
+function updatePassword() {
+    const currentPw = $('#current-password').val();
+    const newPw = $('#new-password').val();
+    const confirmPw = $('#confirm-password').val();
+
+    if (newPw !== confirmPw) {
+        alert("새 비밀번호가 일치하지 않습니다.");
+        return;
+    }
+
+    $.ajax({
+        url: '/update-password',
+        type: 'POST',
+        data: { current_pw: currentPw, new_pw: newPw },
+        success: function() {
+            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+            logout();
+        },
+        error: function(xhr) {
+            alert(xhr.responseJSON.message);
+        }
+    });
+}
+
+// 3. 회원 탈퇴 확정
+function confirmWithdrawal() {
+    $.post('/withdraw', function() {
+        alert("탈퇴 처리가 완료되었습니다. 이용해 주셔서 감사합니다.");
+        localStorage.setItem('isLoggedIn', 'false');
+        location.href = 'home.html'; // 메인으로 이동
+    });
+}
+
+// 이부분 추후에 수정
+function resetAlgorithm() {
+    if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
+        const chart = document.getElementById('algorithm-chart');
+        chart.style.background = 'conic-gradient(#e5e7eb 0% 100%)';
+        document.getElementById('algorithm-percent').innerHTML = '0<span class="unit">%</span>';
+        
+        const listContainer = document.getElementById('list-items');
+        listContainer.innerHTML = `
+            <div class="activity-empty">
+                <span class="material-icons-outlined">delete_sweep</span>
+                <span>기록이 초기화되었습니다.</span>
+            </div>
+        `;
+        document.getElementById('list-count').innerText = '0건';
+        alert('개인화 추천 알고리즘이 초기화되었습니다.');
+    }
+}
+
 /* ===============================
    UI 인터랙션 (기존 기능 유지)
 ================================ */
@@ -2365,88 +2448,7 @@ function handleLogout() {
     }
 }
 
-// 1. 정보 변경 저장
-function saveUserInfo() {
-    const data = {
-        name: $('#user-name').val().trim(),
-        gender: $('#user-gender').val(),
-        birth: $('#user-birth').val(),
-        email: $('#user-email').val().trim()
-    };
 
-    // 모든 필드 필수 체크
-    if(!data.name || !data.gender || !data.birth || !data.email) {
-        alert("모든 정보를 정확히 입력해주세요.");
-        return;
-    }
-
-    $.ajax({
-        url: '/update-info',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data), // 백엔드의 await request.json()과 짝궁
-        success: function(res) {
-            alert("정보가 성공적으로 변경되었습니다.");
-            location.reload();
-        },
-        error: function(xhr) {
-            alert("수정에 실패했습니다: " + (xhr.responseJSON?.message || "알 수 없는 오류"));
-        }
-    });
-}
-
-// 2. 비밀번호 업데이트
-function updatePassword() {
-    const currentPw = $('#current-password').val();
-    const newPw = $('#new-password').val();
-    const confirmPw = $('#confirm-password').val();
-
-    if (newPw !== confirmPw) {
-        alert("새 비밀번호가 일치하지 않습니다.");
-        return;
-    }
-
-    $.ajax({
-        url: '/update-password',
-        type: 'POST',
-        data: { current_pw: currentPw, new_pw: newPw },
-        success: function() {
-            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
-            logout();
-        },
-        error: function(xhr) {
-            alert(xhr.responseJSON.message);
-        }
-    });
-}
-
-// 3. 회원 탈퇴 확정
-function confirmWithdrawal() {
-    $.post('/withdraw', function() {
-        alert("탈퇴 처리가 완료되었습니다. 이용해 주셔서 감사합니다.");
-        localStorage.setItem('isLoggedIn', 'false');
-        location.href = 'home.html'; // 메인으로 이동
-    });
-}
-
-// 이부분 추후에 수정
-function resetAlgorithm() {
-    if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
-        const chart = document.getElementById('algorithm-chart');
-        chart.style.background = 'conic-gradient(#e5e7eb 0% 100%)';
-        document.getElementById('algorithm-percent').innerHTML = '0<span class="unit">%</span>';
-        
-        const listContainer = document.getElementById('list-items');
-        listContainer.innerHTML = `
-            <div class="activity-empty">
-                <span class="material-icons-outlined">delete_sweep</span>
-                <span>기록이 초기화되었습니다.</span>
-            </div>
-        `;
-        document.getElementById('list-count').innerText = '0건';
-        alert('개인화 추천 알고리즘이 초기화되었습니다.');
-    }
-}
 
 // Activity List Functions
 function generateArticleHTML(article) {
@@ -2654,30 +2656,6 @@ function setActiveCategoryByURL() {
         }
     });
 }
-
-
-
-/* ===============================
-   초기 실행
-================================ */
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
-
-    document.addEventListener('click', e => {
-        const dropdown = document.getElementById('userDropdown');
-        const btn = document.getElementById('mypageBtn');
-        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
-
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-});
 
 </script>
 </body>
