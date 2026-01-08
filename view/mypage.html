@@ -1328,6 +1328,22 @@ main {
 .activity-list-date .material-icons-outlined {
     font-size: 1.25rem;
 }
+/* 개인 조회 카테고리 제목 다크모드 대응 */
+.profile-section + .divider + div .section-title h3 {
+    color: #111827;
+}
+
+.dark .profile-section + .divider + div .section-title h3 {
+    color: #ffffff;
+}
+
+.profile-section + .divider + div .section-title .material-icons-outlined {
+    color: #6b7280;
+}
+
+.dark .profile-section + .divider + div .section-title .material-icons-outlined {
+    color: #9ca3af;
+}
 
 :root {
     --primary: #3B82F6;
@@ -1391,16 +1407,26 @@ body.dark nav {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     height: 64px;
-    position: relative;
 }
 
+/* 왼쪽 로고 */
 .nav-left {
-    display: flex;
-    align-items: center;
+    flex: 0 0 auto;
 }
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
 
 .logo {
     display: flex;
@@ -1423,11 +1449,12 @@ body.dark nav {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
 
 @media (min-width: 768px) {
     .nav-center {
@@ -1442,6 +1469,7 @@ body.dark nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     padding: 0.5rem 1.25rem;
     margin: 0 0.25rem;
     font-weight: 500;
@@ -1464,13 +1492,9 @@ body.dark .nav-splash-item {
     height: 160%;
     transform: translate(-50%, -50%) scale(0.6);
     background-color: var(--splash-color);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
     mask-position: center;
-    -webkit-mask-size: contain;
     mask-size: contain;
     opacity: 0;
     z-index: -1;
@@ -1734,13 +1758,13 @@ body.dark .user-dropdown {
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
-            <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
-                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
-                <a class="nav-splash-item splash-international" href="localcategory.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
+         <div class="nav-center">
+                <a class="nav-splash-item splash-society" href="socialcategory.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="localcategory.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html?cat=스포츠">스포츠</a>
             </div>
      <div class="header-actions">
     <button class="icon-button" onclick="toggleDarkMode()">
@@ -1783,10 +1807,10 @@ body.dark .user-dropdown {
                     <div class="divider"></div>
                     
                     <div>
-                        <div class="section-title" style="margin-bottom: 1.5rem;">
-                            <span class="material-icons-outlined" style="color: #6b7280;">history</span>
-                            <h3 style="font-weight: bold; color: #111827;">개인 조회 카테고리</h3>
-                        </div>
+                      <div class="section-title" style="margin-bottom: 1.5rem;">
+                          <span class="material-icons-outlined">history</span>
+                        <h3 style="font-weight: bold;">개인 조회 카테고리</h3>
+                    </div>
                         
                         <div class="chart-section">
                             <div style="position: relative; margin-bottom: 1.5rem;">

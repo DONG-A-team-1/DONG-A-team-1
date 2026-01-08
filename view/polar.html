@@ -531,6 +531,38 @@ body.dark .section-subtitle {
     color: #9CA3AF;
 }
 
+
+/* Section Headers */
+.section-header {
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+body.dark .section-header {
+    border-bottom-color: #374151;
+}
+
+.section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+body.dark .section-title {
+    color: #FFFFFF;
+}
+
+.section-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+body.dark .section-subtitle {
+    color: #9CA3AF;
+}
+
 /* Article Grid */
 .article-grid {
     display: grid;
@@ -1535,11 +1567,11 @@ body:not(.dark) .today-topics .topic-rank{
     <section class="search-section">
         <div class="search-bar">
             <div class="select-wrap">
-                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
-                    <option value="title_body" selected>제목+본문</option>
-                    <option value="title">제목</option>
-                    <option value="body">본문</option>
-                    <option value="keyword">키워드</option>
+                  <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option style="color: black;" value="title_body">제목+본문</option>
+                    <option style="color: black;" value="title">제목</option>
+                    <option style="color: black;" value="body">본문</option>
+                    <option style="color: black;" value="keyword">키워드</option>
                 </select>
                 <span class="material-icons-round select-caret">expand_more</span>
             </div>
