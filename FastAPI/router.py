@@ -156,7 +156,7 @@ async def find_user_pw(
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
-        url=f"/view/personal_article.html?article_id={article_id}",
+        url=f"/view/individual_article.html?article_id={article_id}",
         status_code=302
     )
 
@@ -165,10 +165,11 @@ def get_article(article_id: str):
     # ES/DB에서 조회
     main = article.get_article(article_id)
     related = article.get_related(article_id)
-
+    polar_topic = topic.get_opposite_topic(article_id)
     return {
         "article": main,
-        "related": related
+        "related": related,
+        "polar": polar_topic
     }
 
 
