@@ -16,8 +16,8 @@ from . import member
 from . import article
 from . import topic
 from . import search
-
 from . import category
+
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
@@ -34,6 +34,7 @@ app.include_router(session_end_router)
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
