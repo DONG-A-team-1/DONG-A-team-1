@@ -14,8 +14,8 @@ def ensure_list(v):
     return [v]
 
 
-def get_article_from_es(article_id, SOURCE_FIELDS,max=10):
-
+def get_article_from_es(article_id, SOURCE_FIELDS, max=10):
+    logger.info(f"get article from es: {ensure_list(article_id)}")
     body = {
         "_source": SOURCE_FIELDS,
         "size": max,

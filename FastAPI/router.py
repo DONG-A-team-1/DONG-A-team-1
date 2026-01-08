@@ -7,8 +7,8 @@ from starlette.middleware.sessions import SessionMiddleware
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
 import json
 
@@ -23,8 +23,6 @@ from util.logger import Logger
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
-
-
 app = FastAPI()
 
 # router 연결 === session 관련 ===
@@ -247,9 +245,9 @@ def get_topics():
     return result
 
 class TopicArticleReq(BaseModel):
-    pos_ids: List[str]
-    neg_ids: List[str]
-    neu_ids: List[str]
+    pos_ids: Optional[List[str]] = Field(default_factory=list)
+    neg_ids: Optional[List[str]] = Field(default_factory=list)
+    neu_ids: Optional[List[str]] = Field(default_factory=list)
 
 @app.post("/api/topic_article")
 def get_topic_article(body:TopicArticleReq):

@@ -1939,101 +1939,95 @@ document.addEventListener('DOMContentLoaded', () => {
    
 });
 
-$(function () {
+$(function(){
+  const params = new URLSearchParams(window.location.search);
+  const topic_id = params.get("topic_id");
+
   $.ajax({
-    url: "/api/topic",
+    url:'/api/topic',
     method: "GET",
     dataType: "json",
-    success: function (data) {
-      
+    success: function(data){
       const $cards = $(".topic-item");
-      console.log("topic items in DOM =", $(".topic-item").length);
-      console.log(data)
-      window.TOPICS = data || [];
-
+      window.TOPICS = data;
       window.TOPICS.forEach((item, idx) => {
         const $card = $cards.eq(idx);
-        if ($card.length === 0) return;
+        // console.log(item)
+        $card.attr("data-index", idx);
+        $card.attr("topic-rank", item.rank);
+        $card.attr("topic-title", item.topic_name);
+        $card.attr("keywords", item.topic_features);
+
+        $card.find(".topic-rank").text(item.rank || "");
+        $card.find(".topic-title").text(item.topic_name || "");
+        $card.find(".topic-count").text(`${item.topic_article_count}건` || "");
 
         const articleIdGroups = {
-          pos: (item.positive_articles || []).map(a => a.article_id),
-          neg: (item.negative_articles || []).map(a => a.article_id),
-          neu: (item.neutral_articles || []).map(a => a.article_id),
+          pos: item.positive_articles.map(a => a.article_id),
+          neg: item.negative_articles.map(a => a.article_id),
+          neu: item.neutral_articles.map(a => a.article_id),
         };
-
-        // ✅ data-* 로 통일
-        $card.attr("data-index", idx);
-        $card.attr("data-topic-rank", item.rank ?? "");
-        $card.attr("data-topic-title", item.topic_name ?? "");
-        $card.attr("data-keywords", (item.topic_features || []).join(","));
         $card.attr("data-article-groups", JSON.stringify(articleIdGroups));
-
-        // 화면 텍스트
-        $card.find(".topic-rank").text(item.rank ?? "");
-        $card.find(".topic-title").text(item.topic_name ?? "");
-        $card.find(".topic-count").text(`${item.topic_article_count ?? 0}건`);
-      });
-
-      // ✅ 최초 1회만 자동 클릭
-      if (!window.__topic_inited) {
-        window.__topic_inited = true;
-        $(".topic-item").first().trigger("click");
-      }
+    
+    });
+      const $first = $(".topic-item").first();
+      if ($first.length) $first.trigger("click")
     },
-    error: function (error) {
-      console.log(error);
+    error: function(error){
+      console.log(error)
     }
-  });
-});
+  })
+})
 
-$(document).on("click", ".topic-item, .topic-item *", function () {
-  const $item = $(this).closest(".topic-item");
+$(document).on("click", ".topic-item", function () {
+  const $item = $(this); 
 
-  const idx = $item.attr("data-index");
-  if (idx === undefined) return;
+  const idx = $(this).attr("data-index");
+  const title = $item.attr("topic-title");
+  const rank  = $item.attr("topic-rank");
+  const keywords  = $item.attr("keywords");
 
-  const title = $item.attr("data-topic-title") || "";
-  const rank = $item.attr("data-topic-rank") || "";
-  const keywords = $item.attr("data-keywords") || "";
+  const keywordsArr = Array.isArray(keywords)
+    ? keywords
+    : String(keywords ?? "").split(",");
 
-  const top3 = String(keywords)
-    .split(",")
-    .map(s => s.trim())
+  const top3 = keywordsArr
+    .map(s => String(s).trim())
     .filter(Boolean)
     .slice(0, 3);
 
-  const raw = $item.attr("data-article-groups");
+  const topic = window.TOPICS[Number(idx)];
+  if (!topic) return;
+  const raw = $(this).attr("data-article-groups"); // string
   if (!raw) return;
 
   let groups;
   try {
-    groups = JSON.parse(raw);
+    groups = JSON.parse(raw); // ✅ 중요
   } catch (e) {
     console.error("data-article-groups JSON parse failed:", raw, e);
     return;
   }
-
-  // ✅ 클릭된 항목 active 표시(UX)
-  $(".topic-item").removeClass("active");
-  $item.addClass("active");
-
+  console.log(groups)
   $.ajax({
     url: `/api/topic_article`,
-    method: "POST",
+    method: "post",
     contentType: "application/json",
     dataType: "json",
-    data: JSON.stringify({
+    data : JSON.stringify({
       pos_ids: groups.pos || [],
       neg_ids: groups.neg || [],
       neu_ids: groups.neu || [],
-    }),
+    }), 
+    traditional: true,
     success: function (data) {
-      renderMiniArticles($("#posList"), data[0] || data.positive_articles || []);
-      renderMiniArticles($("#negList"), data[1] || data.negative_articles || []);
-      renderNeutralList($("#neuList"), data[2] || data.neutral_articles || []);
+      console.log(data)
+      renderMiniArticles($("#posList"), data[0] || data.positive_articles);
+      renderMiniArticles($("#negList"), data[1] || data.negative_articles);
+      renderNeutralList($("#neuList"), data[2] || data.neutral_articles);
 
-      $(".today-topic-card > .topic-meta > .topic-name > .topic-rank").text(rank);
-      $(".today-topic-card > .topic-meta > .topic-name > .topic-text").text(title);
+      $(".today-topic-card > .topic-meta > .topic-name > .topic-rank").text(rank)
+      $(".today-topic-card > .topic-meta > .topic-name > .topic-text").text(title)
       $(".today-topic-card > .topic-meta > .topic-chips").html(
         top3.map(k => `<span class="chip">${k}</span>`).join("")
       );
@@ -2041,9 +2035,8 @@ $(document).on("click", ".topic-item, .topic-item *", function () {
     error: function (error) {
       console.log(error);
     }
-  });
+  })
 });
-
 
 function setTodayDate() {
   const el = document.getElementById("topicsDate");

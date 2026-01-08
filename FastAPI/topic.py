@@ -1,7 +1,7 @@
 from util.elastic import es
 from fastapi import HTTPException
 from util.logger import Logger
-from .article import get_article_from_es
+from .article import get_article_from_es, ensure_list
 from util.text_cleaner import yyyymmdd_to_iso
 import numpy as np
 
@@ -34,25 +34,52 @@ def get_topic_from_es():
     return result
 
 def get_topic_article(id_list):
-    vec_list = []
-    for id_ in id_list:
-        polar_vec = []
-        source_fields = [
-            "article_embedding"
-        ]
-        docs = get_article_from_es(id_[1], SOURCE_FIELDS=source_fields,max=20)
-        for doc in docs:
-            # logger.info(doc)
-            vec=doc["article_embedding"]
-
-            polar_vec.append(vec)
-        mean_vec = np.mean(polar_vec, axis=0).tolist()
-        vec_list.append(mean_vec)
-    # logger.info(len(vec_list))
-
     all_result = []
-    for id_,vec in zip(id_list,vec_list):
 
+    # ✅ id_list 자체가 None/빈 경우도 안전 처리
+    if not id_list:
+        return []
+
+    for ids in id_list:
+        if not ids:
+            all_result.append([])
+            continue
+
+        if isinstance(ids, str):
+            ids = [ids]
+            # logger.info(ids)
+
+        polar_vec = []
+        ids = ensure_list(ids)
+        logger.info("============")
+        try:
+            docs = get_article_from_es(
+                ids[0][1],
+                SOURCE_FIELDS=["article_embedding"],
+                max=len(ids)
+            )
+        except HTTPException as e:
+            # ✅ ES에 문서 없으면 이 그룹은 그냥 비움
+            if e.status_code == 404:
+                all_result.append([])
+                continue
+            raise
+
+        for doc in docs:
+            vec = doc.get("article_embedding")
+            if vec:
+                polar_vec.append(vec)
+
+        # 벡터가 하나도 없으면 skip
+        if not polar_vec:
+            all_result.append([])
+            continue
+
+        mean_vec = np.mean(polar_vec, axis=0).tolist()
+
+        # ----------------------------------------
+        # 3️⃣ cosine similarity 검색
+        # ----------------------------------------
         query = {
             "size": 10,
             "_source": [
@@ -66,13 +93,13 @@ def get_topic_article(id_list):
                 "script_score": {
                     "query": {
                         "terms": {
-                            "article_id": id_[1]
+                            "article_id": ids[0][1]
                         }
                     },
                     "script": {
                         "source": "cosineSimilarity(params.qv, 'article_embedding') + 1.0",
                         "params": {
-                            "qv": vec
+                            "qv": mean_vec
                         }
                     }
                 }
@@ -82,20 +109,21 @@ def get_topic_article(id_list):
         resp = es.search(index="article_data", body=query)
         hits = resp.get("hits", {}).get("hits", [])
 
-        if isinstance(hits , HTTPException):
-            raise hits
-
         result = []
-        for h in hits :
+        for h in hits:
+            src = h.get("_source", {})
             result.append({
-                "article_id": h["_source"].get("article_id"),
-                "article_title": h["_source"].get("article_title") or "",
-                "article_img": h["_source"].get("article_img"),
-                "upload_date": yyyymmdd_to_iso(h["_source"].get("upload_date")),
-                "press":  h["_source"].get("press")
+                "article_id": src.get("article_id"),
+                "article_title": src.get("article_title") or "",
+                "article_img": src.get("article_img"),
+                "upload_date": yyyymmdd_to_iso(src.get("upload_date")),
+                "press": src.get("press")
             })
+
         all_result.append(result)
+
     return all_result
+
 
 def get_opposite_topic(article_id):
 
