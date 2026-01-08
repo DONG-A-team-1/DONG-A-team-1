@@ -424,6 +424,7 @@
         }
 
         .search-input {
+            caret-color:#ffffff;
             width: 100%;
             padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
             border-radius: 10px;
@@ -1514,6 +1515,7 @@ function displayPage(page) {
 function displayEmptyMessage() {
     const container = $('#articleList');
     container.find('.article-item:not(.article-item-template)').remove();
+    container.find('.empty-message').remove();  // 빈 메시지 삭제
 
     const emptyDiv = $('<div>')
         .addClass('empty-message')
@@ -1523,7 +1525,6 @@ function displayEmptyMessage() {
             'color': '#999'
         })
         .html(`
-
             <h3 style="margin-bottom: 0.5rem;">더 이상 표시할 기사가 없습니다</h3>
             <p>이전 페이지로 돌아가거나 다른 검색어를 시도해보세요.</p>
         `);
