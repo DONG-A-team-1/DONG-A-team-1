@@ -1337,14 +1337,13 @@ body.dark {
 
 
 </style>
-
 </head>
 <body>
 <nav>
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
@@ -1375,7 +1374,6 @@ body.dark {
 </div>
 
 </nav>
-<main>
 <section class="search-section">
   <div class="search-bar">
     <div class="select-wrap">
@@ -1617,6 +1615,117 @@ body.dark {
     </div>
 </main>
 <script>
+window.LOGIN_USER_ID = "jimin"; // 임시 테스트용 나중에 지울 거임
+ // 0. 서버에서 내려준 값들
+/*
+article_id : URL 쿼리스트링에서 가져온 기사 ID / user_id    : 로그인 세션에서 내려준 사용자 ID
+- 비로그인 허용의 경우 null 처리 가능
+*/
+
+const urlParams = new URLSearchParams(window.location.search);
+const articleId = urlParams.get("article_id");
+const userId = window.LOGIN_USER_ID;  // 없으면 null
+
+
+//  1. 스크롤 깊이 계산 함수
+
+/*
+  scrollTop      : 현재 스크롤 위치
+  windowHeight   : 화면에 보이는 영역 높이
+  documentHeight : 전체 문서 높이
+  (scrollTop + windowHeight) / documentHeight
+  → 현재 문서를 얼마나 읽었는지 (0 ~ 1)
+*/
+
+function getScrollDepth() {
+  const scrollTop =
+    window.scrollY || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+
+  const depth = (scrollTop + windowHeight) / documentHeight;
+
+  // 0~1 범위 강제 보정
+  return Math.min(1, Math.max(0, depth));
+}
+
+//   2. 세션 시작 (/session/start)
+
+let sessionId = null;
+
+// 기사 페이지 진입 즉시 세션 생성
+async function startSession() {
+if (!userId) return;   // 비로그인 유저면 세션 생성 안 함
+  const res = await fetch("/session/start", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      user_id: userId,
+      article_id: articleId
+    })
+  });
+
+  const data = await res.json();
+  sessionId = data.session_id;
+}
+
+// 페이지 로드 시 바로 실행
+startSession();
+
+// 3. Ping 전송 (30초마다)
+
+let pingTimer = null;
+
+function startPing() {
+  pingTimer = setInterval(() => {
+    if (!sessionId) return;
+
+    fetch("/session/ping", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        session_id: sessionId,
+        scroll_depth: getScrollDepth()
+      })
+    });
+  }, 10_000); // 10초
+}
+
+// 세션 생성 후 ping 시작
+setTimeout(startPing, 1000);
+
+// 4. 세션 종료 (/session/end)
+/*
+페이지 이동
+탭 닫기
+뒤로가기
+*/
+let sessionEnded = false;
+function endSession() {
+  if (!sessionId || sessionEnded) return;
+  sessionEnded = true;
+  navigator.sendBeacon(
+    `/session/end?session_id=${sessionId}`
+  );
+  if (pingTimer) clearInterval(pingTimer);
+}
+
+
+// 탭 전환 / 백그라운드
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    endSession();
+  }
+});
+
+// 페이지 종료 / 이동
+window.addEventListener("pagehide", endSession);
+
+
 /* ===============================
    🔥 다크모드 (로컬스토리지)
 ================================ */
@@ -1658,30 +1767,77 @@ document.addEventListener('click', (e) => {
 /* ===============================
    🔥 로그인 상태 처리
 ================================ */
-function toggleLoginState() {
+$(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+    initApp();
+});
+
+function initApp() {
+    // 로그인 여부 확인
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const dropdownContent = document.getElementById('dropdownContent');
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
 
     if (isLoggedIn) {
-        dropdownContent.innerHTML = `
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
+                
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+            }
+        },
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
+    });
+}
+
+// 드롭다운 부분
+function renderUserMenu(isLoggedIn, userName = "회원") {
+
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">홍길동님</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
                 <span>마이페이지</span>
             </a>
-            <button onclick="logout()" class="dropdown-item logout">
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
                 <span class="material-symbols-outlined">logout</span>
                 <span>로그아웃</span>
             </button>
         `;
     } else {
-        dropdownContent.innerHTML = `
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title">로그인이 필요합니다</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
             </div>
             <a href="login.html" class="dropdown-item">
                 <span class="material-symbols-outlined">login</span>
@@ -1693,11 +1849,6 @@ function toggleLoginState() {
             </a>
         `;
     }
-}
-
-function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    toggleLoginState();
 }
 
 /* ===============================

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ko">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -1305,14 +1307,14 @@
       .footer-links a:hover { color: var(--text); }
 
       /* 워드클라우드 섹션 */
-      .wordcloud-section {
+      /* .wordcloud-section {
         background: var(--surface-light, #ffffff);
         border: 1px solid #e5e7eb;
         border-radius: 16px;
         padding: 40px 0;
         margin-top: 24px;
         height: 500px;
-      }
+      } */
 
       body.dark .wordcloud-section {
         background: #1f2937;
@@ -1328,28 +1330,25 @@
       }
 
       /* 클라우드 영역 */
-      .wordcloud-container {
-        min-height: 360px;
-        max-width: 1200px;
-        margin-left: 10px;
-        margin-right: 10px;
-        background: color-mix(in oklab, var(--text) 6%, transparent);
-        border-radius: 12px;
-        padding: 0 24px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
+      .wordcloud-section {
+          height: 100%; /* 섹션 전체 높이 확보 */
+          display: flex;
+          flex-direction: column;
       }
 
-      body.dark .wordcloud-container {
-        background: #111827;
-      }
-
-      /* 키워드 */
+      /* #wordCloudChart {
+          width: 100%;
+          height: 100%; /* 부모 div를 꽉 채우도록 
+          background-color: #ffffff;
+          flex-grow: 1;
+          margin: 0 auto;
+      } */
       
-
+      #wordCloudChart {
+        width: 100%;
+        height: 100%; /* 350px~450px 정도는 되어야 풍성해 보입니다 */
+        margin: 0 auto;
+    }
 
       /* Line clamp utilities */
       .clamp-2, .clamp-3 {
@@ -1400,6 +1399,25 @@
         color: #9ca3af;
       }
 
+      /* 캐러셀 컨테이너 */
+      .viewport {
+        overflow: hidden; /* 영역 밖으로 나가는 카드는 숨김 */
+        width: 100%;      /* 부모 너비에 맞춤 */
+      }
+
+      /* 카드가 나란히 배치되는 트랙 */
+      .track {
+        display: flex;          /* 카드들을 가로로 나열 */
+        transition: transform 0.4s ease; /* 이동 애니메이션 */
+        will-change: transform;
+      }
+
+      /* 각 뉴스 카드 링크 */
+      .news-link {
+        flex: 0 0 100%;        /* 한 번에 하나씩 보일 때 (슬라이드 형태) */
+        text-decoration: none;
+        color: inherit;
+      }
     </style>
 </head>
 
@@ -1418,12 +1436,12 @@
 
           <!-- Category -->
           <div class="category">
-            <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-            <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-            <a class="nav-splash-item splash-economy" href="economycategory.html">국제</a>
-            <a class="nav-splash-item splash-world" href="universecategory.html">지역</a>
-            <a class="nav-splash-item splash-tech" href="culturecategory.html">문화</a>
-            <a class="nav-splash-item splash-tech" href="sportscategory.html">스포츠</a>
+            <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+            <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+            <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+            <a class="nav-splash-item splash-international" href="localcategory.html">지역</a>
+            <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+            <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
           </div>
 
           <!-- Actions -->
@@ -1454,20 +1472,19 @@
       <section class="search-section">
         <div class="search-bar">
           <div class="select-wrap">
-            <select class="select">
-              <option>제목+본문</option>
-              <option>제목</option>
-              <option>본문</option>
-              <option>키워드</option>
+            <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+              <option style="color: black;" value="title_body">제목+본문</option>
+              <option style="color: black;" value="title">제목</option>
+              <option style="color: black;" value="body">본문</option>
+              <option style="color: black;" value="keyword">키워드</option>
             </select>
             <span class="material-symbols-outlined select-caret">expand_more</span>
           </div>
-
           <div class="search-input-wrap">
-            <input class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
-            <button class="search-btn" aria-label="검색">
-              <span class="material-symbols-outlined">search</span>
-            </button>
+              <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+              <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                  <span class="material-symbols-outlined">search</span>
+              </button>
           </div>
         </div>
       </section>
@@ -1484,259 +1501,40 @@
           </button>
 
           <!-- 캐러셀 viewport -->
-           <div class="viewport">
+          <div class="viewport">
             <div class="track" id="track">
-
-              <!-- ===== 메인기사 슬라이드 1 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
+              <a href="#" class="news-link" id="main-news-template" style="display:none;">
                 <div class="main-news-card">
                   <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 1위
-                      </div>
+                    <img class="article-img" src="" alt="news" />
+                    <div class="media-gradient"></div>
+                    <div class="trend-chip">
+                      <span class="material-symbols-outlined">trending_up</span>
+                      <span class="rank-text"></span>
+                    </div>
                   </div>
-
                   <div class="main-news-body">
                     <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
+                      <span class="pill category-pill">뉴스</span>
+                      <span class="date article-date"></span>
                     </div>
-
-                    <h1 class="main-title">
-                        1제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
+                    <h1 class="main-title article-title"></h1>
+                    <p class="main-desc clamp-3 article-desc"></p>
                     <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 2 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 2위
+                      <div class="article-author-info">
+                        <span class="author-name reporter-name"></span>
+                        <span class="author-dot press-name"></span>
                       </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
                     </div>
-
-                    <h1 class="main-title">
-                        2제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
                     <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 3 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 3위
+                      <!-- <div class="trend-score">
+                        <span class="trend-label">트렌드</span>
+                        <span class="trend-value score-val"></span>
+                      </div> --> <!-- 트랜드 스코어 제외함 -->
+                      <div class="trust-score">
+                        <span class="trust-label">신뢰도</span>
+                        <span class="trust-value trust-val"></span>
                       </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간/span>
-                    </div>
-
-                    <h1 class="main-title">
-                        3제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 4 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 4위
-                      </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date">기간</span>
-                    </div>
-
-                    <h1 class="main-title">
-                        4제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-
-              <!-- ===== 메인기사 슬라이드 5 ===== -->
-              <a href="article-detail.html?id=123" class="news-link">
-                <div class="main-news-card">
-                  <div class="main-news-media">
-                      <img
-                          alt="Main News Abstract"
-                          src="https://via.placeholder.com/800x600"
-                      />
-                      <div class="media-gradient"></div>
-                      <div class="trend-chip">
-                          <span class="material-symbols-outlined">trending_up</span>
-                          트렌드 순위 5위
-                      </div>
-                  </div>
-
-                  <div class="main-news-body">
-                    <div class="meta-row">
-                        <span class="pill"></span>
-                        <span class="date"></span>
-                    </div>
-
-                    <h1 class="main-title">
-                        5제에엥에에에에에에에모고오오오오옥
-                    </h1>
-
-                    <p class="main-desc clamp-3">
-                        안녕하세요. 이것은 메인 기사 설명입니다.
-                    </p>
-
-                    <div class="article-footer">
-                        <div class="article-author-info">
-                            <span class="author-name">기자명</span>
-                            <span class="author-dot">언론사명</span>
-                        </div>
-                    </div>
-
-                    <div class="score-container">
-                        <div class="trend-score">
-                            <span class="trend-label">트렌드</span>
-                            <span class="trend-value"></span>
-                        </div>
-
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
                     </div>
                   </div>
                 </div>
@@ -1752,114 +1550,28 @@
         </div>
 
         <!-- Related (연관기사) -->
-        <aside class="related">
+        <aside class="related" id="related-container">
           <div class="related-head">
-            <h2 class="section-title">
-              <span class="title-bar"></span>
-              연관 기사
-            </h2>
+            <h2 class="section-title"><span class="title-bar"></span>연관 기사</h2>
           </div>
 
-          <a href="/article/${item.article_id}" class="newslink">
+          <a href="#" class="newslink" id="related-template" style="display:none;">
             <article class="related-item">
               <div class="thumb">
-                <img
-                  alt="Related News 1"
-                  src="https://via.placeholder.com/96x96"
-                />
+                <img class="rel-img" src="" alt="Related News" />
               </div>
               <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 국내 스타트업 투자 유치 현황과 미래 전략
-                </h3>
+                <h3 class="related-title clamp-2 rel-title"></h3>
                 <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
+                  <div class="article-author-info">
+                    <span class="author-name rel-author"></span>
+                    <span class="author-dot rel-press"></span>
+                  </div>
                 </div>
               </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 2"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 글로벌 시장 트렌드 분석
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 3"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 신기술 도입과 산업 변화
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="newslink">
-            <article class="related-item">
-              <div class="thumb">
-                <img
-                  alt="Related News 4"
-                  src="https://via.placeholder.com/96x96"
-                />
-              </div>
-              <div class="related-text">
-                <h3 class="related-title clamp-2">
-                  연관기사: 정책 변화와 기업 대응 전략
-                </h3>
-                <div class="article-footer">
-                    <div class="article-author-info">
-                        <span class="author-name">기자명</span>
-                        <span class="author-dot">언론사명</span>
-                    </div>
-                </div>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
+              <div class="trust-score">
+                <span class="trust-label">신뢰도</span>
+                <span class="trust-value rel-trust"></span>
               </div>
             </article>
           </a>
@@ -2004,8 +1716,10 @@
               </div>
 
               <div class="center-topic">
+                <a href="polar.html">
                 <p class="small">HOT TOPIC</p>
                 <h4>AI 기술<br>규제 법안</h4>
+                </a>
               </div>
 
               <div class="side negative">
@@ -2025,7 +1739,7 @@
         <section class="wordcloud-section">
         <h3 class="wordcloud-title">오늘의 키워드 클라우드</h3>
 
-        <div class="wordcloud-container" id="wordCloud">
+        <div id="wordCloudChart" style="width: 100%; height: 500px;"></div>
           <!-- JS로 키워드 주입 -->
         </div>
       </section>
@@ -2042,6 +1756,148 @@
 
   </body>
   <script>
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+
+function updateSearchPlaceholder(select) {
+    const searchInput = document.getElementById('searchInput');
+    const placeholders = {
+        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+        title: '제목에서 관심있는 뉴스를 검색해보세요',
+        body: '본문에서 관심있는 뉴스를 검색해보세요',
+        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+    };
+    searchInput.placeholder = placeholders[select.value];
+}
+
+$(document).ready(function () {
+    let globalArticles = []; 
+
+    function loadNews() {
+        $.ajax({
+            url: "/api/main-trending",
+            type: "GET",
+            success: function (response) {
+                if (response.success && response.articles) {
+                    globalArticles = response.articles;
+                    const $track = $('#track');
+                    const $template = $('#main-news-template');
+
+                    $track.find('.news-link:not(#main-news-template)').remove();
+
+                    globalArticles.forEach((data, index) => {
+                        const $clone = $template.clone();
+                        $clone.removeAttr('id').css('display', 'block');
+                        
+                        $clone.attr('href', `/article/${data.article_id}`);
+                        $clone.find('.pill').text(data.category);
+                        $clone.find('.article-img').attr('src', data.image);
+                        $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
+                        $clone.find('.article-title').text(data.title);
+                        $clone.find('.reporter-name').text(data.reporter);
+                        $clone.find('.press-name').text(data.source);
+                        $clone.find('.trust-val').text(data.trustScore + '점');
+
+                        $track.append($clone);
+                    });
+
+                    initCustomCarousel();
+                    
+                    // 첫 로드 시 연관기사 로드
+                    if (globalArticles.length > 0) {
+                        loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
+                    }
+                }
+            }
+        });
+    }
+
+    function initCustomCarousel() {
+        const $track = $('#track');
+        let index = 0;
+
+        // 오른쪽 버튼 클릭
+        $('#nextBtn').off('click').on('click', function() {
+            const $cards = $track.find('.news-link:not(#main-news-template)');
+            const totalCards = $cards.length;
+
+            if (index < totalCards - 1) {
+                index++; // 다음 칸으로
+            } else {
+                index = 0; // 마지막이면 첫 번째로 돌아감
+            }
+            moveSlide($cards, index);
+        });
+
+        // 왼쪽 버튼 클릭
+        $('#prevBtn').off('click').on('click', function() {
+            const $cards = $track.find('.news-link:not(#main-news-template)');
+            const totalCards = $cards.length;
+
+            if (index > 0) {
+                index--; // 이전 칸으로
+            } else {
+                index = totalCards - 1; // 첫 번째면 마지막으로 돌아감
+            }
+            moveSlide($cards, index);
+        });
+
+        // 슬라이드 이동 및 연관기사 로드 함수
+        function moveSlide($cards, currentIndex) {
+            const cardWidth = $cards.outerWidth(true);
+            $track.css({
+                'transform': `translateX(${-currentIndex * cardWidth}px)`,
+                'transition': 'transform 0.4s ease-in-out' // 부드러운 이동 효과 추가
+            });
+
+            // 현재 슬라이드 데이터로 연관기사 업데이트
+            if (globalArticles[currentIndex]) {
+                const currentId = globalArticles[currentIndex].article_id; 
+                const currentTitle = globalArticles[currentIndex].title;
+                loadRelatedArticles(currentId, currentTitle);
+            }
+        }
+    }
+
+    loadNews();
+});
+
+// 연관기사 함수
+function loadRelatedArticles(mainArticleId, mainArticleTitle) {
+    $.ajax({
+        url: "/api/related-articles",
+        type: "GET",
+        data: { 
+            id: mainArticleId,
+            title: mainArticleTitle 
+        },
+        success: function(response) {
+            if (response.success && response.articles) {
+                const $container = $('#related-container');
+                const $template = $('#related-template');
+                $container.find('.newslink:not(#related-template)').remove();
+
+                response.articles.forEach(data => {
+                    const $clone = $template.clone();
+                    $clone.removeAttr('id').css('display', 'block');
+                    $clone.attr('href', `/article/${data.article_id}`);
+                    $clone.find('.rel-img').attr('src', data.image);
+                    $clone.find('.rel-title').text(data.title);
+                    $clone.find('.rel-author').text(data.reporter);
+                    $clone.find('.rel-press').text(data.source);
+                    $clone.find('.rel-trust').text(data.trustScore + '점');
+                    $container.append($clone);
+                });
+            }
+        }
+    });
+}
+
     $(document).ready(function() {
     // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
     initApp();
@@ -2059,6 +1915,34 @@ function initApp() {
         // 3. 서버에서 최신 정보 가져와 동기화
         fetchUserInfo();
     }
+}
+
+$(document).ready(function() {  // 워드클라우드 부분
+    loadWordCloud();
+});
+
+function loadWordCloud() {
+    $.ajax({
+        url: '/api/wordcloud-data', // 백엔드 엔드포인트
+        type: 'GET',
+        success: function(options) {
+            // 1. div 요소 찾기
+            const chartDom = document.getElementById('wordCloudChart');
+            const myChart = echarts.init(chartDom);
+            
+            // 2. 백엔드에서 받은 옵션 적용
+            myChart.setOption(options);
+
+            // 3. 클릭 이벤트 추가 (구글 검색 연동)
+            myChart.on('click', function (params) {
+                const keyword = params.name.replace('#', '');
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+            });
+
+            // 창 크기 조절 시 리사이즈
+            window.addEventListener('resize', myChart.resize);
+        }
+    });
 }
 
 function fetchUserInfo() {
@@ -2126,61 +2010,7 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
     }
 }
 
-    fetch("wordcloud/keywords.json") 
-        .then(res => res.json())
-        .then(keywords => {
-            const cloud = document.getElementById("wordCloud");
-            if (!cloud) return;
 
-            const sizeMap = { 1: "14px", 2: "20px", 3: "26px", 4: "32px", 5: "42px" };
-            const colors = ["#2563eb", "#16a34a", "#7c3aed", "#dc2626", "#0d9488"];
-
-            cloud.innerHTML = ""; // 초기화
-
-            keywords.forEach(keyword => {
-                const span = document.createElement("span");
-                span.className = "word-item";
-                span.textContent = `#${keyword.text}`;
-
-                // 1. 폰트 사이즈 (가중치 차이를 더 극명하게)
-                const sizeMap = { 1: "16px", 2: "22px", 3: "30px", 4: "40px", 5: "55px" };
-                span.style.fontSize = sizeMap[keyword.weight] || "18px";
-                span.style.color = colors[Math.floor(Math.random() * colors.length)];
-                
-                // 2. 랜덤 각도 및 불규칙한 마진 (핵심!)
-                const randomRotate = (Math.random() - 0.5) * 40; // -20도 ~ 20도
-                // 상하좌우 마진을 다르게 해서 단어들이 서로 파고들게 함
-                const vMargin = Math.floor(Math.random() * 15) + 5;
-                const hMargin = Math.floor(Math.random() * 25) + 10;
-
-                span.style.display = "inline-block";
-                span.style.margin = `${vMargin}px ${hMargin}px`;
-                span.style.transform = `rotate(${randomRotate}deg)`;
-                span.style.lineHeight = "1.2";
-                span.style.transition = "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-
-                // 3. 인터랙션 (마우스 올리면 강조)
-                span.addEventListener("mouseover", () => {
-                    span.style.transform = `rotate(0deg) scale(1.3)`;
-                    span.style.zIndex = "100";
-                    span.style.textShadow = "0 10px 20px rgba(0,0,0,0.15)";
-                });
-
-                span.addEventListener("mouseout", () => {
-                    span.style.transform = `rotate(${randomRotate}deg) scale(1)`;
-                    span.style.zIndex = "1";
-                    span.style.textShadow = "none";
-                });
-
-                // 4. 클릭 시 검색
-                span.addEventListener("click", () => {
-                    window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword.text)}&tbm=nws`, '_blank');
-                });
-
-                cloud.appendChild(span);
-            });
-        })
-        .catch(err => console.error("워드클라우드 데이터를 불러오지 못했습니다.", err));
 
         function logout() {
     if (!confirm("로그아웃 하시겠습니까?")) return;
@@ -2198,33 +2028,6 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         }
     });
 }
-
-    // 기사 불러오기 백엔드 해볼려고 작성한건데 맞는지는.. 해봐야 알 것 같아요
-    $(function () {
-      $.ajax({
-        url: "/api/main-article",
-        method: "POST",
-        dataType: "json",
-        success: function (data) {
-          const article = data.main_article;
-
-          $(".main-news-media img")
-            .attr("src", article.image_url)
-            .attr("alt", article.title);
-
-          $(".pill").text(article.category);
-          $(".date").text(article.upload_date);
-          $(".main-title").text(article.article_title);
-          $(".main-desc").text(article.article_content);
-          $(".author-name").text(article.reporter);
-          $(".author-dot").text(article.press_name);
-          $(".trust-value").text(`${article.trust_score}점`);
-        },
-        error: function () {
-          console.error("백엔드 연결 실패");
-        }
-      });
-    });
 
     // 로그인 처리
     $(document).ready(function () {

@@ -1,6 +1,8 @@
 from util.database import SessionLocal
 from sqlalchemy import text
 from datetime import datetime
+from util.elastic import es  # util 폴더의 elastic.py
+from util.text_cleaner import yyyymmdd_to_iso
 
 import random
 import string
@@ -188,3 +190,124 @@ def get_user_data(user_id):
         """)
         user = connection.execute(query, {"u_id": user_id}).fetchone()
         return user
+
+# 검색 ------해정---------------
+
+def search_articles(search_type: str, query: str, size: int = 20):
+    """기사 검색"""
+
+    # 검색 타입별 쿼리 생성
+    if search_type in ("all", "title_body"):
+        es_query = {
+            "bool": {
+                "should": [
+                    {"match_phrase": {"article_title": query}},
+                    {"match_phrase": {"article_content": query}}
+                ],
+                "minimum_should_match": 1
+            }
+        }
+    elif search_type == "title":
+        es_query = {"match": {"article_title": query}}
+    elif search_type == "content" or search_type == "body":
+        es_query = {"match": {"article_content": query}}
+    elif search_type == "keywords" or search_type == "keyword":
+        es_query = {
+            "match_phrase": {  # 완전한 구문 매칭
+                "keywords": query
+            }
+        }
+    #     키워드 매칭 확인해주세요 제대로 되는지
+    else: 
+        es_query = {
+            "bool": {
+                "should": [
+                    {"match": {
+                        "article_title": {
+                            "query": query,
+                            "operator": "and"
+                        }
+                    }},
+                    {"match": {
+                        "article_content": {
+                            "query": query,
+                            "operator": "and"
+                        }
+                    }}
+                ],
+                # 키워드 정확하게 매칭하기 위해서
+                "minimum_should_match": 1
+            }
+        }
+
+    # ES 검색 실행
+    body = {
+        "_source": [
+            "article_id",
+            "press",
+            "reporter",
+            "upload_date",
+            "article_title",
+            "article_content",
+            "article_img",
+            "url",
+            "article_label",
+            "trend_score",
+            "keywords"
+        ],
+        "size": size,
+        "query": es_query,
+        "sort": [
+            {"upload_date": {"order": "desc"}}
+        ]
+    }
+
+    resp = es.search(index="article_data", body=body)
+    hits = resp.get("hits", {}).get("hits", [])
+
+    # 결과 포맷팅
+    articles = []
+    for hit in hits:
+        src = hit.get("_source", {})
+        label = src.get("article_label") or {}
+
+        # trustScore 처리
+        raw_score = label.get("article_trust_score")
+        if raw_score is None:
+            trust_score = 0
+        else:
+            # 이미 1~100 범위이므로 소수점만 반올림
+            trust_score = round(float(raw_score))
+
+        # trendScore 처리 (동일)
+        raw_trend = label.get("trend_score")
+        if raw_trend is None:
+            trend_score = 0
+        else:
+            trend_score = round(float(raw_trend))
+
+        articles.append({
+            "article_id": src.get("article_id"),
+            "title": src.get("article_title", ""),
+            "content": src.get("article_content", ""),
+            "image": src.get("article_img"),
+            "category": label.get("category"),
+            "source": src.get("press"),
+            "upload_date": yyyymmdd_to_iso(src.get("upload_date")),
+            "reporter": src.get("reporter"),
+            "trustScore": trust_score,
+            "trendScore": trend_score,
+            "keywords": src.get("keywords", [])
+        })
+
+    # 트렌드 점수 순으로 정렬된 top4
+    trending = sorted(articles, key=lambda x: x.get("trendScore", 0), reverse=True)[:4]
+
+    return {
+        "success": True,
+        "query": query,
+        "search_type": search_type,
+        "total": resp['hits']['total']['value'],
+        "articles": articles,
+        "trending": trending
+    }
