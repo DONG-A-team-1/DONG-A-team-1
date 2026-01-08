@@ -389,85 +389,115 @@ main {
     padding: 2rem 1rem;
 }
 
-     /* Main layout */
-      .main { padding: 20px 16px; }
+/* Search Section */
+.search-section {
+  margin-bottom: 3rem;
+}
 
-      .search-section { margin-bottom: 30px; }
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-      .search-bar {
-        max-width: 896px;
-        margin: 0 auto;
-        padding: 8px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        box-shadow: var(--shadow-sm);
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
 
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
 
-      @media (min-width: 640px) {
-        .search-bar { flex-direction: row; align-items: center; }
-      }
+.select-wrap {
+  position: relative;
+  width: 100%;
+}
 
-      .select-wrap { position: relative; width: 100%; }
-      @media (min-width: 640px) { .select-wrap { width: auto; } }
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
 
-      .select {
-        appearance: none;
-        width: 100%;
-        padding: 12px 36px 12px 16px;
-        border: 0;
-        border-radius: 10px;
-        background: color-mix(in oklab, var(--text) 6%, transparent);
-        color: color-mix(in oklab, var(--text) 88%, transparent);
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-      }
-      @media (min-width: 640px) { .select { width: 128px; } }
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-      .select-caret {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: var(--muted);
-        pointer-events: none;
-      }
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
 
-      .search-input-wrap { position: relative; width: 100%; flex: 1; }
-      .search-input {
-        width: 100%;
-        padding: 12px 44px 12px 16px;
-        border-radius: 10px;
-        border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-        background: var(--surface);
-        color: var(--text);
-        outline: none;
-        transition: box-shadow .15s, border-color .15s;
-      }
-      .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
-      .search-input:focus {
-        border-color: transparent;
-        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-      }
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
 
-      .search-btn {
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        border: 0;
-        background: transparent;
-        color: var(--primary);
-        cursor: pointer;
-      }
-      .search-btn .material-icons-round { font-size: 26px; }
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
+}
+
+body.dark .search-input {
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+.search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+}
+
 /* Section Headers */
 .section-header {
     border-bottom: 1px solid #E5E7EB;
@@ -1153,31 +1183,25 @@ body.dark .list-article-image img {
 </nav>
 
 <main>
-<section class="search-section">
-  <div class="search-bar">
-    <div class="select-wrap">
-      <select class="select" id="searchScope">
-        <option value="title_body">제목+본문</option>
-        <option value="title">제목</option>
-        <option value="body">본문</option>
-        <option value="keyword">키워드</option>
-      </select>
-      <span class="material-symbols-outlined select-caret">expand_more</span>
-    </div>
-
-    <div class="search-input-wrap">
-      <input
-        id="searchInput"
-        class="search-input"
-        type="text"
-        placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요"
-      />
-      <button class="search-btn">
-        <span class="material-symbols-outlined">search</span>
-      </button>
-    </div>
-  </div>
-</section>
+    <section class="search-section">
+        <div class="search-bar">
+            <div class="select-wrap">
+                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option style="color: black;" value="title_body">제목+본문</option>
+                    <option style="color: black;" value="title">제목</option>
+                    <option style="color: black;" value="body">본문</option>
+                    <option style="color: black;" value="keyword">키워드</option>
+                </select>
+                <span class="material-icons-round select-caret">expand_more</span>
+            </div>
+            <div class="search-input-wrap">
+                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                    <span class="material-icons-round">search</span>
+                </button>
+            </div>
+        </div>
+    </section>
 
 <!-- 카드형 기사 -->
 <section>
@@ -1210,7 +1234,7 @@ body.dark .list-article-image img {
 <section class="list-section">
     <div class="list-header">
         <div class="list-title-row">
-             <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">location_city</span>
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; color: #111827;">location_city</span>
             <h2 class="list-title">사회</h2>
         </div>
         <div class="sort-buttons">
@@ -1548,7 +1572,6 @@ function toggleDarkMode() {
     document.body.classList.toggle('dark');
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
 }
-
 </script>
 
 </body>
