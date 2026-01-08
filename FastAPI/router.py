@@ -253,12 +253,12 @@ class TopicArticleReq(BaseModel):
 def get_topic_article(body:TopicArticleReq):
     result = topic.get_topic_article(body)
     return result
-@app.post("/api/search") # 검색 기능
+
+@app.post("/api/search") # 검색 기능-----
 async def api_search(request: Request):
     """기사 검색 API"""
     try:
         data = await request.json()# 데이터 다 읽을 때까지 기달
-        print("search data:", data)
         search_type = data.get('search_type','all')
         # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
         query = data.get('query','').strip()
@@ -271,14 +271,12 @@ async def api_search(request: Request):
                 status_code=400,
                 content={"success":False,"message":"검색어를 입력해주세요"}
             )
-        from FastAPI import search # 현재 폴더의 search.py를 가지고 오라는 명령
-        results = search.search_articles(
+        results = member.search_articles(
             data.get('search_type','all'),
             data.get('query',''),
             data.get('size',20)
         )
-        print("search results OK")
-        return search.search_articles(search_type, query, size)
+        return results
 
     except Exception as e:
         print("search error: ",e)

@@ -1082,7 +1082,7 @@ body.dark .list-article-image img {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
@@ -1091,7 +1091,7 @@ body.dark .list-article-image img {
                 <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
                 <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
                 <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
-                <a class="nav-splash-item splash-international active" href="localcategorycategory.html">지역</a>
+                <a class="nav-splash-item splash-international active" href="localcategory.html">지역</a>
                 <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
                 <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
@@ -1590,7 +1590,8 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+                     const userName = localStorage.getItem('userName') || '회원';
+                <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>

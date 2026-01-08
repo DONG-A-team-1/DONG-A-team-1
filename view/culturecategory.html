@@ -3,10 +3,30 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette - 경제 뉴스</title>
+<title>NewsPalette - 문화 뉴스</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
+:root {
+    --primary: #3B82F6;
+    --bg-light: #F3F4F6;
+    --bg-dark: #111827;
+    --surface-light: #FFFFFF;
+    --surface-dark: #1F2937;
+    --text-main-light: #111827;
+    --text-main-dark: #F9FAFB;
+    --text-sub-light: #6B7280;
+    --text-sub-dark: #9CA3AF;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,19 +34,18 @@
 }
 
 body {
-    font-family: "Noto Sans KR", sans-serif;
-    background-color: #F3F4F6;
-    color: #1F2937;
-    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 body.dark {
-    background-color: #111827;
-    color: #E5E7EB;
-}
-
-.material-symbols-outlined {
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
 }
 
 /* Navigation */
@@ -52,16 +71,26 @@ body.dark nav {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     height: 64px;
-    position: relative;
 }
 
+/* 왼쪽 로고 */
 .nav-left {
-    display: flex;
-    align-items: center;
+    flex: 0 0 auto;
 }
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
 
 .logo {
     display: flex;
@@ -84,11 +113,12 @@ body.dark nav {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
 
 @media (min-width: 768px) {
     .nav-center {
@@ -103,6 +133,7 @@ body.dark nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     padding: 0.5rem 1.25rem;
     margin: 0 0.25rem;
     font-weight: 500;
@@ -125,13 +156,9 @@ body.dark .nav-splash-item {
     height: 160%;
     transform: translate(-50%, -50%) scale(0.6);
     background-color: var(--splash-color);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
     mask-position: center;
-    -webkit-mask-size: contain;
     mask-size: contain;
     opacity: 0;
     z-index: -1;
@@ -158,39 +185,13 @@ body.dark .nav-splash-item {
 
 .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
 .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
-.splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
-.splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
-.splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
-.splash-mypage { --splash-color: #A5B4FC; --splash-text-color: #4338CA; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
 
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
 
-.icon-btn {
-    padding: 0.5rem;
-    border-radius: 9999px;
-    color: #6B7280;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.icon-btn:hover {
-    background-color: #F3F4F6;
-}
-
-body.dark .icon-btn {
-    color: #9CA3AF;
-}
-
-body.dark .icon-btn:hover {
-    background-color: #374151;
-}
-
+/* Dropdown */
 .dropdown {
     position: relative;
 }
@@ -298,6 +299,89 @@ body.dark .dropdown-item .material-symbols-outlined {
     color: #EF4444;
 }
 
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-sub-light);
+    cursor: pointer;
+}
+
+body.dark .icon-button {
+    color: var(--text-sub-dark);
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 14rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+}
+
+body.dark .user-dropdown {
+    background-color: var(--gray-800);
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
 /* Main Content */
 main {
     max-width: 1280px;
@@ -307,71 +391,111 @@ main {
 
 /* Search Section */
 .search-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
+  margin-bottom: 3rem;
 }
 
-.search-container {
-    position: relative;
-    width: 100%;
-    max-width: 48rem;
-    display: flex;
+.search-bar {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--surface-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .search-bar {
+  background: var(--surface-dark);
+  border-color: var(--gray-700);
+}
+
+@media (min-width: 640px) {
+  .search-bar {
+    flex-direction: row;
     align-items: center;
+  }
 }
 
-.search-select {
-    position: absolute;
-    left: 0.75rem;
-    height: 100%;
-    padding: 0 0.5rem 0 0.5rem;
-    border: none;
-    background: transparent;
-    color: #6B7280;
-    font-size: 0.875rem;
-    cursor: pointer;
-    z-index: 10;
+.select-wrap {
+  position: relative;
+  width: 100%;
 }
 
-body.dark .search-select {
-    color: #9CA3AF;
+@media (min-width: 640px) {
+  .select-wrap {
+    width: auto;
+  }
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 36px 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.05);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.dark .select {
+  background: rgba(255,255,255,0.08);
+  color: #E5E7EB;
+}
+
+@media (min-width: 640px) {
+  .select {
+    width: 128px;
+  }
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-sub-light);
+  pointer-events: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
 }
 
 .search-input {
-    width: 100%;
-    padding: 0.75rem 3rem 0.75rem 8rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 9999px;
-    background-color: #FFFFFF;
-    color: #111827;
-    font-size: 0.875rem;
-    outline: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-300);
+  outline: none;
 }
 
 body.dark .search-input {
-    background-color: #1F2937;
-    color: #F3F4F6;
-    border-color: #4B5563;
+  background: var(--surface-dark);
+  color: #F9FAFB;
+  border-color: var(--gray-700);
 }
 
 .search-input:focus {
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
 }
 
 .search-btn {
-    position: absolute;
-    right: 1rem;
-    color: #3B82F6;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.search-btn:hover {
-    color: #2563EB;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
 }
 
 /* Section Headers */
@@ -524,10 +648,67 @@ body.dark .article-description {
     font-size: 0.75rem;
     color: #6B7280;
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 body.dark .article-meta {
     color: #6B7280;
+}
+
+.article-source {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Reliability Badge */
+.reliability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reliability-high {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+body.dark .reliability-high {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #6EE7B7;
+}
+
+.reliability-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+body.dark .reliability-medium {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #FCD34D;
+}
+
+.reliability-low {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+body.dark .reliability-low {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+}
+
+.reliability-icon {
+    font-size: 0.875rem;
 }
 
 /* List Section */
@@ -750,6 +931,10 @@ body.dark .list-article-desc {
 .list-article-source {
     font-size: 0.75rem;
     color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 body.dark .list-article-source {
@@ -840,6 +1025,57 @@ body.dark .pagination-btn.page:hover {
 .spacer {
     height: 5rem;
 }
+body:not(.dark) #articleGrid a.article-card,
+body:not(.dark) #articleList a.list-article {
+    color: #111827 !important;
+}
+        /* =========================
+   🌙 다크모드 가독성 개선
+========================= */
+
+/* 카드 전체 기본 텍스트 */
+body.dark .article-card,
+body.dark .list-article {
+    color: #E5E7EB;
+}
+
+/* 카드 제목 */
+body.dark .article-title,
+body.dark .card-title,
+body.dark .list-title-text {
+    color: #F9FAFB !important;
+}
+
+/* 카드 본문 */
+body.dark .article-description,
+body.dark .card-description,
+body.dark .list-desc {
+    color: #D1D5DB !important;
+}
+
+/* 메타 정보 (기자, 언론사, 날짜) */
+body.dark .article-meta,
+body.dark .card-source,
+body.dark .list-article-source {
+    color: #9CA3AF;
+}
+    /* 모든 기사 링크 색상 통제 */
+#articleGrid a,
+#articleList a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* hover 시에도 파란색 금지 */
+#articleGrid a:hover,
+#articleList a:hover {
+    color: inherit;
+}
+/* 다크모드 이미지 가독성 */
+body.dark .article-image img,
+body.dark .list-article-image img {
+    filter: brightness(1.1) contrast(1.05);
+}
 </style>
 </head>
 <body>
@@ -847,27 +1083,29 @@ body.dark .pagination-btn.page:hover {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-economy" href="economycategory.html">경제</a>
-                <a class="nav-splash-item splash-world" href="universecategory.html">국제</a>
-                <a class="nav-splash-item splash-tech active" href="ITcategory.html">IT/과학</a>
+                <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
+                <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
+                <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
+                <a class="nav-splash-item splash-international active" href="localcategory.html">지역</a>
+                <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
+                <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
             </div>
-            <div class="nav-right">
-                <button class="icon-btn" onclick="toggleDarkMode()">
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleDarkMode()">
                     <span class="material-symbols-outlined">dark_mode</span>
                 </button>
-                <div class="dropdown">
-                    <button class="icon-btn nav-splash-item splash-mypage" id="mypageBtn" onclick="toggleDropdown()">
-                        <span class="material-symbols-outlined">person</span>
+                <div class="user-menu">
+                    <button class="user-menu-button" onclick="toggleUserMenu()">
+                        <div class="user-menu-blob"></div>
+                        <span class="material-symbols-outlined user-menu-icon">account_circle</span>
                     </button>
-                    <div class="dropdown-menu" id="userDropdown">
+                    <div class="user-dropdown" id="userDropdown">
                         <div id="dropdownContent"></div>
                     </div>
                 </div>
@@ -878,17 +1116,22 @@ body.dark .pagination-btn.page:hover {
 
 <main>
     <section class="search-section">
-        <div class="search-container">
-            <select class="search-select" id="searchScope" onchange="updateSearchPlaceholder(this)">
-                <option value="title_body" selected>제목+본문</option>
-                <option value="title">제목</option>
-                <option value="body">본문</option>
-                <option value="keyword">키워드</option>
-            </select>
-            <input class="search-input" id="searchInput" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
-            <button class="search-btn" onclick="performSearch()">
-                <span class="material-symbols-outlined">search</span>
-            </button>
+        <div class="search-bar">
+            <div class="select-wrap">
+                <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                    <option value="title_body" selected>제목+본문</option>
+                    <option value="title">제목</option>
+                    <option value="body">본문</option>
+                    <option value="keyword">키워드</option>
+                </select>
+                <span class="material-icons-round select-caret">expand_more</span>
+            </div>
+            <div class="search-input-wrap">
+                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <button class="search-btn" onclick="performSearch()" aria-label="검색">
+                    <span class="material-icons-round">search</span>
+                </button>
+            </div>
         </div>
     </section>
 
@@ -946,20 +1189,39 @@ body.dark .pagination-btn.page:hover {
                 </div>
                 <h3 class="list-title-text"></h3>
                 <p class="list-desc"></p>
-                <div class="list-article-source">
-                    <strong class="list-source"></strong> | <span class="list-category-sub"></span>
-                    <span class="reliability-badge">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>
-                        <span class="list-trust"></span>
-                    </span>
-                </div>
+                        <div class="list-article-source">
+                <span class="list-reporter"></span>
+                <span class="meta-dot">·</span>
+                <strong class="list-source"></strong>
+
+                <span class="reliability-badge">
+                    <span class="material-symbols-outlined reliability-icon">verified</span>
+                    <span class="list-trust"></span>
+                </span>
+            </div>
+
             </div>
         </a>
     </div>
-</main>
+</section>
+
+
+<div class="pagination">
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_left</span>
+    </button>
+    <button class="pagination-btn page active" onclick="goToPage(1)">1</button>
+    <button class="pagination-btn page" onclick="goToPage(2)">2</button>
+    <button class="pagination-btn page" onclick="goToPage(3)">3</button>
+    <button class="pagination-btn page" onclick="goToPage(4)">4</button>
+    <button class="pagination-btn page" onclick="goToPage(5)">5</button>
+    <button class="pagination-nav">
+        <span class="material-symbols-outlined" style="font-size: 0.875rem;">chevron_right</span>
+    </button>
+</div>
 
 <div class="spacer"></div>
-
+</main>
 <script>
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
@@ -1042,7 +1304,8 @@ function displayCardArticles(articles) {
         card.find('.card-source').text(sourceText);
 
         // 신뢰도
-        card.find('.card-trust').text(`신뢰도${article.trustScore}%`);
+        const trust = Math.floor(article.trustScore / 100);
+        card.find('.card-trust').text(`신뢰도 ${trust}%`);
 
         // 신뢰도 배지 색상
         const reliabilityClass = getReliabilityClass(article.trustScore);
@@ -1073,8 +1336,12 @@ function displayListArticles(articles) {
         listItem.find('.list-img').attr('src', imageUrl).attr('alt', article.title);
 
         // 카테고리
-        listItem.find('.list-category').text(article.category);
-        listItem.find('.list-category-sub').text(article.category);
+
+        // 기자명
+        listItem.find('.list-reporter').text(article.reporter);
+
+        // 언론사
+        listItem.find('.list-source').text(article.press);
 
         // 날짜
         listItem.find('.list-date').text(formatDateYMD(article.upload_date));
@@ -1090,7 +1357,8 @@ function displayListArticles(articles) {
         listItem.find('.list-source').text(article.source);
 
         // 신뢰도
-        listItem.find('.list-trust').text(`신뢰도${article.trustScore}%`);
+        const trust = Math.floor(article.trustScore / 100);
+        listItem.find('.list-trust').text(`신뢰도 ${trust}%`);
 
         const reliabilityClass = getReliabilityClass(article.trustScore);
         listItem.find('.reliability-badge').addClass(reliabilityClass);
@@ -1184,7 +1452,7 @@ function toggleLoginState() {
         dropdownContent.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                 const userName = localStorage.getItem('userName') || '회원';
+                const userName = localStorage.getItem('userName') || '회원';
                 <p class="dropdown-title">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
@@ -1219,22 +1487,31 @@ function logout() {
     toggleLoginState();
 }
 
-/* ===============================
-   드롭다운 / 다크모드
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+if (localStorage.getItem('darkMode') === 'true' ||
+    (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark');
+}
+
+function toggleUserMenu() {
     document.getElementById('userDropdown').classList.toggle('show');
 }
 
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-}
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    if (menu && !menu.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
 
-/* ===============================
-   🔥 카테고리 선택 색상 고정 (핵심)
-================================ */
 function setActiveCategoryByURL() {
     const navItems = document.querySelectorAll('.nav-splash-item');
     const currentPage = window.location.pathname.split('/').pop();
-
     navItems.forEach(item => {
         const href = item.getAttribute('href');
         if (href === currentPage) {
@@ -1245,9 +1522,6 @@ function setActiveCategoryByURL() {
     });
 }
 
-/* ===============================
-   검색
-================================ */
 function updateSearchPlaceholder(select) {
     const searchInput = document.getElementById('searchInput');
     const placeholders = {
@@ -1264,89 +1538,6 @@ function performSearch() {
     const scope = document.getElementById('searchScope').value;
     if (term) {
         location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
-    }
-}
-    $(document).ready(function() {
-    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
-    initApp();
-});
-
-/* ===============================
-   정렬
-
-    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
-    renderUserMenu(isLoggedIn, savedName);
-
-    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-}
-
-/* ===============================
-   페이지네이션
-}
-
-function fetchUserInfo() {
-    $.ajax({
-        url: '/get-my-info',
-        type: 'GET',
-        success: function(response) {
-            if (response.status === "success" && response.data) {
-                const user = response.data;
-
-                // 브라우저 저장소 갱신
-                localStorage.setItem('userName', user.name);
-                localStorage.setItem('isLoggedIn', 'true');
-
-                // UI 업데이트 (드롭다운 & 사이드바)
-                renderUserMenu(true, user.name);
-            }
-        },
-        error: function(xhr) {
-            console.error("인증 로드 실패:", xhr.status);
-            if(xhr.status === 401) {
-                localStorage.setItem('isLoggedIn', 'false');
-                renderUserMenu(false);
-            }
-        }
-    });
-}
-
-/* ===============================
-   초기 실행
-
-    const content = document.getElementById('dropdownContent');
-    if (!content) return;
-
-    if (isLoggedIn) {
-        content.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
-            </div>
-            <a href="mypage.html" class="dropdown-item">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span>마이페이지</span>
-            </a>
-            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
-                <span class="material-symbols-outlined">logout</span>
-                <span>로그아웃</span>
-            </button>
-        `;
-    } else {
-        content.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
-            </div>
-            <a href="login.html" class="dropdown-item">
-                <span class="material-symbols-outlined">login</span>
-                <span>로그인</span>
-            </a>
-            <a href="logregist.html" class="dropdown-item">
-                <span class="material-symbols-outlined">person_add</span>
-                <span>회원가입</span>
-            </a>
-        `;
     }
 }
 </script>
