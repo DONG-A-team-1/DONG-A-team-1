@@ -235,6 +235,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
                         }
                     }}
                 ],
+                # 키워드 정확하게 매칭하기 위해서
                 "minimum_should_match": 1
             }
         }

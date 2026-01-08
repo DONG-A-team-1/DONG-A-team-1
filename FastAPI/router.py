@@ -257,7 +257,6 @@ async def api_search(request: Request):
     """기사 검색 API"""
     try:
         data = await request.json()# 데이터 다 읽을 때까지 기달
-
         search_type = data.get('search_type','all')
         # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
         query = data.get('query','').strip()
