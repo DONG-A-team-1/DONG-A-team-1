@@ -9,6 +9,8 @@
 """
 
 from datetime import datetime, timezone, timedelta
+
+from api.user_embedding import update_user_embedding
 from util.elastic import es
 from util.database import SessionLocal
 from sqlalchemy.orm import Session
@@ -68,7 +70,7 @@ def close_timeout_sessions():
 
     # (5) DB 세션 열기
     db: Session = SessionLocal()
-
+    updated_users = set()
     # 세션 하나씩 처리
     try:
         for s in sessions:
@@ -77,7 +79,7 @@ def close_timeout_sessions():
             session_id = src["session_id"]
             user_id = src["user_id"]
             article_id = src["article_id"]
-
+            updated_users.add(user_id)
             # (6) 체류시간 계산 (초 단위)
             started_dt = datetime.fromisoformat(src["started_at"])
             ended_dt = datetime.fromisoformat(src["last_ping_at"])
@@ -165,6 +167,12 @@ def close_timeout_sessions():
                 })
 
         db.commit()
-
     finally:
         db.close()
+
+    for uid in updated_users:
+        try:
+            logger.info(f"{uid}임베딩 업데이트 성공")
+            update_user_embedding(uid)
+        except Exception as e:
+            pass
