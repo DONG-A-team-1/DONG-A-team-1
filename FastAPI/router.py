@@ -223,6 +223,7 @@ async def get_my_info(request: Request):
         return {
             "status": "success",
             "data": {
+                "user_id":user_id,
                 "name": user.user_name,
                 "email": user.user_email,
                 "birth": birth_str,
