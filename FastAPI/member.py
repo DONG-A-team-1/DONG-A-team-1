@@ -191,9 +191,7 @@ def get_user_data(user_id):
         user = connection.execute(query, {"u_id": user_id}).fetchone()
         return user
 
-# 검색 ------해정--------------------------------------
-
-# FastAPI/search.py (또는 해당 파일)
+# 검색 ------해정---------------
 
 def search_articles(search_type: str, query: str, size: int = 20):
     """기사 검색"""

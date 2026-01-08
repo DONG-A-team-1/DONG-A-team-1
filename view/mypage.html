@@ -2079,59 +2079,6 @@ body.dark .user-dropdown {
 </div>
 
 <script>
-
-let sessionId = null;
-
-// 기사 페이지 진입 시 세션 시작
-fetch("/session/start", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    user_id: window.USER_ID,        // 로그인된 유저 ID
-    article_id: window.ARTICLE_ID   // 현재 기사 ID
-  })
-})
-.then(res => res.json())
-.then(data => {
-  sessionId = data.session_id;
-});
-
-// 스크롤 깊이 계산
-function getScrollDepth() {
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
-
-  return Math.min(1, (scrollTop + windowHeight) / documentHeight);
-}
-
-// 30초마다 ping 전송
-setInterval(() => {
-  if (!sessionId) return;
-
-  fetch("/session/ping", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      session_id: sessionId,
-      scroll_depth: getScrollDepth()
-    })
-  });
-}, 30000);
-
-// 페이지 이탈 시 END 호출
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && sessionId) {
-    fetch("/session/end", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId
-      })
-    });
-  }
-});
-
 /* ===============================
    통합 로그인 및 유저 정보 처리
 ================================ */
