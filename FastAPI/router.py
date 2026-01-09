@@ -17,6 +17,7 @@ from . import article
 from . import topic
 from . import search
 from . import category
+from . import admin
 
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
@@ -349,3 +350,11 @@ async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제
         return {"success": False, "articles": []}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@app.get("/api/admin_logs")
+async def get_admin_logs():
+    return  {
+        "log": admin.get_admin_data(),
+        "article": admin.get_admin_articles()
+    }

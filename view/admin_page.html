@@ -6,6 +6,7 @@
 <title>NewsPalette Admin - 관리자 대시보드</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
 :root {
     --primary: #3B82F6;
@@ -1527,18 +1528,104 @@ body.dark .topic-article-delete-btn:hover {
 .topic-article-delete-btn .material-symbols-outlined {
     font-size: 1rem;
 }
+/* 공통 ellipsis */
+.col-id,
+.col-title,
+.col-date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 컬럼별 최대 폭 */
+.col-id {
+  max-width: 220px;
+}
+
+.col-title {
+  max-width: 420px;
+}
+
+.col-date {
+  max-width: 180px;
+  font-variant-numeric: tabular-nums; /* 숫자 정렬 깔끔 */
+}
+
+/* 링크도 같이 잘리게 */
+.col-id a,
+.article-title-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: inherit;
+  overflow: inherit;
+  text-overflow: inherit;
+}
+@media (max-width: 1024px) {
+  .col-title { max-width: 300px; }
+}
+
+@media (max-width: 768px) {
+  .col-id { max-width: 160px; }
+  .col-title { max-width: 220px; }
+  .col-date { max-width: 140px; }
+}
+
+/* ✅ 카테고리 컬럼은 줄바꿈/ellipsis 금지 + 최소폭 보장 */
+.col-category{
+  white-space: nowrap;
+  overflow: visible;      /* ... 안 되게 */
+  text-overflow: clip;
+  min-width: 120px;       /* 카테고리 글자 길이에 맞춰 조절 */
+}
+
+/* label-chip이 찌그러지는 경우 방지 */
+.col-category .label-chip{
+  display: inline-flex;
+  white-space: nowrap;
+}
+/* 기본값: 펼친 사이드바 */
+.sidebar {
+  transform: translateX(0);
+  transition: transform 0.25s ease;
+}
+
+/* ✅ 접힌 상태: 화면 밖으로 밀기 (폭만큼) */
+.sidebar.collapsed {
+  transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+/* ✅ 접힌 상태에서 왼쪽에 “잡는 영역(핫존)” 만들기 */
+.sidebar-collapsed-hitbox {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 12px;          /* 마우스 감지 영역 */
+  height: 100vh;
+  z-index: 120;         /* sidebar(100)보다 위 */
+  display: none;
+}
+
+/* 접힌 상태일 때만 hitbox 활성화 */
+body.sidebar-collapsed .sidebar-collapsed-hitbox {
+  display: block;
+}
+
+/* ✅ 메인 컨텐츠도 같이 당기기 */
+body.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
 </style>
 </head>
 <body>
 <div class="admin-layout">
-    <!-- Sidebar -->
+    <div class="sidebar-collapsed-hitbox" id="sidebarHitbox"></div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a class="sidebar-logo" href="home.html">
                 <span class="material-symbols-outlined sidebar-logo-icon">palette</span>
                 <span class="sidebar-logo-text">NewsPalette</span>
             </a>
-            <span class="sidebar-badge">Admin</span>
         </div>
         
         <nav class="sidebar-nav">
@@ -1652,8 +1739,7 @@ body.dark .topic-article-delete-btn:hover {
                         </div>
                         <div class="stat-info">
                             <div class="stat-label">오류 발생</div>
-                            <div class="stat-value">3</div>
-                            <div class="stat-change down">↓ 2 어제 대비</div>
+                            <div class="stat-value" id="error_stat_value">3</div>
                         </div>
                     </div>
                 </div>
@@ -2213,19 +2299,74 @@ body.dark .topic-article-delete-btn:hover {
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-// Sample Data
-const logsData = [
-    { id: 1, time: '2026-01-06 14:32:15', type: 'error', source: 'API Server', message: 'Database connection timeout after 30s', stack: 'Error: Connection timeout\n  at DBClient.connect (/app/db.js:45)\n  at async Server.start (/app/server.js:12)' },
-    { id: 2, time: '2026-01-06 14:30:42', type: 'warning', source: 'Auth Service', message: 'Multiple failed login attempts from IP 192.168.1.100', stack: '' },
-    { id: 3, time: '2026-01-06 14:28:11', type: 'info', source: 'Scheduler', message: 'Daily article cleanup job started', stack: '' },
-    { id: 4, time: '2026-01-06 14:25:33', type: 'success', source: 'API Server', message: 'Successfully synced 150 articles from external source', stack: '' },
-    { id: 5, time: '2026-01-06 14:20:18', type: 'error', source: 'ML Pipeline', message: 'Failed to classify article: model not loaded', stack: 'ModelError: Model file not found\n  at Classifier.load (/app/ml/classifier.js:23)' },
-    { id: 6, time: '2026-01-06 14:15:05', type: 'info', source: 'Cache', message: 'Cache invalidated for category: politics', stack: '' },
-    { id: 7, time: '2026-01-06 14:10:22', type: 'success', source: 'User Service', message: 'New user registration: user5678@email.com', stack: '' },
-    { id: 8, time: '2026-01-06 14:05:44', type: 'warning', source: 'Storage', message: 'Storage usage at 85% capacity', stack: '' },
-    { id: 9, time: '2026-01-06 14:00:01', type: 'info', source: 'Scheduler', message: 'Hourly analytics aggregation completed', stack: '' },
-    { id: 10, time: '2026-01-06 13:55:30', type: 'error', source: 'Email Service', message: 'Failed to send notification email: SMTP connection refused', stack: 'SMTPError: Connection refused\n  at Mailer.send (/app/mail.js:89)' },
-];
+const PAGE_SIZE = 10;
+let logsCurrentPage = 1;
+const ARTICLE_PAGE_SIZE = 10;
+let articlesCurrentPage = 1;
+
+let logsData = [];
+let articlesData = [];
+let filteredLogs = [];
+let filteredArticles = [];
+
+function normalizeLabel(label) {
+  // label이 object면 흔히 오는 키들에서 문자열 뽑기
+  if (label && typeof label === "object") {
+    label = label.value ?? label.label ?? label.name ?? label.type ?? "";
+  }
+  return String(label ?? "").trim().toLowerCase();
+}
+
+function normalizeCategory(c) {
+  const v = String(c ?? '').toLowerCase().trim();
+  const map = {
+    "사회/경제/산업": "society",
+    "사회": "society",
+    "경제": "society",
+    "정치": "politics",
+    "국제": "world",
+    "문화": "culture",
+    "스포츠": "sports"
+  };
+  return map[v] || v; // 이미 society 같은 값이면 그대로
+}
+
+$(function () {
+  loadAdminLogs();
+});
+
+function loadAdminLogs() {
+  return $.ajax({
+    url: "/api/admin_logs",
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+    console.log("admin_logs:", data);
+
+    logsData = data.log || [];
+    articlesData = data.article || [];
+
+    filteredLogs = [...logsData];
+    filteredArticles = [...articlesData];
+
+    logsCurrentPage = 1;
+    articlesCurrentPage = 1;
+
+    filterLogs();
+    updateErrorCount();
+
+    filterArticles(); // ✅ 여기서 renderArticles까지 감
+},
+    error: function (xhr) {
+      console.error("loadAdminLogs failed:", xhr.status, xhr.responseText);
+      logsData = [];
+      filteredLogs = [];
+      renderLogs();        // 빈 테이블 처리
+      updateErrorCount();
+    }
+  });
+}
+
 
 const usersData = [
     { id: 1, name: '김민준', email: 'minjun.kim@email.com', joinDate: '2025-12-15', lastActive: '2026-01-06 14:30', status: 'active' },
@@ -2238,16 +2379,6 @@ const usersData = [
     { id: 8, name: '임시우', email: 'siwoo.lim@email.com', joinDate: '2025-10-18', lastActive: '2026-01-04 16:30', status: 'active' },
 ];
 
-const articlesData = [
-    { id: 'A001', title: '마두로 베네수엘라 대통령 체포', category: 'world', labels: ['breaking', 'negative'], date: '2026-01-06' },
-    { id: 'A002', title: '이재명 대통령, 시진핑과 정상회담', category: 'politics', labels: ['neutral'], date: '2026-01-06' },
-    { id: 'A003', title: '북한, 동해상으로 탄도미사일 발사', category: 'politics', labels: ['breaking', 'negative'], date: '2026-01-06' },
-    { id: 'A004', title: '삼성전자, 2분기 실적 발표...영업이익 50% 증가', category: 'society', labels: ['positive'], date: '2026-01-05' },
-    { id: 'A005', title: '차준환, 3연속 올림픽 출전권 획득', category: 'sports', labels: ['positive', 'exclusive'], date: '2026-01-05' },
-    { id: 'A006', title: '에코프로, 기술 리더십 강화로 글로벌 시장 재도전', category: 'society', labels: ['positive'], date: '2026-01-05' },
-    { id: 'A007', title: '임재범, 40주년 투어 후 은퇴 선언', category: 'culture', labels: ['neutral'], date: '2026-01-05' },
-    { id: 'A008', title: '기후변화로 인한 해수면 상승 가속화', category: 'world', labels: ['negative'], date: '2026-01-04' },
-];
 
 const userActivities = [
     { type: 'login', title: '로그인', desc: 'Chrome / Windows에서 로그인', time: '오늘 14:30' },
@@ -2288,9 +2419,7 @@ let currentEditUserId = null;
 let currentEditArticleId = null;
 let currentEditTopicId = null;
 let deleteCallback = null;
-let filteredLogs = [...logsData];
 let filteredUsers = [...usersData];
-let filteredArticles = [...articlesData];
 let filteredTopics = [...topicsData];
 
 // Page Titles
@@ -2327,10 +2456,27 @@ function toggleDarkMode() {
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
 }
 
-// Sidebar
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+  const sidebar = document.getElementById('sidebar');
+  const collapsedMode = document.body.classList.contains('sidebar-collapsed');
+
+  // 좁은 화면(접힘 모드)에서는 토글이 "고정 열기/닫기" 역할
+  if (collapsedMode) {
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    if (isCollapsed) {
+      sidebar.classList.remove('collapsed');
+      sidebarPinnedOpen = true;   // ✅ 고정 열기
+    } else {
+      sidebar.classList.add('collapsed');
+      sidebarPinnedOpen = false;  // ✅ 고정 해제 + 닫기
+    }
+    return;
+  }
+
+  // 넓은 화면에서는 기존처럼 동작해도 되고, 필요 없으면 제거
+  sidebar.classList.toggle('collapsed');
 }
+
 
 // Navigation
 function initNavigation() {
@@ -2364,25 +2510,37 @@ function navigateTo(page) {
 
 // Logs
 function renderLogs() {
-    const tbody = document.getElementById('logsTableBody');
-    tbody.innerHTML = filteredLogs.map(log => `
-        <tr>
-            <td>${log.time}</td>
-            <td><span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span></td>
-            <td>${log.source}</td>
-            <td><span class="log-message">${escapeHtml(log.message)}</span></td>
-            <td>
-                <div class="action-btns">
-                    <button class="action-btn" onclick="viewLogDetail(${log.id})" title="상세 보기">
-                        <span class="material-symbols-outlined">visibility</span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    document.getElementById('logsTotalCount').textContent = filteredLogs.length;
-    renderPagination('logsPagination', filteredLogs.length);
+  const tbody = document.getElementById('logsTableBody');
+
+  const total = filteredLogs.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  // currentPage 보정
+  logsCurrentPage = Math.min(Math.max(1, logsCurrentPage), totalPages);
+
+  const start = (logsCurrentPage - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  const pageItems = filteredLogs.slice(start, end);
+
+  tbody.innerHTML = pageItems.map(log => `
+    <tr>
+      <td>${log.time ?? ''}</td>
+      <td><span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span></td>
+      <td>${log.source ?? ''}</td>
+      <td><span class="log-message">${escapeHtml(log.message ?? '')}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn" onclick="viewLogDetail('${String(log.id).replace(/'/g, "\\'")}')" title="상세 보기">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('logsTotalCount').textContent = total;
+
+  renderLogsPagination(totalPages); // ✅ logs 전용 pagination
 }
 
 function getLogTypeLabel(type) {
@@ -2399,31 +2557,86 @@ function filterLogs() {
         const matchesSearch = log.message.toLowerCase().includes(search) || log.source.toLowerCase().includes(search);
         return matchesType && matchesSearch;
     });
-    
+    logsCurrentPage = 1; 
     renderLogs();
 }
 
 function refreshLogs() {
     showToast('로그를 새로고침했습니다.', 'info');
+    loadAdminLogs()
     renderLogs();
 }
 
 function viewLogDetail(logId) {
-    const log = logsData.find(l => l.id === logId);
-    if (!log) return;
-    
-    document.getElementById('logDetailTime').textContent = log.time;
-    document.getElementById('logDetailType').innerHTML = `<span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span>`;
-    document.getElementById('logDetailSource').textContent = log.source;
-    document.getElementById('logDetailMessage').textContent = log.message;
-    document.getElementById('logDetailStack').textContent = log.stack || '스택 트레이스 없음';
-    
-    openModal('logDetailModal');
+  const key = String(logId);
+  const log = (logsData || []).find(l => String(l.id) === key);
+
+  console.log("clicked:", key, "found:", log);
+  if (!log) return;
+
+  document.getElementById('logDetailTime').textContent = log.time ?? "";
+  document.getElementById('logDetailType').innerHTML =
+    `<span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span>`;
+  document.getElementById('logDetailSource').textContent = log.source ?? "";
+  document.getElementById('logDetailMessage').textContent = log.message ?? "";
+  document.getElementById('logDetailStack').textContent = log.stack || '스택 트레이스 없음';
+  console.log(log.stack)
+  openModal('logDetailModal');
 }
+
+function renderLogsPagination(totalPages) {
+  const container = document.getElementById('logsPagination');
+
+  const cur = logsCurrentPage;
+
+  // 보여줄 페이지 버튼 범위(최대 5개)
+  const windowSize = 5;
+  let start = Math.max(1, cur - Math.floor(windowSize / 2));
+  let end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+
+  let html = `
+    <button class="page-btn" data-nav="prev" ${cur === 1 ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+    </button>
+  `;
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === cur ? 'active' : ''}" data-page="${p}">${p}</button>`;
+  }
+
+  html += `
+    <button class="page-btn" data-nav="next" ${cur === totalPages ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+// ✅ 이벤트 위임으로 pagination 클릭 처리
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#logsPagination .page-btn');
+  if (!btn) return;
+
+  if (btn.hasAttribute('disabled')) return;
+
+  const nav = btn.dataset.nav;
+  const page = btn.dataset.page;
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+
+  if (nav === 'prev') logsCurrentPage = Math.max(1, logsCurrentPage - 1);
+  else if (nav === 'next') logsCurrentPage = Math.min(totalPages, logsCurrentPage + 1);
+  else if (page) logsCurrentPage = parseInt(page, 10) || 1;
+
+  renderLogs();
+});
 
 function updateErrorCount() {
     const errorCount = logsData.filter(l => l.type === 'error').length;
     document.getElementById('errorCount').textContent = errorCount;
+    document.getElementById('error_stat_value').textContent = errorCount;
 }
 
 // Users
@@ -2548,36 +2761,109 @@ function confirmDeleteUser(userId) {
     openModal('deleteConfirmModal');
 }
 
-// Articles
 function renderArticles() {
-    const tbody = document.getElementById('articlesTableBody');
-    tbody.innerHTML = filteredArticles.map(article => `
-        <tr>
-            <td>${article.id}</td>
-            <td><span class="article-title-cell">${escapeHtml(article.title)}</span></td>
-            <td><span class="label-chip ${article.category}">${getCategoryLabel(article.category)}</span></td>
-            <td>
-                <div class="label-chips">
-                    ${article.labels.map(label => `<span class="label-chip ${getLabelClass(label)}">${getLabelText(label)}</span>`).join('')}
-                </div>
-            </td>
-            <td>${article.date}</td>
-            <td>
-                <div class="action-btns">
-                    <button class="action-btn" onclick="editArticle('${article.id}')" title="수정">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="action-btn delete" onclick="confirmDeleteArticle('${article.id}')" title="삭제">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    document.getElementById('articlesTotalCount').textContent = filteredArticles.length;
-    renderPagination('articlesPagination', filteredArticles.length);
+  const tbody = document.getElementById('articlesTableBody');
+
+  const total = filteredArticles.length;
+  const totalPages = Math.max(1, Math.ceil(total / ARTICLE_PAGE_SIZE));
+  articlesCurrentPage = Math.min(Math.max(1, articlesCurrentPage), totalPages);
+
+  const start = (articlesCurrentPage - 1) * ARTICLE_PAGE_SIZE;
+  const end = start + ARTICLE_PAGE_SIZE;
+  const pageItems = filteredArticles.slice(start, end);
+
+  tbody.innerHTML = pageItems.map(article => {
+    const id = String(article.id ?? article.article_id ?? "");
+    const title = String(article.title ?? article.article_title ?? "");
+    const date = String(article.date ?? article.upload_date ?? article.published_date ?? "");
+
+    const rawCategory = article.category ?? article.article_category ?? article.article_label?.category ?? "";
+    const category = normalizeCategory(rawCategory);
+    console.log(rawCategory)
+    console.log(category)
+
+    const labelsArr =
+      article.labels ??
+      article.article_label?.labels ??
+      article.article_label?.label ??
+      [];
+
+    return `
+      <tr>
+        <td class="col-id">
+          <a href="/article/${encodeURIComponent(id)}" class="article-id-link" title="${escapeHtml(id)}">
+            ${escapeHtml(id)}
+          </a>
+        </td>
+
+        <td class="col-title">
+          <span class="article-title-cell" title="${escapeHtml(title)}">${escapeHtml(title)}</span>
+        </td>
+
+        <td class="col-category">
+          <span class="label-chip ${escapeHtml(category)}">${getCategoryLabel(category)}</span>
+        </td>
+
+        <td>
+          <div class="label-chips">
+            ${(Array.isArray(labelsArr) ? labelsArr : [labelsArr]).map(l => {
+              const label = normalizeLabel(l);
+              if (!label) return '';
+              return `<span class="label-chip ${getLabelClass(label)}">${getLabelText(label)}</span>`;
+            }).join('')}
+          </div>
+        </td>
+
+        <td class="col-date" title="${escapeHtml(date)}">${escapeHtml(date)}</td>
+
+        <td class="col-actions">
+          <div class="action-btns">
+            <button type="button" class="action-btn" data-article-action="edit" data-article-id="${escapeHtml(id)}" title="수정">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="action-btn delete" data-article-action="delete" data-article-id="${escapeHtml(id)}" title="삭제">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('articlesTotalCount').textContent = total;
+  renderArticlesPagination(totalPages);
 }
+
+
+function renderArticlesPagination(totalPages) {
+
+  const container = document.getElementById('articlesPagination');
+  const cur = articlesCurrentPage;
+
+  const windowSize = 5;
+  let start = Math.max(1, cur - Math.floor(windowSize / 2));
+  let end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+
+  let html = `
+    <button class="page-btn" data-article-nav="prev" ${cur === 1 ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+    </button>
+  `;
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === cur ? 'active' : ''}" data-article-page="${p}">${p}</button>`;
+  }
+
+  html += `
+    <button class="page-btn" data-article-nav="next" ${cur === totalPages ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
 
 function getCategoryLabel(category) {
     const labels = { society: '사회/경제', politics: '정치', world: '국제', culture: '문화', sports: '스포츠' };
@@ -2595,35 +2881,50 @@ function getLabelText(label) {
 }
 
 function filterArticles() {
-    const category = document.getElementById('articleCategoryFilter').value;
-    const search = document.getElementById('articleSearchInput').value.toLowerCase();
-    
-    filteredArticles = articlesData.filter(article => {
-        const matchesCategory = category === 'all' || article.category === category;
-        const matchesSearch = article.title.toLowerCase().includes(search);
-        return matchesCategory && matchesSearch;
-    });
-    
-    renderArticles();
+  const category = document.getElementById('articleCategoryFilter')?.value ?? 'all';
+  const search = (document.getElementById('articleSearchInput')?.value ?? '').toLowerCase().trim();
+
+  filteredArticles = (articlesData || []).filter(a => {
+    const aCategory = normalizeCategory(a.category ?? a.article_category ?? a.article_label?.category);
+    const aTitle = String(a.title ?? a.article_title ?? '').toLowerCase();
+
+    const matchesCategory = category === 'all' || aCategory === String(category).toLowerCase();
+    const matchesSearch = !search || aTitle.includes(search);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  articlesCurrentPage = 1;
+  renderArticles();
 }
 
 function editArticle(articleId) {
-    const article = articlesData.find(a => a.id === articleId);
-    if (!article) return;
-    
-    currentEditArticleId = articleId;
-    document.getElementById('editArticleTitle').value = article.title;
-    document.getElementById('editArticleCategory').value = article.category;
-    
-    // Reset checkboxes
-    document.querySelectorAll('#articleEditModal input[type="checkbox"]').forEach(cb => cb.checked = false);
-    article.labels.forEach(label => {
-        const cb = document.getElementById('label' + label.charAt(0).toUpperCase() + label.slice(1));
-        if (cb) cb.checked = true;
-    });
-    
-    openModal('articleEditModal');
+  const article = articlesData.find(a =>
+    String(a.id ?? a.article_id) === String(articleId)
+  );
+  if (!article) {
+    console.log("editArticle: not found", articleId, articlesData[0]);
+    return;
+  }
+
+  currentEditArticleId = String(article.id ?? article.article_id);
+
+  document.getElementById('editArticleTitle').value = article.title ?? article.article_title ?? '';
+  document.getElementById('editArticleCategory').value = article.category ?? article.article_category ?? 'society';
+
+  document.querySelectorAll('#articleEditModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+  (article.labels || []).forEach(l => {
+  const label = normalizeLabel(l);
+  if (!label) return;
+
+  const id = 'label' + label.charAt(0).toUpperCase() + label.slice(1); // positive -> labelPositive
+  const cb = document.getElementById(id);
+  if (cb) cb.checked = true;
+});
+
+  openModal('articleEditModal');
 }
+
 
 function saveArticleEdit() {
     const article = articlesData.find(a => a.id === currentEditArticleId);
@@ -2903,12 +3204,112 @@ function loadSettings() {
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
+
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.classList.remove('active');
         }
     });
 });
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#articlesPagination .page-btn');
+  if (!btn) return;
+  if (btn.hasAttribute('disabled')) return;
+
+  const nav = btn.dataset.articleNav;
+  const page = btn.dataset.articlePage;
+
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ARTICLE_PAGE_SIZE));
+
+  if (nav === 'prev') articlesCurrentPage = Math.max(1, articlesCurrentPage - 1);
+  else if (nav === 'next') articlesCurrentPage = Math.min(totalPages, articlesCurrentPage + 1);
+  else if (page) articlesCurrentPage = parseInt(page, 10) || 1;
+
+  renderArticles();
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-article-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.articleAction;
+  const articleId = btn.dataset.articleId;
+
+  if (!articleId) return;
+
+  if (action === 'edit') editArticle(articleId);
+  else if (action === 'delete') confirmDeleteArticle(articleId);
+});
+
+const COLLAPSE_BREAKPOINT = 1200; // 여기서 이하로 내려가면 자동 접기
+const EDGE_HOTZONE = 12;          // 왼쪽 가장자리 감지 폭(px)
+
+let sidebarPinnedOpen = false;    // 사용자가 수동으로 열어 고정했는지
+let sidebarTempOpen = false;      // hover로 임시로 열렸는지
+
+function setSidebarCollapsed(collapsed) {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+
+  if (collapsed) {
+    sidebar.classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+    sidebarPinnedOpen = false;
+  } else {
+    sidebar.classList.remove('collapsed');
+    document.body.classList.remove('sidebar-collapsed');
+  }
+}
+
+function openSidebarTemp() {
+  if (sidebarPinnedOpen) return;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.remove('collapsed');
+  sidebarTempOpen = true;
+}
+
+function closeSidebarTemp() {
+  if (sidebarPinnedOpen) return;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.add('collapsed');
+  sidebarTempOpen = false;
+}
+
+// ✅ 화면 크기에 따라 자동 접기/펼치기
+function applyResponsiveSidebar() {
+  if (window.innerWidth <= COLLAPSE_BREAKPOINT) {
+    setSidebarCollapsed(true);
+  } else {
+    setSidebarCollapsed(false);
+  }
+}
+
+window.addEventListener('resize', applyResponsiveSidebar);
+applyResponsiveSidebar();
+
+// ✅ 마우스가 왼쪽 가장자리로 오면 열기, 떠나면 닫기
+document.addEventListener('mousemove', (e) => {
+  if (!document.body.classList.contains('sidebar-collapsed')) return;
+  if (sidebarPinnedOpen) return;
+
+  if (e.clientX <= EDGE_HOTZONE) {
+    if (!sidebarTempOpen) openSidebarTemp();
+  }
+});
+
+// 사이드바에서 마우스 빠져나가면 다시 닫기
+document.getElementById('sidebar').addEventListener('mouseleave', () => {
+  if (document.body.classList.contains('sidebar-collapsed')) {
+    closeSidebarTemp();
+  }
+});
+
+// hitbox에 올라오면 열기 (mousemove보다 안정적)
+document.getElementById('sidebarHitbox').addEventListener('mouseenter', () => {
+  if (document.body.classList.contains('sidebar-collapsed')) openSidebarTemp();
+});
+
 </script>
 </body>
 </html>
