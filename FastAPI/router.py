@@ -161,7 +161,6 @@ async def article_page(request: Request, article_id: str):
         status_code=302
     )
 
-
 @app.get("/api/article/{article_id}")
 def get_article(article_id: str):
     # ES/DB에서 조회
@@ -249,26 +248,22 @@ async def topic_page(request: Request):
         status_code=302
     )
 
-
 @app.get("/api/topic")
 def get_topics():
     result = topic.get_topic_from_es()
     return result
-
 
 class TopicArticleReq(BaseModel):
     pos_ids: Optional[List[str]] = Field(default_factory=list)
     neg_ids: Optional[List[str]] = Field(default_factory=list)
     neu_ids: Optional[List[str]] = Field(default_factory=list)
 
-
 @app.post("/api/topic_article")
-def get_topic_article(body: TopicArticleReq):
+def get_topic_article(body:TopicArticleReq):
     result = topic.get_topic_article(body)
     return result
 
-
-@app.post("/api/search")  # 검색 기능-----
+@app.post("/api/search") # 검색 기능-----
 async def api_search(request: Request):
     """기사 검색 API"""
     try:
@@ -280,7 +275,7 @@ async def api_search(request: Request):
         size = data.get('size', 20)
         # 검색 결과 몇 개 가져올 지 결정하는 숫자
 
-        if not query:  # 검색어가 없다면.
+        if not query: # 검색어가 없다면.
             return JSONResponse(
                 status_code=400,
                 content={"success": False, "message": "검색어를 입력해주세요"}
@@ -298,7 +293,6 @@ async def api_search(request: Request):
             status_code=500,
             content={"success": False, "message": str(e)}
         )
-
 
 # 카테고리별로 불러오기------해정,하영님 합작
 
@@ -360,3 +354,14 @@ async def get_related_articles(id: str):
             "articles": [],
             "error": str(e)
         }
+
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/user/history")
+async def api_user_history(request: Request, date: str):
+    user_id = request.session.get("loginId")
+
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False})
+
+    return member.get_user_history(user_id, date)
