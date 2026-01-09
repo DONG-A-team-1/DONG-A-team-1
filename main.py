@@ -381,6 +381,45 @@ def main():
             )
         )
 
+def test_main():
+    env = os.getenv("APP_ENV", "dev")
+    scheduler = BackgroundScheduler(timezone="Asia/Seoul")
+    logger.info("[TEST] scheduler test mode start")
+    # 테스트용: 1분마다 run_pipeline 실행
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="test_news_full_pipeline_1min",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=60
+    )
+    scheduler.start()
+    logger.info("[TEST] 1-minute interval scheduler started")
+
+
+    try:
+        while True:
+            time.sleep(60)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        logger.info("[TEST] scheduler stopped")
+
+        es.index(
+            index="info_logs",
+            document=build_info_docs(
+                run_id=_run_id_kst(),
+                job_id="scheduler_test",
+                component="scheduler",
+                stage="scheduler_test_stopped",
+                status="warn",
+                message="test scheduler stopped",
+                service_name="donga-scheduler",
+                env=env,
+            )
+        )
+
 
 if __name__ == "__main__":
-    main()
+    test_main()

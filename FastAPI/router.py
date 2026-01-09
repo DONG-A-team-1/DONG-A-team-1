@@ -7,8 +7,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
-from pydantic import BaseModel
-from typing import List
+from api.recommend import router as recommend_router
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
 import json
 
@@ -16,24 +17,24 @@ from . import member
 from . import article
 from . import topic
 from . import search
-
 from . import category
+
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
 
 logger = Logger().get_logger(__name__)
-
-
 app = FastAPI()
 
 # router 연결 === session 관련 ===
 app.include_router(session_router)
 app.include_router(session_ping_router)
 app.include_router(session_end_router)
+app.include_router(recommend_router)
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
@@ -41,7 +42,7 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 @app.get("/")
 async def read_root():
-    return RedirectResponse(url="/view/home.html") # 기본 메인페이지로 지정해야됨
+    return RedirectResponse(url="/view/home.html")  # 기본 메인페이지로 지정해야됨
 
 
 @app.get("/check-id")
@@ -78,7 +79,7 @@ async def login(
     result, user_name = member.login(user_id, password, req.session)
 
     if result == "SUCCESS":
-        return {"status": "success", "message": "로그인 성공","user_name": user_name}
+        return {"status": "success", "message": "로그인 성공", "user_name": user_name}
     elif result == "INACTIVE":
         return JSONResponse(status_code=403, content={"message": "비활성화된 계정"})
     else:
@@ -90,7 +91,7 @@ async def logout(req: Request):
     # 1. 세션 데이터 완전히 삭제
     req.session.clear()
     # 2. 삭제 후 메인페이지로 이동
-    return RedirectResponse(url="/view/home.html") # 메인페이지에 맞게 형식 조정 필요
+    return RedirectResponse(url="/view/home.html")  # 메인페이지에 맞게 형식 조정 필요
 
 
 @app.post("/change-password")
@@ -118,8 +119,8 @@ async def withdraw(req: Request):
 
 @app.post("/find-id")
 async def find_user_id(
-    user_email: str = Form(...),
-    security_answer: str = Form(...)
+        user_email: str = Form(...),
+        security_answer: str = Form(...)
 ):
     user_id = member.find_id(user_email, security_answer)
     if user_id:
@@ -127,7 +128,7 @@ async def find_user_id(
     return JSONResponse(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
-)
+    )
 
 
 @app.post("/find-pw")
@@ -151,25 +152,33 @@ async def find_user_pw(
 #     user_id: str = Form(...),
 # ):
 #     pass
-  
- 
+
+
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
-        url=f"/view/personal_article.html?article_id={article_id}",
+        url=f"/view/individual_article.html?article_id={article_id}",
         status_code=302
     )
+
 
 @app.get("/api/article/{article_id}")
 def get_article(article_id: str):
     # ES/DB에서 조회
     main = article.get_article(article_id)
     related = article.get_related(article_id)
-
-    return {
-        "article": main,
-        "related": related
-    }
+    try:
+        polar_topic = topic.get_opposite_topic(article_id)
+        return {
+            "article": main,
+            "related": related,
+            "polar": polar_topic
+        }
+    except Exception:
+        return {
+            "article": main,
+            "related": related
+        }
 
 
 @app.post("/update-info")
@@ -217,12 +226,12 @@ async def get_my_info(request: Request):
     user = member.get_user_data(user_id)
 
     if user:
-
         birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
 
         return {
             "status": "success",
             "data": {
+                "user_id": user_id,
                 "name": user.user_name,
                 "email": user.user_email,
                 "birth": birth_str,
@@ -232,6 +241,7 @@ async def get_my_info(request: Request):
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
+
 @app.get("/topics", response_class=HTMLResponse)
 async def topic_page(request: Request):
     return RedirectResponse(
@@ -239,59 +249,64 @@ async def topic_page(request: Request):
         status_code=302
     )
 
+
 @app.get("/api/topic")
 def get_topics():
     result = topic.get_topic_from_es()
     return result
 
+
 class TopicArticleReq(BaseModel):
-    pos_ids: List[str]
-    neg_ids: List[str]
-    neu_ids: List[str]
+    pos_ids: Optional[List[str]] = Field(default_factory=list)
+    neg_ids: Optional[List[str]] = Field(default_factory=list)
+    neu_ids: Optional[List[str]] = Field(default_factory=list)
+
 
 @app.post("/api/topic_article")
-def get_topic_article(body:TopicArticleReq):
+def get_topic_article(body: TopicArticleReq):
     result = topic.get_topic_article(body)
     return result
 
-@app.post("/api/search") # 검색 기능-----
+
+@app.post("/api/search")  # 검색 기능-----
 async def api_search(request: Request):
     """기사 검색 API"""
     try:
-        data = await request.json()# 데이터 다 읽을 때까지 기달
-        search_type = data.get('search_type','all')
+        data = await request.json()  # 데이터 다 읽을 때까지 기달
+        search_type = data.get('search_type', 'all')
         # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
-        query = data.get('query','').strip()
+        query = data.get('query', '').strip()
         # 사용자가 입력한 검색어
         size = data.get('size', 20)
         # 검색 결과 몇 개 가져올 지 결정하는 숫자
 
-        if not query: # 검색어가 없다면.
+        if not query:  # 검색어가 없다면.
             return JSONResponse(
                 status_code=400,
-                content={"success":False,"message":"검색어를 입력해주세요"}
+                content={"success": False, "message": "검색어를 입력해주세요"}
             )
         results = member.search_articles(
-            data.get('search_type','all'),
-            data.get('query',''),
-            data.get('size',20)
+            data.get('search_type', 'all'),
+            data.get('query', ''),
+            data.get('size', 20)
         )
         return results
 
     except Exception as e:
-        print("search error: ",e)
+        print("search error: ", e)
         return JSONResponse(
             status_code=500,
             content={"success": False, "message": str(e)}
         )
 
+
 # 카테고리별로 불러오기------해정,하영님 합작
 
 @app.get("/api/category/{category_name}")
-async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
-    """카테고리별 기사 조회 API"""
+async def get_category_articles(category_name: str, size: int = 20, page: int = 1, sort_type: str = "latest"):
     try:
-        results = category.get_articles_by_category(category_name, size, page)
+        # sort_type을 넘겨줍니다.
+        results = category.get_articles_by_category(category_name, size, page, sort_type)
         return results
     except Exception as e:
         print(f"Category error: {e}")
@@ -299,6 +314,7 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             status_code=500,
             content={"success": False, "message": str(e)}
         )
+
 
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")

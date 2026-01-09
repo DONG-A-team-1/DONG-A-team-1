@@ -11,7 +11,6 @@ def session_end(session_id: str = Query(...)):
     - RDB 저장 ❌
     - ES에 종료 신호만 기록 ⭕
     """
-
     now = datetime.now(timezone.utc)
 
     # 세션 존재 여부 확인

@@ -424,6 +424,7 @@
         }
 
         .search-input {
+            caret-color:#ffffff;
             width: 100%;
             padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
             border-radius: 10px;
@@ -1221,13 +1222,13 @@
                     </a>
                 </div>
 
-                <div class="category">
-                    <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
-                    <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
-                    <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
-                    <a class="nav-splash-item splash-international" href="localcategory.html">지역</a>
-                    <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
-                    <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
+                <div class="nav-center">
+                    <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                    <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                    <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                    <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                    <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                    <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
                 </div>
 
                 <div class="header-actions">
@@ -1387,8 +1388,7 @@
     </footer>
 
     <script>
-
-        // ========== 전역 변수 ==========
+// ========== 전역 변수 ==========
 let currentPage = 1;
 let currentKeyword = '';
 let currentSearchType = '';
@@ -1428,39 +1428,27 @@ function performSearch() {
         alert("검색어를 입력하세요");
         return;
     }
+
     showLoadingState();
+
+    const newUrl = `${window.location.pathname}?q=${encodeURIComponent(keyword)}&scope=${searchType}`;
+    window.history.pushState({}, '', newUrl);
 
     currentKeyword = keyword;
     currentSearchType = searchType;
     currentPage = 1;
-    currentSortType = 'latest';  // 초기화
+    currentSortType = 'latest';
 
-    // 검색 타입 매핑
     let apiSearchType = '';
-    let searchTypeText = '';
-
     switch(searchType) {
-        case "title_body":
-            searchTypeText = "제목+본문";
-            apiSearchType = "all";
-            break;
-        case "title":
-            searchTypeText = "제목";
-            apiSearchType = "title";
-            break;
-        case "body":
-            searchTypeText = "본문";
-            apiSearchType = "content";
-            break;
-        case "keyword":
-            searchTypeText = "키워드";
-            apiSearchType = "keywords";
-            break;
+        case "title_body": apiSearchType = "all"; break;
+        case "title": apiSearchType = "title"; break;
+        case "body": apiSearchType = "content"; break;
+        case "keyword": apiSearchType = "keywords"; break;
     }
 
     $('#searchTerm').text(`'${keyword}'`);
 
-    // AJAX 요청
     $.ajax({
         url: '/api/search',
         type: 'POST',
@@ -1468,30 +1456,24 @@ function performSearch() {
         data: JSON.stringify({
             search_type: apiSearchType,
             query: keyword,
-            size: 1500 // 기사 리스트에 보여질 기사들인데 50이면 10페이지밖에 안 나와서 늘림
+            size: 1500
         }),
         dataType: 'json',
         success: function(response) {
             if (response.success) {
                 const total = response.total || 0;
                 allArticles = response.articles || [];
-                trendingArticles = response.trending || [];  // 트렌드 저장
+                trendingArticles = response.trending || [];
 
-                // $('#countNumber').text(total);
                 showResultCount(total);
 
-                // 버튼 초기화
                 document.querySelectorAll('.filter-button').forEach(btn =>
                     btn.classList.remove('active')
                 );
                 document.getElementById('btnLatest').classList.add('active');
 
-                if (allArticles.length === 0) {
-                    $('#cardGrid').html('<p style="text-align:center;padding:2rem;">검색 결과가 없습니다.</p>');
-                    $('#articleList').html('');
-                } else {
-                    displayPage(1);
-                }
+                $('#cardGrid').find('p').remove();
+                displayPage(1);
             } else {
                 alert('검색 실패: ' + response.message);
             }
@@ -1510,52 +1492,50 @@ function displayPage(page) {
     const endIdx = startIdx + itemsPerPage;
     const pageArticles = allArticles.slice(startIdx, endIdx);
 
-    // 카드는 항상 트렌드 top4 고정
-    displayCardArticles(trendingArticles);
+    // 카드 렌더링
+    if (trendingArticles.length === 0) {
+        $('#cardGrid').find('.news-card:not(.news-card-template)').remove();
+        $('#cardGrid').append('<p style="text-align:center;padding:2rem;">검색 결과가 없습니다.</p>');
+    } else {
+        displayCardArticles(trendingArticles);
+    }
 
-    // 리스트는 페이지별로 5개씩
-    displayListArticles(pageArticles);
+    // 리스트 렌더링
+    if (pageArticles.length === 0) {
+        displayEmptyMessage();
+    } else {
+        displayListArticles(pageArticles);
+    }
 
     updatePaginationUI(page);
     currentPage = page;
-
-    if (pageArticles.length === 0){
-        displayEmptyMessage(); // 기사 없을 때,
-    } else {
-        displayListArticles(pageArticles); // 기사 있을 때
-    }
 }
 
-// ==========리스트형 기사 없을 경우===========
+// ========== 빈 메시지 표시 ==========
 function displayEmptyMessage() {
-    const container = document.getElementById('articleList'); // 또는 $('#articleList')
+    const container = $('#articleList');
+    container.find('.article-item:not(.article-item-template)').remove();
+    container.find('.empty-message').remove();  // 빈 메시지 삭제
 
-    // 템플릿 제외하고 기존 기사만 삭제
-    container.querySelectorAll('.article-item:not(.article-item-template)').forEach(item => {
-        item.remove();
-    });
+    const emptyDiv = $('<div>')
+        .addClass('empty-message')
+        .css({
+            'text-align': 'center',
+            'padding': '4rem 2rem',
+            'color': '#999'
+        })
+        .html(`
+            <h3 style="margin-bottom: 0.5rem;">더 이상 표시할 기사가 없습니다</h3>
+            <p>이전 페이지로 돌아가거나 다른 검색어를 시도해보세요.</p>
+        `);
 
-    // 빈 메시지 추가 css까지 여기에 포함
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'empty-message';
-    emptyDiv.style.cssText = 'text-align: center; padding: 4rem 2rem; color: #999;';
-    emptyDiv.innerHTML = `
-        <span class="material-symbols-outlined" style="font-size: 4rem; display: block; margin-bottom: 1rem;">
-            description
-        </span>
-        <h3 style="margin-bottom: 0.5rem;">더 이상 표시할 기사가 없습니다</h3>
-        <p>이전 페이지로 돌아가거나 다른 검색어를 시도해보세요.</p>
-    `;
-    container.appendChild(emptyDiv);
+    container.append(emptyDiv);
 }
+
 function showLoadingState() {
     $('.result-count').text('검색중..');
 }
-/**
- * 검색 완료 후 결과 개수 표시
- * @param {number} total - 검색된 기사 개수 - 이 함수가 받는 인자 설명한다는 것으로
- * JSDoc 주석으로 함수에 들어오는 값 설명서
- */
+
 function showResultCount(total) {
     $('.result-count').html(
         `<span class="count-number" id="countNumber">${total}</span>개의 검색 결과`
@@ -1566,6 +1546,10 @@ function showResultCount(total) {
 function displayCardArticles(articles) {
     const container = $('#cardGrid');
     const template = $('.news-card-template');
+
+    if (template.length === 0) {
+        return;
+    }
 
     container.find('.news-card:not(.news-card-template)').remove();
 
@@ -1595,7 +1579,12 @@ function displayListArticles(articles) {
     const container = $('#articleList');
     const template = $('.article-item-template');
 
+    if (template.length === 0) {
+        return;
+    }
+
     container.find('.article-item:not(.article-item-template)').remove();
+    container.find('.empty-message').remove();
 
     articles.forEach(function(article) {
         const item = template.clone();
@@ -1622,12 +1611,10 @@ function displayListArticles(articles) {
     });
 }
 
-// ========== 정렬 기능 ========== 완전 수정
+// ========== 정렬 기능 ==========
 function sortArticles(type) {
     currentSortType = type;
-
-    // 전체 기사를 정렬
-    let sortedArticles = [...allArticles];  // 복사본 생성
+    let sortedArticles = [...allArticles];
 
     sortedArticles.sort((a, b) => {
         const dateA = new Date(a.upload_date);
@@ -1641,101 +1628,68 @@ function sortArticles(type) {
         return 0;
     });
 
-    // 정렬된 결과로 전체 기사 업데이트
     allArticles = sortedArticles;
 
-    // 버튼 활성화 상태 변경
     document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
     const btnId = 'btn' + type.charAt(0).toUpperCase() + type.slice(1);
     document.getElementById(btnId).classList.add('active');
 
-    // 1페이지로 돌아가서 다시 표시
     currentPage = 1;
     displayPage(1);
 }
 
 // ========== 페이지네이션 ==========
-
-// 특정 페이지로 이동하는 함수
 function goToPage(pageNumber) {
-    currentPage = pageNumber;  // 현재 페이지 업데이트
-    displayPage(pageNumber);   // 해당 페이지의 게시글 표시
-    updatePaginationUI();      // 페이지네이션 버튼 다시 렌더링
-    window.scrollTo({ top: 0, behavior: 'smooth' });  // 페이지 상단으로 스크롤
+    currentPage = pageNumber;
+    displayPage(pageNumber);
+    updatePaginationUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * 이전 페이지로 이동하는 함수
- */
 function goToPrevPage() {
-    if (currentPage > 1) {  // 1페이지보다 클 때만 이동
+    if (currentPage > 1) {
         goToPage(currentPage - 1);
     }
 }
 
-/**
- * 다음 페이지로 이동하는 함수
- */
 function goToNextPage() {
-    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수 계산 (5개씩)
-    if (currentPage < maxPage) {  // 마지막 페이지가 아닐 때만 이동
+    const maxPage = Math.ceil(allArticles.length / 5);
+    if (currentPage < maxPage) {
         goToPage(currentPage + 1);
     }
 }
 
-/**
- * 페이지네이션 UI를 동적으로 업데이트하는 함수
- * 현재 페이지를 중심으로 최대 5개의 페이지 버튼을 표시
- */
 function updatePaginationUI() {
-    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수
-    // Math.ceil 올림함수 -> 4.1->5 // 5.0->5
-    const maxVisible = 5;  // 한 블록당 페이지 버튼 개수
-
-    // 현재 페이지가 속한 블록 계산
-    // 예: 1~5페이지 → 블록 0, 6~10페이지 → 블록 1
+    const maxPage = Math.ceil(allArticles.length / 5);
+    const maxVisible = 5;
     const currentBlock = Math.floor((currentPage - 1) / maxVisible);
-
-    // 시작 페이지와 끝 페이지 계산
     const startPage = currentBlock * maxVisible + 1;
     const endPage = Math.min(startPage + maxVisible - 1, maxPage);
 
-    // 페이지네이션 컨테이너 찾기
     const pagination = document.querySelector('.pagination');
-
-    // 기존 페이지 번호 버튼 모두 제거
     const oldButtons = pagination.querySelectorAll('.page-number');
     oldButtons.forEach(btn => btn.remove());
 
-    // next 버튼 참조 (새 버튼들을 이 앞에 삽입하기 위해)
     const nextButton = pagination.querySelector('button:last-child');
 
-    // 계산된 블록 범위만큼 페이지 버튼 동적 생성
     for (let i = startPage; i <= endPage; i++) {
         const button = document.createElement('button');
         button.className = 'page-number';
 
-        // 현재 페이지에 active 클래스 추가
         if (i === currentPage) {
             button.classList.add('active');
         }
 
-        button.innerText = i;  // 버튼 텍스트에 페이지 번호 표시
-        button.onclick = () => goToPage(i);  // 클릭 시 해당 페이지로 이동
-
-        // next 버튼 앞에 삽입
+        button.innerText = i;
+        button.onclick = () => goToPage(i);
         pagination.insertBefore(button, nextButton);
     }
 }
 
-/**
- * 페이지 로드 시 초기 페이지네이션 UI 생성
- */
 window.addEventListener('DOMContentLoaded', () => {
-    updatePaginationUI();  // 페이지 버튼 초기 렌더링
+    updatePaginationUI();
 });
 
-// =========  실제 카테고리 클래스명으로 기사 리스트에서 카테고리 표시  ========================
 function getCategoryClass(category) {
     const categoryMap = {
         '사회/경제': 'category-society',
@@ -1748,20 +1702,7 @@ function getCategoryClass(category) {
     return categoryMap[category] || 'category-society';
 }
 
-
 // ========== 로그인 UI ==========
-$(document).ready(function() {
-    // 초기 로드 시 드롭다운 렌더링
-    toggleLoginState();
-
-    // 바깥 클릭 시 드롭다운 닫기
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.user-menu').length) {
-            $('#userDropdown').removeClass('show');
-        }
-    });
-});
-
 function toggleLoginState() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const userName = localStorage.getItem('userName') || '회원';

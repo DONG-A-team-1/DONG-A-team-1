@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NewsPalette - Global Economic Shift</title>
+<title>NewsPalette - 개인기사</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
@@ -1343,18 +1343,18 @@ body.dark {
     <div class="nav-container">
         <div class="nav-content">
             <div class="nav-left">
-                <a class="logo" href="homepage.html">
+                <a class="logo" href="home.html">
                     <span class="material-symbols-outlined logo-icon">palette</span>
                     <span class="logo-text">NewsPalette</span>
                 </a>
             </div>
             <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="socialcategorypage.html">사회/경제</a>
-                <a class="nav-splash-item splash-politics" href="politiccategorypage.html">정치</a>
-                <a class="nav-splash-item splash-world" href="economycategory.html">국제</a>
-                <a class="nav-splash-item splash-international" href="international.html">지역</a>
-                <a class="nav-splash-item splash-universe" href="universe.html">문화</a>
-                <a class="nav-splash-item splash-sports" href="sports.html">스포츠</a>
+                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
             </div>
      <div class="header-actions">
     <button class="icon-button" onclick="toggleDarkMode()">
@@ -1397,7 +1397,7 @@ body.dark {
 <main>
     <div class="content-grid">
         <!-- Left Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar polar">
             <div class="sidebar-sticky">
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">
@@ -1405,8 +1405,8 @@ body.dark {
                         반대 성향 기사
                     </h3>
                     
-                    <a class="sidebar-article" href="article-detail.html">
-                        <span class="article-tag critical">비판적 시각</span>
+                    <a class="sidebar-article polar" href="article-detail.html">
+                        <span class="article-tag critical">다른 관점</span>
                         <div class="article-content">
                             <div class="article-text">
                                 <h4 class="article-title">AI 규제, 혁신의 걸림돌인가 필수 안전장치인가?</h4>
@@ -1418,7 +1418,7 @@ body.dark {
                         </div>
                     </a>
                     
-                    <a class="sidebar-article" href="article-detail.html">
+                    <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag alternative">다른 관점</span>
                         <div class="article-content">
                             <div class="article-text">
@@ -1431,7 +1431,7 @@ body.dark {
                         </div>
                     </a>
                     
-                    <a class="sidebar-article" href="article-detail.html">
+                    <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag analysis">분석</span>
                         <div class="article-content">
                             <div class="article-text">
@@ -1615,26 +1615,39 @@ body.dark {
     </div>
 </main>
 <script>
-window.LOGIN_USER_ID = "jimin"; // 임시 테스트용 나중에 지울 거임
- // 0. 서버에서 내려준 값들
 /*
-article_id : URL 쿼리스트링에서 가져온 기사 ID / user_id    : 로그인 세션에서 내려준 사용자 ID
-- 비로그인 허용의 경우 null 처리 가능
+@ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
+기사 페이지 1회 체류 = session 1개
+새로고침 / BFCache / JS 재실행해도 session 중복 생성 방지
+ping / 종료 신호를 안정적으로 서버에 전달
+
+@ 핵심
+- sessionStorage를 이용해 "현재 탭의 세션"을 단 하나만 유지 / ES에는 실시간 기록 / RDB 저장은 batch에서 단 1회만
 */
 
+
+
+//   0. 서버에서 내려준 값 (임시)
+// 추후 아래 코드 주석처리 필요
+// window.LOGIN_USER_ID = "jimin"; // 테스트용으로 jimin 넣어놨는데 본인 DB에 등록된 회원ID 넣으면 구동 될 거임
 const urlParams = new URLSearchParams(window.location.search);
 const articleId = urlParams.get("article_id");
-const userId = window.LOGIN_USER_ID;  // 없으면 null
+const userId = localStorage.getItem('userId')
 
-
+// 로그인 안 한 유저는 로그 수집X
+if (!userId || !articleId) {
+  console.warn("[SESSION] userId or articleId missing → tracking disabled");
+}
 //  1. 스크롤 깊이 계산 함수
 
+<!--1. 세션 저장 키 sessionStorage → 탭 단위 유지 (새로고침 유지, 탭 닫으면 삭제) -->
+const SESSION_KEY = "article_session_id";
+
+
+// <!--2. 스크롤 깊이 계산-->
 /*
-  scrollTop      : 현재 스크롤 위치
-  windowHeight   : 화면에 보이는 영역 높이
-  documentHeight : 전체 문서 높이
-  (scrollTop + windowHeight) / documentHeight
-  → 현재 문서를 얼마나 읽었는지 (0 ~ 1)
+(scrollTop + windowHeight) / documentHeight
+→ 0 ~ 1 사이 값
 */
 
 function getScrollDepth() {
@@ -1649,18 +1662,24 @@ function getScrollDepth() {
   return Math.min(1, Math.max(0, depth));
 }
 
-//   2. 세션 시작 (/session/start)
 
-let sessionId = null;
+// <!--   3. 세션 시작 (중복 방지)-->
+/*
+- 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
+- "기사 페이지 진입 1회 = 세션 1개"
+*/
 
-// 기사 페이지 진입 즉시 세션 생성
-async function startSession() {
-if (!userId) return;   // 비로그인 유저면 세션 생성 안 함
+let sessionId = sessionStorage.getItem(SESSION_KEY);
+
+async function startSessionOnce() {
+  // 비로그인 or 이미 세션 존재 → 종료
+  if (!userId || sessionId) return;
+
+  console.log("[SESSION] start");
+
   const res = await fetch("/session/start", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       user_id: userId,
       article_id: articleId
@@ -1668,13 +1687,23 @@ if (!userId) return;   // 비로그인 유저면 세션 생성 안 함
   });
 
   const data = await res.json();
+
   sessionId = data.session_id;
+
+  // 탭 단위로 세션 고정
+  sessionStorage.setItem(SESSION_KEY, sessionId);
 }
 
-// 페이지 로드 시 바로 실행
-startSession();
+// 최초 로드 시 1회만 실행
+startSessionOnce();
 
-// 3. Ping 전송 (30초마다)
+// <!-- 4. Ping 전송 (체류 중)-->
+/*
+@ 역할
+- 사용자가 "아직 읽고 있다"는 신호
+- batch가 종료 여부 판단하는 기준 데이터
+@ 주기 10초
+*/
 
 let pingTimer = null;
 
@@ -1684,46 +1713,55 @@ function startPing() {
 
     fetch("/session/ping", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         session_id: sessionId,
         scroll_depth: getScrollDepth()
       })
     });
-  }, 10_000); // 10초
+  }, 10_000);
 }
 
 // 세션 생성 후 ping 시작
 setTimeout(startPing, 1000);
 
-// 4. 세션 종료 (/session/end)
 /*
-페이지 이동
-탭 닫기
-뒤로가기
+@ 종료 조건
+- 탭 닫기
+- 페이지 이동
+- 백그라운드 전환
+
+- sendBeacon 사용 → 페이지 종료 중에도 안정적으로 전송
+- sessionStorage 정리 → 다음 진입 시 새 세션 생성 가능
 */
-let sessionEnded = false;
-function endSession() {
-  if (!sessionId || sessionEnded) return;
-  sessionEnded = true;
+
+let ended = false;
+
+function endSessionOnce() {
+  if (!sessionId || ended) return;
+  ended = true;
+
+  console.log("[SESSION] end");
+
   navigator.sendBeacon(
     `/session/end?session_id=${sessionId}`
   );
+
+  // 세션 정리
+  sessionStorage.removeItem(SESSION_KEY);
+
   if (pingTimer) clearInterval(pingTimer);
 }
 
-
-// 탭 전환 / 백그라운드
+// 탭이 백그라운드로 갈 때
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
-    endSession();
+    endSessionOnce();
   }
 });
 
-// 페이지 종료 / 이동
-window.addEventListener("pagehide", endSession);
+// 페이지 이동 / 닫기
+window.addEventListener("pagehide", endSessionOnce);
 
 
 /* ===============================
@@ -1767,31 +1805,78 @@ document.addEventListener('click', (e) => {
 /* ===============================
    🔥 로그인 상태 처리
 ================================ */
-function toggleLoginState() {
+$(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+    initApp();
+});
+
+function initApp() {
+    // 로그인 여부 확인
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userName = localStorage.getItem('userName') || '회원';
-    const dropdownContent = document.getElementById('dropdownContent');
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
 
     if (isLoggedIn) {
-        dropdownContent.innerHTML = `
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
+                
+                // 브라우저 저장소 갱신
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userId', user.user_id);
+                console.log(userId)
+                // UI 업데이트 (드롭다운 & 사이드바)
+                renderUserMenu(true, user.name);
+            }
+        },
+        error: function(xhr) {
+            console.error("인증 로드 실패:", xhr.status);
+            if(xhr.status === 401) {
+                localStorage.setItem('isLoggedIn', 'false');
+                renderUserMenu(false);
+            }
+        }
+    });
+}
+
+// 드롭다운 부분
+function renderUserMenu(isLoggedIn, userName = "회원") {
+
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title">${userName}님</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
             </div>
             <a href="mypage.html" class="dropdown-item">
                 <span class="material-symbols-outlined">account_circle</span>
                 <span>마이페이지</span>
             </a>
-            <button onclick="logout()" class="dropdown-item logout">
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
                 <span class="material-symbols-outlined">logout</span>
                 <span>로그아웃</span>
             </button>
         `;
     } else {
-        dropdownContent.innerHTML = `
+        content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title">로그인이 필요합니다</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
             </div>
             <a href="login.html" class="dropdown-item">
                 <span class="material-symbols-outlined">login</span>
@@ -1803,11 +1888,6 @@ function toggleLoginState() {
             </a>
         `;
     }
-}
-
-function logout() {
-    localStorage.setItem('isLoggedIn', 'false');
-    toggleLoginState();
 }
 
 /* ===============================
@@ -1849,7 +1929,7 @@ function setActiveCategoryByURL() {
    🔥 초기 실행
 ================================ */
 document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
+    // toggleLoginState();
     setActiveCategoryByURL();
 
     const searchInput = document.getElementById('search-input-field');
@@ -1861,54 +1941,88 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 $(function () {
-    // 1️⃣ URL에서 article_id 추출
-    const params = new URLSearchParams(window.location.search);
-    const articleId = params.get("article_id");
+  // 1️⃣ URL에서 article_id 추출
+  const params = new URLSearchParams(window.location.search);
+  const articleId = params.get("article_id");
 
-    // 2️⃣ AJAX 요청 (GET)
-    $.ajax({
-        url: `/api/article/${articleId}`,
-        method: "GET",
-        dataType: "json",
-        success: function (data) {
+  // 2️⃣ AJAX 요청 (GET)
+  $.ajax({
+    url: `/api/article/${articleId}`,
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+    //   console.log("✅ success");
+    //   console.log("data keys:", Object.keys(data));
+    //   console.log("related len:", (data.related || []).length);
+    //   console.log("DOM related cards:", $(".related-card").length);
+    //   console.log("DOM polar cards:", $(".sidebar-article.polar").length);
 
-            // console.log(data);
-            main_article = data.article
-            $(".article-headline").text(main_article.article_title);
-            $(".author-name").text(main_article.reporter);
-            $(".press").text(main_article.press);
-            data.upload_date
-            $(".upload_date").text(main_article.upload_date);
-            $(".main_img").attr("src", main_article.article_img);
-            $(".article_content").html(renderParagraphs(main_article.article_content, 2));
+      // --- 메인 기사 렌더링 ---
+      const main_article = data.article || {};
+      $(".article-headline").text(main_article.article_title || "");
+      $(".author-name").text(main_article.reporter || "");
+      $(".press").text(main_article.press || "");
+      $(".upload_date").text(main_article.upload_date || "");
+      $(".main_img").attr("src", main_article.article_img || "");
+      $(".article_content").html(renderParagraphs(main_article.article_content, 2));
 
-            const related = data.related || [];
-            const $cards = $(".related-card");
+      // --- related 렌더링 (기존 방식 유지) ---
+      const related = data.related || [];
+      const $cards = $(".related-card");
 
-            related.forEach((item, idx) => {
-                const $card = $cards.eq(idx);
-                if ($card.length === 0) return;
+      related.forEach((item, idx) => {
+        const $card = $cards.eq(idx);
+        if ($card.length === 0) return;
+        // querystring 방식으로 통일 (너 페이지 구조 기준)
+        $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".related-title").text(item.article_title || "");
+        $card.find(".related-date").text(item.upload_date || "");
+        $card.find(".related-badge").text(item.category || "");
 
-                $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".related-image img").attr("src", item.article_img || "");
+      });
 
-                $card.find(".related-title").text(item.article_title || "");
-                $card.find(".related-date").text(item.upload_date || "");
-                $card.find(".related-badge").text(item.category || "");
+      // --- polar 파싱 (⭐ 핵심: 구조 달라도 잡히게) ---
+      console.log("data.polar raw =", data.polar);
 
-                $card.find("img")
-                    .attr("src", item.article_img || "")
-                    // .on("error", function () {
-                    //     $(this).attr("src", "/static/img/no-image.png");
-                    // });
-            });
+      // 케이스1) data.polar = { topic_name, articles: [...] }
+      // 케이스2) data.polar = { polar: { topic_name, articles: [...] } }  (이중 래핑)
+      const polarObj =
+        (data.polar && Array.isArray(data.polar.articles)) ? data.polar :
+        (data.polar && data.polar.polar && Array.isArray(data.polar.polar.articles)) ? data.polar.polar :
+        {};
+      console.log(polarObj);
+      const polarArticles = Array.isArray(polarObj.articles) ? polarObj.articles : [];
+      console.log("polar articles len:", polarArticles.length);
 
+      const $polarzone = $(".sidebar.polar")
+      const $polarCards = $(".sidebar-article.polar");
+      $polarzone.find(".sidebar-title").text(polarObj.topic_name)
+      polarArticles.forEach((item, idx) => {
+        const $card = $polarCards.eq(idx);
+        if ($card.length === 0) return;
+        $
+        $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".article-title").text(item.article_title || "");
+        $card.find(".article-source").text(item.press || "");
+        $card.find(".article-thumb img").attr("src", item.article_img || "");
 
-        },
-        error: function (xhr) {
-            console.error("기사 로드 실패", xhr.status);
-        }
-    });
+      });
+
+      // 남는 polar 카드 숨김
+      $polarCards.each(function (i) {
+        if (i >= polarArticles.length) $(this).hide();
+        else $(this).show();
+      });
+    if (polarArticles.length == 0) $($polarzone).hide();
+    },
+    error: function (xhr) {
+      console.error("기사 로드 실패", xhr.status, xhr.responseText);
+    }
+  });
 });
+
+
 
 function renderParagraphs(text, sentencePerPara = 2) {
     if (!text) return "";
