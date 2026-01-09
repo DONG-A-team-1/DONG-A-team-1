@@ -1835,7 +1835,8 @@ function fetchUserInfo() {
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
-
+                localStorage.setItem('userId', user.user_id);
+                console.log(userId)
                 // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
             }
