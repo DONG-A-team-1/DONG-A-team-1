@@ -163,12 +163,18 @@ def get_article(article_id: str):
     # ES/DB에서 조회
     main = article.get_article(article_id)
     related = article.get_related(article_id)
-    polar_topic = topic.get_opposite_topic(article_id)
-    return {
-        "article": main,
-        "related": related,
-        "polar": polar_topic
-    }
+    try:
+        polar_topic = topic.get_opposite_topic(article_id)
+        return {
+            "article": main,
+            "related": related,
+            "polar": polar_topic
+        }
+    except Exception:
+        return {
+            "article": main,
+            "related": related
+        }
 
 
 @app.post("/update-info")

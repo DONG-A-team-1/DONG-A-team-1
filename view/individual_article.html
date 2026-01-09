@@ -1397,7 +1397,7 @@ body.dark {
 <main>
     <div class="content-grid">
         <!-- Left Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar polar">
             <div class="sidebar-sticky">
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">
@@ -1406,7 +1406,7 @@ body.dark {
                     </h3>
                     
                     <a class="sidebar-article polar" href="article-detail.html">
-                        <span class="article-tag critical">비판적 시각</span>
+                        <span class="article-tag critical">다른 관점</span>
                         <div class="article-content">
                             <div class="article-text">
                                 <h4 class="article-title">AI 규제, 혁신의 걸림돌인가 필수 안전장치인가?</h4>
@@ -1950,11 +1950,11 @@ $(function () {
     method: "GET",
     dataType: "json",
     success: function (data) {
-      console.log("✅ success");
-      console.log("data keys:", Object.keys(data));
-      console.log("related len:", (data.related || []).length);
-      console.log("DOM related cards:", $(".related-card").length);
-      console.log("DOM polar cards:", $(".sidebar-article.polar").length);
+    //   console.log("✅ success");
+    //   console.log("data keys:", Object.keys(data));
+    //   console.log("related len:", (data.related || []).length);
+    //   console.log("DOM related cards:", $(".related-card").length);
+    //   console.log("DOM polar cards:", $(".sidebar-article.polar").length);
 
       // --- 메인 기사 렌더링 ---
       const main_article = data.article || {};
@@ -1972,10 +1972,8 @@ $(function () {
       related.forEach((item, idx) => {
         const $card = $cards.eq(idx);
         if ($card.length === 0) return;
-
         // querystring 방식으로 통일 (너 페이지 구조 기준)
-        $card.attr("href", `article-detail.html?article_id=${item.article_id}`);
-
+        $card.attr("href", `/article/${item.article_id}`);
         $card.find(".related-title").text(item.article_title || "");
         $card.find(".related-date").text(item.upload_date || "");
         $card.find(".related-badge").text(item.category || "");
@@ -1992,23 +1990,22 @@ $(function () {
         (data.polar && Array.isArray(data.polar.articles)) ? data.polar :
         (data.polar && data.polar.polar && Array.isArray(data.polar.polar.articles)) ? data.polar.polar :
         {};
-
+      console.log(polarObj);
       const polarArticles = Array.isArray(polarObj.articles) ? polarObj.articles : [];
       console.log("polar articles len:", polarArticles.length);
 
-      // --- polar 렌더링 (기존 방식 유지) ---
+      const $polarzone = $(".sidebar.polar")
       const $polarCards = $(".sidebar-article.polar");
-
+      $polarzone.find(".sidebar-title").text(polarObj.topic_name)
       polarArticles.forEach((item, idx) => {
         const $card = $polarCards.eq(idx);
         if ($card.length === 0) return;
-
-        $card.attr("href", `article-detail.html?article_id=${item.article_id}`);
-
+        $
+        $card.attr("href", `/article/${item.article_id}`);
         $card.find(".article-title").text(item.article_title || "");
         $card.find(".article-source").text(item.press || "");
-
         $card.find(".article-thumb img").attr("src", item.article_img || "");
+
       });
 
       // 남는 polar 카드 숨김
@@ -2016,6 +2013,7 @@ $(function () {
         if (i >= polarArticles.length) $(this).hide();
         else $(this).show();
       });
+    if (polarArticles.length == 0) $($polarzone).hide();
     },
     error: function (xhr) {
       console.error("기사 로드 실패", xhr.status, xhr.responseText);
