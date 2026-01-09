@@ -1506,12 +1506,12 @@ body:not(.dark) .today-topics .topic-rank{
                 </a>
             </div>
             <div class="nav-center">
-              <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
-              <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
-              <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
-              <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
-              <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
-              <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
+                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
             </div>
             <div class="header-actions">
                 <button class="icon-button" onclick="toggleDarkMode()">
@@ -1928,7 +1928,7 @@ function updatePaginationUI(activePage) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // toggleLoginState();
+    toggleLoginState();
     setActiveCategoryByURL();
 
     const scopeSelect = document.getElementById('searchScope');
@@ -1997,6 +1997,8 @@ $(document).on("click", ".topic-item", function () {
     .slice(0, 3);
 
   const topic = window.TOPICS[Number(idx)];
+
+  console.log(keywords)
   if (!topic) return;
   const raw = $(this).attr("data-article-groups"); // string
   if (!raw) return;
@@ -2008,7 +2010,7 @@ $(document).on("click", ".topic-item", function () {
     console.error("data-article-groups JSON parse failed:", raw, e);
     return;
   }
-  console.log(groups)
+
   $.ajax({
     url: `/api/topic_article`,
     method: "post",
@@ -2021,7 +2023,6 @@ $(document).on("click", ".topic-item", function () {
     }), 
     traditional: true,
     success: function (data) {
-      console.log(data)
       renderMiniArticles($("#posList"), data[0] || data.positive_articles);
       renderMiniArticles($("#negList"), data[1] || data.negative_articles);
       renderNeutralList($("#neuList"), data[2] || data.neutral_articles);

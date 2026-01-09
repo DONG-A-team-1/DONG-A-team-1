@@ -16,8 +16,8 @@ from . import member
 from . import article
 from . import topic
 from . import search
-
 from . import category
+
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
@@ -32,6 +32,7 @@ app.include_router(session_end_router)
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
@@ -294,10 +295,10 @@ async def api_search(request: Request):
 # 카테고리별로 불러오기------해정,하영님 합작
 
 @app.get("/api/category/{category_name}")
-async def get_category_articles(category_name: str, size: int = 20, page: int = 1):
-    """카테고리별 기사 조회 API"""
+async def get_category_articles(category_name: str, size: int = 20, page: int = 1, sort_type: str = "latest"):
     try:
-        results = category.get_articles_by_category(category_name, size, page)
+        # sort_type을 넘겨줍니다.
+        results = category.get_articles_by_category(category_name, size, page, sort_type)
         return results
     except Exception as e:
         print(f"Category error: {e}")

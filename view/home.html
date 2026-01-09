@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -239,11 +240,18 @@
           transform: translate(-50%, -50%) scale(1.15);
       }
 
-      .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+      /* .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
       .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
       .splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
       .splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
-      .splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+      .splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; } */
+
+      .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+      .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+      .splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+      .splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+      .splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+      .splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
 
       .nav-right {
           display: flex;
@@ -555,80 +563,167 @@
 
       .search-section { margin-bottom: 30px; }
 
-      .search-bar {
-        max-width: 896px;
-        margin: 0 auto;
-        padding: 8px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        box-shadow: var(--shadow-sm);
+        .search-bar {
+            max-width: 896px;
+            margin: 0 auto;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
 
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
+        /* ✅ 다크모드 search-bar */
+        body.dark .search-bar {
+            background: var(--surface);
+            border-color: var(--border);
+        }
 
-      @media (min-width: 640px) {
-        .search-bar { flex-direction: row; align-items: center; }
-      }
+        @media (min-width: 640px) {
+            .search-bar { flex-direction: row; align-items: center; }
+        }
 
-      .select-wrap { position: relative; width: 100%; }
-      @media (min-width: 640px) { .select-wrap { width: auto; } }
+        .select-wrap {
+            position: relative;
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .select-wrap { width: auto; }
+        }
 
-      .select {
-        appearance: none;
-        width: 100%;
-        padding: 12px 36px 12px 16px;
-        border: 0;
-        border-radius: 10px;
-        background: color-mix(in oklab, var(--text) 6%, transparent);
-        color: color-mix(in oklab, var(--text) 88%, transparent);
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-      }
-      @media (min-width: 640px) { .select { width: 128px; } }
+        .select {
+            appearance: none;
+            width: 100%;
+            padding: 12px 36px 12px 16px;
+            border: 0;
+            border-radius: 10px;
+            background: color-mix(in oklab, var(--text) 6%, transparent);
+            color: color-mix(in oklab, var(--text) 88%, transparent);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+        @media (min-width: 640px) {
+            .select { width: 128px; }
+        }
 
-      .select-caret {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: var(--muted);
-        pointer-events: none;
-      }
+        .select-caret {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--muted);
+            pointer-events: none;
+        }
 
-      .search-input-wrap { position: relative; width: 100%; flex: 1; }
-      .search-input {
-        width: 100%;
-        padding: 12px 44px 12px 16px;
-        border-radius: 10px;
-        border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-        background: var(--surface);
-        color: var(--text);
-        outline: none;
-        transition: box-shadow .15s, border-color .15s;
-      }
-      .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
-      .search-input:focus {
-        border-color: transparent;
-        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-      }
+        .search-input-wrap {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            background: transparent;  /* ✅ 추가 */
+            overflow: hidden;  /* ✅ 노이즈 방지 */
+            border-radius: 10px;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
 
-      .search-btn {
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        border: 0;
-        background: transparent;
-        color: var(--primary);
-        cursor: pointer;
-      }
-      .search-btn .material-icons-round { font-size: 26px; }
+        .search-input {
+            caret-color:#ffffff;
+            width: 100%;
+            padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
+            border-radius: 10px;
+            border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            color: var(--text);
+            outline: none !important;  /* ✅ !important 추가 */
+            transition: box-shadow .15s, border-color .15s;
+            box-sizing: border-box;  /* ✅ 추가 */
+            -webkit-appearance: none;  /* ✅ 추가 */
+            appearance: none;  /* ✅ 추가 */
+            backface-visibility: hidden;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+
+        .search-input::placeholder {
+            color: color-mix(in oklab, var(--text) 35%, transparent);
+        }
+
+        .search-input:focus {
+            border-color: transparent;
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        .search-input:focus-visible,
+        .search-input:active {
+            background: var(--surface) !important;
+            border-color: transparent;
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        /* ✅ select 열릴 때도 input 배경 유지 */
+        .select-wrap:focus-within ~ .search-input-wrap .search-input {
+            background: var(--surface) !important;
+        }
+
+        /* ✅ 다크모드 명시 */
+        body.dark .search-input,
+        body.dark .search-input:focus,
+        body.dark .search-input:active,
+        body.dark .search-input:focus-visible {
+            background: var(--surface) !important;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        body.dark .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        /* ✅ 브라우저 자동완성 배경 제거 */
+        .search-input:-webkit-autofill,
+        .search-input:-webkit-autofill:hover,
+        .search-input:-webkit-autofill:focus,
+        .search-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        /*webkit-autofill : 브라우저 자동완성 스타일 제어하는 css 선택자 */
+        body.dark .search-input:-webkit-autofill,
+        body.dark .search-input:-webkit-autofill:hover,
+        body.dark .search-input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        .search-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%) translateZ(0);  /* ✅ GPU 가속 추가 */
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;  /* ✅ 클릭 영역 */
+            display: flex;  /* ✅ 추가 */
+            align-items: center;  /* ✅ 추가 */
+            justify-content: center;  /* ✅ 추가 */
+            z-index: 2;  /* ✅ 추가 */
+            border-radius: 4px;  /* ✅ 추가 */
+        }
+
+        .search-btn .material-symbols-outlined {
+            font-size: 26px;
+            display: block;  /* ✅ 추가 */
+            line-height: 1;  /* ✅ 추가 */
+        }
 
 
       /* Top grid */
@@ -795,6 +890,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        word-break:keep-all;
       }
 
       html.dark .main-title {
@@ -838,7 +934,11 @@
       }
 
       .author-name {
-        font-weight: 600;
+        max-width: 5em;        /* 핵심: 여기서 자름 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 1;
       }
 
       .author-dot::before {
@@ -924,6 +1024,10 @@
       }
 
       /* ========== 연관 기사 & 개인화 기사 신뢰도 점수 (우측 하단) ========== */
+      .trust-score {
+            flex-shrink: 0;        /* 절대 줄어들지 않음 */
+            margin-left: auto;    /*오른쪽 끝으로 밀기 */
+        }
       .related-item .trust-score,
       .personal-card .trust-score {
         position: absolute;
@@ -981,11 +1085,14 @@
       .more-link:hover { color: var(--primary); }
 
       .related-item {
+        width: 100%;
+        max-width: none;
         margin: 10px;
         position: relative;
         display: flex;
         cursor: pointer;
-        gap: 14px;
+        align-items: center;
+        gap: 12px;
         height: 106px;
         padding: 12px;
         border-radius: 14px;
@@ -995,6 +1102,7 @@
         transition: box-shadow .15s, transform .15s;
         min-height: 96px;
       }
+
       .related-item + .related-item { margin-top: 12px; }
       .related-item:hover {
         box-shadow: var(--shadow-md);
@@ -1002,22 +1110,24 @@
       }
 
       .thumb {
-        width: 96px;
-        border-radius: 12px;
-        overflow: hidden;
-        flex: 0 0 auto;
-        background: color-mix(in oklab, var(--text) 12%, transparent);
-      }
+            width: 72px;          /* ⭐ 고정 */
+            height: 72px;         /* ⭐ 고정 */
+            flex-shrink: 0;       /* ⭐ 핵심 */
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
       .thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transform: scale(1);
-        transition: transform .5s;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;   /* ⭐ 비율 통일 */
+            display: block;
       }
+
       .related-item:hover .thumb img { transform: scale(1.1); }
 
       .related-text {
+        flex:1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -1027,6 +1137,7 @@
       }
       .related-title {
         margin: 0;
+        -webkit-line-clamp: 2;
         font-size: 13px;
         font-weight: 700;
         color: color-mix(in oklab, var(--text) 92%, transparent);
@@ -1338,12 +1449,12 @@
 
       /* #wordCloudChart {
           width: 100%;
-          height: 100%; /* 부모 div를 꽉 채우도록 
+          height: 100%; /* 부모 div를 꽉 채우도록
           background-color: #ffffff;
           flex-grow: 1;
           margin: 0 auto;
       } */
-      
+
       #wordCloudChart {
         width: 100%;
         height: 100%; /* 350px~450px 정도는 되어야 풍성해 보입니다 */
@@ -1435,13 +1546,13 @@
           </div>
 
           <!-- Category -->
-          <div class="category">
-            <a class="nav-splash-item splash-society" href="socialcategory.html">사회/경제</a>
-            <a class="nav-splash-item splash-politics" href="politicscategory.html">정치</a>
-            <a class="nav-splash-item splash-world" href="internationalcategory.html">국제</a>
-            <a class="nav-splash-item splash-international" href="localcategory.html">지역</a>
-            <a class="nav-splash-item splash-universe" href="culturecategory.html">문화</a>
-            <a class="nav-splash-item splash-sports" href="sportscategory.html">스포츠</a>
+          <div class="nav-center">
+              <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+              <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+              <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+              <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+              <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+              <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
           </div>
 
           <!-- Actions -->
@@ -1481,7 +1592,7 @@
             <span class="material-symbols-outlined select-caret">expand_more</span>
           </div>
           <div class="search-input-wrap">
-              <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+              <input id="searchInput" class="search-input" type="text" spellcheck="false" placeholder="관심있는 뉴스 기사를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
               <button class="search-btn" onclick="performSearch()" aria-label="검색">
                   <span class="material-symbols-outlined">search</span>
               </button>
@@ -1506,7 +1617,7 @@
               <a href="#" class="news-link" id="main-news-template" style="display:none;">
                 <div class="main-news-card">
                   <div class="main-news-media">
-                    <img class="article-img" src="" alt="news" />
+                    <img class="article-img" src="" alt="news" onerror="this.src='/static/newspalette.png'" />
                     <div class="media-gradient"></div>
                     <div class="trend-chip">
                       <span class="material-symbols-outlined">trending_up</span>
@@ -1764,19 +1875,19 @@ function performSearch() {
     }
 }
 
-function updateSearchPlaceholder(select) {
-    const searchInput = document.getElementById('searchInput');
-    const placeholders = {
-        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
-        title: '제목에서 관심있는 뉴스를 검색해보세요',
-        body: '본문에서 관심있는 뉴스를 검색해보세요',
-        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
-    };
-    searchInput.placeholder = placeholders[select.value];
-}
+// function updateSearchPlaceholder(select) {
+//     const searchInput = document.getElementById('searchInput');
+//     const placeholders = {
+//         title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+//         title: '제목에서 관심있는 뉴스를 검색해보세요',
+//         body: '본문에서 관심있는 뉴스를 검색해보세요',
+//         keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+//     };
+//     searchInput.placeholder = placeholders[select.value];
+// }
 
 $(document).ready(function () {
-    let globalArticles = []; 
+    let globalArticles = [];
 
     function loadNews() {
         $.ajax({
@@ -1793,7 +1904,7 @@ $(document).ready(function () {
                     globalArticles.forEach((data, index) => {
                         const $clone = $template.clone();
                         $clone.removeAttr('id').css('display', 'block');
-                        
+
                         $clone.attr('href', `/article/${data.article_id}`);
                         $clone.find('.pill').text(data.category);
                         $clone.find('.article-img').attr('src', data.image);
@@ -1807,7 +1918,7 @@ $(document).ready(function () {
                     });
 
                     initCustomCarousel();
-                    
+
                     // 첫 로드 시 연관기사 로드
                     if (globalArticles.length > 0) {
                         loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
@@ -1857,7 +1968,7 @@ $(document).ready(function () {
 
             // 현재 슬라이드 데이터로 연관기사 업데이트
             if (globalArticles[currentIndex]) {
-                const currentId = globalArticles[currentIndex].article_id; 
+                const currentId = globalArticles[currentIndex].article_id;
                 const currentTitle = globalArticles[currentIndex].title;
                 loadRelatedArticles(currentId, currentTitle);
             }
@@ -1872,9 +1983,9 @@ function loadRelatedArticles(mainArticleId, mainArticleTitle) {
     $.ajax({
         url: "/api/related-articles",
         type: "GET",
-        data: { 
+        data: {
             id: mainArticleId,
-            title: mainArticleTitle 
+            title: mainArticleTitle
         },
         success: function(response) {
             if (response.success && response.articles) {
@@ -1929,7 +2040,7 @@ function loadWordCloud() {
             // 1. div 요소 찾기
             const chartDom = document.getElementById('wordCloudChart');
             const myChart = echarts.init(chartDom);
-            
+
             // 2. 백엔드에서 받은 옵션 적용
             myChart.setOption(options);
 
@@ -1952,7 +2063,7 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
+
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
@@ -2047,44 +2158,6 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         $('#userDropdown').removeClass('show');
       });
     });
-
-    // 로그인 상태에 따른 메뉴 렌더링
-    function renderUserDropdown() {
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
-      if (isLoggedIn) {
-        $('#dropdownContent').html(`
-          <div class="dropdown-header">
-            <p class="dropdown-subtitle">환영합니다</p>
-            <p class="dropdown-title">홍길동님</p>
-          </div>
-          <a href="mypage.html" class="dropdown-item">
-            <span class="material-symbols-outlined">account_circle</span>
-            마이페이지
-          </a>
-          <button class="dropdown-item logout-btn">
-            <span class="material-symbols-outlined">logout</span>
-            로그아웃
-          </button>
-        `);
-      } else {
-        $('#dropdownContent').html(`
-          <div class="dropdown-header">
-            <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-            <p class="dropdown-title">로그인이 필요합니다</p>
-          </div>
-          <a href="login.html" class="dropdown-item">
-            <span class="material-symbols-outlined">login</span>
-            로그인
-          </a>
-          <a href="logregist.html" class="dropdown-item">
-            <span class="material-symbols-outlined">person_add</span>
-            회원가입
-          </a>
-        `);
-      }
-    }
-    localStorage.setItem('isLoggedIn', 'true');
 
     // 메인기사 캐러셀
     const track = document.getElementById("track");
