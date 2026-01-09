@@ -266,6 +266,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
     hits = resp.get("hits", {}).get("hits", [])
 
     # 결과 포맷팅
+    no_img = "/static/newspalette.png"
     articles = []
     for hit in hits:
         src = hit.get("_source", {})
@@ -290,7 +291,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "article_id": src.get("article_id"),
             "title": src.get("article_title", ""),
             "content": src.get("article_content", ""),
-            "image": src.get("article_img"),
+            "image": src.get("article_img") or no_img,
             "category": label.get("category"),
             "source": src.get("press"),
             "upload_date": yyyymmdd_to_iso(src.get("upload_date")),
