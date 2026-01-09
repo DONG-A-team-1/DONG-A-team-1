@@ -866,6 +866,11 @@ main {
     background-color: #374151;
     border-color: #4b5563;
 }
+/* 다크모드 - 최근 활동 분석 '4건' */
+body.dark .activity-list-count {
+    color: #ffffff;
+    font-weight: 500;
+}
 
 .activity-list-items {
     overflow-y: auto;
@@ -1745,7 +1750,10 @@ body.dark .user-dropdown {
 .user-dropdown.show {
     display: block;
 }
-
+/* 다크모드에서 date input 달력 아이콘 흰색 유지 */
+body.dark input[type="date"] {
+    color-scheme: dark;
+}
 </style>
 </head>
 <body>
@@ -2681,27 +2689,6 @@ function setActiveCategoryByURL() {
 
 
 
-/* ===============================
-   초기 실행
-================================ */
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
-
-    document.addEventListener('click', e => {
-        const dropdown = document.getElementById('userDropdown');
-        const btn = document.getElementById('mypageBtn');
-        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
-
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-});
 
 </script>
 </body>
