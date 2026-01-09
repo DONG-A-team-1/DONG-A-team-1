@@ -131,6 +131,11 @@
           margin: 0 auto;
           padding: 0 1rem;
       }
+      /* 가운데 카테고리 */
+        .nav-center {
+            flex: 1;
+            justify-content: center;
+        }
 
       .nav-content {
           display: flex;
@@ -165,7 +170,7 @@
           letter-spacing: -0.025em;
       }
 
-      .category {
+      .nav-center {
         position: static;        /* absolute 제거 */
         display: flex;
         align-items: center;
@@ -173,7 +178,7 @@
       }
 
       @media (min-width: 768px) {
-          .category {
+          .nav-center {
               display: flex;
               align-items: center;
               gap: 0.25rem;
@@ -633,7 +638,7 @@
         }
 
         .search-input {
-            caret-color:#ffffff;
+            caret-color:#000000;
             width: 100%;
             padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
             border-radius: 10px;
@@ -647,6 +652,9 @@
             appearance: none;  /* ✅ 추가 */
             backface-visibility: hidden;  /* ✅ 추가 */
             transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+        body.dark .search-input{
+           caret-color: #ffffff;
         }
 
         .search-input::placeholder {
@@ -662,7 +670,7 @@
         .search-input:focus-visible,
         .search-input:active {
             background: var(--surface) !important;
-            border-color: transparent;
+            border-color: rgb(158, 158, 158);
             box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
         }
 
@@ -844,6 +852,7 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 24px;
+        padding-bottom: 23px; /* 기자,언론사 밑으로 내리기 */
         height: 100%;
         background: var(--surface);
         overflow: hidden;
@@ -921,6 +930,7 @@
 
       /* 푸터 - 하단 고정 */
       .article-footer {
+        padding-right:100px;
         margin-top: auto;
         margin-bottom: 8px;
       }
@@ -939,6 +949,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
         flex-shrink: 1;
+      }
+      .author-dot{
+        max-width: 6em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .author-dot::before {
@@ -979,11 +995,17 @@
       .arrow.right { right: 12px; }
 
       /* ========== 메인 기사 캐러셀 점수 ========== */
+      .main-news-body .article-footer {
+            margin-top: auto;
+            margin-bottom: 0;
+            padding-right: 100px; /* 👈 신뢰도 점수 공간 확보 */
+        }
       .main-news-body .score-container {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        margin-top: 12px;
+        position: absolute;
+        right: 24px;
+        bottom: 20px;
+        margin: 0;
+        z-index: 10;
       }
 
       .main-news-body .trend-score,
@@ -1547,13 +1569,13 @@
 
           <!-- Category -->
           <div class="nav-center">
-              <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
-              <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
-              <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
-              <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
-              <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
-              <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
-          </div>
+                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
+            </div>
 
           <!-- Actions -->
           <div class="header-actions">
