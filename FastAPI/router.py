@@ -29,6 +29,7 @@ app = FastAPI()
 app.include_router(session_router)
 app.include_router(session_ping_router)
 app.include_router(session_end_router)
+app.include_router(recommend_router)
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
@@ -40,7 +41,7 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 @app.get("/")
 async def read_root():
-    return RedirectResponse(url="/view/home.html") # 기본 메인페이지로 지정해야됨
+    return RedirectResponse(url="/view/home.html")  # 기본 메인페이지로 지정해야됨
 
 
 @app.get("/check-id")
@@ -77,7 +78,7 @@ async def login(
     result, user_name = member.login(user_id, password, req.session)
 
     if result == "SUCCESS":
-        return {"status": "success", "message": "로그인 성공","user_name": user_name}
+        return {"status": "success", "message": "로그인 성공", "user_name": user_name}
     elif result == "INACTIVE":
         return JSONResponse(status_code=403, content={"message": "비활성화된 계정"})
     else:
@@ -89,7 +90,7 @@ async def logout(req: Request):
     # 1. 세션 데이터 완전히 삭제
     req.session.clear()
     # 2. 삭제 후 메인페이지로 이동
-    return RedirectResponse(url="/view/home.html") # 메인페이지에 맞게 형식 조정 필요
+    return RedirectResponse(url="/view/home.html")  # 메인페이지에 맞게 형식 조정 필요
 
 
 @app.post("/change-password")
@@ -117,8 +118,8 @@ async def withdraw(req: Request):
 
 @app.post("/find-id")
 async def find_user_id(
-    user_email: str = Form(...),
-    security_answer: str = Form(...)
+        user_email: str = Form(...),
+        security_answer: str = Form(...)
 ):
     user_id = member.find_id(user_email, security_answer)
     if user_id:
@@ -126,7 +127,7 @@ async def find_user_id(
     return JSONResponse(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
-)
+    )
 
 
 @app.post("/find-pw")
@@ -151,7 +152,9 @@ async def find_user_pw(
 # ):
 #     pass
 
- 
+
+
+
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
