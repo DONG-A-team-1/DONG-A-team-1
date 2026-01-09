@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
+from api.recommend import router as recommend_router
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
