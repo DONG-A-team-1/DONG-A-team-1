@@ -150,7 +150,7 @@ async def find_user_pw(
 #     user_id: str = Form(...),
 # ):
 #     pass
-  
+
  
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
@@ -349,3 +349,12 @@ async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제
         return {"success": False, "articles": []}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+@app.get("/api/user/history")
+async def api_user_history(request: Request, date: str):
+    user_id = request.session.get("loginId")
+
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False})
+
+    return member.get_user_history(user_id, date)

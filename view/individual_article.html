@@ -1836,7 +1836,8 @@ function fetchUserInfo() {
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userId', user.user_id);
-                console.log(userId)
+                console.log(userId);
+                console.log(user);
                 // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
             }
@@ -1888,6 +1889,23 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
             </a>
         `;
     }
+}
+
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
+        }
+    });
 }
 
 /* ===============================
