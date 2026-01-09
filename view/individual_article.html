@@ -1397,7 +1397,7 @@ body.dark {
 <main>
     <div class="content-grid">
         <!-- Left Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar polar">
             <div class="sidebar-sticky">
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">
@@ -1405,8 +1405,8 @@ body.dark {
                         반대 성향 기사
                     </h3>
                     
-                    <a class="sidebar-article" href="article-detail.html">
-                        <span class="article-tag critical">비판적 시각</span>
+                    <a class="sidebar-article polar" href="article-detail.html">
+                        <span class="article-tag critical">다른 관점</span>
                         <div class="article-content">
                             <div class="article-text">
                                 <h4 class="article-title">AI 규제, 혁신의 걸림돌인가 필수 안전장치인가?</h4>
@@ -1418,7 +1418,7 @@ body.dark {
                         </div>
                     </a>
                     
-                    <a class="sidebar-article" href="article-detail.html">
+                    <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag alternative">다른 관점</span>
                         <div class="article-content">
                             <div class="article-text">
@@ -1431,7 +1431,7 @@ body.dark {
                         </div>
                     </a>
                     
-                    <a class="sidebar-article" href="article-detail.html">
+                    <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag analysis">분석</span>
                         <div class="article-content">
                             <div class="article-text">
@@ -1644,7 +1644,7 @@ if (!userId || !articleId) {
 const SESSION_KEY = "article_session_id";
 
 
-<!--   2. 스크롤 깊이 계산-->
+// <!--2. 스크롤 깊이 계산-->
 /*
 (scrollTop + windowHeight) / documentHeight
 → 0 ~ 1 사이 값
@@ -1663,7 +1663,7 @@ function getScrollDepth() {
 }
 
 
-<!--   3. 세션 시작 (중복 방지)-->
+// <!--   3. 세션 시작 (중복 방지)-->
 /*
 - 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
 - "기사 페이지 진입 1회 = 세션 1개"
@@ -1697,7 +1697,7 @@ async function startSessionOnce() {
 // 최초 로드 시 1회만 실행
 startSessionOnce();
 
-<!-- 4. Ping 전송 (체류 중)-->
+// <!-- 4. Ping 전송 (체류 중)-->
 /*
 @ 역할
 - 사용자가 "아직 읽고 있다"는 신호
@@ -1725,7 +1725,6 @@ function startPing() {
 // 세션 생성 후 ping 시작
 setTimeout(startPing, 1000);
 
-<!--   5. 세션 종료 (단 1회만)-->
 /*
 @ 종료 조건
 - 탭 닫기
@@ -1929,7 +1928,7 @@ function setActiveCategoryByURL() {
    🔥 초기 실행
 ================================ */
 document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
+    // toggleLoginState();
     setActiveCategoryByURL();
 
     const searchInput = document.getElementById('search-input-field');
@@ -1941,54 +1940,88 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 $(function () {
-    // 1️⃣ URL에서 article_id 추출
-    const params = new URLSearchParams(window.location.search);
-    const articleId = params.get("article_id");
+  // 1️⃣ URL에서 article_id 추출
+  const params = new URLSearchParams(window.location.search);
+  const articleId = params.get("article_id");
 
-    // 2️⃣ AJAX 요청 (GET)
-    $.ajax({
-        url: `/api/article/${articleId}`,
-        method: "GET",
-        dataType: "json",
-        success: function (data) {
+  // 2️⃣ AJAX 요청 (GET)
+  $.ajax({
+    url: `/api/article/${articleId}`,
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+    //   console.log("✅ success");
+    //   console.log("data keys:", Object.keys(data));
+    //   console.log("related len:", (data.related || []).length);
+    //   console.log("DOM related cards:", $(".related-card").length);
+    //   console.log("DOM polar cards:", $(".sidebar-article.polar").length);
 
-            // console.log(data);
-            main_article = data.article
-            $(".article-headline").text(main_article.article_title);
-            $(".author-name").text(main_article.reporter);
-            $(".press").text(main_article.press);
-            data.upload_date
-            $(".upload_date").text(main_article.upload_date);
-            $(".main_img").attr("src", main_article.article_img);
-            $(".article_content").html(renderParagraphs(main_article.article_content, 2));
+      // --- 메인 기사 렌더링 ---
+      const main_article = data.article || {};
+      $(".article-headline").text(main_article.article_title || "");
+      $(".author-name").text(main_article.reporter || "");
+      $(".press").text(main_article.press || "");
+      $(".upload_date").text(main_article.upload_date || "");
+      $(".main_img").attr("src", main_article.article_img || "");
+      $(".article_content").html(renderParagraphs(main_article.article_content, 2));
 
-            const related = data.related || [];
-            const $cards = $(".related-card");
+      // --- related 렌더링 (기존 방식 유지) ---
+      const related = data.related || [];
+      const $cards = $(".related-card");
 
-            related.forEach((item, idx) => {
-                const $card = $cards.eq(idx);
-                if ($card.length === 0) return;
+      related.forEach((item, idx) => {
+        const $card = $cards.eq(idx);
+        if ($card.length === 0) return;
+        // querystring 방식으로 통일 (너 페이지 구조 기준)
+        $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".related-title").text(item.article_title || "");
+        $card.find(".related-date").text(item.upload_date || "");
+        $card.find(".related-badge").text(item.category || "");
 
-                $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".related-image img").attr("src", item.article_img || "");
+      });
 
-                $card.find(".related-title").text(item.article_title || "");
-                $card.find(".related-date").text(item.upload_date || "");
-                $card.find(".related-badge").text(item.category || "");
+      // --- polar 파싱 (⭐ 핵심: 구조 달라도 잡히게) ---
+      console.log("data.polar raw =", data.polar);
 
-                $card.find("img")
-                    .attr("src", item.article_img || "")
-                    // .on("error", function () {
-                    //     $(this).attr("src", "/static/img/no-image.png");
-                    // });
-            });
+      // 케이스1) data.polar = { topic_name, articles: [...] }
+      // 케이스2) data.polar = { polar: { topic_name, articles: [...] } }  (이중 래핑)
+      const polarObj =
+        (data.polar && Array.isArray(data.polar.articles)) ? data.polar :
+        (data.polar && data.polar.polar && Array.isArray(data.polar.polar.articles)) ? data.polar.polar :
+        {};
+      console.log(polarObj);
+      const polarArticles = Array.isArray(polarObj.articles) ? polarObj.articles : [];
+      console.log("polar articles len:", polarArticles.length);
 
+      const $polarzone = $(".sidebar.polar")
+      const $polarCards = $(".sidebar-article.polar");
+      $polarzone.find(".sidebar-title").text(polarObj.topic_name)
+      polarArticles.forEach((item, idx) => {
+        const $card = $polarCards.eq(idx);
+        if ($card.length === 0) return;
+        $
+        $card.attr("href", `/article/${item.article_id}`);
+        $card.find(".article-title").text(item.article_title || "");
+        $card.find(".article-source").text(item.press || "");
+        $card.find(".article-thumb img").attr("src", item.article_img || "");
 
-        },
-        error: function (xhr) {
-            console.error("기사 로드 실패", xhr.status);
-        }
-    });
+      });
+
+      // 남는 polar 카드 숨김
+      $polarCards.each(function (i) {
+        if (i >= polarArticles.length) $(this).hide();
+        else $(this).show();
+      });
+    if (polarArticles.length == 0) $($polarzone).hide();
+    },
+    error: function (xhr) {
+      console.error("기사 로드 실패", xhr.status, xhr.responseText);
+    }
+  });
 });
+
+
 
 function renderParagraphs(text, sentencePerPara = 2) {
     if (!text) return "";
