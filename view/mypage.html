@@ -2154,7 +2154,9 @@ function logout() {
         location.href = 'home.html';
     }).fail(() => { localStorage.clear(); location.reload(); });
 }
-
+function toggleUserMenu() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
 function renderUserMenu(isLoggedIn, userName = "회원") {
     const content = document.getElementById('dropdownContent');
     if (!content) return;
