@@ -154,8 +154,6 @@ async def find_user_pw(
 #     pass
 
 
-
-
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
@@ -227,13 +225,12 @@ async def get_my_info(request: Request):
     user = member.get_user_data(user_id)
 
     if user:
-
         birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
 
         return {
             "status": "success",
             "data": {
-                "user_id":user_id,
+                "user_id": user_id,
                 "name": user.user_name,
                 "email": user.user_email,
                 "birth": birth_str,
@@ -242,6 +239,7 @@ async def get_my_info(request: Request):
         }
 
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
+
 
 @app.get("/topics", response_class=HTMLResponse)
 async def topic_page(request: Request):
@@ -269,10 +267,10 @@ def get_topic_article(body:TopicArticleReq):
 async def api_search(request: Request):
     """기사 검색 API"""
     try:
-        data = await request.json()# 데이터 다 읽을 때까지 기달
-        search_type = data.get('search_type','all')
+        data = await request.json()  # 데이터 다 읽을 때까지 기달
+        search_type = data.get('search_type', 'all')
         # 프론트에서 all,title,content,keywords로 오는데 값이 없으면 all(제목+본문)으로
-        query = data.get('query','').strip()
+        query = data.get('query', '').strip()
         # 사용자가 입력한 검색어
         size = data.get('size', 20)
         # 검색 결과 몇 개 가져올 지 결정하는 숫자
@@ -280,17 +278,17 @@ async def api_search(request: Request):
         if not query: # 검색어가 없다면.
             return JSONResponse(
                 status_code=400,
-                content={"success":False,"message":"검색어를 입력해주세요"}
+                content={"success": False, "message": "검색어를 입력해주세요"}
             )
         results = member.search_articles(
-            data.get('search_type','all'),
-            data.get('query',''),
-            data.get('size',20)
+            data.get('search_type', 'all'),
+            data.get('query', ''),
+            data.get('size', 20)
         )
         return results
 
     except Exception as e:
-        print("search error: ",e)
+        print("search error: ", e)
         return JSONResponse(
             status_code=500,
             content={"success": False, "message": str(e)}
@@ -311,6 +309,7 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             content={"success": False, "message": str(e)}
         )
 
+
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
@@ -327,31 +326,35 @@ async def wordcloud_api():
 @app.get("/api/main-trending")
 async def get_main_trending():
     try:
-        # search.py에서 결과 가져오기
-        result = search.es_search_articles(search_type="all", query="", size=5)
-        # 만약 결과가 딕셔너리고 그 안에 'articles' 리스트가 있다면
-        if isinstance(result, dict) and result.get("success"):
-            return {"success": True, "articles": result["articles"]}
-        return {"success": False, "articles": [], "message": "No data found"}
+        return search.es_search_trending_articles(size=5)
     except Exception as e:
         return {"success": False, "articles": [], "error": str(e)}
 
 
 @app.get("/api/related-articles")
-async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제목을 받아옵니다.
+async def get_related_articles(id: str):
+    """
+    연관 기사 API
+    기사 임베딩을 기준으로 의미가 비슷한 기사들을 반환
+    """
     try:
-        # 제목(title)이 있다면 그 제목을 검색어로 사용해 연관된 기사를 찾습니다.
-        # 검색어(title)가 있으면 'search_type="title"'로 유사도를 측정합니다.
-        result = search.es_search_articles(search_type="title", query=title, size=5)
+        articles = search.es_search_related_by_embedding(
+            article_id=id,
+            size=4
+        )
 
-        if result.get("success"):
-            # 현재 보고 있는 기사가 연관 기사 목록에 포함될 수 있으므로,
-            # ID가 같은 기사는 제외하는 필터링을 거치면 더 완벽합니다.
-            filtered_articles = [a for a in result["articles"] if a["article_id"] != id]
-            return {"success": True, "articles": filtered_articles[:4]}  # 최종 4개 반환
+        return {
+            "success": True,
+            "articles": articles
+        }
 
-        return {"success": False, "articles": []}
     except Exception as e:
+        return {
+            "success": False,
+            "articles": [],
+            "error": str(e)
+        }
+
         return {"success": False, "error": str(e)}
 
 @app.get("/api/user/history")
