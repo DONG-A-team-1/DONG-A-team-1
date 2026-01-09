@@ -197,7 +197,6 @@ def user_articles(user_id):
     ]
     return related_articles
 
-
 if __name__ == '__main__':
     # update_user_embedding("lyj_0428")
     logger.info(json.dumps(user_articles("lyj_0428"),ensure_ascii=False,indent=4))
