@@ -50,7 +50,7 @@ def run_pipeline():
                 status="ok",
                 duration_ms=int((time.monotonic() - t0) * 1000),
                 message="crawl_bigkinds_full completed",
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )
@@ -71,7 +71,7 @@ def run_pipeline():
                 message="crawl_bigkinds_full failed",
                 error_message=str(e),
                 retryable=True,
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )
@@ -79,7 +79,7 @@ def run_pipeline():
         # ✅ 기존 error_log 그대로 유지
         doc = build_error_doc(
             message="[PIPELINE] crawl_bigkinds_full failed",
-            service_name="donga-scheduler",
+            service_name="scheduler",
             service_environment=env,
             pipeline_run_id=run_id,
             pipeline_job="news_full_pipeline",
@@ -116,7 +116,7 @@ def run_pipeline():
                 status="ok",
                 duration_ms=int((time.monotonic() - t0) * 1000),
                 message="run_article_trend_pipeline completed",
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )
@@ -137,7 +137,7 @@ def run_pipeline():
                 message="run_article_trend_pipeline failed",
                 error_message=str(e),
                 retryable=True,
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )
@@ -145,7 +145,7 @@ def run_pipeline():
         # ✅ 기존 error_log 그대로 유지
         doc = build_error_doc(
             message="[PIPELINE] article_trend_pipeline failed",
-            service_name="donga-scheduler",
+            service_name="scheduler",
             service_environment=env,
             pipeline_run_id=run_id,
             pipeline_job="news_full_pipeline",
@@ -183,7 +183,7 @@ def run_polarity():
                 status="ok",
                 duration_ms=int((time.monotonic() - t0) * 1000),
                 message="label_polar_entity_centered_to_topics_json completed",
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )
@@ -204,7 +204,7 @@ def run_polarity():
                 message="polarity pipeline failed",
                 error_message=str(e),
                 retryable=True,
-                service_name="donga-scheduler",
+                service_name="scheduler",
                 env=env,
             )
         )

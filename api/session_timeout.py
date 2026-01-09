@@ -164,7 +164,7 @@ def close_timeout_sessions():
                     "ended_signal": False
                 })
 
-        db.commit()
+            db.commit()
 
     finally:
         db.close()
