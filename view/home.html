@@ -23,7 +23,6 @@
       />
 
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
    <style>
       /*다크모드 */
@@ -1713,160 +1712,20 @@
 
       <!-- 개인화 추천 기사 -->
       <section class="personalized-wrap">
-        <div class="personalized-header">
-          <h2 class="section-title">
-            <span class="title-bar"></span>
-              개인화 추천 기사
-          </h2>
-          <a class="more-link" href="./user_article.html?from=main">더보기</a>
-        </div>
-
-        <div class="personalized-list" id="personalizedList">
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
-                </h3>
-                <span class="card-time">10분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                 <span class="trust-label">신뢰도</span>
-                 <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: AI 기술의 최신 동향
-                </h3>
-                <span class="card-time">20분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 환경 정책의 새로운 방향
-                </h3>
-                <span class="card-time">30분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 글로벌 경제 전망
-                </h3>
-                <span class="card-time">1시간 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 교육 시스템 혁신 방안
-                </h3>
-                <span class="card-time">2시간 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-        </div>
-      </section>
-
-        <!-- 토픽에 관련된 긍/부 -->
-        <section class="opinion">
-          <div class="opinion-container">
-            <h3>
-              <span class="highlight">오늘의 토픽</span> 여론 분석
-            </h3>
-
-            <div class="opinion-wrap">
-
-              <div class="side positive">
-                <p class="title">긍정 / 기대</p>
-                <a href="/article/${item.article_id}">
-                  <div class="pill">기사1</div>
-                </a>
-                <a href="/article/${item.article_id}">
-                  <div class="pill">기사1</div>
-                </a>
-              </div>
-
-              <div class="center-topic">
-                <a href="polar.html">
-                <p class="small">HOT TOPIC</p>
-                <h4>AI 기술<br>규제 법안</h4>
-                </a>
-              </div>
-
-              <div class="side negative">
-                <p class="title">부정 / 우려</p>
-                <a href="/article/${item.article_id}">
-                  <div class="pill warn">기사1</div>
-                </a>
-                <a href="/article/${item.article_id}">
-                  <div class="pill warn">기사2</div>
-                </a>
-              </div>
-
+            <div class="personalized-header">
+                <h2 class="section-title">
+                    <span class="title-bar"></span>
+                    개인화 추천 기사
+                </h2>
+                <a class="more-link" href="./user_article.html?from=main">더보기</a>
             </div>
-          </div>
+
+            <div class="personalized-list" id="personalizedList">
+                <!-- 로딩 중 표시 (선택사항) -->
+                <p style="text-align:center; color:#999; padding:2rem;">
+                    추천 기사를 불러오는 중...
+                </p>
+            </div>
         </section>
 
         <section class="wordcloud-section">
@@ -1916,7 +1775,7 @@ function loadPersonalizedArticles() {
         type: 'GET',
         data: {
             user_id: userId, // 어떤 유저의 추천인지
-            limit: 10         // 메인 페이지에 보여줄 기사 개수
+            limit: 5         // 메인 페이지에 보여줄 기사 개수
         },
 
         // API 호출 성공 시 처리
@@ -1932,7 +1791,7 @@ function loadPersonalizedArticles() {
             if (!res.recommendations) return;
 
             // 추천 기사들을 넣을 DOM 컨테이너
-            // home.html에 <div id="personalizedList"></div> 가 있어야 함
+            // home.html에 <div id="personalizedList"></div> 가 있어야 함 00
             const container = document.getElementById('personalizedList');
 
             // 컨테이너가 없으면 렌더링 불가 → 콘솔 경고만 출력
@@ -1948,6 +1807,13 @@ function loadPersonalizedArticles() {
             // 추천 기사 목록 순회하며 카드 생성
             res.recommendations.forEach(article => {
 
+                // 이미지 처리
+                const imgSrc = article.img || '/static/newspalette.png';
+
+                // 기자명/ 언론사명
+                const reporter = article.reporter || article.author || '';
+                const press = article.press || article.source || '';
+
                 // a 태그로 카드 생성 → 클릭 시 기사 페이지로 이동
                 const el = document.createElement('a');
 
@@ -1955,14 +1821,32 @@ function loadPersonalizedArticles() {
                 el.href = `/article/${article.article_id}`;
 
                 // CSS 스타일 적용용 클래스
-                el.className = 'personalized-card';
+                el.className = 'news-link';
 
                 // 카드 내부 HTML - 기사 제목 - 추천 점수 (디버깅/확인용)
                 el.innerHTML = `
-                    <h3>${article.title}</h3>
-                    <div style="font-size:12px;color:#888;">
-                        추천점수 ${article.final_score}
-                    </div>
+                    <article class="personal-card list-card">
+                        <div class="personal-img">
+                            <img
+                                alt="개인화 기사 이미지"
+                                src="${imgSrc}"
+                                onerror="this.src='https://via.placeholder.com/64x64'"
+                            />
+                        </div>
+                        <div class="card-text">
+                            <h3 class="card-title clamp-2">
+                                ${article.title}
+                            </h3>
+                            <div class="article-author-info" style="font-size: 13px; color: #999;">
+                                <span>${article.reporter}</span>
+                                <span>${article.press}</span>
+                            </div>
+                        </div>
+                        <div class="trust-score">
+                            <span class="trust-label">추천</span>
+                            <span class="trust-value">${article.final_score || '—'}점</span>
+                        </div>
+                    </article>
                 `;
 
                 //  완성된 카드 DOM에 추가
@@ -1973,7 +1857,14 @@ function loadPersonalizedArticles() {
         // API 호출 실패 시
         // - 서버 에러 - 네트워크 문제 - 404 / 500 등
         error: function (err) {
-            console.error('[personalized] api error', err);
+            const container = document.getElementById('personalizedList');
+            if (container) {
+                container.innerHTML = `
+                    <p style="text-align:center; color:#ef4444; padding:2rem;">
+                        추천 기사를 불러오지 못했습니다.
+                    </p>
+                `;
+            }
         }
     });
 }
@@ -1988,16 +1879,16 @@ function performSearch() {
     }
 }
 
-// function updateSearchPlaceholder(select) {
-//     const searchInput = document.getElementById('searchInput');
-//     const placeholders = {
-//         title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
-//         title: '제목에서 관심있는 뉴스를 검색해보세요',
-//         body: '본문에서 관심있는 뉴스를 검색해보세요',
-//         keyword: '키워드로 관심있는 뉴스를 검색해보세요'
-//     };
-//     searchInput.placeholder = placeholders[select.value];
-// }
+function updateSearchPlaceholder(select) {
+    const searchInput = document.getElementById('searchInput');
+    const placeholders = {
+        title_body: '제목+본문에서 관심있는 뉴스를 검색해보세요',
+        title: '제목에서 관심있는 뉴스를 검색해보세요',
+        body: '본문에서 관심있는 뉴스를 검색해보세요',
+        keyword: '키워드로 관심있는 뉴스를 검색해보세요'
+    };
+    searchInput.placeholder = placeholders[select.value];
+}
 
 $(document).ready(function () {
     let globalArticles = [];
@@ -2180,6 +2071,7 @@ function fetchUserInfo() {
 
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
+                localStorage.setItem('userId', user.id);  // 👈 추가!
                 localStorage.setItem('isLoggedIn', 'true');
 
                 // UI 업데이트 (드롭다운 & 사이드바)
