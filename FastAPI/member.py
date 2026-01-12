@@ -6,6 +6,7 @@ from util.text_cleaner import yyyymmdd_to_iso
 
 import random
 import string
+import calendar
 
 # 아이디 중복 체크
 def check_id(user_id: str):
@@ -388,3 +389,30 @@ def get_user_history(user_id: str, date: str):
 
     finally:
         db.close()
+
+# 마이페이지 달력부분 로직
+def get_monthly_activity_stats(user_id: str, year: int, month: int):
+    with SessionLocal() as connection:
+        # DB에서 직접 해당 월의 날짜별 기사 읽은 횟수를 카운트함
+        query = text("""
+            SELECT DATE(started_at) as date, COUNT(*) as count
+            FROM session_data
+            WHERE user_id = :u_id 
+              AND YEAR(started_at) = :year 
+              AND MONTH(started_at) = :month
+            GROUP BY DATE(started_at)
+        """)
+
+        results = connection.execute(query, {"u_id": user_id, "year": year, "month": month}).fetchall()
+
+        # 프론트엔드가 기대하는 { "YYYY-MM-DD": count } 형식으로 변환
+        activity_data = {str(r.date): r.count for r in results}
+
+        # 전체 조회수 합계도 함께 계산
+        total_views = sum(activity_data.values())
+
+        return {
+            "success": True,
+            "activity": activity_data,
+            "total_views": total_views
+        }

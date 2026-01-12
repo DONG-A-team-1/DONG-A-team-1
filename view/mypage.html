@@ -668,6 +668,17 @@ main {
     background-color: rgba(59, 130, 246, 0.8);
 }
 
+.calendar-day.activity-very-high {
+    background-color: rgba(30, 64, 175, 0.9) !important; /* 가장 진한 파랑 */
+    color: white;
+    font-weight: bold;
+}
+
+.dark .calendar-day.activity-very-high {
+    background-color: rgba(30, 64, 175, 1) !important;
+    color: white;
+}
+
 .calendar-day:hover {
     ring: 2px solid #bfdbfe;
 }
@@ -2200,61 +2211,93 @@ function generateArticleHTML(article) {
         </a>`;
 }
 
-// 달력 그리기 (핵심: 35칸 고정 및 오늘 날짜 자동 선택)
-function renderGenericGrid(year, month) {
+/* //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+달력
+
+*///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function renderGenericGrid(year, month) {
     const grid = document.getElementById('calendar-grid');
     if (!grid) return;
-    
     grid.innerHTML = '';
     
-    // 요일 헤더 생성
+    let activityData = {};
+    try {
+        const res = await fetch(`/api/user/monthly-activity?year=${year}&month=${month + 1}`);
+        const data = await res.json();
+        if (data.success) {
+            activityData = data.activity;
+            
+            // [중요 로그] 9일 데이터가 실제로 존재하는지 확인
+            console.log(`${month + 1}월 활동 데이터:`, activityData);
+            const targetDate = `${year}-${String(month + 1).padStart(2, '0')}-09`;
+            console.log(`9일(${targetDate}) 읽은 기사 개수:`, activityData[targetDate] || 0);
+
+            const totalEl = document.getElementById('total-view-count');
+            if(totalEl) totalEl.textContent = (data.total_views || 0).toLocaleString();
+        }
+    } catch (e) { console.error("데이터 로드 실패", e); }
+
+    // 요일 헤더
     ['일','월','화','수','목','금','토'].forEach(d => {
-        const h = document.createElement('div'); 
-        h.className='calendar-day-header'; 
-        h.textContent=d; 
-        grid.appendChild(h);
+        const h = document.createElement('div'); h.className='calendar-day-header'; h.textContent=d; grid.appendChild(h);
     });
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthDays = new Date(year, month, 0).getDate();
     
-    // 1. 이전 달 날짜 채우기
+    // 1. 이전 달
     for (let i = 0; i < firstDay; i++) {
-        const d = document.createElement('div'); 
-        d.className='calendar-day prev-month';
-        d.textContent = prevMonthDays - firstDay + 1 + i; 
-        grid.appendChild(d);
+        const d = document.createElement('div'); d.className='calendar-day prev-month';
+        d.textContent = prevMonthDays - firstDay + 1 + i; grid.appendChild(d);
     }
 
-    // 2. 이번 달 날짜 채우기
+    // 2. 이번 달 (날짜 매칭 강화)
     const today = new Date();
     const isTodayMonth = (today.getFullYear() === year && today.getMonth() === month);
 
     for (let i = 1; i <= daysInMonth; i++) {
-        const d = document.createElement('div');
-        d.className = 'calendar-day no-activity';
-        d.textContent = i;
-        
-        // 오늘 날짜면 자동 선택 클래스 부여 및 데이터 호출
-        if (isTodayMonth && i === today.getDate()) {
-            d.classList.add('selected');
-            updateList(i); 
-        }
-        grid.appendChild(d);
-    }
+    const d = document.createElement('div');
+    d.textContent = i;
+    
+    // YYYY-MM-DD 형식 생성 (예: 2026-01-09)
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    const count = activityData[dateStr] || 0;
 
-    // 3. 다음 달 날짜로 35칸 맞추기 (무조건 5줄 고정)
-    const currentCells = grid.querySelectorAll('.calendar-day').length;
-    const remaining = 35 - currentCells;
-    if (remaining > 0) {
-        for (let i = 1; i <= remaining; i++) {
-            const d = document.createElement('div');
-            d.className = 'calendar-day next-month';
-            d.textContent = i;
-            grid.appendChild(d);
-        }
+    d.className = 'calendar-day';
+    
+    // [농도 조절 로직] 기사 수에 따라 세분화된 클래스 부여
+    if (!count || count === 0) {
+        d.classList.add('no-activity');
+    } else if (count <= 2) {
+        d.classList.add('activity-low');      // 1~2개
+    } else if (count <= 5) {
+        d.classList.add('activity-medium');   // 3~5개
+    } else if (count <= 9) {
+        d.classList.add('activity-high');     // 6~9개
+    } else {
+        d.classList.add('activity-very-high'); // 10개 이상
     }
+    d.title = `${dateStr}: ${count}개 읽음`;
+    // 오늘 날짜 표시 및 선택 로직 유지
+    if (isTodayMonth && i === today.getDate()) {
+        d.classList.add('selected');
+        if (typeof updateList === 'function') updateList(i); 
+    }
+    grid.appendChild(d);
+}
+
+    // 3. 다음 달 (35칸 또는 42칸 맞추기)
+    const currentCells = grid.querySelectorAll('.calendar-day').length;
+    const remaining = (currentCells > 35 ? 42 : 35) - currentCells;
+    for (let i = 1; i <= remaining; i++) {
+        const d = document.createElement('div'); d.className = 'calendar-day next-month';
+        d.textContent = i; grid.appendChild(d);
+    }
+    
+    if (typeof setupGridInteractions === 'function') setupGridInteractions();
 }
 
 // 리스트 업데이트 (ES API 연동)
