@@ -1328,6 +1328,22 @@ main {
 .activity-list-date .material-icons-outlined {
     font-size: 1.25rem;
 }
+/* 개인 조회 카테고리 제목 다크모드 대응 */
+.profile-section + .divider + div .section-title h3 {
+    color: #111827;
+}
+
+.dark .profile-section + .divider + div .section-title h3 {
+    color: #ffffff;
+}
+
+.profile-section + .divider + div .section-title .material-icons-outlined {
+    color: #6b7280;
+}
+
+.dark .profile-section + .divider + div .section-title .material-icons-outlined {
+    color: #9ca3af;
+}
 
 :root {
     --primary: #3B82F6;
@@ -1391,16 +1407,26 @@ body.dark nav {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     height: 64px;
-    position: relative;
 }
 
+/* 왼쪽 로고 */
 .nav-left {
-    display: flex;
-    align-items: center;
+    flex: 0 0 auto;
 }
+
+/* 가운데 카테고리 */
+.nav-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* 오른쪽 아이콘 */
+.header-actions {
+    flex: 0 0 auto;
+}
+
 
 .logo {
     display: flex;
@@ -1423,11 +1449,12 @@ body.dark nav {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
+    position: static;        /* absolute 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
 
 @media (min-width: 768px) {
     .nav-center {
@@ -1442,6 +1469,7 @@ body.dark nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     padding: 0.5rem 1.25rem;
     margin: 0 0.25rem;
     font-weight: 500;
@@ -1464,13 +1492,9 @@ body.dark .nav-splash-item {
     height: 160%;
     transform: translate(-50%, -50%) scale(0.6);
     background-color: var(--splash-color);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
     mask-position: center;
-    -webkit-mask-size: contain;
     mask-size: contain;
     opacity: 0;
     z-index: -1;
@@ -1772,8 +1796,8 @@ body.dark .user-dropdown {
                                 <span class="material-symbols-outlined">person</span>
                             </div>
                         </div>
-                        <h2 class="profile-name">유저 ID명</h2>
-                        <p class="profile-email">news_enthusiast@example.com</p>
+                        <h2 class="profile-name" id="display-user-name">유저 ID명</h2>
+                        <p class="profile-email" id="display-user-email">news_enthusiast@example.com</p>
                         <button class="logout-btn" onclick="logout()">
                             <span class="material-icons-outlined" style="font-size: 0.875rem;">logout</span>
                             로그아웃
@@ -1783,10 +1807,10 @@ body.dark .user-dropdown {
                     <div class="divider"></div>
                     
                     <div>
-                        <div class="section-title" style="margin-bottom: 1.5rem;">
-                            <span class="material-icons-outlined" style="color: #6b7280;">history</span>
-                            <h3 style="font-weight: bold; color: #111827;">개인 조회 카테고리</h3>
-                        </div>
+                      <div class="section-title" style="margin-bottom: 1.5rem;">
+                          <span class="material-icons-outlined">history</span>
+                        <h3 style="font-weight: bold;">개인 조회 카테고리</h3>
+                    </div>
                         
                         <div class="chart-section">
                             <div style="position: relative; margin-bottom: 1.5rem;">
@@ -1849,22 +1873,10 @@ body.dark .user-dropdown {
                             <h2>최근 활동 분석</h2>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
-                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #f3f4f6; border: 1px solid #e5e7eb;"></span>
-                                <span>활동 없음</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
-                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #bfdbfe;"></span>
-                                <span>적음</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
-                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #60a5fa;"></span>
-                                <span>보통</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #6b7280;">
-                                <span style="width: 0.75rem; height: 0.75rem; border-radius: 0.25rem; background-color: #3b82f6;"></span>
-                                <span>많음</span>
-                            </div>
+                            <div class="legend-item"><span class="dot no"></span><span>활동 없음</span></div>
+                            <div class="legend-item"><span class="dot low"></span><span>적음</span></div>
+                            <div class="legend-item"><span class="dot medium"></span><span>보통</span></div>
+                            <div class="legend-item"><span class="dot high"></span><span>많음</span></div>
                         </div>
                     </div>
                     
@@ -1873,14 +1885,14 @@ body.dark .user-dropdown {
                             <div class="calendar-controls">
                                 <div class="calendar-title-wrapper">
                                     <span class="calendar-title" id="calendar-title">2024년 3월</span>
-                                    <span class="calendar-weeks" id="calendar-weeks">Week 10-14</span>
+                                    <!-- <span class="calendar-weeks" id="calendar-weeks">로드 중...</span> -->
                                 </div>
                                 <div class="calendar-nav">
                                     <button class="calendar-nav-btn" onclick="changeMonth(-1)">
-                                        <span class="material-icons-outlined" style="font-size: 0.875rem;">chevron_left</span>
+                                        <span class="material-icons-outlined">chevron_left</span>
                                     </button>
                                     <button class="calendar-nav-btn" onclick="changeMonth(1)">
-                                        <span class="material-icons-outlined" style="font-size: 0.875rem;">chevron_right</span>
+                                        <span class="material-icons-outlined">chevron_right</span>
                                     </button>
                                 </div>
                             </div>
@@ -1894,28 +1906,20 @@ body.dark .user-dropdown {
                                     <div class="calendar-day-header">목</div>
                                     <div class="calendar-day-header">금</div>
                                     <div class="calendar-day-header">토</div>
-                                    
-                                    <div class="calendar-day prev-month">25</div>
-                                    <div class="calendar-day prev-month">26</div>
-                                    <div class="calendar-day prev-month">27</div>
-                                    <div class="calendar-day prev-month">28</div>
-                                    <div class="calendar-day prev-month">29</div>
+
                                     <div class="calendar-day no-activity">1</div>
-                                    <div class="calendar-day activity-low">2</div>
-                                    <div class="calendar-day activity-medium">3</div>
-                                    <div class="calendar-day activity-high">4</div>
+                                    <div class="calendar-day no-activity">2</div>
+                                    <div class="calendar-day no-activity">3</div>
+                                    <div class="calendar-day no-activity">4</div>
                                     <div class="calendar-day no-activity">5</div>
-                                    <div class="calendar-day activity-low">6</div>
-                                    <div class="calendar-day activity-low">7</div>
-                                    <div class="calendar-day activity-medium">8</div>
-                                    <div class="calendar-day activity-high">9</div>
-                                    <div class="calendar-day activity-medium">10</div>
+                                    <div class="calendar-day no-activity">6</div>
+                                    <div class="calendar-day no-activity">7</div>
+                                    <div class="calendar-day no-activity">8</div>
+                                    <div class="calendar-day no-activity">9</div>
+                                    <div class="calendar-day no-activity">10</div>
                                     <div class="calendar-day no-activity">11</div>
-                                    <div class="calendar-day activity-low">12</div>
-                                    <div class="calendar-day selected" id="default-selected-day">
-                                        13
-                                        <div class="calendar-tooltip">12건 조회</div>
-                                    </div>
+                                    <div class="calendar-day no-activity">12</div>
+                                    <div class="calendar-day no-activity">13</div>
                                     <div class="calendar-day no-activity">14</div>
                                     <div class="calendar-day no-activity">15</div>
                                     <div class="calendar-day no-activity">16</div>
@@ -1942,7 +1946,7 @@ body.dark .user-dropdown {
                             <div class="stats-card">
                                 <span class="stats-label">총 기사 조회수</span>
                                 <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
-                                    <span class="stats-value">1,245</span>
+                                    <span class="stats-value" id="total-view-count">0</span>
                                 </div>
                             </div>
                             
@@ -1950,39 +1954,12 @@ body.dark .user-dropdown {
                                 <div class="activity-list-header">
                                     <div class="activity-list-date">
                                         <span class="material-icons-outlined">event_note</span>
-                                        <span id="list-date">3월 13일 (수)</span>
+                                        <span id="list-date">날짜를 선택하세요</span>
                                     </div>
-                                    <span class="activity-list-count" id="list-count">4건</span>
+                                    <span class="activity-list-count" id="list-count">0건</span>
                                 </div>
                                 <div class="activity-list-items" id="list-items">
-                                    <a class="activity-item" href="/article/ai-startup">
-                                        <div class="activity-item-header">
-                                            <span class="activity-category tech">IT/과학</span>
-                                            <span class="activity-time">14:20</span>
-                                        </div>
-                                        <h5 class="activity-title">[속보] AI 반도체 스타트업 투자 유치 성공</h5>
-                                    </a>
-                                    <a class="activity-item" href="/article/us-rate-decision">
-                                        <div class="activity-item-header">
-                                            <span class="activity-category economy">경제</span>
-                                            <span class="activity-time">11:05</span>
-                                        </div>
-                                        <h5 class="activity-title">미국 연준 금리 동결 시사... 시장 반응은?</h5>
-                                    </a>
-                                    <a class="activity-item" href="/article/movie-pamyo">
-                                        <div class="activity-item-header">
-                                            <span class="activity-category culture">문화</span>
-                                            <span class="activity-time">09:15</span>
-                                        </div>
-                                        <h5 class="activity-title">신작 영화 '파묘' 천만 관객 돌파 카운트다운</h5>
-                                    </a>
-                                    <a class="activity-item" href="/article/fine-dust-warning">
-                                        <div class="activity-item-header">
-                                            <span class="activity-category society">사회</span>
-                                            <span class="activity-time">08:30</span>
-                                        </div>
-                                        <h5 class="activity-title">봄철 미세먼지 주의보... 야외 활동 자제 권고</h5>
-                                    </a>
+                                    <div class="activity-empty">기록이 없습니다.</div>
                                 </div>
                             </div>
                         </div>
@@ -1999,7 +1976,8 @@ body.dark .user-dropdown {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">이름</label>
-                            <input class="form-input" type="text" id="user-name" /> </div>
+                            <input class="form-input" type="text" id="user-name" value="유저 ID명" /> 
+                        </div>
                         <div class="form-group">
                             <label class="form-label">성별</label>
                             <select class="form-select" id="user-gender">
@@ -2010,11 +1988,13 @@ body.dark .user-dropdown {
                         </div>
                         <div class="form-group">
                             <label class="form-label">생년월일</label>
-                            <input class="form-input" type="date" id="user-birth" value="2000-01-01"/> </div>
+                            <input class="form-input" type="date" id="user-birth" value="2000-01-01"/> 
+                        </div>
                         <div class="form-group">
                             <label class="form-label">이메일</label>
-                            <input class="form-input" type="email" id="user-email" value=""/> </div>
+                            <input class="form-input" type="email" id="user-email" value="news_enthusiast@example.com" placeholder="example@email.com"/> 
                         </div>
+                    </div>
                     <div class="form-actions">
                         <button class="btn-primary" onclick="saveUserInfo()">변경 사항 저장</button>
                     </div>
@@ -2034,11 +2014,11 @@ body.dark .user-dropdown {
                         </div>
                         <div class="form-group">
                             <label class="form-label">새 비밀번호</label>
-                            <input class="form-input" id="new-password" type="password"/>
+                            <input class="form-input" id="new-password" type="password" placeholder="새 비밀번호 입력"/>
                         </div>
                         <div class="form-group">
                             <label class="form-label">새 비밀번호 확인</label>
-                            <input class="form-input" id="confirm-password" type="password"/>
+                            <input class="form-input" id="confirm-password" type="password" placeholder="비밀번호 확인"/>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -2047,7 +2027,7 @@ body.dark .user-dropdown {
                 </section>
                 
                 <div style="display: flex; justify-content: flex-end; padding-top: 1rem;">
-                    <button class="delete-account-btn" onclick="document.getElementById('confirm-dialog').classList.add('show')">
+                    <button class="delete-account-btn" onclick="openWithdrawModal()">
                         <span class="material-icons-outlined">person_remove</span>
                         <span>회원탈퇴</span>
                     </button>
@@ -2079,61 +2059,105 @@ body.dark .user-dropdown {
 </div>
 
 <script>
-/* ===============================
-   통합 로그인 및 유저 정보 처리
-================================ */
+/* ============================================================
+   1. 초기화 및 상태 관리 (로그인, 다크모드, 카테고리)
+============================================================ */
+// 시스템 실제 날짜 기준으로 초기화
+let currentCalendarDate = new Date(); 
+
 $(document).ready(function() {
-    // 1. 페이지 로드 시 즉시 실행
     initApp();
+    setActiveCategoryByURL(); // 현재 페이지 메뉴 활성화
 });
 
 function initApp() {
-    // 로그인 여부 확인
+    // 다크모드 초기화
+    initDarkMode();
+
+    // 캘린더 초기화 (실제 시스템 날짜 기반)
+    updateCalendarUI();
+
+    // 로그인 정보 확인 및 UI 동기화
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
-
-    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
     renderUserMenu(isLoggedIn, savedName);
 
-    if (isLoggedIn) {
-        // 3. 서버에서 최신 정보 가져와 동기화
-        fetchUserInfo();
-    }
+    if (isLoggedIn) fetchUserInfo();
+}
+
+/* ============================================================
+   2. 유저 정보 및 인증 관련 (기존 기능 유지)
+============================================================ */
+function initDarkMode() {
+    const isDark = localStorage.getItem('darkMode') === 'true' || 
+                  (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) document.body.classList.add('dark');
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', isDark);
 }
 
 function fetchUserInfo() {
-    $.ajax({
-        url: '/get-my-info',
-        type: 'GET',
-        success: function(response) {
-            if (response.status === "success" && response.data) {
-                const user = response.data;
-                
-                // 브라우저 저장소 갱신
-                localStorage.setItem('userName', user.name);
-                localStorage.setItem('isLoggedIn', 'true');
-
-                // UI 업데이트 (드롭다운 & 사이드바)
-                renderUserMenu(true, user.name);
-                updateProfileUI(user);
-            }
-        },
-        error: function(xhr) {
-            console.error("인증 로드 실패:", xhr.status);
-            if(xhr.status === 401) {
-                localStorage.setItem('isLoggedIn', 'false');
-                renderUserMenu(false);
-            }
+    $.get('/get-my-info', function(response) {
+        if (response.status === "success" && response.data) {
+            const user = response.data;
+            localStorage.setItem('userName', user.name);
+            localStorage.setItem('isLoggedIn', 'true');
+            renderUserMenu(true, user.name);
+            updateProfileUI(user);
+        }
+    }).fail(function(xhr) {
+        if(xhr.status === 401) {
+            localStorage.setItem('isLoggedIn', 'false');
+            renderUserMenu(false);
         }
     });
 }
 
-// 드롭다운 내용 생성 함수
+function updateProfileUI(user) {
+    $('.profile-name').text(user.name + "님");
+    $('.profile-email').text(user.email);
+    if($('#user-name').length) $('#user-name').val(user.name);
+    if($('#user-email').length) $('#user-email').val(user.email);
+    if($('#user-birth').length) $('#user-birth').val(user.birth);
+    if($('#user-gender').length) $('#user-gender').val(user.gender);
+}
+
+function saveUserInfo() {
+    const data = {
+        name: $('#user-name').val().trim(),
+        gender: $('#user-gender').val(),
+        birth: $('#user-birth').val(),
+        email: $('#user-email').val().trim()
+    };
+    if(!Object.values(data).every(x => x)) return alert("모든 정보를 입력해주세요.");
+    $.ajax({
+        url: '/update-info',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function() {
+            alert("정보가 변경되었습니다.");
+            location.reload();
+        },
+        error: (xhr) => alert("수정 실패: " + (xhr.responseJSON?.message || "오류 발생"))
+    });
+}
+
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.get('/logout', function() {
+        localStorage.clear();
+        alert("로그아웃 되었습니다.");
+        location.href = 'home.html';
+    }).fail(() => { localStorage.clear(); location.reload(); });
+}
+
 function renderUserMenu(isLoggedIn, userName = "회원") {
-    // 님의 HTML 구조에 정확히 맞춤: #dropdownContent에 삽입
     const content = document.getElementById('dropdownContent');
     if (!content) return;
-
     if (isLoggedIn) {
         content.innerHTML = `
             <div class="dropdown-header">
@@ -2143,422 +2167,161 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
             <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
                 <span class="material-symbols-outlined">logout</span>
                 <span>로그아웃</span>
-            </button>
-        `;
+            </button>`;
     } else {
         content.innerHTML = `
-            <div class="dropdown-header">
-                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
-                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
-            </div>
-            <a href="login.html" class="dropdown-item">
-                <span class="material-symbols-outlined">login</span>
-                <span>로그인</span>
-            </a>
-            <a href="logregist.html" class="dropdown-item">
-                <span class="material-symbols-outlined">person_add</span>
-                <span>회원가입</span>
-            </a>
-        `;
+            <div class="dropdown-header"><p class="dropdown-subtitle">로그인이 필요합니다</p></div>
+            <a href="login.html" class="dropdown-item"><span class="material-symbols-outlined">login</span>로그인</a>
+            <a href="logregist.html" class="dropdown-item"><span class="material-symbols-outlined">person_add</span>회원가입</a>`;
     }
 }
 
-// 사이드바 및 폼 정보 업데이트
-function updateProfileUI(user) {
-    // 왼쪽 사이드바 프로필 (ID가 있다면)
-    $('.profile-name').text(user.name + "님");
-    $('.profile-email').text(user.email);
-    
-    // 마이페이지 입력 폼
-    if($('#user-name').length) $('#user-name').val(user.name);
-    if($('#user-email').length) $('#user-email').val(user.email);
-    if($('#user-birth').length) $('#user-birth').val(user.birth);
-    if($('#user-gender').length) $('#user-gender').val(user.gender);
-}
-
-// 메뉴 토글 함수
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userDropdown');
-    if(dropdown) {
-        dropdown.classList.toggle('show');
-    }
-}
-
-// 로그아웃
-function logout() {
-    if (!confirm("로그아웃 하시겠습니까?")) return;
-    $.ajax({
-        url: '/logout',
-        type: 'GET',
-        success: function() {
-            localStorage.clear();
-            alert("로그아웃 되었습니다.");
-            location.href = 'home.html';
-        },
-        error: function() {
-            localStorage.clear();
-            location.reload();
-        }
-    });
-}
-
-// 바깥 클릭 시 드롭다운 닫기
-window.onclick = function(event) {
-    if (!event.target.closest('.user-menu')) {
-        const dropdown = document.getElementById('userDropdown');
-        if (dropdown && dropdown.classList.contains('show')) {
-            dropdown.classList.remove('show');
-        }
-    }
-}
-
-/* ===============================
-   UI 인터랙션 (기존 기능 유지)
-================================ */
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userDropdown');
-    dropdown.classList.toggle('show');
-}
-
-// 다크모드, 카테고리 활성화, 달력 로직 등 기존 코드는 이 아래에 그대로 붙여넣으시면 됩니다.
-// (중복된 logout 함수나 checkAuth 함수만 지우시면 됩니다)
-
-function saveUserInfo() {
-    const data = {
-        name: $('#user-name').val().trim(),
-        gender: $('#user-gender').val(),
-        birth: $('#user-birth').val(),
-        email: $('#user-email').val().trim()
-    };
-
-    $.ajax({
-        url: '/update-info',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function() {
-            alert("정보가 변경되었습니다.");
-            location.reload();
-        }
-    });
-}
-
-/* ===============================
-   드롭다운 / 다크모드
-================================ */
-
-
-/* ===============================
-   다크모드 (로컬스토리지 저장)
-================================ */
-function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem(
-        'darkMode',
-        document.body.classList.contains('dark')
-    );
-}
-
-// 초기 다크모드 상태
-if (
-    localStorage.getItem('darkMode') === 'true' ||
-    (
-        !localStorage.getItem('darkMode') &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    )
-) {
-    document.body.classList.add('dark');
-}
-
-/* ===============================
-   유저 메뉴 토글
-================================ */
-function toggleUserMenu() {
-    document.getElementById('userDropdown').classList.toggle('show');
-}
-
-// 바깥 클릭 시 닫기
-document.addEventListener('click', (e) => {
-    const menu = document.querySelector('.user-menu');
-    const dropdown = document.getElementById('userDropdown');
-    if (menu && !menu.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
-
-
-/* ===============================
-   🔥 카테고리 선택 색상 고정 (핵심)
-================================ */
 function setActiveCategoryByURL() {
     const navItems = document.querySelectorAll('.nav-splash-item');
     const currentPage = window.location.pathname.split('/').pop();
-
     navItems.forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === currentPage) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
+        item.classList.toggle('active', item.getAttribute('href') === currentPage);
     });
 }
 
+/* ============================================================
+   3. 캘린더 및 활동 내역 (35칸 고정 + ES 연동)
+============================================================ */
 
-
-/* ===============================
-   초기 실행
-================================ */
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
-
-    document.addEventListener('click', e => {
-        const dropdown = document.getElementById('userDropdown');
-        const btn = document.getElementById('mypageBtn');
-        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
-
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-});
-// Theme Toggle
-function toggleTheme() {
-    document.documentElement.classList.toggle('dark');
-}
-
-// Activity Data
-const activityData = {
-    "12": [
-        { category: "정치", color: "society", time: "18:45", title: "여야, 선거구 획정안 막판 타결 임박", url: "/article/politics-election" },
-        { category: "IT/과학", color: "tech", time: "13:20", title: "애플, 새로운 아이패드 라인업 공개 예정", url: "/article/apple-new-ipad" },
-        { category: "경제", color: "economy", time: "10:15", title: "국내 증시, 반도체주 강세로 상승 출발", url: "/article/stock-market-up" }
-    ],
-    "13": [
-        { category: "IT/과학", color: "tech", time: "14:20", title: "[속보] AI 반도체 스타트업 투자 유치 성공", url: "/article/ai-startup" },
-        { category: "경제", color: "economy", time: "11:05", title: "미국 연준 금리 동결 시사... 시장 반응은?", url: "/article/us-rate-decision" },
-        { category: "문화", color: "culture", time: "09:15", title: "신작 영화 '파묘' 천만 관객 돌파 카운트다운", url: "/article/movie-pamyo" },
-        { category: "사회", color: "society", time: "08:30", title: "봄철 미세먼지 주의보... 야외 활동 자제 권고", url: "/article/fine-dust-warning" }
-    ],
-    "14": [
-        { category: "경제", color: "economy", time: "09:00", title: "코스피 장초반 상승세... 외국인 매수 유입", url: "/article/kospi-rise" },
-        { category: "국제", color: "tech", time: "07:30", title: "유럽 증시, ECB 금리 결정 앞두고 혼조세", url: "/article/europe-market-mixed" }
-    ],
-    "15": [
-        { category: "사회", color: "society", time: "12:00", title: "주말 날씨 전망: 전국 대체로 맑음", url: "/article/weekend-weather" }
-    ]
-};
-
-// Calendar State
-let currentCalendarDate = new Date(2024, 2, 1);
-let originalGridHTML = '';
-
-// User Actions
-function handleLogout() {
-    if(confirm('로그아웃 하시겠습니까?')) {
-        alert('로그아웃 되었습니다.');
-    }
-}
-
-// 1. 정보 변경 저장
-function saveUserInfo() {
-    const data = {
-        name: $('#user-name').val().trim(),
-        gender: $('#user-gender').val(),
-        birth: $('#user-birth').val(),
-        email: $('#user-email').val().trim()
-    };
-
-    // 모든 필드 필수 체크
-    if(!data.name || !data.gender || !data.birth || !data.email) {
-        alert("모든 정보를 정확히 입력해주세요.");
-        return;
-    }
-
-    $.ajax({
-        url: '/update-info',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data), // 백엔드의 await request.json()과 짝궁
-        success: function(res) {
-            alert("정보가 성공적으로 변경되었습니다.");
-            location.reload();
-        },
-        error: function(xhr) {
-            alert("수정에 실패했습니다: " + (xhr.responseJSON?.message || "알 수 없는 오류"));
-        }
-    });
-}
-
-// 2. 비밀번호 업데이트
-function updatePassword() {
-    const currentPw = $('#current-password').val();
-    const newPw = $('#new-password').val();
-    const confirmPw = $('#confirm-password').val();
-
-    if (newPw !== confirmPw) {
-        alert("새 비밀번호가 일치하지 않습니다.");
-        return;
-    }
-
-    $.ajax({
-        url: '/update-password',
-        type: 'POST',
-        data: { current_pw: currentPw, new_pw: newPw },
-        success: function() {
-            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
-            logout();
-        },
-        error: function(xhr) {
-            alert(xhr.responseJSON.message);
-        }
-    });
-}
-
-// 3. 회원 탈퇴 확정
-function confirmWithdrawal() {
-    $.post('/withdraw', function() {
-        alert("탈퇴 처리가 완료되었습니다. 이용해 주셔서 감사합니다.");
-        localStorage.setItem('isLoggedIn', 'false');
-        location.href = 'home.html'; // 메인으로 이동
-    });
-}
-
-// 이부분 추후에 수정
-function resetAlgorithm() {
-    if(confirm('기존 임베딩(embedding) 및 조회 기록 전체를 삭제하시겠습니까? 이 작업은 사용자의 개인화 추천 알고리즘을 완전히 초기화하며 되돌릴 수 없습니다.')) {
-        const chart = document.getElementById('algorithm-chart');
-        chart.style.background = 'conic-gradient(#e5e7eb 0% 100%)';
-        document.getElementById('algorithm-percent').innerHTML = '0<span class="unit">%</span>';
-        
-        const listContainer = document.getElementById('list-items');
-        listContainer.innerHTML = `
-            <div class="activity-empty">
-                <span class="material-icons-outlined">delete_sweep</span>
-                <span>기록이 초기화되었습니다.</span>
-            </div>
-        `;
-        document.getElementById('list-count').innerText = '0건';
-        alert('개인화 추천 알고리즘이 초기화되었습니다.');
-    }
-}
-
-// Activity List Functions
+// ES 필드: article_id, press, read_time, title 활용
 function generateArticleHTML(article) {
     return `
-        <a class="activity-item" href="${article.url || '#'}">
+        <a class="activity-item" href="/article/${article.article_id}">
             <div class="activity-item-header">
-                <span class="activity-category ${article.color}">${article.category}</span>
-                <span class="activity-time">${article.time}</span>
+                <span class="activity-category high">${article.press || '뉴스'}</span>
+                <span class="activity-time">${article.read_time || ''}</span>
             </div>
             <h5 class="activity-title">${article.title}</h5>
-        </a>
-    `;
+        </a>`;
 }
 
-function updateList(day) {
-    const listContainer = document.getElementById('list-items');
-    const listDate = document.getElementById('list-date');
-    const listCount = document.getElementById('list-count');
-    
-    const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth();
-    const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
-    const dateObj = new Date(year, month, day);
-    const dayOfWeek = daysOfWeek[dateObj.getDay()];
-    
-    listDate.textContent = `${month + 1}월 ${day}일 (${dayOfWeek})`;
-    
-    const articles = activityData[day] || [];
-    listCount.textContent = `${articles.length}건`;
-    
-    if (articles.length > 0) {
-        listContainer.innerHTML = articles.map(generateArticleHTML).join('');
-    } else {
-        listContainer.innerHTML = `
-            <div class="activity-empty">
-                <span class="material-icons-outlined">event_busy</span>
-                <span>조회된 활동 내역이 없습니다.</span>
-            </div>
-        `;
-    }
-}
-
-// Calendar Functions
-function setupGridInteractions() {
-    const grid = document.getElementById('calendar-grid');
-    const clickableDays = grid.querySelectorAll('.calendar-day:not(.prev-month):not(.next-month)');
-    
-    clickableDays.forEach(dayEl => {
-        dayEl.addEventListener('click', function(e) {
-            clickableDays.forEach(d => {
-                d.classList.remove('selected');
-            });
-            
-            this.classList.add('selected');
-            
-            const dayNum = this.textContent.trim().match(/\d+/)[0];
-            updateList(dayNum);
-        });
-    });
-}
-
-function getWeekNumber(d) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-
+// 달력 그리기 (핵심: 35칸 고정 및 오늘 날짜 자동 선택)
 function renderGenericGrid(year, month) {
     const grid = document.getElementById('calendar-grid');
+    if (!grid) return;
+    
     grid.innerHTML = '';
     
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    days.forEach(d => {
-        const header = document.createElement('div');
-        header.className = 'calendar-day-header';
-        header.textContent = d;
-        grid.appendChild(header);
+    // 요일 헤더 생성
+    ['일','월','화','수','목','금','토'].forEach(d => {
+        const h = document.createElement('div'); 
+        h.className='calendar-day-header'; 
+        h.textContent=d; 
+        grid.appendChild(h);
     });
-    
+
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthDays = new Date(year, month, 0).getDate();
     
+    // 1. 이전 달 날짜 채우기
     for (let i = 0; i < firstDay; i++) {
-        const dayNum = prevMonthDays - firstDay + 1 + i;
-        const day = document.createElement('div');
-        day.className = 'calendar-day prev-month';
-        day.textContent = dayNum;
-        grid.appendChild(day);
+        const d = document.createElement('div'); 
+        d.className='calendar-day prev-month';
+        d.textContent = prevMonthDays - firstDay + 1 + i; 
+        grid.appendChild(d);
     }
-    
+
+    // 2. 이번 달 날짜 채우기
+    const today = new Date();
+    const isTodayMonth = (today.getFullYear() === year && today.getMonth() === month);
+
     for (let i = 1; i <= daysInMonth; i++) {
-        const day = document.createElement('div');
-        const hasActivity = Math.random() > 0.7;
+        const d = document.createElement('div');
+        d.className = 'calendar-day no-activity';
+        d.textContent = i;
         
-        if (hasActivity) {
-            const rand = Math.random();
-            if (rand > 0.66) {
-                day.className = 'calendar-day activity-high';
-            } else if (rand > 0.33) {
-                day.className = 'calendar-day activity-medium';
-            } else {
-                day.className = 'calendar-day activity-low';
-            }
-        } else {
-            day.className = 'calendar-day no-activity';
+        // 오늘 날짜면 자동 선택 클래스 부여 및 데이터 호출
+        if (isTodayMonth && i === today.getDate()) {
+            d.classList.add('selected');
+            updateList(i); 
         }
-        
-        day.textContent = i;
-        grid.appendChild(day);
+        grid.appendChild(d);
     }
+
+    // 3. 다음 달 날짜로 35칸 맞추기 (무조건 5줄 고정)
+    const currentCells = grid.querySelectorAll('.calendar-day').length;
+    const remaining = 35 - currentCells;
+    if (remaining > 0) {
+        for (let i = 1; i <= remaining; i++) {
+            const d = document.createElement('div');
+            d.className = 'calendar-day next-month';
+            d.textContent = i;
+            grid.appendChild(d);
+        }
+    }
+}
+
+// 리스트 업데이트 (ES API 연동)
+async function updateList(day) {
+    const listContainer = document.getElementById('list-items');
+    const listDate = document.getElementById('list-date');
+    const listCount = document.getElementById('list-count');
+    
+    // 안전하게 숫자형으로 변환
+    const dayNum = parseInt(day);
+    if (isNaN(dayNum)) return;
+
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const dateObj = new Date(year, month, dayNum);
+    
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
+    listDate.textContent = `${month + 1}월 ${dayNum}일 (${dayOfWeek})`;
+    
+    // 백엔드 형식을 맞추기 위해 0을 채운 YYYY-MM-DD 생성
+    const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+    
+    console.log("요청 전송 데이터:", formattedDate); // 보내는 날짜
+
+    listContainer.innerHTML = '<div class="activity-empty">조회 중...</div>';
+
+    try {
+        const response = await fetch(`/api/user/history?date=${formattedDate}`);
+        const data = await response.json();
+
+        if (data.success && data.articles && data.articles.length > 0) {
+            listCount.textContent = `${data.articles.length}건`;
+            listContainer.innerHTML = data.articles.map(generateArticleHTML).join('');
+        } else {
+            listCount.textContent = `0건`;
+            listContainer.innerHTML = `<div class="activity-empty">조회 내역이 없습니다.</div>`;
+        }
+    } catch (e) {
+        console.error("데이터 로드 오류:", e);
+        listContainer.innerHTML = `<div class="activity-empty">서버 연결 오류</div>`;
+    }
+}
+
+function updateCalendarUI() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
+
+    // 35칸 그리드 렌더링
+    renderGenericGrid(year, month);
+    // 클릭 이벤트 재연결
+    setupGridInteractions();
+}
+
+
+function setupGridInteractions() {
+    const grid = document.getElementById('calendar-grid');
+    const clickableDays = grid.querySelectorAll('.calendar-day:not(.prev-month):not(.next-month)');
+    clickableDays.forEach(dayEl => {
+        dayEl.onclick = function() {
+            clickableDays.forEach(d => d.classList.remove('selected'));
+            this.classList.add('selected');
+            // 툴팁 등을 제외한 순수 날짜 숫자만 추출
+            const dayValue = this.childNodes[0].textContent.trim();
+            updateList(dayValue);
+        };
+    });
 }
 
 function changeMonth(delta) {
@@ -2566,119 +2329,14 @@ function changeMonth(delta) {
     updateCalendarUI();
 }
 
-function updateCalendarUI() {
-    const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth();
-    
-    document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
-    
-    const startWeek = getWeekNumber(new Date(year, month, 1));
-    const endWeek = getWeekNumber(new Date(year, month + 1, 0));
-    document.getElementById('calendar-weeks').textContent = `Week ${startWeek}-${endWeek}`;
-    
-    const grid = document.getElementById('calendar-grid');
-    if (year === 2024 && month === 2) {
-        grid.innerHTML = originalGridHTML;
-    } else {
-        renderGenericGrid(year, month);
-    }
-    
-    setupGridInteractions();
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    const grid = document.getElementById('calendar-grid');
-    originalGridHTML = grid.innerHTML;
-    setupGridInteractions();
-});
-
-
-/* ===============================
-   드롭다운 / 다크모드
-================================ */
-
-
-/* ===============================
-   다크모드 (로컬스토리지 저장)
-================================ */
-function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem(
-        'darkMode',
-        document.body.classList.contains('dark')
-    );
-}
-
-// 초기 다크모드 상태
-if (
-    localStorage.getItem('darkMode') === 'true' ||
-    (
-        !localStorage.getItem('darkMode') &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    )
-) {
-    document.body.classList.add('dark');
-}
-
-/* ===============================
-   유저 메뉴 토글
-================================ */
-function toggleUserMenu() {
-    document.getElementById('userDropdown').classList.toggle('show');
-}
-
-// 바깥 클릭 시 닫기
+// 바깥 클릭 시 드롭다운 닫기
 document.addEventListener('click', (e) => {
     const menu = document.querySelector('.user-menu');
     const dropdown = document.getElementById('userDropdown');
-    if (menu && !menu.contains(e.target)) {
+    if (dropdown && menu && !menu.contains(e.target)) {
         dropdown.classList.remove('show');
     }
 });
-
-
-/* ===============================
-   🔥 카테고리 선택 색상 고정 (핵심)
-================================ */
-function setActiveCategoryByURL() {
-    const navItems = document.querySelectorAll('.nav-splash-item');
-    const currentPage = window.location.pathname.split('/').pop();
-
-    navItems.forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === currentPage) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
-    });
-}
-
-
-
-/* ===============================
-   초기 실행
-================================ */
-document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
-    setActiveCategoryByURL();   // ✅ 카테고리 색상 고정 실행
-
-    document.addEventListener('click', e => {
-        const dropdown = document.getElementById('userDropdown');
-        const btn = document.getElementById('mypageBtn');
-        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    const scopeSelect = document.getElementById('searchScope');
-    if (scopeSelect) updateSearchPlaceholder(scopeSelect);
-
-    const page = Number(new URLSearchParams(location.search).get('page')) || 1;
-    updatePaginationUI(page);
-});
-
 </script>
 </body>
 </html>

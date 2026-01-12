@@ -1568,13 +1568,13 @@
 
           <!-- Category -->
           <div class="nav-center">
-                <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
-                <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
-                <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
-                <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
-                <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
-                <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
-            </div>
+              <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
+              <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
+              <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
+              <a class="nav-splash-item splash-international" href="category.html?cat=지역">지역</a>
+              <a class="nav-splash-item splash-universe" href="category.html?cat=문화">문화</a>
+              <a class="nav-splash-item splash-sports" href="category.html?cat=스포츠">스포츠</a>
+          </div>
 
           <!-- Actions -->
           <div class="header-actions">
@@ -1727,13 +1727,11 @@
                 </p>
             </div>
         </section>
-
-        <section class="wordcloud-section">
+      <section class="wordcloud-section">
         <h3 class="wordcloud-title">오늘의 키워드 클라우드</h3>
 
         <div id="wordCloudChart" style="width: 100%; height: 500px;"></div>
           <!-- JS로 키워드 주입 -->
-        </div>
       </section>
     </main>
 
@@ -1747,39 +1745,22 @@
     </footer>
 
   </body>
-  <script>
+<script>
 
-// 개인화 추천 기사 로드 함수 로그인 유저를 대상으로 추천 API(/recommend) 호출
-// - 응답으로 받은 기사 목록을 메인 페이지에 렌더링
+/* =========================
+   개인화 추천 기사 로드
+   =========================
+   - 로그인 유저 대상
+   - GET /recommend 호출
+*/
 function loadPersonalizedArticles() {
-
-    // 로그인 여부 확인 localStorage에 isLoggedIn === 'true' 인 경우만 추천 호출
-    // → 비로그인 유저에게는 개인화 추천을 노출하지 않음 (콜드스타트는 별도 정책)
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userId = localStorage.getItem('loginId') || "guest";
 
-    // 로그인한 유저의 고유 ID / localStorage에 저장되어 있어야 함
-    //추천 API의 user_id 파라미터로 사용
-    const userId = localStorage.getItem('userId');
-
-    // 로그인 상태 또는 userId가 없으면 즉시 종료 - API 호출 ❌
-    // - 콘솔 로그만 남기고 화면 변경 없음
-    if (!isLoggedIn || !userId) {
-        console.log('[personalized] not logged in');
-        return;
-    }
-
-    // 추천 기사 API 호출 GET /recommend?user_id={userId}&limit=10
-    // - 서버에서 user_embedding 존재 여부에 따라 개인화 / 콜드스타트 추천 자동 분기
-    $.ajax({
-        url: '/recommend',
-        type: 'GET',
-        data: {
-            user_id: userId, // 어떤 유저의 추천인지
-            limit: 5         // 메인 페이지에 보여줄 기사 개수
-        },
-
-        // API 호출 성공 시 처리
-        success: function (res) {
+    $.get("/recommend", {
+        user_id: userId,
+        limit: 5
+    }, function(res) {
 
             // 서버 응답 형식:
             // {
@@ -1790,6 +1771,9 @@ function loadPersonalizedArticles() {
             // recommendations가 없으면 아무 것도 하지 않음
             if (!res.recommendations) return;
 
+        const box = document.getElementById("personalizedList");
+        if (!box) return;
+        box.innerHTML = "";
             // 추천 기사들을 넣을 DOM 컨테이너
             // home.html에 <div id="personalizedList"></div> 가 있어야 함 00
             const container = document.getElementById('personalizedList');
@@ -1817,6 +1801,16 @@ function loadPersonalizedArticles() {
                 // a 태그로 카드 생성 → 클릭 시 기사 페이지로 이동
                 const el = document.createElement('a');
 
+        res.recommendations.forEach(a => {
+            const el = document.createElement("a");
+            el.href = `/article/${a.article_id}`;
+            el.className = "personalized-card";
+            el.innerHTML = `
+                <h3>${a.title}</h3>
+                <div>추천점수 ${Math.round(a.final_score)}</div>
+            `;
+            box.appendChild(el);
+        });
                 // 기사 상세 페이지 URL
                 el.href = `/article/${article.article_id}`;
 
@@ -1890,6 +1884,9 @@ function updateSearchPlaceholder(select) {
     searchInput.placeholder = placeholders[select.value];
 }
 
+/* =========================
+   메인 트렌딩 뉴스 로드
+   ========================= */
 $(document).ready(function () {
     let globalArticles = [];
 
@@ -1898,35 +1895,38 @@ $(document).ready(function () {
             url: "/api/main-trending",
             type: "GET",
             success: function (response) {
-                if (response.success && response.articles) {
-                    globalArticles = response.articles;
-                    const $track = $('#track');
-                    const $template = $('#main-news-template');
+                if (!response.success || !response.articles) return;
 
-                    $track.find('.news-link:not(#main-news-template)').remove();
+                globalArticles = response.articles;
+                const $track = $('#track');
+                const $template = $('#main-news-template');
 
-                    globalArticles.forEach((data, index) => {
-                        const $clone = $template.clone();
-                        $clone.removeAttr('id').css('display', 'block');
+                $track.find('.news-link:not(#main-news-template)').remove();
 
-                        $clone.attr('href', `/article/${data.article_id}`);
-                        $clone.find('.pill').text(data.category);
-                        $clone.find('.article-img').attr('src', data.image);
-                        $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
-                        $clone.find('.article-title').text(data.title);
-                        $clone.find('.reporter-name').text(data.reporter);
-                        $clone.find('.press-name').text(data.source);
-                        $clone.find('.trust-val').text(data.trustScore + '점');
+                globalArticles.forEach((data, index) => {
+                    const $clone = $template.clone();
+                    $clone.removeAttr('id').css('display', 'block');
 
-                        $track.append($clone);
-                    });
+                    $clone.attr('href', `/article/${data.article_id}`);
+                    $clone.find('.pill').text(data.category);
+                    $clone.find('.article-img').attr('src', data.image);
+                    $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
+                    $clone.find('.article-title').text(data.title);
+                    $clone.find('.press-name').text(data.source);
+                    $clone.find('.trust-val').text(Math.round(data.trustScore / 100) + '점');
 
-                    initCustomCarousel();
 
-                    // 첫 로드 시 연관기사 로드
-                    if (globalArticles.length > 0) {
-                        loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
-                    }
+                    $track.append($clone);
+                });
+
+                initCustomCarousel();
+
+                // 첫 기사 기준 연관기사 로드
+                if (globalArticles.length > 0) {
+                    loadRelatedArticles(
+                        globalArticles[0].article_id,
+                        globalArticles[0].title
+                    );
                 }
             }
         });
@@ -1936,45 +1936,26 @@ $(document).ready(function () {
         const $track = $('#track');
         let index = 0;
 
-        // 오른쪽 버튼 클릭
-        $('#nextBtn').off('click').on('click', function() {
-            const $cards = $track.find('.news-link:not(#main-news-template)');
-            const totalCards = $cards.length;
-
-            if (index < totalCards - 1) {
-                index++; // 다음 칸으로
-            } else {
-                index = 0; // 마지막이면 첫 번째로 돌아감
-            }
-            moveSlide($cards, index);
+        $('#nextBtn').off().on('click', function() {
+            index = (index + 1) % globalArticles.length;
+            moveSlide(index);
         });
 
-        // 왼쪽 버튼 클릭
-        $('#prevBtn').off('click').on('click', function() {
-            const $cards = $track.find('.news-link:not(#main-news-template)');
-            const totalCards = $cards.length;
-
-            if (index > 0) {
-                index--; // 이전 칸으로
-            } else {
-                index = totalCards - 1; // 첫 번째면 마지막으로 돌아감
-            }
-            moveSlide($cards, index);
+        $('#prevBtn').off().on('click', function() {
+            index = (index - 1 + globalArticles.length) % globalArticles.length;
+            moveSlide(index);
         });
 
-        // 슬라이드 이동 및 연관기사 로드 함수
-        function moveSlide($cards, currentIndex) {
-            const cardWidth = $cards.outerWidth(true);
+        function moveSlide(currentIndex) {
+            const cardWidth = $track.find('.news-link').outerWidth(true);
             $track.css({
-                'transform': `translateX(${-currentIndex * cardWidth}px)`,
-                'transition': 'transform 0.4s ease-in-out' // 부드러운 이동 효과 추가
+                transform: `translateX(${-currentIndex * cardWidth}px)`,
+                transition: 'transform 0.4s ease-in-out'
             });
 
-            // 현재 슬라이드 데이터로 연관기사 업데이트
-            if (globalArticles[currentIndex]) {
-                const currentId = globalArticles[currentIndex].article_id;
-                const currentTitle = globalArticles[currentIndex].title;
-                loadRelatedArticles(currentId, currentTitle);
+            const article = globalArticles[currentIndex];
+            if (article) {
+                loadRelatedArticles(article.article_id, article.title);
             }
         }
     }
@@ -1982,33 +1963,40 @@ $(document).ready(function () {
     loadNews();
 });
 
-// 연관기사 함수
-function loadRelatedArticles(mainArticleId, mainArticleTitle) {
+
+/* =========================
+   연관 기사 로드
+   =========================
+   - 기준: 기사 제목(title) match 검색
+*/
+function loadRelatedArticles(articleId, articleTitle) {
+
     $.ajax({
         url: "/api/related-articles",
         type: "GET",
         data: {
-            id: mainArticleId,
-            title: mainArticleTitle
+            id: articleId,
+            title: articleTitle
         },
         success: function(response) {
-            if (response.success && response.articles) {
-                const $container = $('#related-container');
-                const $template = $('#related-template');
-                $container.find('.newslink:not(#related-template)').remove();
+            if (!response.success || !response.articles) return;
 
-                response.articles.forEach(data => {
-                    const $clone = $template.clone();
-                    $clone.removeAttr('id').css('display', 'block');
-                    $clone.attr('href', `/article/${data.article_id}`);
-                    $clone.find('.rel-img').attr('src', data.image);
-                    $clone.find('.rel-title').text(data.title);
-                    $clone.find('.rel-author').text(data.reporter);
-                    $clone.find('.rel-press').text(data.source);
-                    $clone.find('.rel-trust').text(data.trustScore + '점');
-                    $container.append($clone);
-                });
-            }
+            const $container = $('#related-container');
+            const $template = $('#related-template');
+
+            $container.find('.newslink:not(#related-template)').remove();
+
+            response.articles.forEach(data => {
+                const $clone = $template.clone();
+                $clone.removeAttr('id').css('display', 'block');
+                $clone.attr('href', `/article/${data.article_id}`);
+                $clone.find('.rel-img').attr('src', data.image);
+                $clone.find('.rel-title').text(data.title);
+                $clone.find('.rel-author').text(data.reporter || '');
+                $clone.find('.rel-press').text(data.source || '');
+                $clone.find('.rel-trust').text(Math.round(data.trustScore / 100) + '점');
+                $container.append($clone);
+            });
         }
     });
 }
@@ -2228,5 +2216,14 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
       document.addEventListener('DOMContentLoaded', () => {
           loadPersonalizedArticles();
       });
+
+/* =========================
+   초기 실행
+   ========================= */
+$(document).ready(function() {
+    loadPersonalizedArticles();
+});
+
 </script>
+
 </html>

@@ -218,42 +218,50 @@ def user_articles(user_id):
 
 def recommend_articles(user_id: str, limit: int = 20):
     """
-    유저별 추천 기사 순위 생성
+    유저별 추천 기사 생성 함수
+
+    기본 개념
+    - 유저 임베딩이 있으면 개인화 추천
+    - 없으면 콜드스타트 추천
 
     점수 정책
-    -------------------------
-    1. 일반 유저 (user_embedding 존재)
-        final = emb*0.5 + trend*0.3 + trust*0.2
-
-    2. 콜드 스타트 (user_embedding 없음)
-        final = trend*0.7 + trust*0.3
+    - 개인화:
+        final = 임베딩 0.4 + 트렌드 0.4 + 신뢰도 0.2
+    - 콜드스타트:
+        final = 트렌드 0.7 + 신뢰도 0.3
 
     점수 범위
-    -------------------------
-    - 내부 계산: 0.0 ~ 1.0 (float)
-    - API 응답: 0 ~ 100 (int)
+    - 내부 계산: 0.0 ~ 1.0
+    - 외부 반환: 0 ~ 100 정수
     """
 
+    # -------------------------------------------------
     # 1. 유저 임베딩 존재 여부 확인
+    # -------------------------------------------------
     resp = es.search(
         index="user_embeddings",
         body={
             "_source": ["embedding"],
             "size": 1,
-            "query": {"term": {"user_id": user_id}}
+            "query": {
+                "term": {"user_id": user_id}
+            }
         }
     )
-    user_hits = resp["hits"]["hits"]
-    has_user_embedding = bool(user_hits)
+
+    user_hits = resp.get("hits", {}).get("hits", [])
+    has_user_embedding = len(user_hits) > 0
 
     logger.info(
-        "[RECOMMEND] user_id=%s | has_user_embedding=%s",
+        "[RECOMMEND] user_id=%s has_user_embedding=%s",
         user_id, has_user_embedding
     )
 
-    # 2. 기사 후보 풀 조회
+    # -------------------------------------------------
+    # 2. 추천 후보 기사 조회
+    # -------------------------------------------------
     if has_user_embedding:
-        # 임베딩 기반 KNN 검색
+        # 개인화 추천: 유저 임베딩 기반 KNN 검색
         query_vec = user_hits[0]["_source"]["embedding"]
 
         res = es.search(
@@ -277,7 +285,7 @@ def recommend_articles(user_id: str, limit: int = 20):
             ]
         )
     else:
-        # 콜드 스타트: 트렌드 기반 정렬
+        # 콜드스타트 추천: 트렌드 기준 정렬
         res = es.search(
             index="article_data",
             size=100,
@@ -296,18 +304,22 @@ def recommend_articles(user_id: str, limit: int = 20):
             ]
         )
 
-    hits = res["hits"]["hits"]
+    hits = res.get("hits", {}).get("hits", [])
     if not hits:
         logger.warning("[RECOMMEND] no article candidates")
         return []
 
-   # 3. 점수 정규화 준비 (min-max)
-    def normalize(v, min_v, max_v):
+    # -------------------------------------------------
+    # 3. 점수 정규화 함수
+    # -------------------------------------------------
+    def normalize(value, min_v, max_v):
         if max_v == min_v:
             return 0.0
-        return (v - min_v) / (max_v - min_v)
+        return (value - min_v) / (max_v - min_v)
 
-    embedding_scores = [h["_score"] for h in hits if "_score" in h]
+    # -------------------------------------------------
+    # 4. 트렌드 / 신뢰도 점수 범위 계산
+    # -------------------------------------------------
     trend_scores = [
         h["_source"]["article_label"].get("trend_score", 0.0)
         for h in hits
@@ -317,21 +329,25 @@ def recommend_articles(user_id: str, limit: int = 20):
         for h in hits
     ]
 
-    emb_min, emb_max = (
-        min(embedding_scores), max(embedding_scores)
-    ) if embedding_scores else (0.0, 1.0)
-
     trend_min, trend_max = min(trend_scores), max(trend_scores)
     trust_min, trust_max = min(trust_scores), max(trust_scores)
 
-    # 4. 점수 계산 + 로깅
+    # 임베딩 점수 범위는 개인화일 때만 사용
+    if has_user_embedding:
+        embedding_scores = [h["_score"] for h in hits if "_score" in h]
+        emb_min, emb_max = min(embedding_scores), max(embedding_scores)
+    else:
+        emb_min, emb_max = None, None
+
+    # -------------------------------------------------
+    # 5. 최종 점수 계산
+    # -------------------------------------------------
     ranked = []
 
     for h in hits:
         src = h["_source"]
         article_id = src["article_id"]
 
-        # 개별 점수 정규화
         trend = normalize(
             src["article_label"].get("trend_score", 0.0),
             trend_min, trend_max
@@ -355,35 +371,34 @@ def recommend_articles(user_id: str, limit: int = 20):
                 0.3 * trust
             )
 
-        # 100점 만점 정수 변환
         final_score = int(round(final_raw * 100))
 
-        # 점수 산출 로그 (핵심)
+        # 점수 계산 로그 (디버깅 핵심)
         logger.info(
-            "[RECOMMEND_SCORE] user=%s article=%s | "
-            "emb=%s trend=%.4f trust=%.4f | "
-            "final_raw=%.4f final_int=%d",
+            "[RECOMMEND_SCORE] user=%s article=%s emb=%s trend=%.4f trust=%.4f final=%d",
             user_id,
             article_id,
             f"{emb:.4f}" if emb is not None else "None",
             trend,
             trust,
-            final_raw,
             final_score
         )
 
         ranked.append({
             "article_id": article_id,
-            "title": src["article_title"],
-            "final_score": final_score,       # ← 정수 점수
+            "title": src.get("article_title", ""),
+            "final_score": final_score,
             "trend_score": round(trend, 4),
             "trust_score": round(trust, 4),
-            "collected_at": src["collected_at"]
+            "collected_at": src.get("collected_at")
         })
 
-    # 5.최종 정렬 및 제한
+    # -------------------------------------------------
+    # 6. 정렬 및 개수 제한
+    # -------------------------------------------------
     ranked.sort(key=lambda x: x["final_score"], reverse=True)
     return ranked[:limit]
+
 
 
 

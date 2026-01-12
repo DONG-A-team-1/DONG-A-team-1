@@ -312,3 +312,79 @@ def search_articles(search_type: str, query: str, size: int = 20):
         "articles": articles,
         "trending": trending
     }
+
+def get_user_history(user_id: str, date: str):
+    """
+    date: YYYY-MM-DD
+    """
+
+    db = SessionLocal()
+    try:
+        # 1️⃣ RDB 조회 (SQLAlchemy 방식)
+        sql = text("""
+            SELECT article_id, started_at
+            FROM session_data
+            WHERE user_id = :user_id
+              AND DATE(started_at) = :date
+            ORDER BY started_at DESC
+        """)
+
+        result = db.execute(
+            sql,
+            {
+                "user_id": user_id,
+                "date": date
+            }
+        )
+
+        rows = result.mappings().all()  # 👈 중요
+
+        if not rows:
+            return {"success": True, "articles": []}
+
+        article_ids = [r["article_id"] for r in rows]
+
+        # 2️⃣ ES 조회
+        res = es.search(
+            index="article_data",
+            body={
+                "size": len(article_ids),
+                "query": {
+                    "terms": {
+                        "article_id": article_ids
+                    }
+                },
+                "_source": [
+                    "article_id",
+                    "article_title",
+                    "press"
+                ]
+            }
+        )
+
+        es_map = {
+            hit["_source"]["article_id"]: hit["_source"]
+            for hit in res["hits"]["hits"]
+        }
+
+        # 3️⃣ 프론트 데이터 가공
+        articles = []
+        for r in rows:
+            article = es_map.get(r["article_id"])
+            if not article:
+                continue
+
+            articles.append({
+                "article_id": article["article_id"],
+                "title": article["article_title"],
+                "press": article.get("press"),
+                "read_time": r["started_at"].strftime("%H:%M")
+            })
+
+        return {
+            "success": True,
+            "articles": articles
+        }
+
+    finally:
+        db.close()
