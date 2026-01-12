@@ -23,7 +23,6 @@
       />
 
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
    <style>
       /*다크모드 */
@@ -131,6 +130,11 @@
           margin: 0 auto;
           padding: 0 1rem;
       }
+      /* 가운데 카테고리 */
+        .nav-center {
+            flex: 1;
+            justify-content: center;
+        }
 
       .nav-content {
           display: flex;
@@ -165,7 +169,7 @@
           letter-spacing: -0.025em;
       }
 
-      .category {
+      .nav-center {
         position: static;        /* absolute 제거 */
         display: flex;
         align-items: center;
@@ -173,7 +177,7 @@
       }
 
       @media (min-width: 768px) {
-          .category {
+          .nav-center {
               display: flex;
               align-items: center;
               gap: 0.25rem;
@@ -633,7 +637,7 @@
         }
 
         .search-input {
-            caret-color:#ffffff;
+            caret-color:#000000;
             width: 100%;
             padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
             border-radius: 10px;
@@ -647,6 +651,9 @@
             appearance: none;  /* ✅ 추가 */
             backface-visibility: hidden;  /* ✅ 추가 */
             transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+        body.dark .search-input{
+           caret-color: #ffffff;
         }
 
         .search-input::placeholder {
@@ -662,7 +669,7 @@
         .search-input:focus-visible,
         .search-input:active {
             background: var(--surface) !important;
-            border-color: transparent;
+            border-color: rgb(158, 158, 158);
             box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
         }
 
@@ -844,6 +851,7 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 24px;
+        padding-bottom: 23px; /* 기자,언론사 밑으로 내리기 */
         height: 100%;
         background: var(--surface);
         overflow: hidden;
@@ -921,6 +929,7 @@
 
       /* 푸터 - 하단 고정 */
       .article-footer {
+        padding-right:100px;
         margin-top: auto;
         margin-bottom: 8px;
       }
@@ -939,6 +948,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
         flex-shrink: 1;
+      }
+      .author-dot{
+        max-width: 6em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .author-dot::before {
@@ -979,11 +994,17 @@
       .arrow.right { right: 12px; }
 
       /* ========== 메인 기사 캐러셀 점수 ========== */
+      .main-news-body .article-footer {
+            margin-top: auto;
+            margin-bottom: 0;
+            padding-right: 100px; /* 👈 신뢰도 점수 공간 확보 */
+        }
       .main-news-body .score-container {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        margin-top: 12px;
+        position: absolute;
+        right: 24px;
+        bottom: 20px;
+        margin: 0;
+        z-index: 10;
       }
 
       .main-news-body .trend-score,
@@ -1433,6 +1454,7 @@
       }
 
       .wordcloud-title {
+        margin-top: 20px;
         font-size: 18px;
         font-weight: 700;
         padding-bottom: 20px;
@@ -1691,168 +1713,26 @@
 
       <!-- 개인화 추천 기사 -->
       <section class="personalized-wrap">
-        <div class="personalized-header">
-          <h2 class="section-title">
-            <span class="title-bar"></span>
-              개인화 추천 기사
-          </h2>
-          <a class="more-link" href="./user_article.html?from=main">더보기</a>
-        </div>
-
-        <div class="personalized-list" id="personalizedList">
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 국내 스타트업 투자 유치 현황과 미래 전략
-                </h3>
-                <span class="card-time">10분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                 <span class="trust-label">신뢰도</span>
-                 <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: AI 기술의 최신 동향
-                </h3>
-                <span class="card-time">20분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 환경 정책의 새로운 방향
-                </h3>
-                <span class="card-time">30분 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 글로벌 경제 전망
-                </h3>
-                <span class="card-time">1시간 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-
-          <a href="/article/${item.article_id}" class="news-link">
-            <article class="personal-card list-card">
-              <div class="personal-img">
-                <img
-                  alt="개인화 기사 이미지"
-                  src="https://via.placeholder.com/64x64"
-                />
-              </div>
-              <div class="card-text">
-                <h3 class="card-title clamp-2">
-                  개인화 기사: 교육 시스템 혁신 방안
-                </h3>
-                <span class="card-time">2시간 전</span>
-              </div>
-              <div class="trust-score" data-score="">
-                  <span class="trust-label">신뢰도</span>
-                  <span class="trust-value"></span>
-              </div>
-            </article>
-          </a>
-        </div>
-      </section>
-
-        <!-- 토픽에 관련된 긍/부 -->
-        <section class="opinion">
-          <div class="opinion-container">
-            <h3>
-              <span class="highlight">오늘의 토픽</span> 여론 분석
-            </h3>
-
-            <div class="opinion-wrap">
-
-              <div class="side positive">
-                <p class="title">긍정 / 기대</p>
-                <a href="/article/${item.article_id}">
-                  <div class="pill">기사1</div>
-                </a>
-                <a href="/article/${item.article_id}">
-                  <div class="pill">기사1</div>
-                </a>
-              </div>
-
-              <div class="center-topic">
-                <a href="polar.html">
-                <p class="small">HOT TOPIC</p>
-                <h4>AI 기술<br>규제 법안</h4>
-                </a>
-              </div>
-
-              <div class="side negative">
-                <p class="title">부정 / 우려</p>
-                <a href="/article/${item.article_id}">
-                  <div class="pill warn">기사1</div>
-                </a>
-                <a href="/article/${item.article_id}">
-                  <div class="pill warn">기사2</div>
-                </a>
-              </div>
-
+            <div class="personalized-header">
+                <h2 class="section-title">
+                    <span class="title-bar"></span>
+                    개인화 추천 기사
+                </h2>
+                <a class="more-link" href="./user_article.html?from=main">더보기</a>
             </div>
-          </div>
-        </section>
 
-        <section class="wordcloud-section">
+            <div class="personalized-list" id="personalizedList">
+                <!-- 로딩 중 표시 (선택사항) -->
+                <p style="text-align:center; color:#999; padding:2rem;">
+                    추천 기사를 불러오는 중...
+                </p>
+            </div>
+        </section>
+      <section class="wordcloud-section">
         <h3 class="wordcloud-title">오늘의 키워드 클라우드</h3>
 
         <div id="wordCloudChart" style="width: 100%; height: 500px;"></div>
           <!-- JS로 키워드 주입 -->
-        </div>
       </section>
     </main>
 
@@ -1867,40 +1747,270 @@
 
   </body>
 <script>
+/* ===============================
+   통합 로그인 및 유저 정보 처리
+================================ */
+$(document).ready(function() {
+    // 1. 페이지 로드 시 즉시 실행
+    initApp();
+    loadPersonalizedArticles();
+    loadWordCloud();
+    let globalArticles = [];
 
-/* =========================
-   개인화 추천 기사 로드
-   =========================
-   - 로그인 유저 대상
-   - GET /recommend 호출
-*/
+    function loadNews() {
+        $.ajax({
+            url: "/api/main-trending",
+            type: "GET",
+            success: function (response) {
+                if (response.success && response.articles) {
+                    globalArticles = response.articles;
+                    const $track = $('#track');
+                    const $template = $('#main-news-template');
+
+                    $track.find('.news-link:not(#main-news-template)').remove();
+
+                    globalArticles.forEach((data, index) => {
+                        const $clone = $template.clone();
+                        $clone.removeAttr('id').css('display', 'block');
+
+                        $clone.attr('href', `/article/${data.article_id}`);
+                        $clone.find('.pill').text(data.category);
+                        $clone.find('.article-img').attr('src', data.image || '/static/newspalette.png');
+                        $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
+                        $clone.find('.article-title').text(data.title);
+                        $clone.find('.reporter-name').text(data.reporter);
+                        $clone.find('.press-name').text(data.source);
+                        $clone.find('.trust-val').text(data.trustScore + '점');
+
+                        $track.append($clone);
+                    });
+
+                    initCustomCarousel();
+
+                    // 첫 로드 시 연관기사 로드
+                    if (globalArticles.length > 0) {
+                        loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
+                    }
+                }
+            }
+        });
+    }
+});
+
+function initApp() {
+    // 로그인 여부 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
+    renderUserMenu(isLoggedIn, savedName);
+
+    if (isLoggedIn) {
+        // 3. 서버에서 최신 정보 가져와 동기화
+        fetchUserInfo();
+    }
+}
+
+function formatTime(iso) {
+    if (!iso) return "";
+    const diff = (Date.now() - new Date(iso)) / 1000;
+    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+    return `${Math.floor(diff/86400)}일 전`;
+}
+
+
+function fetchUserInfo() {
+    $.ajax({
+        url: '/get-my-info',
+        type: 'GET',
+
+        // 🔥🔥🔥 핵심 (이게 없어서 지금까지 안 됐음)
+        xhrFields: {
+            withCredentials: true
+        },
+
+        success: function(response) {
+            if (response.status === "success" && response.data) {
+                const user = response.data;
+
+                // 로그인 정보 저장
+                localStorage.setItem('loginId', user.user_id);
+                localStorage.setItem('user_id', user.user_id);
+                localStorage.setItem('userName', user.name);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                renderUserMenu(true, user.name);
+
+                // ✅ 반드시 여기서 추천 호출
+                loadPersonalizedArticles();
+            }
+        },
+
+        error: function(xhr) {
+            console.warn("get-my-info 실패 → 비로그인 처리");
+            localStorage.setItem('isLoggedIn', 'false');
+            renderUserMenu(false);
+
+            // 콜드스타트 추천
+            loadPersonalizedArticles();
+        }
+    });
+}
+
+
+
+// 드롭다운 내용 생성 함수
+function renderUserMenu(isLoggedIn, userName = "회원") {
+
+    const content = document.getElementById('dropdownContent');
+    if (!content) return;
+
+    if (isLoggedIn) {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">환영합니다!</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+            </div>
+            <a href="mypage.html" class="dropdown-item">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span>마이페이지</span>
+            </a>
+            <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
+                <span class="material-symbols-outlined">logout</span>
+                <span>로그아웃</span>
+            </button>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="dropdown-header">
+                <p class="dropdown-subtitle">더 많은 기능을 사용하려면</p>
+                <p class="dropdown-title" style="font-weight:bold; margin-top:4px;">로그인이 필요합니다</p>
+            </div>
+            <a href="login.html" class="dropdown-item">
+                <span class="material-symbols-outlined">login</span>
+                <span>로그인</span>
+            </a>
+            <a href="logregist.html" class="dropdown-item">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>회원가입</span>
+            </a>
+        `;
+    }
+}
+
+// 사이드바 및 폼 정보 업데이트
+function updateProfileUI(user) {
+    // 왼쪽 사이드바 프로필 (ID가 있다면)
+    $('.profile-name').text(user.name + "님");
+    $('.profile-email').text(user.email);
+
+    // 마이페이지 입력 폼
+    if($('#user-name').length) $('#user-name').val(user.name);
+    if($('#user-email').length) $('#user-email').val(user.email);
+    if($('#user-birth').length) $('#user-birth').val(user.birth);
+    if($('#user-gender').length) $('#user-gender').val(user.gender);
+}
+
+// 메뉴 토글 함수
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if(dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// 로그아웃
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+}
+
+// 바깥 클릭 시 드롭다운 닫기
+window.onclick = function(event) {
+    if (!event.target.closest('.user-menu')) {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+}
+
+/* ===============================
+   UI 인터랙션 (기존 기능 유지)
+================================ */
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    dropdown.classList.toggle('show');
+}
+
 function loadPersonalizedArticles() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userId = localStorage.getItem('loginId') || "guest";
+
+    // 🔴 핵심: 백엔드가 user_id 필수
+    const userId = isLoggedIn
+        ? localStorage.getItem('loginId')
+        : "guest";
+
+    if (!userId) {
+        console.warn("userId 없음 → 추천 중단");
+        return;
+    }
 
     $.get("/recommend", {
         user_id: userId,
-        limit: 10
+        limit: 5
     }, function(res) {
 
-        if (!res.recommendations) return;
+        if (!res || !res.recommendations) {
+            console.warn("추천 결과 없음", res);
+            return;
+        }
 
         const box = document.getElementById("personalizedList");
         if (!box) return;
         box.innerHTML = "";
 
-        res.recommendations.forEach(a => {
+        res.recommendations.forEach(item => {
             const el = document.createElement("a");
-            el.href = `/article/${a.article_id}`;
-            el.className = "personalized-card";
+            el.href = `/article/${item.article_id}`;
+            el.className = "news-link";
+
             el.innerHTML = `
-                <h3>${a.title}</h3>
-                <div>추천점수 ${Math.round(a.final_score)}</div>
+              <article class="personal-card list-card">
+                <div class="personal-img">
+                  <img src="${item.article_img || '/static/newspalette.png'}" alt="기사 이미지">
+                </div>
+
+                <div class="card-text">
+                  <h3 class="card-title clamp-2">${item.title}</h3>
+                  <span class="card-time">${formatTime(item.collected_at)}</span>
+                </div>
+
+                <div class="trust-score">
+                  <span class="trust-label">추천점수</span>
+                  <span class="trust-value">${item.final_score}점</span>
+                </div>
+              </article>
             `;
             box.appendChild(el);
         });
     });
 }
+
+
 
 
 
@@ -1929,7 +2039,7 @@ $(document).ready(function () {
 
                     $clone.attr('href', `/article/${data.article_id}`);
                     $clone.find('.pill').text(data.category);
-                    $clone.find('.article-img').attr('src', data.image);
+                    $clone.find('.article-img').attr('src', data.image || '/static/newspalette.png');
                     $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
                     $clone.find('.article-title').text(data.title);
                     $clone.find('.press-name').text(data.source);
@@ -1951,34 +2061,34 @@ $(document).ready(function () {
             }
         });
     }
+// 캐러셀 ----------------------------------------------------------------------------
+function initCustomCarousel() {
+    const $track = $('#track');
+    let index = 0;
+ // 오른쪽 버튼 클릭
+    $('#nextBtn').off().on('click', function() {
+        index = (index + 1) % globalArticles.length;
+        moveSlide(index);
+    });
+// 왼쪽 버튼 클릭
+    $('#prevBtn').off().on('click', function() {
+        index = (index - 1 + globalArticles.length) % globalArticles.length;
+        moveSlide(index);
+    });
 
-    function initCustomCarousel() {
-        const $track = $('#track');
-        let index = 0;
+function moveSlide(currentIndex) {
+    const cardWidth = $track.find('.news-link').outerWidth(true);
+    $track.css({
+        transform: `translateX(${-currentIndex * cardWidth}px)`,
+        transition: 'transform 0.4s ease-in-out'
+    });
 
-        $('#nextBtn').off().on('click', function() {
-            index = (index + 1) % globalArticles.length;
-            moveSlide(index);
-        });
-
-        $('#prevBtn').off().on('click', function() {
-            index = (index - 1 + globalArticles.length) % globalArticles.length;
-            moveSlide(index);
-        });
-
-        function moveSlide(currentIndex) {
-            const cardWidth = $track.find('.news-link').outerWidth(true);
-            $track.css({
-                transform: `translateX(${-currentIndex * cardWidth}px)`,
-                transition: 'transform 0.4s ease-in-out'
-            });
-
-            const article = globalArticles[currentIndex];
-            if (article) {
-                loadRelatedArticles(article.article_id, article.title);
-            }
-        }
+    const article = globalArticles[currentIndex];
+    if (article) {
+        loadRelatedArticles(article.article_id, article.title);
     }
+}
+}
 
     loadNews();
 });
@@ -2010,7 +2120,7 @@ function loadRelatedArticles(articleId, articleTitle) {
                 const $clone = $template.clone();
                 $clone.removeAttr('id').css('display', 'block');
                 $clone.attr('href', `/article/${data.article_id}`);
-                $clone.find('.rel-img').attr('src', data.image);
+                $clone.find('.rel-img').attr('src', data.image || '/static/newspalette.png');
                 $clone.find('.rel-title').text(data.title);
                 $clone.find('.rel-author').text(data.reporter || '');
                 $clone.find('.rel-press').text(data.source || '');
@@ -2021,13 +2131,63 @@ function loadRelatedArticles(articleId, articleTitle) {
     });
 }
 
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
 
-/* =========================
-   초기 실행
-   ========================= */
-$(document).ready(function() {
-    loadPersonalizedArticles();
-});
+/* =========================================================
+   다크모드
+========================================================= */
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem(
+        'darkMode',
+        document.body.classList.contains('dark')
+    );
+}
+
+/** 페이지 최초 로드 시 다크모드 복원 */
+(function initDarkMode() {
+    if (
+        localStorage.getItem('darkMode') === 'true' ||
+        (
+            !localStorage.getItem('darkMode') &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+        )
+    ) {
+        document.body.classList.add('dark');
+    }
+})();
+
+
+function loadWordCloud() {
+    $.ajax({
+        url: '/api/wordcloud-data', // 백엔드 엔드포인트
+        type: 'GET',
+        success: function(options) {
+            // 1. div 요소 찾기
+            const chartDom = document.getElementById('wordCloudChart');
+            const myChart = echarts.init(chartDom);
+
+            // 2. 백엔드에서 받은 옵션 적용
+            myChart.setOption(options);
+
+            // 3. 클릭 이벤트 추가 (구글 검색 연동)
+            myChart.on('click', function (params) {
+                const keyword = params.name.replace('#', '');
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+            });
+
+            // 창 크기 조절 시 리사이즈
+            window.addEventListener('resize', myChart.resize);
+        }
+    });
+}
 
 </script>
 

@@ -9,6 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
+    :root {
+          --primary: #3b82f6;
+          --surface: #ffffff;
+          --text: #1f2937;
+          --muted: #6b7280;
+          --border: #e5e7eb;
+          --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          --container: 1280px;
+          --gray-100: #f3f4f6;
+          --gray-700: #374151;
+          --gray-800: #1f2937;
+      }
+
+      body.dark {
+          --surface: #1f2937;
+          --text: #f3f4f6;
+          --muted: #9ca3af;
+          --border: #374151;
+      }
 .article_content p {
     text-indent: 1em;
     margin-bottom: 1em;  
@@ -19,34 +40,174 @@
 
 /* Search Bar */
 .search-section {
-  margin-top: 2rem;
-}
+    margin-top:20px;
+    margin-bottom: 30px;
+ }
 
-.search-bar {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: 8px;
-  border-radius: 16px;
-  border: 1px solid var(--gray-200);
-  background: var(--surface-light);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        .search-bar {
+            max-width: 896px;
+            margin: 0 auto;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
 
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+        /* ✅ 다크모드 search-bar */
+        body.dark .search-bar {
+            background: var(--surface);
+            border-color: var(--border);
+        }
 
-body.dark .search-bar {
-  background: var(--surface-dark);
-  border-color: var(--gray-700);
-}
+        @media (min-width: 640px) {
+            .search-bar { flex-direction: row; align-items: center; }
+        }
 
-@media (min-width: 640px) {
-  .search-bar {
-    flex-direction: row;
-    align-items: center;
-  }
-}
+        .select-wrap {
+            position: relative;
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .select-wrap { width: auto; }
+        }
+
+        .select {
+            appearance: none;
+            width: 100%;
+            padding: 12px 36px 12px 16px;
+            border: 0;
+            border-radius: 10px;
+            background: color-mix(in oklab, var(--text) 6%, transparent);
+            color: color-mix(in oklab, var(--text) 88%, transparent);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+        @media (min-width: 640px) {
+            .select { width: 128px; }
+        }
+
+        .select-caret {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            background: transparent;  /* ✅ 추가 */
+            overflow: hidden;  /* ✅ 노이즈 방지 */
+            border-radius: 10px;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+
+        .search-input {
+            caret-color:#000000;
+            width: 100%;
+            padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
+            border-radius: 10px;
+            border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            color: var(--text);
+            outline: none !important;  /* ✅ !important 추가 */
+            transition: box-shadow .15s, border-color .15s;
+            box-sizing: border-box;  /* ✅ 추가 */
+            -webkit-appearance: none;  /* ✅ 추가 */
+            appearance: none;  /* ✅ 추가 */
+            backface-visibility: hidden;  /* ✅ 추가 */
+            transform: translateZ(0);  /* ✅ GPU 가속 */
+        }
+        body.dark .search-input{
+           caret-color: #ffffff;
+        }
+
+        .search-input::placeholder {
+            color: color-mix(in oklab, var(--text) 35%, transparent);
+        }
+
+        .search-input:focus {
+            border-color: transparent;
+            background: var(--surface) !important;  /* ✅ !important 추가 */
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        .search-input:focus-visible,
+        .search-input:active {
+            background: var(--surface) !important;
+            border-color: rgb(158, 158, 158);
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+        }
+
+        /* ✅ select 열릴 때도 input 배경 유지 */
+        .select-wrap:focus-within ~ .search-input-wrap .search-input {
+            background: var(--surface) !important;
+        }
+
+        /* ✅ 다크모드 명시 */
+        body.dark .search-input,
+        body.dark .search-input:focus,
+        body.dark .search-input:active,
+        body.dark .search-input:focus-visible {
+            background: var(--surface) !important;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        body.dark .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        /* ✅ 브라우저 자동완성 배경 제거 */
+        .search-input:-webkit-autofill,
+        .search-input:-webkit-autofill:hover,
+        .search-input:-webkit-autofill:focus,
+        .search-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        /*webkit-autofill : 브라우저 자동완성 스타일 제어하는 css 선택자 */
+        body.dark .search-input:-webkit-autofill,
+        body.dark .search-input:-webkit-autofill:hover,
+        body.dark .search-input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+        }
+
+        .search-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%) translateZ(0);  /* ✅ GPU 가속 추가 */
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;  /* ✅ 클릭 영역 */
+            display: flex;  /* ✅ 추가 */
+            align-items: center;  /* ✅ 추가 */
+            justify-content: center;  /* ✅ 추가 */
+            z-index: 2;  /* ✅ 추가 */
+            border-radius: 4px;  /* ✅ 추가 */
+        }
+
+        .search-btn .material-symbols-outlined {
+            font-size: 26px;
+            display: block;  /* ✅ 추가 */
+            line-height: 1;  /* ✅ 추가 */
+        }
 
 /* Select */
 .select-wrap {
@@ -896,24 +1057,6 @@ body.dark .user-dropdown a:hover {
     background-color: #334155;
 }
 
-:root {
-    --primary: #3B82F6;
-    --bg-light: #F3F4F6;
-    --bg-dark: #111827;
-    --surface-light: #FFFFFF;
-    --surface-dark: #1F2937;
-    --text-main-light: #111827;
-    --text-main-dark: #F9FAFB;
-    --text-sub-light: #6B7280;
-    --text-sub-dark: #9CA3AF;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -1387,7 +1530,7 @@ body.dark {
     </div>
 
     <div class="search-input-wrap">
-      <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
+      <input id="searchInput" class="search-input" type="text" spellcheck="false" placeholder="관심있는 뉴스 기사를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()">
       <button class="search-btn" onclick="performSearch()" aria-label="검색">
         <span class="material-symbols-outlined">search</span>
       </button>
@@ -1404,7 +1547,7 @@ body.dark {
                         <span class="material-symbols-outlined">trending_down</span>
                         반대 성향 기사
                     </h3>
-                    
+
                     <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag critical">다른 관점</span>
                         <div class="article-content">
@@ -1417,7 +1560,7 @@ body.dark {
                             </div>
                         </div>
                     </a>
-                    
+
                     <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag alternative">다른 관점</span>
                         <div class="article-content">
@@ -1430,7 +1573,7 @@ body.dark {
                             </div>
                         </div>
                     </a>
-                    
+
                     <a class="sidebar-article polar" href="article-detail.html">
                         <span class="article-tag analysis">분석</span>
                         <div class="article-content">
@@ -1446,14 +1589,14 @@ body.dark {
                 </div>
             </div>
         </aside>
-        
+
         <!-- Main Article -->
         <article class="main-article">
 
                 <h1 class="article-headline">
 
                 </h1>
-                
+
                 <div class="article-meta">
                     <div class="author-info">
                         <img alt="Reporter" class="author-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ8GYuMvp-aam5rlP3yYMzUF4q7vLFUgpCoRKqYlwN13R7J-xypwQsN3tQ5ibFazlofmj4Ifr_NXWav-mxlDaowgB5fYRSq75j9YPoGkDZeIKyKJ8t8-PQ8FvG-9EUTAOpGDcvca9y4BOIgkdp57nffjRYgdNwu-NCAIM3hBToyuV4ChLucp9ewUkKJVYkVlSox36nv_IfaeSf6HtuZb76EZVzQ_iJV_xeBOWh1wnTbLVBIPePWl0DNuzEhRxhkIIF9Gp3Nc9bBEk"/>
@@ -1462,42 +1605,42 @@ body.dark {
                             <div class="press"></div>
                         </div>
                     </div>
-                    
+
                     <div class="upload_date">
                         <span class="material-symbols-outlined">schedule</span>2023. 11. 14. 14:59
                     </div>
                 </div>
             </header>
-            
+
             <figure class="featured-image">
                 <img class="main_img">
                 <figcaption>
                     <!-- 셔터스톡(Shutterstock) 제공 | 인공지능 기술이 전 산업 분야로 확산되며 새로운 경제 패러다임을 예고하고 있다. -->
                 </figcaption>
             </figure>
-            
+
             <div class="article_content">
                 <!-- <p>
                     <span class="drop-cap">인</span>
                     공지능(AI) 기술의 급격한 발전이 글로벌 경제의 판도를 뒤흔들고 있다. 단순한 기술적 진보를 넘어, 제조업부터 서비스업까지 산업 전반의 구조적 변화를 촉발하고 있는 것이다. 이는 우리가 지금까지 경험하지 못한 새로운 차원의 산업 혁명이다. 특히 생성형 AI의 등장은 생산성 혁신을 가속화하며 기업들에게 새로운 기회와 도전을 동시에 안겨주고 있다.
                 </p>
-                
+
                 <p>
                     지난 수십 년간 정보화 혁명이 인터넷을 중심으로 이루어졌다면, 이번 AI 혁명은 '지능화'를 핵심으로 한다. 데이터 분석을 넘어 스스로 콘텐츠를 생성하고, 복잡한 의사결정을 지원하며, 인간의 창의성 영역까지 넘보고 있다.
                 </p>
-                
+
                 <blockquote>
                     <p>
                         "지금은 AI라는 거대한 파도에 올라탈 준비를 해야 할 때입니다. 단순한 기술을 도입하는 것을 넘어, 조직 문화와 일하는 방식 자체를 근본적으로 혁신해야 생존할 수 있습니다."
                     </p>
                     <cite>- 홍수형 경제연구소 수석연구원</cite>
                 </blockquote> -->
-                
+
                 <!-- <p>
                     향후 5년이 골든타임이 될 것으로 보인다. 이 기간 동안 기업들이 어떻게 체질 개선을 이루어내느냐에 따라 글로벌 시장에서의 영향력이 결정될 것이다. 뉴스팔레트는 앞으로도 이 거대한 변화의 흐름을 지속적으로 추적하고 분석할 예정이다.
                 </p> -->
             </div>
-            
+
             <section class="related-section">
                 <div class="section-header">
                     <h3 class="section-title">
@@ -1505,7 +1648,7 @@ body.dark {
                         이 기사와 연관된 뉴스
                     </h3>
                 </div>
-                
+
                 <div class="related-grid">
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
@@ -1515,7 +1658,7 @@ body.dark {
                         <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-                    
+
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Office Plant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhOAQiATb9MVPwOcSMunpaakj2hwYzrxHU5DMhikdzS0xwpjlIr6nviHPtn7zspy_7RSSXMe8SFpKup1Aqb2qyBlBl-SCSYeKwdYMOTjwAeikVFCJnVPnXdsEK40xp1mG3DR11WqhMQ6HPJzOOQys8bsH6W1ah13J6E5GG-6At0R_V1xOqbo_XZMKKMSIa-G18RnVuqIdrAQy_75iOKVOjcmJRzuvOZelbbIRJa4kjNe608NjtGan2e_rRk__UdeWPukPCSzAhhw"/>
@@ -1524,7 +1667,7 @@ body.dark {
                         <h4 class="related-title">개발자 없는 개발 시대, 노코드(No-Code) 열풍</h4>
                         <span class="related-date">2023.11.13</span>
                     </a>
-                    
+
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
                             <img alt="Fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvWBjc1BBXGwhaWq9bj1Ubp53AVdwo7_BZeiNTcrPVxiyRxIqWM42lxZd8H_qU1CvV1do6jwjtOXSac5Uvyu-QY_VQyE0AxdNi3wgLzWn4fZi8xmyQsSZziskkXld52oT6xHZ-gqMKJguzPdu9MV-9t21uta3p46Bp1lI-AKMEZNgYNuhmIwb3KmUzjmciBOyOfHUaWZLiCfsGNmuIcP7UpsSl9LIwju3lKK2264EzgRA3aJX5hj0cDh7IWaRIVcSj1RufWKbAUuU"/>
@@ -1536,7 +1679,7 @@ body.dark {
                 </div>
             </section>
         </article>
-        
+
         <!-- Right Sidebar -->
                 <aside class="sidebar">
             <div class="sidebar-sticky">
@@ -1615,6 +1758,17 @@ body.dark {
     </div>
 </main>
 <script>
+    // ========== 홈 화면 검색 함수 ==========
+function performSearch() {
+    const term = document.getElementById('searchInput').value.trim();
+    const scope = document.getElementById('searchScope').value;
+    if (term) {
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+    }
+}
+
+
+
 /*
 @ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
 기사 페이지 1회 체류 = session 1개
@@ -1831,7 +1985,7 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
+
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
@@ -1911,22 +2065,22 @@ function logout() {
 /* ===============================
    🔥 검색 드롭다운
 ================================ */
-function toggleSearchDropdown() {
-    document.getElementById('search-dropdown-menu').classList.toggle('show');
-}
+// function toggleSearchDropdown() {
+//     document.getElementById('search-dropdown-menu').classList.toggle('show');
+// }
 
-function updateSearchContext(label, placeholder) {
-    document.getElementById('search-dropdown-label').innerText = label;
-    document.getElementById('search-input-field').placeholder = placeholder;
-    document.getElementById('search-dropdown-menu').classList.remove('show');
-}
+// function updateSearchContext(label, placeholder) {
+//     document.getElementById('search-dropdown-label').innerText = label;
+//     document.getElementById('search-input-field').placeholder = placeholder;
+//     document.getElementById('search-dropdown-menu').classList.remove('show');
+// }
 
-function performSearch() {
-    const input = document.getElementById('search-input-field');
-    if (input.value.trim()) {
-        location.href = `searchresult.html?q=${encodeURIComponent(input.value.trim())}`;
-    }
-}
+// function performSearch() {
+//     const input = document.getElementById('search-input-field');
+//     if (input.value.trim()) {
+//         location.href = `searchresult.html?q=${encodeURIComponent(input.value.trim())}`;
+//     }
+// }
 
 /* ===============================
    🔥 카테고리 active 고정
@@ -2063,6 +2217,5 @@ function renderParagraphs(text, sentencePerPara = 2) {
 
 </body>
 </html>
-                    
-                    
-       
+
+
