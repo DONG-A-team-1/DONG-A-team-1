@@ -273,7 +273,7 @@ def recommend_articles(user_id: str, limit: int = 20):
                 "k": 100,
                 "num_candidates": 500,
                 "filter": [
-                    {"range": {"collected_at": {"gte": "now-30d"}}}
+                    {"range": {"collected_at": {"gte": "now-3d"}}}
                 ]
             },
             source=[
@@ -281,7 +281,8 @@ def recommend_articles(user_id: str, limit: int = 20):
                 "article_title",
                 "article_label.trend_score",
                 "article_label.article_trust_score",
-                "collected_at"
+                "collected_at",
+                "article_img" # 해정 추가함
             ]
         )
     else:
@@ -290,7 +291,7 @@ def recommend_articles(user_id: str, limit: int = 20):
             index="article_data",
             size=100,
             query={
-                "range": {"collected_at": {"gte": "now-30d"}}
+                "range": {"collected_at": {"gte": "now-3d"}}
             },
             sort=[
                 {"article_label.trend_score": {"order": "desc"}}
@@ -300,7 +301,8 @@ def recommend_articles(user_id: str, limit: int = 20):
                 "article_title",
                 "article_label.trend_score",
                 "article_label.article_trust_score",
-                "collected_at"
+                "collected_at",
+                "article_img" # 해정 추가
             ]
         )
 
@@ -387,6 +389,7 @@ def recommend_articles(user_id: str, limit: int = 20):
         ranked.append({
             "article_id": article_id,
             "title": src.get("article_title", ""),
+            "article_img": src.get("article_img"), # 해정 추가
             "final_score": final_score,
             "trend_score": round(trend, 4),
             "trust_score": round(trust, 4),

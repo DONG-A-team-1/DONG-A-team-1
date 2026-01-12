@@ -1454,6 +1454,7 @@
       }
 
       .wordcloud-title {
+        margin-top: 20px;
         font-size: 18px;
         font-weight: 700;
         padding-bottom: 20px;
@@ -1774,7 +1775,7 @@ $(document).ready(function() {
 
                         $clone.attr('href', `/article/${data.article_id}`);
                         $clone.find('.pill').text(data.category);
-                        $clone.find('.article-img').attr('src', data.image);
+                        $clone.find('.article-img').attr('src', data.image || '/static/newspalette.png');
                         $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
                         $clone.find('.article-title').text(data.title);
                         $clone.find('.reporter-name').text(data.reporter);
@@ -1990,7 +1991,7 @@ function loadPersonalizedArticles() {
             el.innerHTML = `
               <article class="personal-card list-card">
                 <div class="personal-img">
-                  <img src="/static/newspalette.png" alt="기사 이미지">
+                  <img src="${item.article_img || '/static/newspalette.png'}" alt="기사 이미지">
                 </div>
 
                 <div class="card-text">
@@ -2038,7 +2039,7 @@ $(document).ready(function () {
 
                     $clone.attr('href', `/article/${data.article_id}`);
                     $clone.find('.pill').text(data.category);
-                    $clone.find('.article-img').attr('src', data.image);
+                    $clone.find('.article-img').attr('src', data.image || '/static/newspalette.png');
                     $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
                     $clone.find('.article-title').text(data.title);
                     $clone.find('.press-name').text(data.source);
@@ -2119,7 +2120,7 @@ function loadRelatedArticles(articleId, articleTitle) {
                 const $clone = $template.clone();
                 $clone.removeAttr('id').css('display', 'block');
                 $clone.attr('href', `/article/${data.article_id}`);
-                $clone.find('.rel-img').attr('src', data.image);
+                $clone.find('.rel-img').attr('src', data.image || '/static/newspalette.png');
                 $clone.find('.rel-title').text(data.title);
                 $clone.find('.rel-author').text(data.reporter || '');
                 $clone.find('.rel-press').text(data.source || '');
