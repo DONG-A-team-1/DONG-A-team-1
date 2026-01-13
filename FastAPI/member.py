@@ -391,28 +391,28 @@ def get_user_history(user_id: str, date: str):
         db.close()
 
 # 마이페이지 달력부분 로직
-def get_monthly_activity_stats(user_id: str, year: int, month: int):
-    with SessionLocal() as connection:
-        # DB에서 직접 해당 월의 날짜별 기사 읽은 횟수를 카운트함
+def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
+    """
+    db 인자를 직접 받지 않고 내부에서 SessionLocal을 실행하도록 수정
+    """
+    activity_data = {}
+    total_views = 0
+
+    with SessionLocal() as db: # 내부에서 DB 세션 오픈
         query = text("""
-            SELECT DATE(started_at) as date, COUNT(*) as count
-            FROM session_data
-            WHERE user_id = :u_id 
+            SELECT DATE(started_at) as date, COUNT(*) as count 
+            FROM session_data 
+            WHERE user_id = :uid 
               AND YEAR(started_at) = :year 
               AND MONTH(started_at) = :month
             GROUP BY DATE(started_at)
         """)
 
-        results = connection.execute(query, {"u_id": user_id, "year": year, "month": month}).fetchall()
+        result = db.execute(query, {"uid": user_id, "year": year, "month": month}).fetchall()
 
-        # 프론트엔드가 기대하는 { "YYYY-MM-DD": count } 형식으로 변환
-        activity_data = {str(r.date): r.count for r in results}
+        if result:
+            # DB의 date 객체를 문자열로 변환 (JSON 에러 방지)
+            activity_data = {str(r[0]): r[1] for r in result}
+            total_views = sum(activity_data.values())
 
-        # 전체 조회수 합계도 함께 계산
-        total_views = sum(activity_data.values())
-
-        return {
-            "success": True,
-            "activity": activity_data,
-            "total_views": total_views
-        }
+    return activity_data, total_views

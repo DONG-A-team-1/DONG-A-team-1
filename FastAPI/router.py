@@ -369,18 +369,28 @@ async def api_user_history(request: Request, date: str):
 # 마이페이지 달력
 @app.get("/api/user/monthly-activity")
 async def get_activity(year: int, month: int, request: Request):
-    # 핵심: 다른 함수들과 맞춰 'loginId'로 가져와야 함
+    # 1. 세션에서 로그인 아이디 가져오기
     user_id = request.session.get("loginId")
 
     if not user_id:
-        return {"success": False, "activity": {}, "total_views": 0}
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "로그인이 필요합니다."}
+        )
 
-    # member.py의 함수 호출 시 세션 id 전달
-    activity_map = member.get_monthly_activity_stats(user_id, year, month)
-    total_views = sum(activity_map.values()) if activity_map else 0
+    try:
+        # 2. member.py의 함수 호출 (이름 일치 확인: get_user_monthly_activity_stats)
+        # member.py에서 (activity_data, total_views) 튜플을 반환하므로 두 변수로 받습니다.
+        activity_map, total_views = member.get_user_monthly_activity_stats(user_id, year, month)
 
-    return {
-        "success": True,
-        "activity": activity_map,
-        "total_views": total_views
-    }
+        return {
+            "success": True,
+            "activity": activity_map,
+            "total_views": total_views
+        }
+    except Exception as e:
+        logger.error(f"Monthly activity stats error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "activity": {}, "total_views": 0, "error": str(e)}
+        )

@@ -2073,31 +2073,24 @@ body.dark .user-dropdown {
 /* ============================================================
    1. 초기화 및 상태 관리 (로그인, 다크모드, 카테고리)
 ============================================================ */
-// 시스템 실제 날짜 기준으로 초기화
 let currentCalendarDate = new Date(); 
 
 $(document).ready(function() {
     initApp();
-    setActiveCategoryByURL(); // 현재 페이지 메뉴 활성화
+    setActiveCategoryByURL();
 });
 
 function initApp() {
-    // 다크모드 초기화
     initDarkMode();
-
-    // 캘린더 초기화 (실제 시스템 날짜 기반)
     updateCalendarUI();
-
-    // 로그인 정보 확인 및 UI 동기화
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
     renderUserMenu(isLoggedIn, savedName);
-
     if (isLoggedIn) fetchUserInfo();
 }
 
 /* ============================================================
-   2. 유저 정보 및 인증 관련 (기존 기능 유지)
+   2. 유저 정보 및 인증 관련
 ============================================================ */
 function initDarkMode() {
     const isDark = localStorage.getItem('darkMode') === 'true' || 
@@ -2196,10 +2189,9 @@ function setActiveCategoryByURL() {
 }
 
 /* ============================================================
-   3. 캘린더 및 활동 내역 (35칸 고정 + ES 연동)
+   3. 캘린더 및 활동 내역 ($.ajax 연동 버전)
 ============================================================ */
 
-// ES 필드: article_id, press, read_time, title 활용
 function generateArticleHTML(article) {
     return `
         <a class="activity-item" href="/article/${article.article_id}">
@@ -2211,34 +2203,41 @@ function generateArticleHTML(article) {
         </a>`;
 }
 
-/* //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-달력
-
-*///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-async function renderGenericGrid(year, month) {
+// [수정된 부분] ajax 형식의 renderGenericGrid
+function renderGenericGrid(year, month) {
     const grid = document.getElementById('calendar-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    
-    let activityData = {};
-    try {
-        const res = await fetch(`/api/user/monthly-activity?year=${year}&month=${month + 1}`);
-        const data = await res.json();
-        if (data.success) {
-            activityData = data.activity;
-            
-            // [중요 로그] 9일 데이터가 실제로 존재하는지 확인
-            console.log(`${month + 1}월 활동 데이터:`, activityData);
-            const targetDate = `${year}-${String(month + 1).padStart(2, '0')}-09`;
-            console.log(`9일(${targetDate}) 읽은 기사 개수:`, activityData[targetDate] || 0);
 
-            const totalEl = document.getElementById('total-view-count');
-            if(totalEl) totalEl.textContent = (data.total_views || 0).toLocaleString();
+    $.ajax({
+        url: '/api/user/monthly-activity',
+        type: 'GET',
+        data: { year: year, month: month + 1 },
+        success: function(response) {
+            let activityData = {};
+            if (response.success) {
+                activityData = response.activity;
+                
+                // 데이터 확인 로그
+                console.log(`${month + 1}월 활동 데이터:`, activityData);
+                const targetDate = `${year}-${String(month + 1).padStart(2, '0')}-09`;
+                console.log(`9일(${targetDate}) 읽은 기사 개수:`, activityData[targetDate] || 0);
+
+                const totalEl = document.getElementById('total-view-count');
+                if(totalEl) totalEl.textContent = (response.total_views || 0).toLocaleString();
+            }
+            // 데이터를 받은 후 그리드 그리기 시작
+            drawCalendarGrid(grid, year, month, activityData);
+        },
+        error: function(xhr) {
+            console.error("데이터 로드 실패", xhr);
+            drawCalendarGrid(grid, year, month, {}); // 실패해도 빈 달력은 표시
         }
-    } catch (e) { console.error("데이터 로드 실패", e); }
+    });
+}
 
+// 그리드 렌더링 로직 (drawCalendarGrid)
+function drawCalendarGrid(grid, year, month, activityData) {
     // 요일 헤더
     ['일','월','화','수','목','금','토'].forEach(d => {
         const h = document.createElement('div'); h.className='calendar-day-header'; h.textContent=d; grid.appendChild(h);
@@ -2254,40 +2253,36 @@ async function renderGenericGrid(year, month) {
         d.textContent = prevMonthDays - firstDay + 1 + i; grid.appendChild(d);
     }
 
-    // 2. 이번 달 (날짜 매칭 강화)
+    // 2. 이번 달
     const today = new Date();
     const isTodayMonth = (today.getFullYear() === year && today.getMonth() === month);
 
     for (let i = 1; i <= daysInMonth; i++) {
-    const d = document.createElement('div');
-    d.textContent = i;
-    
-    // YYYY-MM-DD 형식 생성 (예: 2026-01-09)
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-    const count = activityData[dateStr] || 0;
+        const d = document.createElement('div');
+        d.textContent = i;
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const count = activityData[dateStr] || 0;
 
-    d.className = 'calendar-day';
-    
-    // [농도 조절 로직] 기사 수에 따라 세분화된 클래스 부여
-    if (!count || count === 0) {
-        d.classList.add('no-activity');
-    } else if (count <= 2) {
-        d.classList.add('activity-low');      // 1~2개
-    } else if (count <= 5) {
-        d.classList.add('activity-medium');   // 3~5개
-    } else if (count <= 9) {
-        d.classList.add('activity-high');     // 6~9개
-    } else {
-        d.classList.add('activity-very-high'); // 10개 이상
+        d.className = 'calendar-day';
+        if (!count || count === 0) {
+            d.classList.add('no-activity');
+        } else if (count <= 2) {
+            d.classList.add('activity-low');
+        } else if (count <= 5) {
+            d.classList.add('activity-medium');
+        } else if (count <= 9) {
+            d.classList.add('activity-high');
+        } else {
+            d.classList.add('activity-very-high');
+        }
+
+        d.title = `${dateStr}: ${count}개 읽음`;
+        if (isTodayMonth && i === today.getDate()) {
+            d.classList.add('selected');
+            updateList(i); 
+        }
+        grid.appendChild(d);
     }
-    d.title = `${dateStr}: ${count}개 읽음`;
-    // 오늘 날짜 표시 및 선택 로직 유지
-    if (isTodayMonth && i === today.getDate()) {
-        d.classList.add('selected');
-        if (typeof updateList === 'function') updateList(i); 
-    }
-    grid.appendChild(d);
-}
 
     // 3. 다음 달 (35칸 또는 42칸 맞추기)
     const currentCells = grid.querySelectorAll('.calendar-day').length;
@@ -2296,71 +2291,64 @@ async function renderGenericGrid(year, month) {
         const d = document.createElement('div'); d.className = 'calendar-day next-month';
         d.textContent = i; grid.appendChild(d);
     }
-    
-    if (typeof setupGridInteractions === 'function') setupGridInteractions();
+    setupGridInteractions();
 }
 
-// 리스트 업데이트 (ES API 연동)
-async function updateList(day) {
+// [수정된 부분] ajax 형식의 updateList
+function updateList(day) {
     const listContainer = document.getElementById('list-items');
     const listDate = document.getElementById('list-date');
     const listCount = document.getElementById('list-count');
     
-    // 안전하게 숫자형으로 변환
     const dayNum = parseInt(day);
     if (isNaN(dayNum)) return;
 
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
     const dateObj = new Date(year, month, dayNum);
-    
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
-    listDate.textContent = `${month + 1}월 ${dayNum}일 (${dayOfWeek})`;
     
-    // 백엔드 형식을 맞추기 위해 0을 채운 YYYY-MM-DD 생성
+    listDate.textContent = `${month + 1}월 ${dayNum}일 (${dayOfWeek})`;
     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
     
-    console.log("요청 전송 데이터:", formattedDate); // 보내는 날짜
-
     listContainer.innerHTML = '<div class="activity-empty">조회 중...</div>';
 
-    try {
-        const response = await fetch(`/api/user/history?date=${formattedDate}`);
-        const data = await response.json();
-
-        if (data.success && data.articles && data.articles.length > 0) {
-            listCount.textContent = `${data.articles.length}건`;
-            listContainer.innerHTML = data.articles.map(generateArticleHTML).join('');
-        } else {
-            listCount.textContent = `0건`;
-            listContainer.innerHTML = `<div class="activity-empty">조회 내역이 없습니다.</div>`;
+    $.ajax({
+        url: `/api/user/history`,
+        type: 'GET',
+        data: { date: formattedDate },
+        success: function(response) {
+            if (response.success && response.articles && response.articles.length > 0) {
+                listCount.textContent = `${response.articles.length}건`;
+                listContainer.innerHTML = response.articles.map(generateArticleHTML).join('');
+            } else {
+                listCount.textContent = `0건`;
+                listContainer.innerHTML = `<div class="activity-empty">조회 내역이 없습니다.</div>`;
+            }
+        },
+        error: function(xhr) {
+            console.error("데이터 로드 오류:", xhr);
+            listContainer.innerHTML = `<div class="activity-empty">서버 연결 오류</div>`;
         }
-    } catch (e) {
-        console.error("데이터 로드 오류:", e);
-        listContainer.innerHTML = `<div class="activity-empty">서버 연결 오류</div>`;
-    }
+    });
 }
 
 function updateCalendarUI() {
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
-    document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
-
-    // 35칸 그리드 렌더링
+    const titleEl = document.getElementById('calendar-title');
+    if(titleEl) titleEl.textContent = `${year}년 ${month + 1}월`;
     renderGenericGrid(year, month);
-    // 클릭 이벤트 재연결
-    setupGridInteractions();
 }
-
 
 function setupGridInteractions() {
     const grid = document.getElementById('calendar-grid');
+    if (!grid) return;
     const clickableDays = grid.querySelectorAll('.calendar-day:not(.prev-month):not(.next-month)');
     clickableDays.forEach(dayEl => {
         dayEl.onclick = function() {
             clickableDays.forEach(d => d.classList.remove('selected'));
             this.classList.add('selected');
-            // 툴팁 등을 제외한 순수 날짜 숫자만 추출
             const dayValue = this.childNodes[0].textContent.trim();
             updateList(dayValue);
         };
@@ -2372,7 +2360,6 @@ function changeMonth(delta) {
     updateCalendarUI();
 }
 
-// 바깥 클릭 시 드롭다운 닫기
 document.addEventListener('click', (e) => {
     const menu = document.querySelector('.user-menu');
     const dropdown = document.getElementById('userDropdown');
