@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from util.elastic import es
+from zoneinfo import ZoneInfo
 
 router = APIRouter(prefix="/session", tags=["session"])
 
@@ -14,7 +15,7 @@ class SessionPingRequest(BaseModel):
 # POST /session/ping
 @router.post("/ping")
 def session_ping(req: SessionPingRequest):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
 
     # 1. 기존 세션 정보 조회
     res = es.get(
@@ -38,5 +39,4 @@ def session_ping(req: SessionPingRequest):
             "scroll_depth": req.scroll_depth
         }
     )
-
     return {"status": "ok"}

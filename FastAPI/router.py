@@ -3,14 +3,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 
 from starlette.middleware.sessions import SessionMiddleware
+
 # router 연결(session)
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
+from api.admin import router as admin_router
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 import json
+import os
 
 from . import member
 from . import article
@@ -19,17 +22,43 @@ from . import search
 from . import category
 from . import admin
 
+from main import register_jobs
+
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
+from util.scheduler_runtime import scheduler
 
 logger = Logger().get_logger(__name__)
 app = FastAPI()
+
+class ArticleStatusReq(BaseModel):
+    status: int = Field(..., ge=0, le=5, description="0=비활성, 5=활성")
+
+class ArticleEditReq(BaseModel):
+    title: Optional[str] = Field(None, description="기사 제목")
+    content: Optional[str] = Field(None, description="기사 본문")
+    category: Optional[str] = Field(None, description="기사 카테고리")
+
+class TopicArticleEdit(BaseModel):
+    article_id: str
+    sentiment: Literal["positive", "negative", "neutral"]
+
+class TopicEditBody(BaseModel):
+    name: Optional[str] = None
+    # 편집 결과를 최종 상태로 통째로 보내는 방식(간단/안전)
+    articles: Optional[List[TopicArticleEdit]] = None
+
+class TopicArticleReq(BaseModel):
+    pos_ids: Optional[List[str]] = Field(default_factory=list)
+    neg_ids: Optional[List[str]] = Field(default_factory=list)
+    neu_ids: Optional[List[str]] = Field(default_factory=list)
 
 # router 연결 === session 관련 ===
 app.include_router(session_router)
 app.include_router(session_ping_router)
 app.include_router(session_end_router)
+app.include_router(admin_router, prefix="/api")
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
@@ -39,16 +68,32 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 
+@app.on_event("startup")
+def startup_start_scheduler():
+    env = os.getenv("APP_ENV", "dev")
+
+    # job 등록 (id가 고정이어야 admin 토글 가능)
+    register_jobs()
+
+    # 중복 start 방지
+    if not scheduler.running:
+        scheduler.start()
+        logger.info("[SCHEDULER] started in FastAPI startup")
+
+@app.on_event("shutdown")
+def shutdown_stop_scheduler():
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
+        logger.info("[SCHEDULER] stopped in FastAPI shutdown")
+
 @app.get("/")
 async def read_root():
     return RedirectResponse(url="/view/home.html") # 기본 메인페이지로 지정해야됨
-
 
 @app.get("/check-id")
 async def check_id(user_id: str):
     is_available = member.check_id(user_id)
     return {"available": is_available}
-
 
 @app.post("/register")
 async def register_user(
@@ -68,7 +113,6 @@ async def register_user(
         return {"status": "success", "message": "회원가입 완료"}
     return JSONResponse(status_code=500, content={"message": "가입 실패"})
 
-
 @app.post("/login")  # GET보다는 POST 권장 (보안상)
 async def login(
         req: Request,
@@ -84,14 +128,12 @@ async def login(
     else:
         return JSONResponse(status_code=401, content={"message": "정보 불일치"})
 
-
 @app.get("/logout")
 async def logout(req: Request):
     # 1. 세션 데이터 완전히 삭제
     req.session.clear()
     # 2. 삭제 후 메인페이지로 이동
     return RedirectResponse(url="/view/home.html") # 메인페이지에 맞게 형식 조정 필요
-
 
 @app.post("/change-password")
 async def change_password(
@@ -106,7 +148,6 @@ async def change_password(
         return {"status": "success", "message": "변경 완료"}
     return JSONResponse(status_code=400, content={"message": "현재 비밀번호 불일치"})
 
-
 @app.post("/withdraw")
 async def withdraw(req: Request):
     user_id = req.session.get('loginId')
@@ -114,7 +155,6 @@ async def withdraw(req: Request):
         req.session.clear()  # 탈퇴 후 세션 비우기
         return {"message": "탈퇴 완료"}
     return None
-
 
 @app.post("/find-id")
 async def find_user_id(
@@ -128,7 +168,6 @@ async def find_user_id(
         status_code=404,
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
 )
-
 
 @app.post("/find-pw")
 async def find_user_pw(
@@ -145,14 +184,12 @@ async def find_user_pw(
         content={"status": "fail", "message": "일치하는 정보가 없습니다."}
     )
 
-
 # @app.post("/change-information") # 회원 정보수정 만들어야됨  로그인 돼있는 아이디 받아와서 그거에 맞게 적용시키는 식
 # async def change_information(
 #     user_id: str = Form(...),
 # ):
 #     pass
-  
- 
+
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
@@ -177,7 +214,6 @@ def get_article(article_id: str):
             "article": main,
             "related": related
         }
-
 
 @app.post("/update-info")
 async def api_update_info(request: Request):
@@ -212,7 +248,6 @@ async def api_update_pw(
     success = member.update_pw(user_id, current_pw, new_pw)
     if success: return {"status": "success"}
     return JSONResponse(status_code=400, content={"message": "현재 비밀번호가 일치하지 않습니다."})
-
 
 @app.get("/get-my-info")
 async def get_my_info(request: Request):
@@ -252,11 +287,6 @@ def get_topics():
     result = topic.get_topic_from_es()
     return result
 
-class TopicArticleReq(BaseModel):
-    pos_ids: Optional[List[str]] = Field(default_factory=list)
-    neg_ids: Optional[List[str]] = Field(default_factory=list)
-    neu_ids: Optional[List[str]] = Field(default_factory=list)
-
 @app.post("/api/topic_article")
 def get_topic_article(body:TopicArticleReq):
     result = topic.get_topic_article(body)
@@ -294,7 +324,6 @@ async def api_search(request: Request):
         )
 
 # 카테고리별로 불러오기------해정,하영님 합작
-
 @app.get("/api/category/{category_name}")
 async def get_category_articles(category_name: str, size: int = 20, page: int = 1, sort_type: str = "latest"):
     try:
@@ -320,7 +349,6 @@ async def wordcloud_api():
     # 3. 브라우저로 전송
     return json.loads(options_json)
 
-
 @app.get("/api/main-trending")
 async def get_main_trending():
     try:
@@ -332,7 +360,6 @@ async def get_main_trending():
         return {"success": False, "articles": [], "message": "No data found"}
     except Exception as e:
         return {"success": False, "articles": [], "error": str(e)}
-
 
 @app.get("/api/related-articles")
 async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제목을 받아옵니다.
@@ -351,10 +378,51 @@ async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@app.get("/api/admin/admin_logs")
+def get_admin_logs_initial():
+    logs, logs_cursor, logs_more = admin.get_admin_logs_page(size=200, cursor=None)
+    articles, articles_cursor, articles_more = admin.get_admin_articles_page(size=200, cursor=None)
+    users = admin.get_admin_users()
+    topics = admin.get_admin_topics()
+    return {
+        "log": logs,
+        "log_next_cursor": logs_cursor,
+        "log_has_more": logs_more,
 
-@app.get("/api/admin_logs")
-async def get_admin_logs():
-    return  {
-        "log": admin.get_admin_data(),
-        "article": admin.get_admin_articles()
+        "article": articles,
+        "article_next_cursor": articles_cursor,
+        "article_has_more": articles_more,
+
+        "users": users,
+        "topics":topics
     }
+
+@app.get("/api/admin/logs_more")
+def get_admin_logs_more(cursor: str | None = None, size: int = 200):
+    items, next_cursor, has_more = admin.get_admin_logs_page(size=size, cursor=cursor)
+    return {"items": items, "next_cursor": next_cursor, "has_more": has_more}
+
+@app.get("/api/admin/articles_more")
+def get_admin_articles_more(cursor: str | None = None, size: int = 200):
+    items, next_cursor, has_more = admin.get_admin_articles_page(size=size, cursor=cursor)
+    return {"items": items, "next_cursor": next_cursor, "has_more": has_more}
+
+@app.patch("/api/admin/hide_articles/{user_id}")
+def hide_articles(user_id: str , body: ArticleStatusReq):
+    return  admin.hide_articles(user_id, body)
+
+@app.patch("/api/admin/toggle_users/{user_id}")
+def toggle_users(user_id: str):
+    return  admin.toggle_users(user_id)
+
+@app.get("/api/admin/article_detail/{article_id}")
+def article_detail(article_id: str):
+    return admin.article_detail(article_id)
+
+@app.patch("/api/admin/edit_articles/{article_id}")
+def article_detail(article_id: str, body: ArticleEditReq):
+    return admin.edit_articles(article_id,body)
+
+@app.patch("/api/admin/edit_topics/{topic_id}")
+def edit_topics(topic_id: str, body: TopicEditBody):
+    return admin.edit_topics(topic_id, body)

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Query
 from datetime import datetime, timezone
 from util.elastic import es
 from api.user_embedding import update_session_embedding
+from zoneinfo import ZoneInfo
 
 router = APIRouter(prefix="/session", tags=["session"])
 
@@ -12,7 +13,7 @@ def session_end(session_id: str = Query(...)):
     - RDB 저장 ❌
     - ES에 종료 신호만 기록 ⭕
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
 
     # 세션 존재 여부 확인
     try:
