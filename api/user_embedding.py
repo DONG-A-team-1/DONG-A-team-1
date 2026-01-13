@@ -148,30 +148,35 @@ def user_articles(user_id):
     ]
 
 
-# -------------------------------------------------
-# 유저 추천 메인 함수 (🔥 안전 패치 핵심)
-# -------------------------------------------------
 def recommend_articles(user_id: str, limit: int = 20):
     """
     유저별 추천 기사 생성 (안전 버전)
 
-    - 추천 입력 기사: status=5 만 사용
+    - user_embeddings 인덱스 없을 때도 절대 에러 안 남
+    - status=5 기사만 추천
     - article_label 누락 완전 방어
     """
 
-    # 1. 유저 임베딩 존재 여부
-    resp = es.search(
-        index="user_embeddings",
-        body={
-            "_source": ["embedding"],
-            "query": {"term": {"user_id": user_id}}
-        }
-    )
+    # -------------------------------------------------
+    # 1. 유저 임베딩 존재 여부 확인 (🔥 핵심)
+    # -------------------------------------------------
+    if not es.indices.exists(index="user_embeddings"):
+        has_user_embedding = False
+        user_hits = []
+    else:
+        resp = es.search(
+            index="user_embeddings",
+            body={
+                "_source": ["embedding"],
+                "query": {"term": {"user_id": user_id}}
+            }
+        )
+        user_hits = resp.get("hits", {}).get("hits", [])
+        has_user_embedding = len(user_hits) > 0
 
-    user_hits = resp.get("hits", {}).get("hits", [])
-    has_user_embedding = len(user_hits) > 0
-
+    # -------------------------------------------------
     # 2. 후보 기사 조회
+    # -------------------------------------------------
     if has_user_embedding:
         query_vec = user_hits[0]["_source"]["embedding"]
 
@@ -222,7 +227,9 @@ def recommend_articles(user_id: str, limit: int = 20):
     if not hits:
         return []
 
+    # -------------------------------------------------
     # 3. 점수 범위 계산
+    # -------------------------------------------------
     trend_scores = []
     trust_scores = []
 
@@ -245,7 +252,9 @@ def recommend_articles(user_id: str, limit: int = 20):
             return 0.0
         return (v - mn) / (mx - mn)
 
+    # -------------------------------------------------
     # 4. 최종 점수 계산
+    # -------------------------------------------------
     ranked = []
 
     for h in hits:
