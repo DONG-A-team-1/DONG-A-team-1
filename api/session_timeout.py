@@ -97,9 +97,20 @@ def close_timeout_sessions():
                 {"aid": article_id}
             ).fetchone()
 
-            # 기사 정보 없으면 스킵
+            # [수정] 기사 정보가 없으면 ES에서 종료 처리만 하고 루프를 넘김
             if not article_row:
-                continue
+                logger.warning(f"기사 정보가 DB에 없어 세션을 종료 처리만 합니다. (Article ID: {article_id})")
+
+                # ES에서 이 세션을 다시 불러오지 않도록 완료 처리
+                es.update(
+                    index="session_data",
+                    id=session_id,  # 혹은 s["_id"]
+                    doc={
+                        "is_end": True,
+                        "ended_signal": False
+                    }
+                )
+                continue  # ES를 업데이트했으므로 이제 안전하게 다음 세션으로 넘어감
 
             article_length = article_row[0]
 
