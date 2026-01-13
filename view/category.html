@@ -652,7 +652,6 @@ body.dark .article-description {
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    flex-wrap: wrap;
 }
 
 body.dark .article-meta {
@@ -663,6 +662,8 @@ body.dark .article-meta {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Reliability Badge */
@@ -1331,6 +1332,24 @@ function initializeUI(category) {
 
     const scopeSelect = document.getElementById('searchScope');
     if (scopeSelect) updateSearchPlaceholder(scopeSelect);
+}
+
+// 로그아웃
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
+        }
+    });
 }
 
 // ========== 백엔드에서 데이터 가져오기 (정렬 파라미터 추가) ==========

@@ -161,7 +161,6 @@ async def article_page(request: Request, article_id: str):
         status_code=302
     )
 
-
 @app.get("/api/article/{article_id}")
 def get_article(article_id: str):
     # ES/DB에서 조회
@@ -249,26 +248,22 @@ async def topic_page(request: Request):
         status_code=302
     )
 
-
 @app.get("/api/topic")
 def get_topics():
     result = topic.get_topic_from_es()
     return result
-
 
 class TopicArticleReq(BaseModel):
     pos_ids: Optional[List[str]] = Field(default_factory=list)
     neg_ids: Optional[List[str]] = Field(default_factory=list)
     neu_ids: Optional[List[str]] = Field(default_factory=list)
 
-
 @app.post("/api/topic_article")
-def get_topic_article(body: TopicArticleReq):
+def get_topic_article(body:TopicArticleReq):
     result = topic.get_topic_article(body)
     return result
 
-
-@app.post("/api/search")  # 검색 기능-----
+@app.post("/api/search") # 검색 기능-----
 async def api_search(request: Request):
     """기사 검색 API"""
     try:
@@ -280,7 +275,7 @@ async def api_search(request: Request):
         size = data.get('size', 20)
         # 검색 결과 몇 개 가져올 지 결정하는 숫자
 
-        if not query:  # 검색어가 없다면.
+        if not query: # 검색어가 없다면.
             return JSONResponse(
                 status_code=400,
                 content={"success": False, "message": "검색어를 입력해주세요"}
@@ -298,7 +293,6 @@ async def api_search(request: Request):
             status_code=500,
             content={"success": False, "message": str(e)}
         )
-
 
 # 카테고리별로 불러오기------해정,하영님 합작
 
@@ -332,29 +326,42 @@ async def wordcloud_api():
 @app.get("/api/main-trending")
 async def get_main_trending():
     try:
-        # search.py에서 결과 가져오기
-        result = search.es_search_articles(search_type="all", query="", size=5)
-        # 만약 결과가 딕셔너리고 그 안에 'articles' 리스트가 있다면
-        if isinstance(result, dict) and result.get("success"):
-            return {"success": True, "articles": result["articles"]}
-        return {"success": False, "articles": [], "message": "No data found"}
+        return search.es_search_trending_articles(size=5)
     except Exception as e:
         return {"success": False, "articles": [], "error": str(e)}
 
 
 @app.get("/api/related-articles")
-async def get_related_articles(id: str, title: str = ""):  # 프론트에서 제목을 받아옵니다.
+async def get_related_articles(id: str):
+    """
+    연관 기사 API
+    기사 임베딩을 기준으로 의미가 비슷한 기사들을 반환
+    """
     try:
-        # 제목(title)이 있다면 그 제목을 검색어로 사용해 연관된 기사를 찾습니다.
-        # 검색어(title)가 있으면 'search_type="title"'로 유사도를 측정합니다.
-        result = search.es_search_articles(search_type="title", query=title, size=5)
+        articles = search.es_search_related_by_embedding(
+            article_id=id,
+            size=4
+        )
 
-        if result.get("success"):
-            # 현재 보고 있는 기사가 연관 기사 목록에 포함될 수 있으므로,
-            # ID가 같은 기사는 제외하는 필터링을 거치면 더 완벽합니다.
-            filtered_articles = [a for a in result["articles"] if a["article_id"] != id]
-            return {"success": True, "articles": filtered_articles[:4]}  # 최종 4개 반환
+        return {
+            "success": True,
+            "articles": articles
+        }
 
-        return {"success": False, "articles": []}
     except Exception as e:
+        return {
+            "success": False,
+            "articles": [],
+            "error": str(e)
+        }
+
         return {"success": False, "error": str(e)}
+
+@app.get("/api/user/history")
+async def api_user_history(request: Request, date: str):
+    user_id = request.session.get("loginId")
+
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False})
+
+    return member.get_user_history(user_id, date)
