@@ -22,7 +22,6 @@
         rel="stylesheet"
       />
 
-    <link rel="stylesheet" href="./styles.css" />
 
    <style>
       /*다크모드 */
@@ -2022,12 +2021,20 @@ $(document).ready(function () {
 
     function loadNews() {
         $.ajax({
-            url: "/api/main-trending",
+            url: "/api/recommend/trend?limit=5",
             type: "GET",
             success: function (response) {
                 if (!response.success || !response.articles) return;
 
-                globalArticles = response.articles;
+                globalArticles = response.articles.map(item => ({
+                    article_id: item.article_id,
+                    title: item.title,
+                    image: item.image,
+                    source: item.press || "뉴스",
+                    category: "트렌드",
+                    trustScore: Math.round((item.trust_score || 0) * 100)
+                }));
+
                 const $track = $('#track');
                 const $template = $('#main-news-template');
 
@@ -2045,13 +2052,11 @@ $(document).ready(function () {
                     $clone.find('.press-name').text(data.source);
                     $clone.find('.trust-val').text(Math.round(data.trustScore / 100) + '점');
 
-
                     $track.append($clone);
                 });
 
                 initCustomCarousel();
 
-                // 첫 기사 기준 연관기사 로드
                 if (globalArticles.length > 0) {
                     loadRelatedArticles(
                         globalArticles[0].article_id,
@@ -2059,36 +2064,37 @@ $(document).ready(function () {
                     );
                 }
             }
+        }); // ✅ ajax 닫힘
+    }
+
+    // 캐러셀 ------------------------------
+    function initCustomCarousel() {
+        const $track = $('#track');
+        let index = 0;
+
+        $('#nextBtn').off().on('click', function() {
+            index = (index + 1) % globalArticles.length;
+            moveSlide(index);
         });
-    }
-// 캐러셀 ----------------------------------------------------------------------------
-function initCustomCarousel() {
-    const $track = $('#track');
-    let index = 0;
- // 오른쪽 버튼 클릭
-    $('#nextBtn').off().on('click', function() {
-        index = (index + 1) % globalArticles.length;
-        moveSlide(index);
-    });
-// 왼쪽 버튼 클릭
-    $('#prevBtn').off().on('click', function() {
-        index = (index - 1 + globalArticles.length) % globalArticles.length;
-        moveSlide(index);
-    });
 
-function moveSlide(currentIndex) {
-    const cardWidth = $track.find('.news-link').outerWidth(true);
-    $track.css({
-        transform: `translateX(${-currentIndex * cardWidth}px)`,
-        transition: 'transform 0.4s ease-in-out'
-    });
+        $('#prevBtn').off().on('click', function() {
+            index = (index - 1 + globalArticles.length) % globalArticles.length;
+            moveSlide(index);
+        });
 
-    const article = globalArticles[currentIndex];
-    if (article) {
-        loadRelatedArticles(article.article_id, article.title);
+        function moveSlide(currentIndex) {
+            const cardWidth = $track.find('.news-link').outerWidth(true);
+            $track.css({
+                transform: `translateX(${-currentIndex * cardWidth}px)`,
+                transition: 'transform 0.4s ease-in-out'
+            });
+
+            const article = globalArticles[currentIndex];
+            if (article) {
+                loadRelatedArticles(article.article_id, article.title);
+            }
+        }
     }
-}
-}
 
     loadNews();
 });

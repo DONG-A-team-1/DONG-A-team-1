@@ -323,11 +323,12 @@ def recommend_articles(user_id: str, limit: int = 20):
     # 4. 트렌드 / 신뢰도 점수 범위 계산
     # -------------------------------------------------
     trend_scores = [
-        h["_source"]["article_label"].get("trend_score", 0.0)
+        h.get("_source", {}).get("article_label", {}).get("trend_score", 0.0)
         for h in hits
     ]
+
     trust_scores = [
-        h["_source"]["article_label"].get("article_trust_score", 0.0)
+        h.get("_source", {}).get("article_label", {}).get("article_trust_score", 0.0)
         for h in hits
     ]
 
