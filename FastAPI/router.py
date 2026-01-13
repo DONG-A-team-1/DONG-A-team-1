@@ -403,3 +403,86 @@ async def get_activity(year: int, month: int, request: Request):
             status_code=500,
             content={"success": False, "activity": {}, "total_views": 0, "error": str(e)}
         )
+# 토픽 홈화면에 띄우기-------------------------------------
+@app.get("/api/topic-opinion")
+def get_topic_opinion():
+    """
+    홈 화면용: 1위 토픽과 해당 토픽의 긍정/부정 기사
+    """
+    try:
+        # 1. 전체 토픽 가져오기
+        topics = topic.get_topic_from_es()
+
+        if not topics:
+            return {
+                "topic": "데이터 없음",
+                "positive_articles": [],
+                "negative_articles": []
+            }
+
+        # 2. 1위 토픽 선택
+        top_topic = topics[0]
+        topic_name = top_topic.get("topic_name", "토픽 없음")
+
+        # 3. 긍정/부정 기사 객체 추출 (최대 2개씩)
+        positive = top_topic.get("positive_articles", [])[:2]
+        negative = top_topic.get("negative_articles", [])[:2]
+
+        # 4. article_id 리스트 추출
+        positive_ids = [art.get("article_id") for art in positive if art.get("article_id")]
+        negative_ids = [art.get("article_id") for art in negative if art.get("article_id")]
+
+        # 5. ES에서 실제 기사 정보 가져오기
+
+        positive_articles = []
+        if positive_ids:
+            try:
+                docs = article.get_article_from_es(
+                    positive_ids,
+                    SOURCE_FIELDS=["article_id", "article_title"],
+                    max=len(positive_ids)
+                )
+                positive_articles = [
+                    {
+                        "article_id": doc.get("article_id"),
+                        "title": doc.get("article_title", "제목 없음")
+                    }
+                    for doc in docs
+                ]
+            except Exception as e:
+                logger.warning(f"긍정 기사 조회 실패: {e}")
+
+        negative_articles = []
+        if negative_ids:
+            try:
+                docs = article.get_article_from_es(
+                    negative_ids,
+                    SOURCE_FIELDS=["article_id", "article_title"],
+                    max=len(negative_ids)
+                )
+                negative_articles = [
+                    {
+                        "article_id": doc.get("article_id"),
+                        "title": doc.get("article_title", "제목 없음")
+                    }
+                    for doc in docs
+                ]
+            except Exception as e:
+                logger.warning(f"부정 기사 조회 실패: {e}")
+
+        return {
+            "topic": topic_name,
+            "positive_articles": positive_articles,
+            "negative_articles": negative_articles
+        }
+
+    except Exception as e:
+        logger.exception("topic-opinion 조회 실패")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "topic": "에러 발생",
+                "positive_articles": [],
+                "negative_articles": []
+            }
+        )
