@@ -8,6 +8,7 @@ from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
 from api.recommend import router as recommend_router
+from api.recommend_trend import recommend_trend_articles
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -43,6 +44,14 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 @app.get("/")
 async def read_root():
     return RedirectResponse(url="/view/home.html")  # 기본 메인페이지로 지정해야됨
+
+@app.get("/api/recommend/trend")
+def get_trend_recommend(limit: int = 5):
+    return {
+        "success": True,
+        "articles": recommend_trend_articles(limit)
+    }
+
 
 
 @app.get("/check-id")
