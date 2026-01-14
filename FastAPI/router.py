@@ -571,3 +571,15 @@ async def get_category_stats(request: Request):
     except Exception as e:
         logger.error(f"Category stats error: {e}")
         return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+@app.post("/api/user/reset-algorithm")
+async def reset_algorithm_api(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    success = member.reset_user_algorithm(user_id)
+    if success:
+        return {"success": True, "message": "알고리즘 및 히스토리가 초기화되었습니다."}
+    else:
+        return JSONResponse(status_code=500, content={"success": False, "message": "초기화 중 오류가 발생했습니다."})

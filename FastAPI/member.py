@@ -327,6 +327,7 @@ def get_user_history(user_id: str, date: str):
             FROM session_data
             WHERE user_id = :user_id
               AND DATE(started_at) = :date
+              AND is_train = 1
             ORDER BY started_at DESC
         """)
 
@@ -405,6 +406,7 @@ def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
             WHERE user_id = :uid 
               AND YEAR(started_at) = :year 
               AND MONTH(started_at) = :month
+              AND is_train = 1
             GROUP BY DATE(started_at)
         """)
 
@@ -421,7 +423,7 @@ def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
 def get_user_category_stats(user_id: str):
     # 1. MySQL에서 사용자가 읽은 모든 article_id 추출
     with SessionLocal() as db:
-        query = text("SELECT article_id FROM session_data WHERE user_id = :uid")
+        query = text("SELECT article_id FROM session_data WHERE user_id = :uid AND is_train = 1")
         rows = db.execute(query, {"uid": user_id}).fetchall()
         article_ids = [row[0] for row in rows]
 
@@ -472,3 +474,26 @@ def get_user_category_stats(user_id: str):
     # 퍼센트 높은 순 정렬
     stats.sort(key=lambda x: x['percent'], reverse=True)
     return stats
+
+def reset_user_algorithm(user_id):
+    try:
+        # 1. MySQL: 세션 데이터 비활성화 (히스토리 및 통계 제외)
+        with SessionLocal() as db:
+            query = text("UPDATE session_data SET is_train = 0 WHERE user_id = :uid")
+            db.execute(query, {"uid": user_id})
+            db.commit()
+
+        # 2. Elasticsearch: 유저 임베딩 문서 삭제 (추천 가중치 초기화)
+        # delete_by_query를 사용하여 해당 유저의 모든 임베딩 데이터를 삭제합니다.
+        es.delete_by_query(
+            index="user_embeddings",
+            body={
+                "query": {
+                    "term": { "user_id": user_id }
+                }
+            }
+        )
+        return True
+    except Exception as e:
+        print(f"Algorithm & Embedding reset error: {e}")
+        return False
