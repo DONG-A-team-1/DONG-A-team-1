@@ -28,14 +28,19 @@ def session_ping(req: SessionPingRequest):
     next_seq = source["seq"] + 1
 
     # 3. ES 문서 업데이트
+    prev_depth = source.get("scroll_depth", 0.0)
+    new_depth = max(prev_depth, req.scroll_depth)
+
     es.update(
         index="session_data",
         id=req.session_id,
         retry_on_conflict=3,
-        doc={
-            "seq": next_seq,
-            "last_ping_at": now,
-            "scroll_depth": req.scroll_depth
+        body={
+            "doc": {
+                "seq": next_seq,
+                "last_ping_at": now,
+                "scroll_depth": new_depth
+            }
         }
     )
 

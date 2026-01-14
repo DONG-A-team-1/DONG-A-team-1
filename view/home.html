@@ -1871,7 +1871,6 @@ function fetchUserInfo() {
                 const user = response.data;
 
                 // 로그인 정보 저장
-                localStorage.setItem('loginId', user.user_id);
                 localStorage.setItem('user_id', user.user_id);
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
@@ -1997,8 +1996,8 @@ function loadPersonalizedArticles() {
 
     // 🔴 핵심: 백엔드가 user_id 필수
     const userId = isLoggedIn
-        ? localStorage.getItem('loginId')
-        : "guest";
+      ? localStorage.getItem('user_id')
+      : "guest";
 
     if (!userId) {
         console.warn("userId 없음 → 추천 중단");

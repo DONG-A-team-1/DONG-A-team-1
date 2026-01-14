@@ -226,7 +226,22 @@ def recommend_articles(user_id: str, limit: int = 20):
     hits = res.get("hits", {}).get("hits", [])
     if not hits:
         return []
+    filtered_hits = []
 
+    for h in hits:
+        src = h.get("_source", {})
+        title = src.get("article_title", "").strip()
+
+        # 1. 제목 너무 짧은 경우 제거
+        if len(title) < 12:
+            continue
+
+        filtered_hits.append(h)
+
+    hits = filtered_hits
+
+    if not hits:
+        return []
     # -------------------------------------------------
     # 3. 점수 범위 계산
     # -------------------------------------------------

@@ -615,9 +615,8 @@ function handleLogin(event) {
             // ⭐️ 핵심: 서버에서 받은 정보를 브라우저에 저장합니다.
             // 백엔드에서 "user_name"을 보내주도록 수정했다면 response.user_name을 사용합니다.
             localStorage.setItem('isLoggedIn', 'true');
-            if (response.user_name) {
-                localStorage.setItem('userName', response.user_name);
-            }
+            localStorage.setItem('user_id', response.user_id); // ⭐ 추가
+            localStorage.setItem('userName', response.user_name);
 
             // 성공 팝업 띄우기
             $('#success-popup').addClass('show');

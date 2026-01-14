@@ -20,7 +20,7 @@ from sqlalchemy import text
 logger = Logger().get_logger(__name__)
 # 설정값
 # ping이 이 시간(초) 이상 없으면 세션 종료로 판단
-TIMEOUT_SECONDS = 120
+TIMEOUT_SECONDS = 10
 
 
 
@@ -77,7 +77,7 @@ def close_timeout_sessions():
     # (5) DB 세션 열기
     db: Session = SessionLocal()
     updated_users = set()
-    # 세션 하나씩 처리
+
     try:
         for s in sessions:
             src = s["_source"]
@@ -86,14 +86,39 @@ def close_timeout_sessions():
             user_id = src["user_id"]
             article_id = src["article_id"]
             updated_users.add(user_id)
-            # (6) 체류시간 계산 (초 단위)
-            started_dt = datetime.fromisoformat(src["started_at"])
-            ended_dt = datetime.fromisoformat(src["last_ping_at"])
-            scroll_depth = src.get("scroll_depth", 0.0)
+
+            # =====================================================
+            # 🔥 [핵심 수정]
+            # 종료 조건 문서 ❌
+            # → 해당 session_id의 "가장 최신 ping 문서"를 다시 조회
+            # =====================================================
+            latest_res = es.search(
+                index="session_data",
+                body={
+                    "query": {
+                        "term": {"session_id": session_id}
+                    },
+                    "sort": [
+                        {"last_ping_at": {"order": "desc"}}
+                    ],
+                    "size": 1
+                }
+            )
+
+            latest_src = latest_res["hits"]["hits"][0]["_source"]
+
+            # 실제 종료 시각 = 마지막 ping 시각
+            started_dt = datetime.fromisoformat(latest_src["started_at"])
+            ended_dt = datetime.fromisoformat(latest_src["last_ping_at"])
+
+            # 🔥 세션 전체에서 도달한 최대 scroll_depth
+            scroll_depth = latest_src.get("scroll_depth", 0.0)
 
             duration = (ended_dt - started_dt).total_seconds()
 
-            # (7) 기사 길이 조회 (기본 읽기 정도 계산용)
+            # -----------------------------------------------------
+            # (7) 기사 길이 조회
+            # -----------------------------------------------------
             article_row = db.execute(
                 text("""
                 SELECT article_length
@@ -103,36 +128,44 @@ def close_timeout_sessions():
                 {"aid": article_id}
             ).fetchone()
 
-            # [수정] 기사 정보가 없으면 ES에서 종료 처리만 하고 루프를 넘김
             if not article_row:
-                logger.warning(f"기사 정보가 DB에 없어 세션을 종료 처리만 합니다. (Article ID: {article_id})")
+                logger.warning(f"기사 정보 없음 → ES 종료만 처리 (article_id={article_id})")
 
-                # ES에서 이 세션을 다시 불러오지 않도록 완료 처리
                 es.update(
                     index="session_data",
-                    id=session_id,  # 혹은 s["_id"]
-                    doc={
-                        "is_end": True,
-                        "ended_signal": False
+                    id=session_id,
+                    body={
+                        "doc": {
+                            "is_end": True,
+                            "ended_signal": False
+                        }
                     }
                 )
-                continue  # ES를 업데이트했으므로 이제 안전하게 다음 세션으로 넘어감
+                continue
 
             article_length = article_row[0]
 
-            # (8) 기본 읽기 정도 :공식: 실제 체류 시간 / (문자 수 * 0.07)
+            # -----------------------------------------------------
+            # (8) 기본 읽기 비율
+            # -----------------------------------------------------
             base_read = duration / (article_length * 0.07)
-            base_read = min(base_read, 1.0)  # 최대 1 제한
+            base_read = min(base_read, 1.0)
 
+            # -----------------------------------------------------
             # (9) 즉시 이탈 판단
+            # -----------------------------------------------------
             is_bounce = (duration < 5) or (scroll_depth < 0.2)
 
+            # -----------------------------------------------------
             # (10) 최종 선호도 점수
+            # -----------------------------------------------------
             final_score = 0.0 if is_bounce else round(
                 base_read * 0.4 + scroll_depth * 0.6, 3
             )
 
-            # (11) DB 저장 : session_data 테이블 (최종 세션 기록)
+            # -----------------------------------------------------
+            # (11) RDB 저장
+            # -----------------------------------------------------
             db.execute(
                 text("""
                 INSERT INTO session_data
@@ -154,7 +187,6 @@ def close_timeout_sessions():
                 }
             )
 
-            # preference_score db테이블
             db.execute(
                 text("""
                 INSERT INTO preference_score
@@ -173,17 +205,23 @@ def close_timeout_sessions():
                 }
             )
 
-            # (12) ES 세션 종료 처리
+            # -----------------------------------------------------
+            # (12) ES 종료 확정
+            # -----------------------------------------------------
             es.update(
                 index="session_data",
                 id=session_id,
                 retry_on_conflict=3,
-                doc={
-                    "is_end": True,
-                    "ended_signal": False
-                })
+                body={
+                    "doc": {
+                        "is_end": True,
+                        "ended_signal": False
+                    }
+                }
+            )
 
         db.commit()
+
     finally:
         db.close()
 
