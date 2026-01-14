@@ -22,8 +22,14 @@ logger = Logger().get_logger(__name__)
 # ping이 이 시간(초) 이상 없으면 세션 종료로 판단
 TIMEOUT_SECONDS = 120
 
+
+
 # 메인 배치 함수
 def close_timeout_sessions():
+    if not es.indices.exists(index="session_data"):
+        logger.warning("session_data index not found. skip timeout batch.")
+        return
+
     logger.info("-1분 간격 호출 대상 세션 정리-")
     """
     - APScheduler가 1분마다 호출 종료 대상 세션을 정리하고 DB에 반영

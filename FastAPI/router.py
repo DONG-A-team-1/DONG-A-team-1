@@ -8,6 +8,7 @@ from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
 from api.recommend import router as recommend_router
+from api.recommend_trend import recommend_trend_articles
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -43,6 +44,14 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 @app.get("/")
 async def read_root():
     return RedirectResponse(url="/view/home.html")  # 기본 메인페이지로 지정해야됨
+
+@app.get("/api/recommend/trend")
+def get_trend_recommend(limit: int = 5):
+    return {
+        "success": True,
+        "articles": recommend_trend_articles(limit)
+    }
+
 
 
 @app.get("/check-id")
@@ -355,8 +364,6 @@ async def get_related_articles(id: str):
             "error": str(e)
         }
 
-        return {"success": False, "error": str(e)}
-
 @app.get("/api/user/history")
 async def api_user_history(request: Request, date: str):
     user_id = request.session.get("loginId")
@@ -408,3 +415,65 @@ async def get_category_stats(request: Request):
     except Exception as e:
         logger.error(f"Category stats error: {e}")
         return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+# 토픽 홈화면에 띄우기-------------------------------------
+@app.get("/api/topic-opinion")
+def get_topic_opinion():
+    try:
+        topics = topic.get_topic_from_es()
+
+        if not topics:
+            return {
+                "topic": "데이터 없음",
+                "positive_articles": [],
+                "negative_articles": []
+            }
+
+        top_topic = topics[0]
+        topic_name = top_topic.get("topic_name", "토픽 없음")
+
+        positive_ids = [
+            art["article_id"]
+            for art in top_topic.get("positive_articles", [])
+            if art.get("article_id")
+        ][:2]
+
+        negative_ids = [
+            art["article_id"]
+            for art in top_topic.get("negative_articles", [])
+            if art.get("article_id")
+        ][:2]
+
+        def fetch_articles(ids):
+            if not ids:
+                return []
+            try:
+                docs = article.get_article_from_es(
+                    ids,
+                    SOURCE_FIELDS=["article_id", "article_title"]
+                )
+                return [
+                    {
+                        "article_id": d.get("article_id"),
+                        "title": d.get("article_title", "제목 없음")
+                    }
+                    for d in docs
+                ]
+            except Exception as e:
+                logger.warning(f"기사 조회 실패: {e}")
+                return []
+
+        return {
+            "topic": topic_name,
+            "positive_articles": fetch_articles(positive_ids),
+            "negative_articles": fetch_articles(negative_ids)
+        }
+
+    except Exception:
+        logger.exception("topic-opinion 조회 실패")
+        return {
+            "topic": "에러 발생",
+            "positive_articles": [],
+            "negative_articles": []
+        }

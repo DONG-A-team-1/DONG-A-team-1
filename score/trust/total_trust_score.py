@@ -4,32 +4,49 @@
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from pathlib import Path
 
 from score.trust.HAND import (
     hand_title_score,
     hand_body_score
 )
 
+# ===============================
+# 모델 경로 (프로젝트 루트 기준)
+# ===============================
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_DIR = PROJECT_ROOT / "model" / "klue_bert_clickbait_test (2)" / "epoch_3"
 
-# 모델 설정
-MODEL_DIR = r"model/klue_bert_clickbait_test (2)/epoch_3"
+print("USING FILE :", __file__)
+print("MODEL_DIR  :", MODEL_DIR)
+print("EXISTS     :", MODEL_DIR.exists())
+
 MODEL_VERSION = "klue_v1_hand_v6"
 MAX_LEN = 256
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+# 반드시 local_files_only=True
+tokenizer = AutoTokenizer.from_pretrained(
+    MODEL_DIR,
+    local_files_only=True
+)
+
 model = AutoModelForSequenceClassification.from_pretrained(
     MODEL_DIR,
-    num_labels=2
+    num_labels=2,
+    local_files_only=True
 )
+
 model.to(device)
 model.eval()
 
 print("학습한 모델 로드 완료:", device)
 
 
+# ===============================
 # KLUE-BERT 추론
+# ===============================
 def klue_clickbait_prob(title: str, content: str) -> float:
     text = f"[TITLE] {title} [CONTENT] {content}"
 
@@ -50,7 +67,10 @@ def klue_clickbait_prob(title: str, content: str) -> float:
     probs = F.softmax(outputs.logits, dim=1)
     return probs[0, 1].item()
 
+
+# ===============================
 # 최종 신뢰도 계산
+# ===============================
 def compute_trust_score(title: str, content: str) -> dict:
     clickbait_prob = klue_clickbait_prob(title, content)
     hand_title = hand_title_score(title)
@@ -70,5 +90,3 @@ def compute_trust_score(title: str, content: str) -> dict:
         },
         "status": 4
     }
-
-
