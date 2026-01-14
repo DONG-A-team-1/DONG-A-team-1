@@ -14,7 +14,7 @@ from score.trend.article_trend_pipeline import run_article_trend_pipeline
 from util.elastic import es
 from util.elastic_templates import build_error_doc, build_info_docs  # ✅ info_logs 추가
 from api.session_timeout import close_timeout_sessions
-
+from util.scheduler_runtime import scheduler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +25,48 @@ KST = timezone(timedelta(hours=9))
 def _run_id_kst() -> str:
     return datetime.now(KST).strftime("%Y%m%d_%H")
 
+
+def register_jobs():
+    """✅ job 등록만 분리 (admin에서 job id로 pause/resume 하려면 id가 고정이어야 함)"""
+
+    scheduler.add_job(
+        run_pipeline,
+        IntervalTrigger(hours=1),
+        id="news_full_pipeline",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=300,
+        paused=True
+    )
+
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="session_timeout_job",
+        replace_existing=True,
+        max_instances=1
+    )
+
+    scheduler.add_job(
+        run_polarity,
+        CronTrigger(hour=5, minute=0),
+        id="polarity_daily_0500",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=3600,
+        paused=True,
+    )
+
+def register_jobs_test():
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="session_timeout_job",
+        replace_existing=True,
+        max_instances=1
+    )
 
 def run_pipeline():
     run_id = _run_id_kst()
@@ -161,7 +203,6 @@ def run_pipeline():
         )
         es.index(index="error_log", document=doc)
 
-
 def run_polarity():
     run_id = _run_id_kst()
     env = os.getenv("APP_ENV", "dev")
@@ -228,10 +269,10 @@ def run_polarity():
         )
         es.index(index="error_log", document=doc)
 
-
 def main():
     env = os.getenv("APP_ENV", "dev")
-    scheduler = BackgroundScheduler(timezone="Asia/Seoul")
+    # scheduler = BackgroundScheduler(timezone="Asia/Seoul")  # ❌ 제거 (이 줄만 바뀜)
+    # ✅ 대신 scheduler_runtime.scheduler 사용 (이미 timezone Asia/Seoul로 생성됨)
 
     # 프로그램 시작 시 즉시 1회 실행 (실험용)
     logger.info("initial run (startup)")
@@ -241,7 +282,7 @@ def main():
         run_pipeline()
         es.index(
             index="info_logs",
-            document=build_info_docs (
+            document=build_info_docs(
                 run_id=_run_id_kst(),
                 job_id="scheduler_startup",
                 component="scheduler",
@@ -256,7 +297,7 @@ def main():
     except Exception as e:
         es.index(
             index="info_logs",
-            document=build_info_docs (
+            document=build_info_docs(
                 run_id=_run_id_kst(),
                 job_id="scheduler_startup",
                 component="scheduler",
@@ -280,7 +321,7 @@ def main():
         run_polarity()
         es.index(
             index="info_logs",
-            document=build_info_docs (
+            document=build_info_docs(
                 run_id=_run_id_kst(),
                 job_id="scheduler_startup",
                 component="scheduler",
@@ -295,7 +336,7 @@ def main():
     except Exception as e:
         es.index(
             index="info_logs",
-            document=build_info_docs (
+            document=build_info_docs(
                 run_id=_run_id_kst(),
                 job_id="scheduler_startup",
                 component="scheduler",
@@ -312,34 +353,7 @@ def main():
         logger.exception("startup run_polarity failed")
 
     # 1시간마다 실행
-    scheduler.add_job(
-        run_pipeline,
-        IntervalTrigger(hours=1),
-        id="news_full_pipeline",
-        replace_existing=True,
-        max_instances=1,     # 겹침 방지
-        coalesce=True,       # 밀린 실행 합치기
-        misfire_grace_time=300
-    )
-    # 1분마다 세션 타임아웃 검사
-    scheduler.add_job(
-        close_timeout_sessions,
-        IntervalTrigger(minutes=1),
-        id="session_timeout_job",
-        replace_existing=True,
-        max_instances=1
-    )
-
-    # 매일 05:00 실행
-    scheduler.add_job(
-        run_polarity,
-        CronTrigger(hour=5, minute=0),
-        id="polarity_daily_0500",
-        replace_existing=True,
-        max_instances=1,  # 겹침 방지
-        coalesce=True,
-        misfire_grace_time=3600
-    )
+    register_jobs()
 
     scheduler.start()
     logger.info("scheduler started (bigkinds - 1h interval)(topic_polar - at 5:00 AM")
@@ -347,7 +361,7 @@ def main():
     # ✅ info_logs: scheduler start summary
     es.index(
         index="info_logs",
-        document=build_info_docs (
+        document=build_info_docs(
             run_id=_run_id_kst(),
             job_id="scheduler",
             component="scheduler",
@@ -369,7 +383,7 @@ def main():
         # ✅ info_logs: scheduler stop summary
         es.index(
             index="info_logs",
-            document=build_info_docs (
+            document=build_info_docs(
                 run_id=_run_id_kst(),
                 job_id="scheduler",
                 component="scheduler",
@@ -383,10 +397,10 @@ def main():
 
 def test_main():
     env = os.getenv("APP_ENV", "dev")
-    scheduler = BackgroundScheduler(timezone="Asia/Seoul")
+    test_scheduler = BackgroundScheduler(timezone="Asia/Seoul")
     logger.info("[TEST] scheduler test mode start")
     # 테스트용: 1분마다 run_pipeline 실행
-    scheduler.add_job(
+    test_scheduler.add_job(
         close_timeout_sessions,
         IntervalTrigger(minutes=1),
         id="test_news_full_pipeline_1min",
@@ -395,31 +409,15 @@ def test_main():
         coalesce=True,
         misfire_grace_time=60
     )
-    scheduler.start()
+    test_scheduler.start()
     logger.info("[TEST] 1-minute interval scheduler started")
-
 
     try:
         while True:
             time.sleep(60)
     except (KeyboardInterrupt, SystemExit):
-        scheduler.shutdown()
+        test_scheduler.shutdown()
         logger.info("[TEST] scheduler stopped")
-
-        es.index(
-            index="info_logs",
-            document=build_info_docs(
-                run_id=_run_id_kst(),
-                job_id="scheduler_test",
-                component="scheduler",
-                stage="scheduler_test_stopped",
-                status="warn",
-                message="test scheduler stopped",
-                service_name="donga-scheduler",
-                env=env,
-            )
-        )
-
 
 if __name__ == "__main__":
     main()
