@@ -55,7 +55,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "article_label",
             "keywords"
         ],
-        "size": size,`
+        "size": size,
         "query": es_query,
         "sort": [
             {"upload_date": {"order": "desc"}}
@@ -71,7 +71,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
         src = hit.get("_source", {})
         label = src.get("article_label") or {}
 
-        # trustScore 안전하게 처리
+        # trustScore 안전하게 처리`
         raw_score = label.get("article_trust_score")
 
         if raw_score is None:
