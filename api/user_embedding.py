@@ -6,6 +6,7 @@ from util.logger import Logger
 
 import numpy as np
 import json
+import random
 
 """
 [안전 버전 패치 포인트 요약]
@@ -19,6 +20,34 @@ import json
 logger = Logger().get_logger(__name__)
 KST = timezone(timedelta(hours=9))
 
+
+def _soft_shuffle_topk(ranked, top_k=12, strength=1.0):
+    """
+    top_k: 섞을 상위 구간
+    strength: 0.0이면 거의 점수순, 1.0~2.0이면 변동성 증가
+              (점수 차이가 클수록 상위가 더 자주 유지됨)
+    """
+    if len(ranked) <= 1:
+        return ranked
+
+    k = min(top_k, len(ranked))
+    head = ranked[:k]
+    tail = ranked[k:]
+
+    # 점수 높은 애가 앞에 더 자주 오도록:
+    # 1) head에서 하나 뽑고
+    # 2) 뽑은 애 제거
+    # 3) 반복 (without replacement)
+    # 가중치는 score^strength 사용
+    out = []
+    pool = head[:]
+    while pool:
+        weights = [(max(1, x["final_score"]) ** strength) for x in pool]
+        pick = random.choices(pool, weights=weights, k=1)[0]
+        out.append(pick)
+        pool.remove(pick)
+
+    return out + tail
 
 # -------------------------------------------------
 # 유저 임베딩 업데이트 (기존 유지)
@@ -147,8 +176,93 @@ def user_articles(user_id):
         for h in res.get("hits", {}).get("hits", [])
     ]
 
+def get_similar_users_mean_embedding(
+    vec: list,
+    top_k: int = 5,
+):
+    if not vec or len(vec) != 768:
+        return None
 
-def recommend_articles(user_id: str, limit: int = 20):
+    # 2. 유사 유저 kNN 검색 (본인 제외는 embedding 동일성으로 간접 처리)
+    res = es.search(
+        index="user_embeddings",
+        size=top_k,
+        knn={
+            "field": "embedding",
+            "query_vector": vec,
+            "k": top_k,
+            "num_candidates": 100,
+        },
+        _source=["embedding"],
+    )
+
+    hits = res.get("hits", {}).get("hits", [])
+    if not hits:
+        return None
+
+    emb_list = []
+
+    for h in hits:
+        emb = (h.get("_source") or {}).get("embedding")
+        if not emb or len(emb) != 768:
+            continue
+
+        # 3. 🔥 본인 embedding 제외 (완전 동일 벡터 방어)
+        if np.allclose(emb, vec, atol=1e-6):
+            continue
+        emb_list.append(np.asarray(emb, dtype=np.float32))
+
+    if not emb_list:
+        return None
+
+    # 4. 평균 임베딩 계산 + 정규화
+    mean_emb = np.mean(emb_list, axis=0)
+    norm = np.linalg.norm(mean_emb)
+
+    if norm == 0:
+        return None
+    return mean_emb / norm
+
+def dedupe_hits(base_hits: list, item_hits: list) -> list:
+    """
+    base_hits + item_hits 를 article_id 기준으로 병합
+    - base_hits 우선
+    - item_hits는 base에 없는 기사만 추가
+    - 입력 hit 구조 그대로 유지 (_score 포함)
+
+    return: deduped hits list
+    """
+    seen = set()
+    merged = []
+
+    # 1) base 후보 먼저
+    for h in base_hits or []:
+        src = h.get("_source", {})
+        aid = src.get("article_id")
+        if not aid:
+            continue
+        if aid in seen:
+            continue
+
+        seen.add(aid)
+        merged.append(h)
+
+    # 2) item-based 후보 추가
+    for h in item_hits or []:
+        src = h.get("_source", {})
+        aid = src.get("article_id")
+        if not aid:
+            continue
+        if aid in seen:
+            continue
+
+        seen.add(aid)
+        merged.append(h)
+
+    return merged
+
+
+def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
     """
     유저별 추천 기사 생성 (안전 버전)
 
@@ -156,7 +270,6 @@ def recommend_articles(user_id: str, limit: int = 20):
     - status=5 기사만 추천
     - article_label 누락 완전 방어
     """
-
     # -------------------------------------------------
     # 1. 유저 임베딩 존재 여부 확인 (🔥 핵심)
     # -------------------------------------------------
@@ -179,8 +292,7 @@ def recommend_articles(user_id: str, limit: int = 20):
     # -------------------------------------------------
     if has_user_embedding:
         query_vec = user_hits[0]["_source"]["embedding"]
-
-        res = es.search(
+        res_base = es.search(
             index="article_data",
             size=100,
             knn={
@@ -201,6 +313,36 @@ def recommend_articles(user_id: str, limit: int = 20):
                 "article_img"
             ]
         )
+
+        similar_user_vec = get_similar_users_mean_embedding(query_vec)
+        res_item = es.search(
+            index="article_data",
+            size=200,
+            knn={
+                "field": "article_embedding",
+                "query_vector": similar_user_vec,
+                "k": 200,
+                "num_candidates": 1000,
+                "filter": [
+                    {"term": {"status": 5}},
+                    {"range": {"collected_at": {"gte": "now-3d"}}}
+                ]
+            },
+            _source=[
+                "article_id",
+                "article_title",
+                "article_label",
+                "collected_at",
+                "article_img"
+            ]
+        )
+
+        base_hits = res_base.get("hits", {}).get("hits", [])
+        item_hits = res_item.get("hits", {}).get("hits", [])
+
+        hits = dedupe_hits(base_hits, item_hits)
+        if not hits:
+            return []
     else:
         res = es.search(
             index="article_data",
@@ -223,9 +365,9 @@ def recommend_articles(user_id: str, limit: int = 20):
             ]
         )
 
-    hits = res.get("hits", {}).get("hits", [])
-    if not hits:
-        return []
+        hits = res.get("hits", {}).get("hits", [])
+        if not hits:
+            return []
     filtered_hits = []
 
     for h in hits:
@@ -294,7 +436,10 @@ def recommend_articles(user_id: str, limit: int = 20):
         })
 
     ranked.sort(key=lambda x: x["final_score"], reverse=True)
-    return ranked[:limit]
+    if not random:
+        return ranked[:limit]
+    else:
+        return _soft_shuffle_topk(ranked, top_k=12, strength=1.2)
 
 
 if __name__ == "__main__":

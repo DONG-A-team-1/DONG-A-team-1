@@ -10,5 +10,5 @@ def get_recommendations(
 ):
     return {
         "user_id": user_id,
-        "recommendations": recommend_articles(user_id, limit)
+        "recommendations": recommend_articles(user_id, limit, random=True)
     }
