@@ -222,7 +222,9 @@ def run_article_trend_pipeline():
                 "_id": article_id,
                 "doc": {
                     "status": 5,
-                    "article_label.trend_score": score
+                    "article_label": {
+                        "trend_score": score
+                    }
                 }
             })
 
