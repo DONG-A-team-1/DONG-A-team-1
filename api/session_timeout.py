@@ -25,6 +25,8 @@ TIMEOUT_SECONDS = 10
 
 
 
+
+
 # 메인 배치 함수
 def close_timeout_sessions():
     if not es.indices.exists(index="session_data"):
