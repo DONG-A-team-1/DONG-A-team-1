@@ -6,6 +6,7 @@ from pydantic import BaseModel             # 요청(JSON) 자동 검증용도
 from datetime import datetime, timezone    # 시간 기록용 (UTC 기준)
 import uuid                                # session_id 생성용 (고유값)
 from util.elastic import es                # ES객체
+from zoneinfo import ZoneInfo
 
 
 # 프론트에서 받을 요청 데이터 구조
@@ -48,7 +49,7 @@ def session_start(req: SessionStartRequest):
     session_id = str(uuid.uuid4())
     # (2) 현재 시간 (UTC 기준)
     # ES와 서버 시간 처리의 안정성을 위해 UTC 사용
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
 
     # (3) ES에 저장할 문서
     doc = {
