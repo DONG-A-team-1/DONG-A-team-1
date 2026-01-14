@@ -2,1028 +2,1215 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NewsPalette - 뉴스 검색</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         :root {
-            --primary: #3b82f6;
-            --surface: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --container: 1280px;
-            --gray-100: #f3f4f6;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-        }
-
-        body.dark {
-            --surface: #1f2937;
-            --text: #f3f4f6;
-            --muted: #9ca3af;
-            --border: #374151;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f3f4f6;
-            color: var(--text);
-            transition: background-color 0.2s, color 0.2s;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body.dark {
-            background-color: #111827;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        html.dark ::-webkit-scrollbar-thumb { background: #4b5563; }
-
-        .container {
-            max-width: var(--container);
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-
-        /* Navigation */
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #E5E7EB;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        body.dark nav {
-            background-color: #1F2937;
-            border-bottom-color: #374151;
-        }
-
-        .nav-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* 양쪽 끝으로 배치 */
-            height: 64px;
-            position: relative; /* 중앙 정렬을 위해 필요 */
-        }
-
-        .nav-left {
-            flex: 0 0 auto;
-        }
-
-        /* 로고 */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            cursor: pointer;
-            /* transform: scale(0.8); */
-        }
-
-        .logo-icon {
-            color: #3B82F6;
-            font-size: 1.875rem;
-        }
-
-        .logo-text {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: #3B82F6;
-            letter-spacing: -0.025em;
-        }
-
-        /* 카테고리 */
-        .category {
-            position: static;        /* absolute 제거 */
-            display: flex;
-            align-items: center;
-            gap: 8px;
-      }
-
-      @media (min-width: 768px) {
-          .category {
-              display: flex;
-              align-items: center;
-              gap: 0.25rem;
-          }
-      }
-
-      .nav-splash-item {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0.5rem 1.25rem;
-          margin: 0 0.25rem;
-          font-size: 1rem;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          z-index: 10;
-          color: #4B5563;
-          text-decoration: none;
-          white-space: nowrap;
-      }
-
-        body.dark .nav-splash-item {
-            color: #D1D5DB;
-        }
-
-        .nav-splash-item::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 160%;
-            height: 160%;
-            transform: translate(-50%, -50%) scale(0.6);
-            background-color: var(--splash-color);
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            opacity: 0;
-            z-index: -1;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-splash-item:hover {
-            color: var(--splash-text-color, var(--splash-color));
-        }
-
-        .nav-splash-item:hover::before {
-            opacity: 0.2;
-            transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
-        }
-
-        .nav-splash-item.active {
-            color: var(--splash-text-color, var(--splash-color));
-        }
-
-        .nav-splash-item.active::before {
-            opacity: 0.35;
-            transform: translate(-50%, -50%) scale(1.15);
-        }
-
-        .splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
-        .splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
-        .splash-economy { --splash-color: #6EE7B7; --splash-text-color: #047857; }
-        .splash-world { --splash-color: #FCD34D; --splash-text-color: #B45309; }
-        .splash-tech { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
-
-        /* 우측 액션 */
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            font-size: 24px;
-            line-height: 1;
-        }
-
-        /* 다크모드 버튼 */
-        .icon-button {
-            padding: 0.5rem;
-            border-radius: 50%;
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        body.dark .icon-button {
-            color: #9CA3AF;
-        }
-
-        .icon-button:hover {
-            background-color: var(--gray-100);
-        }
-
-        body.dark .icon-button:hover {
-            background-color: var(--gray-700);
-        }
-
-        /* 유저 메뉴 */
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-button {
-            position: relative;
-            padding: 0.5rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .user-menu-blob {
-            position: absolute;
-            inset: 0;
-            background-color: var(--gray-100);
-            opacity: 0;
-            transition: opacity 0.2s;
-            transform: scale(1.3);
-            border-radius: 50%;
-        }
-
-        body.dark .user-menu-blob {
-            background-color: var(--gray-800);
-        }
-
-        .user-menu-button:hover .user-menu-blob {
-            opacity: 1;
-        }
-
-        .user-menu-icon {
-            position: relative;
-            z-index: 10;
-        }
-
-        /* 드롭다운 */
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            width: 220px;
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            display: none;
-            overflow: hidden;
-            z-index: 100;
-            border: 1px solid var(--border);
-        }
-
-        body.dark .user-dropdown {
-            border-color: #374151;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-header {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        body.dark .dropdown-header {
-            border-bottom-color: #374151;
-        }
-
-        .dropdown-subtitle {
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        body.dark .dropdown-subtitle {
-            color: #9CA3AF;
-        }
-
-        .dropdown-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #111827;
-            margin-top: 2px;
-        }
-
-        body.dark .dropdown-title {
-            color: #FFFFFF;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 14px;
-            color: var(--text);
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-
-        body.dark .dropdown-item {
-            color: #E5E7EB;
-        }
-
-        .dropdown-item:hover {
-            background-color: #F9FAFB;
-        }
-
-        body.dark .dropdown-item:hover {
-            background-color: rgba(55, 65, 81, 0.5);
-        }
-
-        .dropdown-item .material-symbols-outlined {
-            font-size: 1.25rem;
-            color: #9CA3AF;
-            transition: color 0.2s;
-        }
-
-        body.dark .dropdown-item .material-symbols-outlined {
-            color: #6B7280;
-        }
-
-        .dropdown-item:hover .material-symbols-outlined {
-            color: #3B82F6;
-        }
-
-        .dropdown-item.logout-btn:hover {
-            color: #EF4444;
-        }
-
-        .dropdown-item.logout-btn:hover .material-symbols-outlined {
-            color: #EF4444;
-        }
-
-        /* Main layout */
-        .main { padding: 20px 16px; }
-
-        .search-section { margin-bottom: 30px; }
-
-        .search-bar {
-            max-width: 896px;
-            margin: 0 auto;
-            padding: 8px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        @media (min-width: 640px) {
-            .search-bar { flex-direction: row; align-items: center; }
-        }
-
-        .select-wrap { position: relative; width: 100%; }
-        @media (min-width: 640px) { .select-wrap { width: auto; } }
-
-        .select {
-            appearance: none;
-            width: 100%;
-            padding: 12px 36px 12px 16px;
-            border: 0;
-            border-radius: 10px;
-            background: color-mix(in oklab, var(--text) 6%, transparent);
-            color: color-mix(in oklab, var(--text) 88%, transparent);
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            outline: none;
-        }
-        @media (min-width: 640px) { .select { width: 128px; } }
-
-        .select-caret {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-            color: var(--muted);
-            pointer-events: none;
-        }
-
-        .search-input-wrap { position: relative; width: 100%; flex: 1; }
-        .search-input {
-            width: 100%;
-            padding: 12px 44px 12px 16px;
-            border-radius: 10px;
-            border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-            background: var(--surface);
-            color: var(--text);
-            outline: none;
-            transition: box-shadow .15s, border-color .15s;
-        }
-        .search-input::placeholder { color: color-mix(in oklab, var(--text) 35%, transparent); }
-        .search-input:focus {
-            border-color: transparent;
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
-        }
-
-        .search-btn {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            border: 0;
-            background: transparent;
-            color: var(--primary);
-            cursor: pointer;
-        }
-        .search-btn .material-symbols-outlined { font-size: 26px; }
-
-        /* Card Grid */
-        .search-result-section {
-            position: static;
-            height: auto;
-            min-height: unset;
-        }
-
-        .card-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        @media (min-width: 640px) {
-            .card-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .card-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .news-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-        }
-        .news-link {
-        flex: 0 0 100%;
-        width: 100%;
-        max-width: 100%;
-        text-decoration: none;
-        color: inherit;
-        display: block;
-      }
-
-        .news-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .card-image-container {
-            height: 160px;
-            background: #e5e7eb;
-            position: relative;
-            overflow: hidden;
-        }
-
-        body.dark .card-image-container {
-            background: #374151;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .3s;
-        }
-
-        .news-card:hover .card-image {
-            transform: scale(1.05);
-        }
-
-        .card-category {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(59, 130, 246, 0.9);
-            color: white;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .card-body {
-            padding: 16px;
-            padding-bottom: 50px;
-            position: relative;
-        }
-
-        .card-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .news-card:hover .card-title {
-            color: var(--primary);
-        }
-
-        .card-description {
-            font-size: 14px;
-            color: var(--muted);
-            line-height: 1.5;
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: color-mix(in oklab, var(--muted) 80%, transparent);
-        }
-
-        /* 카드 그리드용 신뢰도 점수 - 항상 표시 */
-        .news-card .trust-score {
-            position: absolute;
-            right: 16px;
-            bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #2563eb;
-        }
-
-        body.dark .news-card .trust-score {
-            color: #93c5fd;
-        }
-
-        .news-card .trust-label {
-            font-size: 11px;
-            opacity: 0.8;
-        }
-
-        .news-card .trust-value {
-            padding: 3px 8px;
-            border-radius: 6px;
-            background: #eff6ff;
-            font-weight: 600;
-        }
-
-        body.dark .news-card .trust-value {
-            background: rgba(37, 99, 235, 0.25);
-        }
-
-        /* Filter Section */
-        .filter-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .filter-section {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-
-        .filter-buttons {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .filter-buttons {
-                padding-bottom: 0;
-            }
-        }
-
-        .filter-button {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 9999px;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .filter-button.active {
-            background-color: #3b82f6;
-            color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .filter-button:not(.active) {
-            background-color: #ffffff;
-            color: #4b5563;
-            border: 1px solid #e5e7eb;
-        }
-
-        body.dark .filter-button:not(.active) {
-            background-color: #1f2937;
-            color: #d1d5db;
-            border-color: #374151;
-        }
-
-        .filter-button:not(.active):hover {
-            background-color: #f9fafb;
-        }
-
-        body.dark .filter-button:not(.active):hover {
-            background-color: #1f2937;
-        }
-
-        /* Article List */
-        .article-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .article-item {
-            position: relative;
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #e5e7eb;
-            overflow: visible;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.2s;
-            margin-bottom: 1rem;
-        }
-
-        .article-item:last-child {
-            margin-bottom: 0;
-        }
-
-        body.dark .article-item {
-            background-color: #1f2937;
-            border-color: #374151;
-        }
-
-        /* 리스트 아이템 신뢰도 점수 - 항상 표시 */
-        .article-item .trust-score {
-            position: absolute;
-            right: 1.5rem;
-            bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            font-size: 13px;
-            font-weight: 500;
-            border-radius: 8px;
-            color: #2563eb;
-            background-color: #eff6ff;
-        }
-
-        body.dark .article-item .trust-score {
-            background-color: rgba(37, 99, 235, 0.25);
-            color: #93c5fd;
-        }
-
-        .article-item .trust-label {
-            font-size: 11px;
-            opacity: 0.9;
-        }
-
-        .article-item .trust-value {
-            font-weight: 600;
-        }
-
-        @media (min-width: 768px) {
-            .article-item {
-                flex-direction: row;
-            }
-        }
-
-        .article-item:hover {
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-
-        .article-image-container {
-            width: 100%;
-            height: 12rem;
-            flex-shrink: 0;
-            background-color: #e5e7eb;
-            position: relative;
-            overflow: hidden;
-        }
-
-        @media (min-width: 768px) {
-            .article-image-container {
-                width: 16rem;
-                height: auto;
-            }
-        }
-
-        body.dark .article-image-container {
-            background-color: #374151;
-        }
-
-        .article-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-
-        .article-item:hover .article-image {
-            transform: scale(1.05);
-        }
-
-        .article-content {
-            position: relative;
-            padding: 1.5rem;
-            padding-bottom: 3.5rem;
-            padding-right: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex: 1;
-        }
-
-        .article-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .article-category {
-            padding: 0.125rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .category-opinion {
-            background-color: #f3f4f6;
-            color: #4b5563;
-        }
-
-        body.dark .category-opinion {
-            background-color: #374151;
-            color: #d1d5db;
-        }
-
-        .category-economy {
-            background-color: #eff6ff;
-            color: #2563eb;
-        }
-
-        body.dark .category-economy {
-            background-color: rgba(37, 99, 235, 0.2);
-            color: #60a5fa;
-        }
-
-        .category-culture {
-            background-color: #faf5ff;
-            color: #7c3aed;
-        }
-
-        body.dark .category-culture {
-            background-color: rgba(124, 58, 237, 0.2);
-            color: #a78bfa;
-        }
-
-        .category-education {
-            background-color: #f0fdf4;
-            color: #16a34a;
-        }
-
-        body.dark .category-education {
-            background-color: rgba(22, 163, 74, 0.2);
-            color: #4ade80;
-        }
-
-        .category-society {
-            background-color: #eef2ff;
-            color: #4f46e5;
-        }
-
-        body.dark .category-society {
-            background-color: rgba(79, 70, 229, 0.2);
-            color: #818cf8;
-        }
-
-        .article-date {
-            font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
-        body.dark .article-date {
-            color: #6b7280;
-        }
-
-        .article-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .article-item:hover .article-title {
-            color: #3b82f6;
-        }
-
-        .article-description {
-            font-size: 0.875rem;
-            color: #4b5563;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-
-        body.dark .article-description {
-            color: #9ca3af;
-        }
-
-        .article-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-        }
-
-        .article-author-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        body.dark .article-author-info {
-            color: #9ca3af;
-        }
-
-        .author-name {
-            font-weight: 500;
-            color: #111827;
-        }
-
-        body.dark .author-name {
-            color: #e5e7eb;
-        }
-
-        .author-dot {
-            width: 0.25rem;
-            height: 0.25rem;
-            background-color: #d1d5db;
-            border-radius: 9999px;
-        }
-
-        /* Pagination */
-        .pagination-section {
-            margin-top: 3rem;
-            display: flex;
-            justify-content: center;
-            background-color: transparent;
-        }
-
-        .pagination {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            background-color: transparent;
-        }
-
-        .pagination a,
-        .pagination button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            color: #6b7280;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        body.dark .pagination a,
-        body.dark .pagination button {
-            color: #9ca3af;
-        }
-
-        .pagination a:hover,
-        .pagination button:hover {
-            background-color: #e5e7eb;
-        }
-
-        body.dark .pagination a:hover,
-        body.dark .pagination button:hover {
-            background-color: #374151;
-        }
-
-        .page-number {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: #374151;
-        }
-
-        body.dark .page-number {
-            color: #d1d5db;
-        }
-
-        .page-number.active {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Divider */
-        .divider {
-            border: 0;
-            border-top: 1px solid #e5e7eb;
-            margin: 3rem 0;
-        }
-
-        body.dark .divider {
-            border-top-color: #374151;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #ffffff;
-            border-top: 1px solid #e5e7eb;
-            margin-top: 5rem;
-            padding: 3rem 0;
-        }
-
-        body.dark footer {
-            background-color: #1f2937;
-            border-top-color: #374151;
-        }
-
-        .footer-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .footer-container {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-        }
-
-        .footer-info {
-            font-size: 0.875rem;
-            color: #6b7280;
-            text-align: center;
-        }
-
-        body.dark .footer-info {
-            color: #9ca3af;
-        }
-    </style>
+    --primary: #3b82f6;
+    --surface: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --container: 1280px;
+    --gray-100: #f3f4f6;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+body.dark {
+    --surface: #1f2937;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --border: #374151;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f3f4f6;
+    color: var(--text);
+    transition: background-color 0.2s, color 0.2s;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.dark {
+    background-color: #111827;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+html.dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+
+.container {
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* Navigation */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark nav {
+    background-color: #1F2937;
+    border-bottom-color: #374151;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: relative;
+}
+
+.nav-left {
+    flex: 0 0 auto;
+}
+
+/* 로고 */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: #3B82F6;
+    font-size: 1.875rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #3B82F6;
+    letter-spacing: -0.025em;
+}
+
+/* 카테고리 */
+.category {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (min-width: 768px) {
+    .category {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+.nav-splash-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    margin: 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #4B5563;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+body.dark .nav-splash-item {
+    color: #D1D5DB;
+}
+
+.nav-splash-item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    height: 160%;
+    transform: translate(-50%, -50%) scale(0.6);
+    background-color: var(--splash-color);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.2,-19.2,95.8,-5.2C93.4,8.9,81.8,22,70.8,32.8C59.8,43.6,49.4,52,38.2,58.8C27,65.6,15,70.8,1.4,68.4C-12.2,66,-26.8,55.9,-39.7,46.7C-52.6,37.5,-63.9,29.1,-71.3,17.8C-78.7,6.5,-82.3,-7.8,-78.4,-20.9C-74.5,-34,-63.1,-46,-50.7,-53.8C-38.3,-61.6,-24.8,-65.2,-11.3,-67.2C2.2,-69.2,15.7,-69.6,30.5,-83.6L44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-splash-item:hover {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item:hover::before {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.05) rotate(10deg);
+}
+
+.nav-splash-item.active {
+    color: var(--splash-text-color, var(--splash-color));
+}
+
+.nav-splash-item.active::before {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.splash-society { --splash-color: #93C5FD; --splash-text-color: #1D4ED8; }
+.splash-politics { --splash-color: #FCA5A5; --splash-text-color: #B91C1C; }
+.splash-world { --splash-color: #6EE7B7; --splash-text-color: #047857; }
+.splash-international { --splash-color: #FCD34D; --splash-text-color: #B45309; }
+.splash-universe { --splash-color: #C4B5FD; --splash-text-color: #6D28D9; }
+.splash-sports { --splash-color: #3ece1a; --splash-text-color: #28d562; }
+
+/* 우측 액션 */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+    font-size: 24px;
+    line-height: 1;
+}
+
+/* 다크모드 버튼 */
+.icon-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+body.dark .icon-button {
+    color: #9CA3AF;
+}
+
+.icon-button:hover {
+    background-color: var(--gray-100);
+}
+
+body.dark .icon-button:hover {
+    background-color: var(--gray-700);
+}
+
+/* 유저 메뉴 */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    position: relative;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu-blob {
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-100);
+    opacity: 0;
+    transition: opacity 0.2s;
+    transform: scale(1.3);
+    border-radius: 50%;
+}
+
+body.dark .user-menu-blob {
+    background-color: var(--gray-800);
+}
+
+.user-menu-button:hover .user-menu-blob {
+    opacity: 1;
+}
+
+.user-menu-icon {
+    position: relative;
+    z-index: 10;
+}
+
+/* 드롭다운 */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    display: none;
+    overflow: hidden;
+    z-index: 100;
+    border: 1px solid var(--border);
+}
+
+body.dark .user-dropdown {
+    border-color: #374151;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+body.dark .dropdown-header {
+    border-bottom-color: #374151;
+}
+
+.dropdown-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+body.dark .dropdown-subtitle {
+    color: #9CA3AF;
+}
+
+.dropdown-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 2px;
+}
+
+body.dark .dropdown-title {
+    color: #FFFFFF;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+body.dark .dropdown-item {
+    color: #E5E7EB;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    transition: color 0.2s;
+}
+
+body.dark .dropdown-item .material-symbols-outlined {
+    color: #6B7280;
+}
+
+.dropdown-item:hover .material-symbols-outlined {
+    color: #3B82F6;
+}
+
+.dropdown-item.logout-btn:hover {
+    color: #EF4444;
+}
+
+.dropdown-item.logout-btn:hover .material-symbols-outlined {
+    color: #EF4444;
+}
+
+/* Main layout */
+/* Search Section-------------------------------- */
+.main { padding: 20px 16px; }
+
+.search-section { margin-bottom: 30px; }
+
+.search-bar {
+    max-width: 896px;
+    margin: 0 auto;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+}
+
+body.dark .search-bar {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+@media (min-width: 640px) {
+    .search-bar { flex-direction: row; align-items: center; }
+}
+
+.select-wrap {
+    position: relative;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .select-wrap { width: auto; }
+}
+
+.select {
+    appearance: none;
+    width: 100%;
+    padding: 12px 36px 12px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+    color: color-mix(in oklab, var(--text) 88%, transparent);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+@media (min-width: 640px) {
+    .select { width: 128px; }
+}
+
+.select-caret {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.search-input-wrap {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 10px;
+    transform: translateZ(0);
+}
+
+.search-input {
+    caret-color:#000000;
+    width: 100%;
+    padding: 12px 44px 12px 16px !important;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+    background: var(--surface) !important;
+    color: var(--text);
+    outline: none !important;
+    transition: box-shadow .15s, border-color .15s;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+body.dark .search-input{
+    caret-color:#ffffff;
+}
+
+.search-input::placeholder {
+    color: color-mix(in oklab, var(--text) 35%, transparent);
+}
+
+.search-input:focus {
+    border-color: transparent;
+    background: var(--surface) !important;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+.search-input:focus-visible,
+.search-input:active {
+    background: var(--surface) !important;
+    border-color: rgb(158, 158, 158);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+.select-wrap:focus-within ~ .search-input-wrap .search-input {
+    background: var(--surface) !important;
+}
+
+body.dark .search-input,
+body.dark .search-input:focus,
+body.dark .search-input:active,
+body.dark .search-input:focus-visible {
+    background: var(--surface) !important;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark .search-input::placeholder {
+    color: var(--muted);
+}
+
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+}
+
+body.dark .search-input:-webkit-autofill,
+body.dark .search-input:-webkit-autofill:hover,
+body.dark .search-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+}
+
+.search-btn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%) translateZ(0);
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    border-radius: 4px;
+}
+
+.search-btn .material-symbols-outlined {
+    font-size: 26px;
+    display: block;
+    line-height: 1;
+}
+
+/* Card Grid */
+.search-result-section {
+    position: static;
+    height: auto;
+    min-height: unset;
+}
+
+/* ========== 카드형 렌더링 CSS ========== */
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 640px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .card-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.news-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height:100%;
+}
+
+.news-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.card-image-container {
+    height: 160px;
+    background: #e5e7eb;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.dark .card-image-container {
+    background: #374151;
+}
+
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    transition: transform .3s;
+}
+
+.news-card:hover .card-img {
+    transform: scale(1.05);
+}
+
+.card-category {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.card-body {
+    padding: 16px;
+    padding-bottom: 70px;
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 44.8px;
+}
+
+.news-card:hover .card-title {
+    color: var(--primary);
+}
+
+.card-description {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: color-mix(in oklab, var(--muted) 80%, transparent);
+    overflow: hidden;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.card-reporter {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 150px;
+}
+
+.card-source {
+    flex-shrink: 0;
+}
+
+.card-date {
+    flex-shrink: 0;
+}
+
+/* 신뢰도, 트렌드 점수 */
+.score-container {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.news-card .trust-score,
+.news-card .trend-score {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.news-card .trend-score {
+    color: #ea580c;
+}
+
+.news-card .trust-score {
+    color: #2563eb;
+}
+
+.news-card .trend-label,
+.news-card .trust-label {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.news-card .trend-value,
+.news-card .trust-value {
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.news-card .trust-value {
+    background: #eff6ff;
+}
+
+.news-card .trend-value {
+    background: #fff7ed;
+}
+
+body.dark .news-card .trend-score {
+    color: #fb923c;
+}
+
+body.dark .news-card .trend-value {
+    background: rgba(234, 88, 12, 0.25);
+}
+
+body.dark .news-card .trust-score {
+    color: #93c5fd;
+}
+
+body.dark .news-card .trust-value {
+    background: rgba(37, 99, 235, 0.25);
+}
+
+@media (max-width: 380px) {
+    .score-container {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        bottom: 8px;
+        right: 12px;
+    }
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .filter-section {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.filter-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .filter-buttons {
+        padding-bottom: 0;
+    }
+}
+
+.filter-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.filter-button.active {
+    background-color: #3b82f6;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.filter-button:not(.active) {
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+body.dark .filter-button:not(.active) {
+    background-color: #1f2937;
+    color: #d1d5db;
+    border-color: #374151;
+}
+
+.filter-button:not(.active):hover {
+    background-color: #f9fafb;
+}
+
+body.dark .filter-button:not(.active):hover {
+    background-color: #1f2937;
+}
+
+/* ========== 리스트형 렌더링 CSS ========== */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.article-item {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+body.dark .article-item {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.article-item:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+@media (min-width: 768px) {
+    .article-item {
+        flex-direction: row;
+    }
+}
+
+.article-image-container {
+    margin-left: 16px;
+    margin-top: 16px;
+    width: 100%;
+    height: 12rem;
+    flex-shrink: 0;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: -0.25rem;
+}
+
+@media (min-width: 768px) {
+    .article-image-container {
+        width: 20rem;
+        height: 13rem;
+    }
+}
+
+body.dark .article-image-container {
+    background-color: #374151;
+}
+
+.article-img {
+    width: auto !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    display: block !important;
+    transition: transform 0.5s;
+}
+
+.article-item:hover .article-img {
+    transform: scale(1.05);
+}
+
+.article-content {
+    position: relative;
+    padding: 1.5rem;
+    padding-bottom: 3.5rem;
+    padding-right: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.article-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.article-category {
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.category-society {
+    background-color: #eef2ff;
+    color: #4f46e5;
+}
+
+body.dark .category-society {
+    background-color: rgba(79, 70, 229, 0.2);
+    color: #818cf8;
+}
+
+.category-politics {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+body.dark .category-politics {
+    background-color: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+}
+
+.category-culture {
+    background-color: #faf5ff;
+    color: #7c3aed;
+}
+
+body.dark .category-culture {
+    background-color: rgba(124, 58, 237, 0.2);
+    color: #a78bfa;
+}
+
+.category-world {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+body.dark .category-world {
+    background-color: rgba(22, 163, 74, 0.2);
+    color: #4ade80;
+}
+
+.category-international {
+    background-color: #fefce8;
+    color: #ca8a04;
+}
+
+body.dark .category-international {
+    background-color: rgba(202, 138, 4, 0.2);
+    color: #fde047;
+}
+
+.category-sports {
+    background-color: #f0fdf4;
+    color: #059669;
+}
+
+body.dark .category-sports {
+    background-color: rgba(5, 150, 105, 0.2);
+    color: #34d399;
+}
+
+.article-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+body.dark .article-date {
+    color: #6b7280;
+}
+
+.article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.article-item:hover .article-title {
+    color: #3b82f6;
+}
+
+.article-description {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.dark .article-description {
+    color: #9ca3af;
+}
+
+.article-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+.article-author-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+body.dark .article-author-info {
+    color: #9ca3af;
+}
+
+.author-name {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.dark .author-name {
+    color: #e5e7eb;
+}
+
+.author-dot {
+    width: 0.25rem;
+    height: 0.25rem;
+    background-color: #d1d5db;
+    border-radius: 9999px;
+}
+
+/* 리스트 신뢰도 점수 */
+.article-item .trust-score {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    color: #2563eb;
+    background-color: #eff6ff;
+}
+
+body.dark .article-item .trust-score {
+    background-color: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+}
+
+.article-item .trust-label {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+.article-item .trust-value {
+    font-weight: 600;
+}
+
+/* Pagination */
+.pagination-section {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: transparent;
+}
+
+.pagination a,
+.pagination button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: #6b7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+body.dark .pagination a,
+body.dark .pagination button {
+    color: #9ca3af;
+}
+
+.pagination a:hover,
+.pagination button:hover {
+    background-color: #e5e7eb;
+}
+
+body.dark .pagination a:hover,
+body.dark .pagination button:hover {
+    background-color: #374151;
+}
+
+.page-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #374151;
+}
+
+body.dark .page-number {
+    color: #d1d5db;
+}
+
+.page-number.active {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Divider */
+.divider {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 3rem 0;
+}
+
+body.dark .divider {
+    border-top-color: #374151;
+}
+
+/* Footer */
+footer {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 5rem;
+    padding: 3rem 0;
+}
+
+body.dark footer {
+    background-color: #1f2937;
+    border-top-color: #374151;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.footer-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+body.dark .footer-info {
+    color: #9ca3af;
+}
+</style>
+
 </head>
 <body>
     <!-- Header -->
@@ -1039,7 +1226,7 @@
                 </div>
 
                 <!-- 카테고리 -->
-                <div class="nav-center">
+                <div class="category">
                     <a class="nav-splash-item splash-society" href="category.html?cat=사회">사회</a>
                     <a class="nav-splash-item splash-politics" href="category.html?cat=정치">정치</a>
                     <a class="nav-splash-item splash-world" href="category.html?cat=국제">국제</a>
@@ -1077,25 +1264,25 @@
         <section class="search-section">
             <div class="search-bar">
                 <div class="select-wrap">
-                    <select class="select">
-                        <option>제목+본문</option>
-                        <option>제목</option>
-                        <option>본문</option>
-                        <option>키워드</option>
+                    <select class="select" id="searchScope" onchange="updateSearchPlaceholder(this)">
+                        <option style="color: black;" value="title_body">제목+본문</option>
+                        <option style="color: black;" value="title">제목</option>
+                        <option style="color: black;" value="body">본문</option>
+                        <option style="color: black;" value="keyword">키워드</option>
                     </select>
                     <span class="material-symbols-outlined select-caret">expand_more</span>
                 </div>
 
                 <div class="search-input-wrap">
-                    <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
-                    <button id="searchBtn" class="search-btn" aria-label="검색">
+                    <input id="searchInput" class="search-input" spellcheck="false" placeholder="관심있는 뉴스를 검색해보세요" type="text" onkeypress="if(event.key === 'Enter') performSearch()" />
+                    <button id="searchBtn" class="search-btn" aria-label="검색" onclick="performSearch()">
                         <span class="material-symbols-outlined">search</span>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Search Result Header -->
+       <!-- Search Result Header -->
         <section class="result-header">
             <h1 class="result-title">
                 <span class="search-term"></span> 개인화 맞춤 추천 기사 입니다.
@@ -1104,93 +1291,28 @@
 
             <!-- Personalized News -->
             <section class="search-result-section">
-                <div class="card-grid">
-                    <a href="/article/${item.article_id}" class="news-link" >
-                        <article class="news-card">
-                            <div class="card-image-container">
-                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPEH9FxEniMOiDDxU-qNQPWYRbqMAIaUWXrlepRFKty68kKSL0Ghs0L6mQzhx1cNl2tHMSPb9uwCqln4v3iAK1nqIl4awSqBHbtcyQMx84Y2_Qq18itnWj-ewt7LxyjlXF93s90RVS7HRo_3E4l08Na7Bjk2jVXITb1JBs9xVl9peIynrcugrAwhzUWDKe-Newpp1VxyaNECzZfPIfkCbPRvsRSma0Ad91FxmVkDdG2D_2ut1kgBYNajCkISYB6yxLdNmH4zQGM-7" alt="AI Robot Hand" class="card-image">
-                                <span class="card-category">IT/과학</span>
-                            </div>
-                            <div class="card-body">
-                                <h3 class="card-title">AI가 바꾸는 미래 일자리, 위기인가 기회인가?</h3>
-                                <p class="card-description">인공지능 기술의 급격한 발전이 노동 시장에 미치는 영향에 대한 심층 분석 리포트입니다. 전문가들의...</p>
-                                <div class="card-meta">
-                                    <span>테크데일리</span>
-                                    <span>•</span>
-                                    <span>3시간 전</span>
+                <div class="card-grid" id="cardGrid">
+                    <!-- 카드형 템플릿 (숨김) -->
+                    <a class="news-card news-card-template" style="display:none;">
+                        <div class="card-image-container">
+                            <img class="card-img" src="" alt="">
+                            <span class="card-category"></span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title"></h3>
+                            <!-- 🔥 card-description 제거 -->
+                            <!-- 🔥 card-meta 제거 -->
+                            <div class="score-container">
+                                <div class="trend-score">
+                                    <span class="trend-label">트렌드</span>
+                                    <span class="trend-value"></span>
                                 </div>
                                 <div class="trust-score">
                                     <span class="trust-label">신뢰도</span>
                                     <span class="trust-value"></span>
                                 </div>
                             </div>
-                        </article>
-                    </a>
-
-                    <a href="/article/${item.article_id}" class="news-link" >
-                        <article class="news-card">
-                            <div class="card-image-container">
-                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPEH9FxEniMOiDDxU-qNQPWYRbqMAIaUWXrlepRFKty68kKSL0Ghs0L6mQzhx1cNl2tHMSPb9uwCqln4v3iAK1nqIl4awSqBHbtcyQMx84Y2_Qq18itnWj-ewt7LxyjlXF93s90RVS7HRo_3E4l08Na7Bjk2jVXITb1JBs9xVl9peIynrcugrAwhzUWDKe-Newpp1VxyaNECzZfPIfkCbPRvsRSma0Ad91FxmVkDdG2D_2ut1kgBYNajCkISYB6yxLdNmH4zQGM-7" alt="AI Robot Hand" class="card-image">
-                                <span class="card-category">IT/과학</span>
-                            </div>
-                            <div class="card-body">
-                                <h3 class="card-title">AI가 바꾸는 미래 일자리, 위기인가 기회인가?</h3>
-                                <p class="card-description">인공지능 기술의 급격한 발전이 노동 시장에 미치는 영향에 대한 심층 분석 리포트입니다. 전문가들의...</p>
-                                <div class="card-meta">
-                                    <span>테크데일리</span>
-                                    <span>•</span>
-                                    <span>3시간 전</span>
-                                </div>
-                                <div class="trust-score">
-                                    <span class="trust-label">신뢰도</span>
-                                    <span class="trust-value"></span>
-                                </div>
-                            </div>
-                        </article>
-                    </a>
-
-                    <a href="/article/${item.article_id}" class="news-link" >
-                        <article class="news-card">
-                            <div class="card-image-container">
-                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPEH9FxEniMOiDDxU-qNQPWYRbqMAIaUWXrlepRFKty68kKSL0Ghs0L6mQzhx1cNl2tHMSPb9uwCqln4v3iAK1nqIl4awSqBHbtcyQMx84Y2_Qq18itnWj-ewt7LxyjlXF93s90RVS7HRo_3E4l08Na7Bjk2jVXITb1JBs9xVl9peIynrcugrAwhzUWDKe-Newpp1VxyaNECzZfPIfkCbPRvsRSma0Ad91FxmVkDdG2D_2ut1kgBYNajCkISYB6yxLdNmH4zQGM-7" alt="AI Robot Hand" class="card-image">
-                                <span class="card-category">IT/과학</span>
-                            </div>
-                            <div class="card-body">
-                                <h3 class="card-title">AI가 바꾸는 미래 일자리, 위기인가 기회인가?</h3>
-                                <p class="card-description">인공지능 기술의 급격한 발전이 노동 시장에 미치는 영향에 대한 심층 분석 리포트입니다. 전문가들의...</p>
-                                <div class="card-meta">
-                                    <span>테크데일리</span>
-                                    <span>•</span>
-                                    <span>3시간 전</span>
-                                </div>
-                                <div class="trust-score">
-                                    <span class="trust-label">신뢰도</span>
-                                    <span class="trust-value"></span>
-                                </div>
-                            </div>
-                        </article>
-                    </a>
-
-                    <a href="/article/${item.article_id}" class="news-link" >
-                        <article class="news-card">
-                            <div class="card-image-container">
-                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHPEH9FxEniMOiDDxU-qNQPWYRbqMAIaUWXrlepRFKty68kKSL0Ghs0L6mQzhx1cNl2tHMSPb9uwCqln4v3iAK1nqIl4awSqBHbtcyQMx84Y2_Qq18itnWj-ewt7LxyjlXF93s90RVS7HRo_3E4l08Na7Bjk2jVXITb1JBs9xVl9peIynrcugrAwhzUWDKe-Newpp1VxyaNECzZfPIfkCbPRvsRSma0Ad91FxmVkDdG2D_2ut1kgBYNajCkISYB6yxLdNmH4zQGM-7" alt="AI Robot Hand" class="card-image">
-                                <span class="card-category">IT/과학</span>
-                            </div>
-                            <div class="card-body">
-                                <h3 class="card-title">AI가 바꾸는 미래 일자리, 위기인가 기회인가?</h3>
-                                <p class="card-description">인공지능 기술의 급격한 발전이 노동 시장에 미치는 영향에 대한 심층 분석 리포트입니다. 전문가들의...</p>
-                                <div class="card-meta">
-                                    <span>테크데일리</span>
-                                    <span>•</span>
-                                    <span>3시간 전</span>
-                                </div>
-                                <div class="trust-score">
-                                    <span class="trust-label">신뢰도</span>
-                                    <span class="trust-value"></span>
-                                </div>
-                            </div>
-                        </article>
+                        </div>
                     </a>
                 </div>
             </section>
@@ -1203,206 +1325,56 @@
     <section class="section container">
         <div class="filter-section">
             <h2 class="section-title">
-                <span class="material-symbols-outlined section-icon"></span>
-                개인화 추천 기사 리스트
+                <span class="material-symbols-outlined">list</span>
+                 개인화 맞춤 기사 리스트
             </h2>
-            <!-- 버튼 기능은 js 넣어야해요------------------------------------------>
             <div class="filter-buttons">
-                <button class="filter-button active" data-sort="default">기본순</button>
-                <button class="filter-button" data-sort="latest">최신순</button>
-                <button class="filter-button" data-sort="oldest">과거순</button>
-                <button class="filter-button" data-sort="trust">신뢰도순</button>
+                <button class="filter-button active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
+                <button class="filter-button" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
+                <button class="filter-button" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
             </div>
         </div>
 
-        <div class="article-list">
-            <!-- Article 1 -->
-            <section class="article-section">
-                <a href="/article/${item.article_id}" class="news-link">
-                    <article class="article-item">
-                        <div class="article-image-container">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
+        <div class="article-list" id="articleList">
+            <!-- 리스트형 템플릿 (숨김) -->
+            <a class="article-item article-item-template" style="display:none;">
+                <div class="article-image-container">
+                    <img class="article-img" src="" alt="">
+                </div>
+                <div class="article-content">
+                    <div>
+                        <div class="article-header">
+                            <span class="article-category"></span>
+                            <span class="article-date"></span>
                         </div>
-                        <div class="article-content">
-                            <div>
-                                <div class="article-header">
-                                    <span class="article-category category-opinion">오피니언</span>
-                                    <span class="article-date">2023.10.27</span>
-                                </div>
-                                <h3 class="article-title">
-                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
-                                </h3>
-                                <p class="article-description line-clamp-3">
-                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
-                                </p>
-                            </div>
-                            <div class="article-footer">
-                                <div class="article-author-info">
-                                    <span class="author-name">김철수 논설위원</span>
-                                    <span class="author-dot"></span>
-                                    <span>대한일보</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </article>
-                </a>
 
-                <!-- Article 2 -->
-                <a href="/article/${item.article_id}" class="news-link">
-                    <article class="article-item">
-                        <div class="article-image-container">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
+                        <h3 class="article-title"></h3>
+                        <p class="article-description"></p>
+                    </div>
+                    <div class="article-footer">
+                        <div class="article-author-info">
+                            <span class="author-name"></span>
+                            <span class="author-source"></span>
                         </div>
-                        <div class="article-content">
-                            <div>
-                                <div class="article-header">
-                                    <span class="article-category category-opinion">오피니언</span>
-                                    <span class="article-date">2023.10.27</span>
-                                </div>
-                                <h3 class="article-title">
-                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
-                                </h3>
-                                <p class="article-description line-clamp-3">
-                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
-                                </p>
-                            </div>
-                            <div class="article-footer">
-                                <div class="article-author-info">
-                                    <span class="author-name">김철수 논설위원</span>
-                                    <span class="author-dot"></span>
-                                    <span>대한일보</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </article>
-                </a>
-
-                <!-- Article 3 -->
-                <a href="/article/${item.article_id}" class="news-link">
-                    <article class="article-item">
-                        <div class="article-image-container">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
-                        </div>
-                        <div class="article-content">
-                            <div>
-                                <div class="article-header">
-                                    <span class="article-category category-opinion">오피니언</span>
-                                    <span class="article-date">2023.10.27</span>
-                                </div>
-                                <h3 class="article-title">
-                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
-                                </h3>
-                                <p class="article-description line-clamp-3">
-                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
-                                </p>
-                            </div>
-                            <div class="article-footer">
-                                <div class="article-author-info">
-                                    <span class="author-name">김철수 논설위원</span>
-                                    <span class="author-dot"></span>
-                                    <span>대한일보</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </article>
-                </a>
-
-                <!-- Article 4 -->
-                <a href="/article/${item.article_id}" class="news-link">
-                    <article class="article-item">
-                        <div class="article-image-container">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
-                        </div>
-                        <div class="article-content">
-                            <div>
-                                <div class="article-header">
-                                    <span class="article-category category-opinion">오피니언</span>
-                                    <span class="article-date">2023.10.27</span>
-                                </div>
-                                <h3 class="article-title">
-                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
-                                </h3>
-                                <p class="article-description line-clamp-3">
-                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
-                                </p>
-                            </div>
-                            <div class="article-footer">
-                                <div class="article-author-info">
-                                    <span class="author-name">김철수 논설위원</span>
-                                    <span class="author-dot"></span>
-                                    <span>대한일보</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </article>
-                </a>
-
-                <!-- Article 5 -->
-                <a href="/article/${item.article_id}" class="news-link">
-                    <article class="article-item">
-                        <div class="article-image-container">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiaW9IDWme7bhkpAsb0EowlUy4hHyBeVqk-VjzsCzfLUqbi1Ig6UO1IzZNW8tgzNMk-RNEWdRJigH4mXpsdT5bUmcH8KGpApJhX1JtCmtt_LcrIAZX2GmZnAtsGZn3iIDiwM9iHrJfvhaki3ZYzjnpNj9Ut2e-c3mVNZXSiwus8WpMrM8H1RlCX9iixkvjLZZiQdv7w0R1pQEPBlY3dH2bMbI7o1R3HgV_OiFAsdwOJ_HnNYfonw0uw463bak8G3MOgpF6GTl8NaBK" alt="Futuristic Robot" class="article-image">
-                        </div>
-                        <div class="article-content">
-                            <div>
-                                <div class="article-header">
-                                    <span class="article-category category-opinion">오피니언</span>
-                                    <span class="article-date">2023.10.27</span>
-                                </div>
-                                <h3 class="article-title">
-                                    [칼럼] 인간과 AI의 공존, 윤리적 가이드라인이 필요하다
-                                </h3>
-                                <p class="article-description line-clamp-3">
-                                    인공지능 기술이 일상 깊숙이 파고들면서 발생할 수 있는 윤리적 딜레마를 어떻게 해결할 것인가? 기술 발전 속도에 맞춘 법적, 제도적 장치 마련이 시급한 시점이다. 우리는 무엇을 준비해야 하는가...
-                                </p>
-                            </div>
-                            <div class="article-footer">
-                                <div class="article-author-info">
-                                    <span class="author-name">김철수 논설위원</span>
-                                    <span class="author-dot"></span>
-                                    <span>대한일보</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="trust-score">
-                            <span class="trust-label">신뢰도</span>
-                            <span class="trust-value"></span>
-                        </div>
-                    </article>
-                </a>
-            </section>
+                    </div>
+                </div>
+                <div class="trust-score">
+                    <span class="trust-label">신뢰도</span>
+                    <span class="trust-value"></span>
+                </div>
+            </a>
         </div>
 
         <!-- Pagination -->
         <div class="pagination-section">
             <nav class="pagination">
-                <a href="#">
-                    <span class="material-symbols-outlined">&lt;</span>
-                </a>
-                <a href="#" class="page-number active">1</a>
-                <a href="#" class="page-number">2</a>
-                <a href="#" class="page-number">3</a>
-                <a href="#" class="page-number">4</a>
-                <a href="#" class="page-number">5</a>
-                <a href="#">
-                    <span class="material-symbols-outlined">&gt;</span>
-                </a>
+                <button onclick="goToPrevPage()">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <!-- 페이지 번호 버튼은 JavaScript로 동적 생성 -->
+                <button onclick="goToNextPage()">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
             </nav>
         </div>
     </section>
@@ -1417,54 +1389,324 @@
     </footer>
 
     <script>
-        $(document).ready(function() {
-    // 1. 페이지 로드 시 즉시 실행 함수 ( 즉시실행 할 것 있으면 추가가능 )
+// ========== 전역 변수 선언 (최상단!) ==========
+let currentPage = 1;
+let currentSortType = 'latest';
+let allArticles = [];
+let trendingArticles = [];
+
+// ========== 날짜 포맷팅 함수 ==========
+function formatDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}.${day}`;
+}
+
+function formatDateFull(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function formatTime(iso) {
+    if (!iso) return "";
+    const diff = (Date.now() - new Date(iso)) / 1000;
+    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+    return `${Math.floor(diff/86400)}일 전`;
+}
+
+
+// ========== jQuery 시작 ==========
+$(document).ready(function() {
     initApp();
 });
 
 function initApp() {
-    // 로그인 여부 확인
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
 
-    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
     renderUserMenu(isLoggedIn, savedName);
 
     if (isLoggedIn) {
-        // 3. 서버에서 최신 정보 가져와 동기화
         fetchUserInfo();
+    } else {
+        loadPersonalizedArticlesuser();
     }
+}
+
+
+
+        /*
+@ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
+기사 페이지 1회 체류 = session 1개
+새로고침 / BFCache / JS 재실행해도 session 중복 생성 방지
+ping / 종료 신호를 안정적으로 서버에 전달
+
+@ 핵심
+- sessionStorage를 이용해 "현재 탭의 세션"을 단 하나만 유지 / ES에는 실시간 기록 / RDB 저장은 batch에서 단 1회만
+*/
+
+
+
+//   0. 서버에서 내려준 값 (임시)
+// 추후 아래 코드 주석처리 필요
+// window.LOGIN_USER_ID = "jimin"; // 테스트용으로 jimin 넣어놨는데 본인 DB에 등록된 회원ID 넣으면 구동 될 거임
+const urlParams = new URLSearchParams(window.location.search);
+const articleId = urlParams.get("article_id");
+const userId = localStorage.getItem('user_id')
+
+// 로그인 안 한 유저는 로그 수집X
+if (!userId || !articleId) {
+  console.warn("[SESSION] userId or articleId missing → tracking disabled");
+}
+//  1. 스크롤 깊이 계산 함수
+
+<!--1. 세션 저장 키 sessionStorage → 탭 단위 유지 (새로고침 유지, 탭 닫으면 삭제) -->
+const SESSION_KEY = "article_session_id";
+
+
+// <!--2. 스크롤 깊이 계산-->
+/*
+(scrollTop + windowHeight) / documentHeight
+→ 0 ~ 1 사이 값
+*/
+
+function getScrollDepth() {
+  const scrollTop =
+    window.scrollY || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+
+  const depth = (scrollTop + windowHeight) / documentHeight;
+
+  // 0~1 범위 강제 보정
+  return Math.min(1, Math.max(0, depth));
+}
+
+
+// <!--   3. 세션 시작 (중복 방지)-->
+/*
+- 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
+- "기사 페이지 진입 1회 = 세션 1개"
+*/
+
+let sessionId = sessionStorage.getItem(SESSION_KEY);
+
+async function startSessionOnce() {
+  // 비로그인 or 이미 세션 존재 → 종료
+  if (!userId || sessionId) return;
+
+  console.log("[SESSION] start");
+
+  const res = await fetch("/session/start", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: userId,
+      article_id: articleId
+    })
+  });
+
+  const data = await res.json();
+
+  sessionId = data.session_id;
+
+  // 탭 단위로 세션 고정
+  sessionStorage.setItem(SESSION_KEY, sessionId);
+}
+
+// 최초 로드 시 1회만 실행
+startSessionOnce();
+
+// <!-- 4. Ping 전송 (체류 중)-->
+/*
+@ 역할
+- 사용자가 "아직 읽고 있다"는 신호
+- batch가 종료 여부 판단하는 기준 데이터
+@ 주기 10초
+*/
+
+let pingTimer = null;
+
+function startPing() {
+  pingTimer = setInterval(() => {
+    if (!sessionId) return;
+
+    fetch("/session/ping", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        scroll_depth: getScrollDepth()
+      })
+    });
+  }, 10_000);
+}
+
+// 세션 생성 후 ping 시작
+setTimeout(startPing, 1000);
+
+/*
+@ 종료 조건
+- 탭 닫기
+- 페이지 이동
+- 백그라운드 전환
+
+- sendBeacon 사용 → 페이지 종료 중에도 안정적으로 전송
+- sessionStorage 정리 → 다음 진입 시 새 세션 생성 가능
+*/
+
+let ended = false;
+
+function endSessionOnce() {
+  if (!sessionId || ended) return;
+  ended = true;
+
+  console.log("[SESSION] end");
+
+  navigator.sendBeacon(
+    `/session/end?session_id=${sessionId}`
+  );
+
+  // 세션 정리
+  sessionStorage.removeItem(SESSION_KEY);
+
+  if (pingTimer) clearInterval(pingTimer);
+}
+
+// 탭이 백그라운드로 갈 때
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    endSessionOnce();
+  }
+});
+
+// 페이지 이동 / 닫기
+window.addEventListener("pagehide", endSessionOnce);
+
+        // 검색어바----------------------------------
+    function performSearch() {
+        // 검색어 입력창에서 값 가져와서 앞뒤 공백 제거
+        const term = document.getElementById('searchInput').value.trim();
+        // 검색 범위에서 선택된 값 가져오기
+        // 제목+본문, 제목 등등
+        const scope = document.getElementById('searchScope').value;
+        // 검색어가 비어있지 않을 때만 검색 실행
+        // 검색어와 검색 범위를 URL 파라미터로 전달->
+        // 검색 결과 페이지 이동
+        // encodeURIComponent 한글/특수문자 URL 깨짐 방지
+        if (term) {
+            location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+        }
+    }
+
+// // ========== 전역 변수 ==========
+// let currentPage = 1;
+// let currentKeyword = '';
+// let currentSearchType = '';
+// let allArticles = [];
+// let trendingArticles = [];
+// let currentSortType = 'latest';
+
+// $(document).ready(function() {
+
+//     //로그인 상태, 카테고리 UI 등 화면 초기화
+//     initializeUI();
+
+//     //현재 URL의 쿼리스트링(?q=검색어&scope=범위) 파싱
+//     const urlParams = new URLSearchParams(window.location.search);
+
+//     //검색어(q) 파라미터 가져오기
+//     // 예: /search.html?q=AI
+//     const query = urlParams.get('q');
+
+//     //검색 범위(scope) 파라미터 가져오기
+//     // 예: title / title_body 등
+//     const scope = urlParams.get('scope');
+
+//     //검색어가 URL에 있을 때만 실행
+//     if (query) {
+
+//         // 검색 input 박스에 검색어 자동으로 채워주기
+//         $('#searchInput').val(query);
+
+//         // 검색 범위가 있으면 select 박스에 반영
+//         if (scope) {
+//             $('#searchScope').val(scope);
+//         }
+
+//         // 실제 검색 실행 함수 호출
+//         // → API 요청해서 검색 결과 불러옴
+//         performSearch();
+//     }
+// });
+
+       // ⭐ globalArticles를 전역으로 선언
+let globalArticles = [];
+
+// $(document).ready(function() {
+//     // 1. 페이지 로드 시 즉시 실행
+//     initApp();
+//     // loadWordCloud();
+//     // loadTopicOpinion();
+//     // loadNews();
+// });
+
+
+function formatTime(iso) {
+    if (!iso) return "";
+    const diff = (Date.now() - new Date(iso)) / 1000;
+    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+    return `${Math.floor(diff/86400)}일 전`;
 }
 
 function fetchUserInfo() {
     $.ajax({
         url: '/get-my-info',
         type: 'GET',
+
+        // 🔥🔥🔥 핵심 (이게 없어서 지금까지 안 됐음)
+        xhrFields: {
+            withCredentials: true
+        },
+
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
-                // 브라우저 저장소 갱신
+
+                // 로그인 정보 저장
+                // localStorage.setItem('loginId', user.user_id);
+                localStorage.setItem('user_id', user.user_id);
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
 
-                // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
+
+                // ✅ 반드시 여기서 추천 호출
+                loadPersonalizedArticlesuser();
             }
         },
+
         error: function(xhr) {
-            console.error("인증 로드 실패:", xhr.status);
-            if(xhr.status === 401) {
-                localStorage.setItem('isLoggedIn', 'false');
-                renderUserMenu(false);
-            }
+            console.warn("get-my-info 실패 → 비로그인 처리");
+            localStorage.setItem('isLoggedIn', 'false');
+            renderUserMenu(false);
+
+            // 콜드스타트 추천
+            loadPersonalizedArticlesuser();
         }
     });
 }
 
-// 드롭다운 부분
+// 드롭다운 내용 생성 함수
 function renderUserMenu(isLoggedIn, userName = "회원") {
-
     const content = document.getElementById('dropdownContent');
     if (!content) return;
 
@@ -1501,14 +1743,201 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
     }
 }
 
-        // 테스트용 로그인 설정
-        localStorage.setItem('isLoggedIn', 'true');
+// 메뉴 토글 함수
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if(dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
 
-        // 유저 메뉴 토글
-        function toggleUserMenu(event) {
-            event.stopPropagation();
-            document.getElementById('userDropdown').classList.toggle('show');
+// 로그아웃
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
         }
+    });
+}
+
+// 바깥 클릭 시 드롭다운 닫기
+window.onclick = function(event) {
+    if (!event.target.closest('.user-menu')) {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+}
+
+/* ===============================
+ 개인화 추천 기사 불러오기
+================================ */
+
+function loadPersonalizedArticlesuser() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    // 백엔드가 user_id 필수
+    const userId = isLoggedIn
+        ? localStorage.getItem('user_id')
+        : "guest";
+
+    if (!userId) {
+        console.warn("userId 없음 → 추천 중단");
+        return;
+    }
+
+    $.get("/recommend", {
+        user_id: userId,
+        limit: 800
+    }, function(res) {
+
+        if (!res || !res.recommendations) {
+            console.warn("추천 결과 없음", res);
+            return;
+        }
+
+        /* ===============================
+           1️⃣ 데이터 세팅만 한다
+        ============================== */
+        allArticles = res.recommendations.map(item => ({
+            article_id: item.article_id,
+            title: item.title,
+            image: item.article_img,
+            upload_date: item.collected_at,
+
+            // ✅ 여기 중요
+            trustScore: item.trust_score ?? 0,
+            trendScore: item.trend_score ?? 0,
+
+            finalScore: item.final_score ?? 0,
+            category: item.category || '기타',
+            reporter: item.reporter || '',
+            source: item.press || '',
+            content: item.content || ''
+        }));
+
+        // 카드 영역용 (상위 4개)
+        trendingArticles = allArticles.slice(0, 4);
+
+        /* ===============================
+           2️⃣ 렌더링은 기존 함수에 맡긴다
+        ============================== */
+        currentPage = 1;
+        displayPage(1);
+        showResultCount(allArticles.length);
+
+        console.log("✅ 개인화 추천 로드 완료:", allArticles.length);
+    });
+}
+// ========== 리스트형 렌더링 (개인화 전용) ==========
+function displayListArticles(articles) {
+    const container = $('#articleList');
+    const template = $('.article-item-template');
+
+    if (template.length === 0) {
+        console.error("템플릿을 찾을 수 없습니다!");
+        return;
+    }
+
+    container.find('.article-item:not(.article-item-template)').remove();
+    container.find('.empty-message').remove();
+
+    articles.forEach(function(article) {
+        const item = template.clone();
+        item.removeClass('article-item-template');
+        item.css('display', '');
+        item.attr('href', `/article/${article.article_id}`);
+        item.attr('data-date', article.upload_date);
+        item.attr('data-reliability', article.trustScore);
+
+        // 🔥 이미지 처리 (없으면 기본 이미지)
+        const imageUrl = article.image || '/static/newspalette.png';
+        item.find('.article-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 🔥 카테고리
+        item.find('.article-category').text(article.category || '기타');
+        const categoryClass = getCategoryClass(article.category);
+        item.find('.article-category').addClass(categoryClass);
+
+        // 🔥 날짜 포맷 (home.html처럼 "N분 전" 형식)
+        item.find('.article-date').text(formatTime(article.upload_date));
+
+        // 🔥 제목/내용
+        item.find('.article-title').text(article.title);
+        item.find('.article-description').text((article.content || '').substring(0, 150) + '...');
+
+        // 🔥 출처/기자 (없으면 빈 문자열)
+        item.find('.author-source').text(article.source || '');
+        item.find('.author-name').text(article.reporter || '미상');
+
+        // 🔥 신뢰도 점수
+        item.find('.trust-value').text(`${article.trustScore}점`);
+
+        container.append(item);
+    });
+}
+
+// ========== 카드형 렌더링 ==========
+function displayCardArticles(articles) {
+    const container = $('#cardGrid');
+    const template = $('.news-card-template');
+
+    if (template.length === 0) {
+        console.error("카드 템플릿을 찾을 수 없습니다!");
+        return;
+    }
+
+    container.find('.news-card:not(.news-card-template)').remove();
+
+    articles.forEach(function(article) {
+        const card = template.clone();
+        card.removeClass('news-card-template');
+        card.css('display', '');
+        card.attr('href', `/article/${article.article_id}`);
+
+        // 🔥 이미지
+        const imageUrl = article.image || '/static/newspalette.png';
+        card.find('.card-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 🔥 카테고리
+        card.find('.card-category').text(article.category || '기타');
+
+        // 🔥 제목
+        card.find('.card-title').text(article.title);
+
+        // 🔥 내용 (있을 경우에만)
+        if (card.find('.card-description').length) {
+            card.find('.card-description').text((article.content || '').substring(0, 100) + '...');
+        }
+
+        // 🔥 메타 정보 (있을 경우에만)
+        if (card.find('.card-reporter').length) {
+            card.find('.card-reporter').text(article.reporter || '');
+        }
+        if (card.find('.card-source').length) {
+            card.find('.card-source').text(article.source || '');
+        }
+        if (card.find('.card-date').length) {
+            card.find('.card-date').text(formatDate(article.upload_date));
+        }
+
+        // 🔥 점수
+        card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+        card.find('.trend-value').text(article.trendScore ? `${Math.round(article.trendScore)}점` : '–');
+
+        container.append(card);
+    });
+}
 
         // 카테고리 활성화 표시
         function setActiveCategoryByURL() {
@@ -1543,125 +1972,408 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
         });
 
         // 검색 기능
-        const searchInput = document.getElementById("searchInput");
-        const searchBtn = document.getElementById("searchBtn");
-        const searchSelect = document.querySelector(".select");
-        const searchSection = document.querySelector(".search-result-section");
-        const articleSection = document.querySelector(".article-section");
-        const resultCountEl = document.querySelector(".result-count");
-        const searchTermEl = document.querySelector(".search-term");
-        const countNumberEl = document.querySelector(".count-number");
-        const searchWrapper = document.querySelector(".result-header");
+        // const searchInput = document.getElementById("searchInput");
+        // const searchBtn = document.getElementById("searchBtn");
+        // const searchSelect = document.querySelector(".select");
+        // const searchSection = document.querySelector(".search-result-section");
+        // const articleSection = document.querySelector(".article-section");
+        // const resultCountEl = document.querySelector(".result-count");
+        // const searchTermEl = document.querySelector(".search-term");
+        // const countNumberEl = document.querySelector(".count-number");
+        // const searchWrapper = document.querySelector(".result-header");
 
-        // Enter키 검색
-        searchInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                searchBtn.click();
-            }
-        });
+        // // Enter키 검색
+        // searchInput.addEventListener("keydown", (e) => {
+        //     if (e.key === "Enter") {
+        //         searchBtn.click();
+        //     }
+        // });
 
-        searchBtn.addEventListener("click", () => {
-            const keyword = searchInput.value.trim();
-            const searchType = searchSelect.value;
+        // searchBtn.addEventListener("click", () => {
+        //     const keyword = searchInput.value.trim();
+        //     const searchType = searchSelect.value;
 
-            if (!keyword) {
-                alert("검색어를 입력하세요");
-                return;
-            }
+        //     if (!keyword) {
+        //         alert("검색어를 입력하세요");
+        //         return;
+        //     }
 
-            // 검색 기준에 따른 메시지 표시
-            let searchTypeText = "";
-            switch(searchType) {
-                case "제목+본문":
-                    searchTypeText = "제목+본문";
-                    break;
-                case "제목":
-                    searchTypeText = "제목";
-                    break;
-                case "본문":
-                    searchTypeText = "본문";
-                    break;
-                case "키워드":
-                    searchTypeText = "키워드";
-                    break;
-            }
+        //     // 검색 기준에 따른 메시지 표시
+        //     let searchTypeText = "";
+        //     switch(searchType) {
+        //         case "제목+본문":
+        //             searchTypeText = "제목+본문";
+        //             break;
+        //         case "제목":
+        //             searchTypeText = "제목";
+        //             break;
+        //         case "본문":
+        //             searchTypeText = "본문";
+        //             break;
+        //         case "키워드":
+        //             searchTypeText = "키워드";
+        //             break;
+        // }
 
-            searchTermEl.textContent = `'${keyword}' (${searchTypeText})`;
+            // searchTermEl.textContent = `'${keyword}' (${searchTypeText})`;
 
             // AJAX로 서버에 검색 요청
-            $.ajax({
-                url: '/api/search',  // 실제 API 엔드포인트로 변경 필요
-                type: 'GET',
-                data: {
-                    keyword: keyword,
-                    searchType: searchType
-                },
-                dataType: 'json',
-                success: function(response) {
-                    const results = response.data || [];
+        //     $.ajax({
+        //         url: '/api/search',  // 실제 API 엔드포인트로 변경 필요
+        //         type: 'GET',
+        //         data: {
+        //             keyword: keyword,
+        //             searchType: searchType
+        //         },
+        //         dataType: 'json',
+        //         success: function(response) {
+        //             const results = response.data || [];
 
-                    if (results.length === 0) {
-                        resultCountEl.innerHTML = `총 <span class="count-number">0</span>건의 기사가 검색되었습니다.`;
-                        searchSection.style.display = "none";
-                        articleSection.style.display = "block";
-                    } else {
-                        resultCountEl.innerHTML = `총 <span class="count-number">${results.length}</span>건의 기사가 검색되었습니다.`;
+        //             if (results.length === 0) {
+        //                 resultCountEl.innerHTML = `총 <span class="count-number">0</span>건의 기사가 검색되었습니다.`;
+        //                 searchSection.style.display = "none";
+        //                 articleSection.style.display = "block";
+        //             } else {
+        //                 resultCountEl.innerHTML = `총 <span class="count-number">${results.length}</span>건의 기사가 검색되었습니다.`;
 
-                        // 검색 결과로 카드 업데이트
-                        updateSearchResults(results);
+        //                 // 검색 결과로 카드 업데이트
+        //                 updateSearchResults(results);
 
-                        searchSection.style.display = "block";
-                        articleSection.style.display = "none";
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('검색 오류:', error);
-                    alert('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
-                }
-            });
-        });
+        //                 searchSection.style.display = "block";
+        //                 articleSection.style.display = "none";
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             console.error('검색 오류:', error);
+        //             alert('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
+        //         }
+        //     });
+        // });
 
-        // 검색 결과 업데이트 함수
-        function updateSearchResults(results) {
-            // ajax로 받아온 데이터
-            // html로 만들어서 화면 보여주는 것---
-            const cardGrid = document.querySelector('.card-grid');
-            cardGrid.innerHTML = ''; // 기존 카드 제거
+        // // 검색 결과 업데이트 함수
+        // function updateSearchResults(results) {
+        //     // ajax로 받아온 데이터
+        //     // html로 만들어서 화면 보여주는 것---
+        //     const cardGrid = document.querySelector('.card-grid');
+        //     cardGrid.innerHTML = ''; // 기존 카드 제거
 
-            results.forEach(article => {
-                const card = `
-                    <article class="news-card">
-                        <div class="card-image-container">
-                            <img src="${article.image}" alt="${article.title}" class="card-image">
-                            <span class="card-category">${article.category}</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">${article.title}</h3>
-                            <p class="card-description">${article.description}</p>
-                            <div class="card-meta">
-                                <span>${article.source}</span>
-                                <span>•</span>
-                                <span>${article.timeAgo}</span>
-                            </div>
-                            <div class="trust-score">
-                                <span class="trust-label">신뢰도</span>
-                                <span class="trust-value">${article.trustScore}%</span>
-                            </div>
-                        </div>
-                    </article>
-                `;
-                cardGrid.innerHTML += card;
-            });
+        //     results.forEach(article => {
+        //         const card = `
+        //             <article class="news-card">
+        //                 <div class="card-image-container">
+        //                     <img src="${article.image}" alt="${article.title}" class="card-image">
+        //                     <span class="card-category">${article.category}</span>
+        //                 </div>
+        //                 <div class="card-body">
+        //                     <h3 class="card-title">${article.title}</h3>
+        //                     <p class="card-description">${article.description}</p>
+        //                     <div class="card-meta">
+        //                         <span>${article.source}</span>
+        //                         <span>•</span>
+        //                         <span>${article.timeAgo}</span>
+        //                     </div>
+        //                     <div class="trust-score">
+        //                         <span class="trust-label">신뢰도</span>
+        //                         <span class="trust-value">${article.trustScore}%</span>
+        //                     </div>
+        //                 </div>
+        //             </article>
+        //         `;
+        //         cardGrid.innerHTML += card;
+        //     });
+        // }
+
+        // // Filter 버튼
+        // const filterButtons = document.querySelectorAll('.filter-button');
+        // filterButtons.forEach(button => {
+        //     button.addEventListener('click', () => {
+        //         filterButtons.forEach(btn => btn.classList.remove('active'));
+        //         button.classList.add('active');
+        //     });
+        // });
+        // ========== 페이지 표시 ==========
+function displayPage(page) {
+    const itemsPerPage = 5;
+    const startIdx = (page - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    const pageArticles = allArticles.slice(startIdx, endIdx);
+
+    // 카드는 항상 트렌드 top4 고정
+    displayCardArticles(trendingArticles);
+
+    // 리스트는 페이지별로 5개씩
+    displayListArticles(pageArticles);
+
+    updatePaginationUI(page);
+    currentPage = page;
+
+    if (pageArticles.length === 0){
+        displayEmptyMessage(); // 기사 없을 때,
+    } else {
+        displayListArticles(pageArticles); // 기사 있을 때
+    }
+}
+
+// ========== 빈 메시지 표시 ==========
+function displayEmptyMessage() {
+    const container = $('#articleList');
+    container.find('.article-item:not(.article-item-template)').remove();
+    container.find('.empty-message').remove();  // 빈 메시지 삭제
+
+    const emptyDiv = $('<div>')
+        .addClass('empty-message')
+        .css({
+            'text-align': 'center',
+            'padding': '4rem 2rem',
+            'color': '#999'
+        })
+        .html(`
+            <h3 style="margin-bottom: 0.5rem;">더 이상 표시할 기사가 없습니다</h3>
+            <p>이전 페이지로 돌아가거나 다른 검색어를 시도해보세요.</p>
+        `);
+
+    container.append(emptyDiv);
+}
+
+function showLoadingState() {
+    $('.result-count').text('검색중..');
+}
+
+function showResultCount(total) {
+    $('.result-count').html(
+        `<span class="count-number" id="countNumber">${total}</span>개의 검색 결과`
+    );
+}
+// ========== 카드형 렌더링 ==========
+function displayCardArticles(articles) {
+    const container = $('#cardGrid');
+    const template = $('.news-card-template');
+
+    if (template.length === 0) {
+        return;
+    }
+
+    container.find('.news-card:not(.news-card-template)').remove();
+
+    articles.forEach(function(article) {
+        const card = template.clone();
+        card.removeClass('news-card-template');
+        card.css('display', '');
+        card.attr('href', `/article/${article.article_id}`);
+
+        // 🔥 이미지
+        const imageUrl = article.image || '/static/newspalette.png';
+        card.find('.card-img').attr('src', imageUrl).attr('alt', article.title);
+
+        // 🔥 카테고리
+        card.find('.card-category').text(article.category || '기타');
+
+        // 🔥 제목
+        card.find('.card-title').text(article.title);
+
+        // 🔥 내용 (content 필드 사용)
+        card.find('.card-description').text((article.content || '').substring(0, 100) + '...');
+
+        // 🔥 기자명
+        card.find('.card-reporter').text(article.reporter || '');
+
+        // 🔥 언론사명
+        card.find('.card-source').text(article.source || '');
+
+        // 🔥 날짜 (월.일 형식)
+        card.find('.card-date').text(formatDate(article.upload_date));
+
+        // 🔥 점수
+        card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+        card.find('.trend-value').text(article.trendScore ? `${Math.round(article.trendScore)}점` : '–');
+
+        container.append(card);
+    });
+}
+
+// // ========== 리스트형 렌더링 ==========
+// function displayListArticles(articles) {
+//     const container = $('#articleList');
+//     const template = $('.article-item-template');
+
+//     if (template.length === 0) {
+//         return;
+//     }
+
+//     container.find('.article-item:not(.article-item-template)').remove();
+//     container.find('.empty-message').remove();
+
+//     articles.forEach(function(article) {
+//         const item = template.clone();
+//         item.removeClass('article-item-template');
+//         item.css('display', '');
+//         item.attr('href', `/article/${article.article_id}`);
+//         item.attr('data-date', article.upload_date);
+//         item.attr('data-reliability', article.trustScore);
+
+//         // 🔥 이미지
+//         const imageUrl = article.image || '/static/newspalette.png';
+//         item.find('.article-img').attr('src', imageUrl).attr('alt', article.title);
+
+//         // 🔥 카테고리
+//         item.find('.article-category').text(article.category || '기타');
+//         const categoryClass = getCategoryClass(article.category);
+//         item.find('.article-category').addClass(categoryClass);
+
+//         // 🔥 날짜 (2026-01-14 형식)
+//         item.find('.article-date').text(formatDateFull(article.upload_date));
+
+//         // 🔥 제목
+//         item.find('.article-title').text(article.title);
+
+//         // 🔥 내용 (content 필드 사용)
+//         item.find('.article-description').text((article.content || '').substring(0, 150) + '...');
+
+//         // 🔥 기자명
+//         item.find('.author-name').text(article.reporter || '미상');
+
+//         // 🔥 언론사명
+//         item.find('.author-source').text(article.source || '');
+
+//         // 🔥 신뢰도 점수
+//         item.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+
+//         container.append(item);
+//     });
+// }
+// ========== 정렬 기능 ========== 완전 수정
+function sortArticles(type) {
+    // 현재 선택된 정렬 타입 저장(최신순/과거순/신뢰도순)
+    currentSortType = type;
+
+    // 전체 기사를 정렬 원본 배열 안 건드림
+    let sortedArticles = [...allArticles];  // 복사본 생성
+
+    sortedArticles.sort((a, b) => {
+    // a,b는 배열 안의 두 요소(기사 객체)를 의미
+    // 기사 날짜 문자열을 Date 객체로 변환
+        const dateA = new Date(a.upload_date);
+        const dateB = new Date(b.upload_date);
+        // 신뢰도 점수 (없으면 0) 혹시나 가져오면 안전장치로 사용
+        const relA = a.trustScore || 0;
+        const relB = b.trustScore || 0;
+        if (type === 'latest') return dateB - dateA;
+        if (type === 'oldest') return dateA - dateB;
+        if (type === 'reliability') return relB - relA;
+        return 0;
+    });
+    // sort 반환값 규칙 : 음수 반환 (a가 b보다 앞에 온다)
+    // 양수 반환 (b가 a보다 앞에 온다)
+
+    // 정렬된 결과로 전체 기사 업데이트
+    allArticles = sortedArticles;
+
+    // 버튼 활성화 상태 변경
+    document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+    // 현재 선택된 버튼만 active 추가
+    const btnId = 'btn' + type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById(btnId).classList.add('active');
+
+    // 1페이지로 돌아가서 다시 표시
+    currentPage = 1;
+    displayPage(1);
+}
+
+// ========== 페이지네이션 ==========
+
+// 특정 페이지로 이동하는 함수
+function goToPage(pageNumber) {
+    currentPage = pageNumber;  // 현재 페이지 업데이트
+    displayPage(pageNumber);   // 해당 페이지의 게시글 표시
+    updatePaginationUI();      // 페이지네이션 버튼 다시 렌더링
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // 페이지 상단으로 스크롤
+}
+
+/**
+ * 이전 페이지로 이동하는 함수
+ */
+function goToPrevPage() {
+    if (currentPage > 1) {  // 1페이지보다 클 때만 이동
+        goToPage(currentPage - 1);
+    }
+}
+
+/**
+ * 다음 페이지로 이동하는 함수
+ */
+function goToNextPage() {
+    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수 계산 (5개씩)
+    if (currentPage < maxPage) {  // 마지막 페이지가 아닐 때만 이동
+        goToPage(currentPage + 1);
+    }
+}
+
+/**
+ * 페이지네이션 UI를 동적으로 업데이트하는 함수
+ * 현재 페이지를 중심으로 최대 5개의 페이지 버튼을 표시
+ */
+function updatePaginationUI() {
+    const maxPage = Math.ceil(allArticles.length / 5);  // 전체 페이지 수
+    // Math.ceil 올림함수 -> 4.1->5 // 5.0->5
+    const maxVisible = 5;  // 한 블록당 페이지 버튼 개수
+
+    // 현재 페이지가 속한 블록 계산
+    // 예: 1~5페이지 → 블록 0, 6~10페이지 → 블록 1
+    const currentBlock = Math.floor((currentPage - 1) / maxVisible);
+
+    // 시작 페이지와 끝 페이지 계산
+    const startPage = currentBlock * maxVisible + 1;
+    const endPage = Math.min(startPage + maxVisible - 1, maxPage);
+
+    // 페이지네이션 컨테이너 찾기
+    const pagination = document.querySelector('.pagination');
+
+    // 기존 페이지 번호 버튼 모두 제거
+    const oldButtons = pagination.querySelectorAll('.page-number');
+    oldButtons.forEach(btn => btn.remove());
+
+    // next 버튼 참조 (새 버튼들을 이 앞에 삽입하기 위해)
+    const nextButton = pagination.querySelector('button:last-child');
+
+    // 계산된 블록 범위만큼 페이지 버튼 동적 생성
+    for (let i = startPage; i <= endPage; i++) {
+        const button = document.createElement('button');
+        button.className = 'page-number';
+
+        // 현재 페이지에 active 클래스 추가
+        if (i === currentPage) {
+            button.classList.add('active');
         }
 
-        // Filter 버튼
-        const filterButtons = document.querySelectorAll('.filter-button');
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-            });
-        });
+        button.innerText = i;  // 버튼 텍스트에 페이지 번호 표시
+        button.onclick = () => goToPage(i);  // 클릭 시 해당 페이지로 이동
+
+        // next 버튼 앞에 삽입
+        pagination.insertBefore(button, nextButton);
+    }
+}
+
+/**
+ * 페이지 로드 시 초기 페이지네이션 UI 생성
+ */
+window.addEventListener('DOMContentLoaded', () => {
+    updatePaginationUI();  // 페이지 버튼 초기 렌더링
+});
+
+// =========  실제 카테고리 클래스명으로 기사 리스트에서 카테고리 표시  ========================
+function getCategoryClass(category) {
+    const categoryMap = {
+        '사회/경제': 'category-society',
+        '정치': 'category-politics',
+        '문화': 'category-culture',
+        '국제': 'category-world',
+        '지역': 'category-international',
+        '스포츠': 'category-sports'
+    };
+    return categoryMap[category] || 'category-society';
+}
+
     </script>
 </body>
 </html>
+<!--바꿈-->
