@@ -86,7 +86,10 @@ def klue_clickbait_prob(title: str, content: str) -> float:
     return float(probs[0, 1].item())
 
 
+
+# ===============================
 # 최종 신뢰도 계산
+# ===============================
 def compute_trust_score(title: str, content: str) -> dict:
     clickbait_prob = klue_clickbait_prob(title, content)
     hand_title = hand_title_score(title)
