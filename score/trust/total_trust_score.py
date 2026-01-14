@@ -1,5 +1,6 @@
-# total_trust_score.py
+# total_trust_score.py (PATCH VERSION)
 # - KLUE-BERT + HAND 신뢰도 점수 산출 (ES 연동용)
+# - ✅ import 시점 모델 로딩 제거 (lazy load / 1회 캐시)
 
 import torch
 import torch.nn.functional as F
@@ -7,54 +8,71 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from score.trust.HAND import (
     hand_title_score,
-    hand_body_score
+    hand_body_score,
 )
 
-
-# 모델 설정
+# =========================
+# Config
+# =========================
 MODEL_DIR = r"model/klue_bert_clickbait_test (2)/epoch_3"
 MODEL_VERSION = "klue_v1_hand_v6"
 MAX_LEN = 256
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# =========================
+# Lazy-loaded globals
+# =========================
+_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
-model = AutoModelForSequenceClassification.from_pretrained(
-    MODEL_DIR,
-    num_labels=2
-)
-model.to(device)
-model.eval()
+_tokenizer = None
+_model = None
 
-print("학습한 모델 로드 완료:", device)
+
+def _load_model_once() -> None:
+    global _tokenizer, _model
+
+    if _model is not None and _tokenizer is not None:
+        return
+
+    _tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+    _model = AutoModelForSequenceClassification.from_pretrained(
+        MODEL_DIR,
+        num_labels=2,
+    )
+    _model.to(_device)
+    _model.eval()
+
+    print("학습한 모델 로드 완료:", _device)
 
 
 # KLUE-BERT 추론
 def klue_clickbait_prob(title: str, content: str) -> float:
+    _load_model_once()
+
     text = f"[TITLE] {title} [CONTENT] {content}"
 
-    encoding = tokenizer(
+    encoding = _tokenizer(
         text,
         max_length=MAX_LEN,
         truncation=True,
         padding="max_length",
-        return_tensors="pt"
+        return_tensors="pt",
     )
 
     with torch.no_grad():
-        outputs = model(
-            input_ids=encoding["input_ids"].to(device),
-            attention_mask=encoding["attention_mask"].to(device)
+        outputs = _model(
+            input_ids=encoding["input_ids"].to(_device),
+            attention_mask=encoding["attention_mask"].to(_device),
         )
 
     probs = F.softmax(outputs.logits, dim=1)
-    return probs[0, 1].item()
+    return float(probs[0, 1].item())
+
 
 # 최종 신뢰도 계산
 def compute_trust_score(title: str, content: str) -> dict:
     clickbait_prob = klue_clickbait_prob(title, content)
     hand_title = hand_title_score(title)
-    hand_body  = hand_body_score(content)
+    hand_body = hand_body_score(content)
 
     final_risk = (
         0.70 * clickbait_prob +
@@ -68,7 +86,7 @@ def compute_trust_score(title: str, content: str) -> dict:
         "article_label": {
             "article_trust_score": round(trust_score, 2)
         },
-        "status": 4
+        "status": 4,
+        # 필요하면 버전도 같이 남기고 싶을 때:
+        # "model_version": MODEL_VERSION
     }
-
-

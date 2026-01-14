@@ -59,6 +59,15 @@ def register_jobs():
         paused=True,
     )
 
+def register_jobs_test():
+    scheduler.add_job(
+        close_timeout_sessions,
+        IntervalTrigger(minutes=1),
+        id="session_timeout_job",
+        replace_existing=True,
+        max_instances=1
+    )
+
 def run_pipeline():
     run_id = _run_id_kst()
     env = os.getenv("APP_ENV", "dev")

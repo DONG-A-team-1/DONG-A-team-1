@@ -22,7 +22,8 @@ from . import search
 from . import category
 from . import admin
 
-from main import register_jobs
+from main import register_jobs_test
+# from main import register_jobs
 
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
@@ -71,9 +72,9 @@ app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 @app.on_event("startup")
 def startup_start_scheduler():
     env = os.getenv("APP_ENV", "dev")
-
     # job 등록 (id가 고정이어야 admin 토글 가능)
-    register_jobs()
+    register_jobs_test()
+    # register_jobs()
 
     # 중복 start 방지
     if not scheduler.running:
