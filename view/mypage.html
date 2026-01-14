@@ -1776,7 +1776,7 @@ body.dark .user-dropdown {
                         <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;" class="dark:border-gray-700">
                             <button class="reset-btn" onclick="resetAlgorithm()">
                                 <span class="material-icons-outlined" style="font-size: 0.875rem;">restart_alt</span>
-                                <span>알고리즘 초기화</span>
+                                <span>조회기록 초기화</span>
                             </button>
                         </div>
                     </div>
@@ -1999,11 +1999,11 @@ function initApp() {
 }
 
 /* ============================================================
-   2. 유저 정보 및 인증 관련
+    2. 유저 정보 및 인증 관련
 ============================================================ */
 function initDarkMode() {
     const isDark = localStorage.getItem('darkMode') === 'true' || 
-                  (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark) document.body.classList.add('dark');
 }
 
@@ -2371,6 +2371,69 @@ function renderChart(stats) {
     `).join('');
 }
 
+/* ============================================================
+    5. 회원 탈퇴 처리 로직
+============================================================ */
+
+// 1) 탈퇴 모달 열기 (버튼 클릭 시 호출)
+function openWithdrawModal() {
+    if (confirm("정말로 회원 탈퇴를 진행하시겠습니까?")) {
+        // 별도의 커스텀 모달 UI가 없다면 바로 탈퇴 함수 호출
+        proceedWithdraw();
+    }
+}
+
+// 2) 실제 탈퇴 AJAX 요청
+function proceedWithdraw() {
+    $.ajax({
+        url: '/withdraw',
+        type: 'POST',
+        // 서버에서 세션(loginId)을 기반으로 처리하므로 data 전송 불필요
+        success: function(response) {
+            // 서버 응답: {"message": "탈퇴 완료"}
+            alert(response.message || "그동안 이용해주셔서 감사합니다. 탈퇴가 완료되었습니다.");
+            
+            // 로컬 스토리지 정리 및 홈으로 이동
+            localStorage.clear();
+            window.location.href = '/view/home.html';
+        },
+        error: function(xhr) {
+            console.error("탈퇴 실패:", xhr);
+            const msg = xhr.responseJSON?.message || "탈퇴 처리 중 오류가 발생했습니다.";
+            alert(msg);
+        }
+    });
+}
+
+/* ============================================================
+    알고리즘 초기화 (is_train 업데이트 방식)
+============================================================ */
+function resetAlgorithm() {
+    if (!confirm("읽기 기록을 초기화하시겠습니까?\n이 작업은 활동 내역과 추천 알고리즘에 즉시 반영되며 되돌릴 수 없습니다.")) {
+        return;
+    }
+
+    $.ajax({
+        url: '/api/user/reset-algorithm',
+        type: 'POST',
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                // 초기화 성공 후 화면 갱신
+                // 1. 도넛 차트 0으로 갱신
+                loadDonutChart(); 
+                // 2. 캘린더 그리드 및 리스트 갱신
+                updateCalendarUI();
+                // 또는 전체 페이지 새로고침
+                // location.reload();
+            }
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON?.message || "초기화 실패";
+            alert(msg);
+        }
+    });
+}
 </script>
 </body>
 </html>
