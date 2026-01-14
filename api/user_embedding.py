@@ -310,7 +310,11 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
                 "article_title",
                 "article_label",
                 "collected_at",
-                "article_img"
+                "article_img",
+                "category",  # 카테고리
+                "reporter",  # 기자명
+                "press",  # 언론사
+                "content"  # 본문 (프론트에서 요약용)
             ]
         )
 
@@ -432,7 +436,16 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
             "title": src.get("article_title", ""),
             "article_img": src.get("article_img"),
             "final_score": int(round(final_raw * 100)),
-            "collected_at": src.get("collected_at")
+            "collected_at": src.get("collected_at"),
+            # ✅ 점수 추가
+            "trend_score": label.get("trend_score", 0.0),
+            "trust_score": label.get("article_trust_score", 0.0),
+
+            # ✅ 메타 정보 추가
+            "category": src.get("category", "기타"),
+            "reporter": src.get("reporter", ""),
+            "press": src.get("press", ""),
+            "content": src.get("content", "")
         })
 
     ranked.sort(key=lambda x: x["final_score"], reverse=True)
