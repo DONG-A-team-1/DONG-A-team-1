@@ -119,9 +119,9 @@ def get_articles_by_category(category_name: str, size: int = 45, page: int = 1, 
     if sort_type == "reliability":
         sort_criteria = [{"article_label.article_trust_score": {"order": "desc"}}]
     elif sort_type == "oldest":
-        sort_criteria = [{"upload_date": {"order": "asc"}}]
-    else:
-        sort_criteria = [{"upload_date": {"order": "desc"}}]
+        sort_criteria = [{"collected_at": {"order": "asc"}}]
+    else:  # latest
+        sort_criteria = [{"collected_at": {"order": "desc"}}]
 
     list_body = {
         "size": size,

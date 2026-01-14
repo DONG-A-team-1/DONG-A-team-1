@@ -6,6 +6,7 @@ from util.text_cleaner import yyyymmdd_to_iso
 
 import random
 import string
+import calendar
 
 # 아이디 중복 체크
 def check_id(user_id: str):
@@ -266,6 +267,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
     hits = resp.get("hits", {}).get("hits", [])
 
     # 결과 포맷팅
+    no_img = "/static/newspalette.png"
     articles = []
     for hit in hits:
         src = hit.get("_source", {})
@@ -290,7 +292,7 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "article_id": src.get("article_id"),
             "title": src.get("article_title", ""),
             "content": src.get("article_content", ""),
-            "image": src.get("article_img"),
+            "image": src.get("article_img") or no_img,
             "category": label.get("category"),
             "source": src.get("press"),
             "upload_date": yyyymmdd_to_iso(src.get("upload_date")),
@@ -311,3 +313,106 @@ def search_articles(search_type: str, query: str, size: int = 20):
         "articles": articles,
         "trending": trending
     }
+
+def get_user_history(user_id: str, date: str):
+    """
+    date: YYYY-MM-DD
+    """
+
+    db = SessionLocal()
+    try:
+        # 1️⃣ RDB 조회 (SQLAlchemy 방식)
+        sql = text("""
+            SELECT article_id, started_at
+            FROM session_data
+            WHERE user_id = :user_id
+              AND DATE(started_at) = :date
+            ORDER BY started_at DESC
+        """)
+
+        result = db.execute(
+            sql,
+            {
+                "user_id": user_id,
+                "date": date
+            }
+        )
+
+        rows = result.mappings().all()  # 👈 중요
+
+        if not rows:
+            return {"success": True, "articles": []}
+
+        article_ids = [r["article_id"] for r in rows]
+
+        # 2️⃣ ES 조회
+        res = es.search(
+            index="article_data",
+            body={
+                "size": len(article_ids),
+                "query": {
+                    "terms": {
+                        "article_id": article_ids
+                    }
+                },
+                "_source": [
+                    "article_id",
+                    "article_title",
+                    "press"
+                ]
+            }
+        )
+
+        es_map = {
+            hit["_source"]["article_id"]: hit["_source"]
+            for hit in res["hits"]["hits"]
+        }
+
+        # 3️⃣ 프론트 데이터 가공
+        articles = []
+        for r in rows:
+            article = es_map.get(r["article_id"])
+            if not article:
+                continue
+
+            articles.append({
+                "article_id": article["article_id"],
+                "title": article["article_title"],
+                "press": article.get("press"),
+                "read_time": r["started_at"].strftime("%H:%M")
+            })
+
+        return {
+            "success": True,
+            "articles": articles
+        }
+
+    finally:
+        db.close()
+
+# 마이페이지 달력부분 로직
+def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
+    """
+    db 인자를 직접 받지 않고 내부에서 SessionLocal을 실행하도록 수정
+    """
+    activity_data = {}
+    total_views = 0
+
+    with SessionLocal() as db: # 내부에서 DB 세션 오픈
+        query = text("""
+            SELECT DATE(started_at) as date, COUNT(*) as count 
+            FROM session_data 
+            WHERE user_id = :uid 
+              AND YEAR(started_at) = :year 
+              AND MONTH(started_at) = :month
+            GROUP BY DATE(started_at)
+        """)
+
+        result = db.execute(query, {"uid": user_id, "year": year, "month": month}).fetchall()
+
+        if result:
+            # DB의 date 객체를 문자열로 변환 (JSON 에러 방지)
+            activity_data = {str(r[0]): r[1] for r in result}
+            total_views = sum(activity_data.values())
+
+    return activity_data, total_views

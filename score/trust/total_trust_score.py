@@ -5,11 +5,22 @@
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from pathlib import Path
 
 from score.trust.HAND import (
     hand_title_score,
     hand_body_score,
 )
+
+# ===============================
+# 모델 경로 (프로젝트 루트 기준)
+# ===============================
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_DIR = PROJECT_ROOT / "model" / "klue_bert_clickbait_test (2)" / "epoch_3"
+
+print("USING FILE :", __file__)
+print("MODEL_DIR  :", MODEL_DIR)
+print("EXISTS     :", MODEL_DIR.exists())
 
 # =========================
 # Config
@@ -33,10 +44,15 @@ def _load_model_once() -> None:
     if _model is not None and _tokenizer is not None:
         return
 
-    _tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+    _tokenizer = AutoTokenizer.from_pretrained(
+        MODEL_DIR,
+        local_files_only=True
+    )
+
     _model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_DIR,
         num_labels=2,
+        local_files_only=True
     )
     _model.to(_device)
     _model.eval()
@@ -44,7 +60,9 @@ def _load_model_once() -> None:
     print("학습한 모델 로드 완료:", _device)
 
 
+# ===============================
 # KLUE-BERT 추론
+# ===============================
 def klue_clickbait_prob(title: str, content: str) -> float:
     _load_model_once()
 

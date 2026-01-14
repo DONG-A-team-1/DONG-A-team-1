@@ -18,12 +18,16 @@ BIGKINDS_INDEX = "bigkinds_trends"
 GOOGLE_INDEX = "google_trends"
 
 
+# -------------------------------------------------
 # 최신 BigKinds 트렌드 dict 로드
+# 최신 문서를 확실히 가져오기 위해 sort 추가
+# -------------------------------------------------
 def load_latest_bigkinds_trend_dict():
     res = es.search(
         index=BIGKINDS_INDEX,
         body={
             "size": 1,
+            "sort": [{"collected_at": "desc"}],
             "_source": ["trends"]
         }
     )
@@ -45,8 +49,9 @@ def load_latest_bigkinds_trend_dict():
     return result
 
 
-
+# -------------------------------------------------
 # 최신 Google 트렌드 dict 로드
+# -------------------------------------------------
 def load_latest_google_trend_dict():
     res = es.search(
         index=GOOGLE_INDEX,
@@ -57,7 +62,7 @@ def load_latest_google_trend_dict():
         }
     )
 
-    hits = res["hits"]["hits"]
+    hits = res.get("hits", {}).get("hits", [])
     if not hits:
         logger.warning("[TREND] Google trend empty")
         return {}
@@ -66,10 +71,14 @@ def load_latest_google_trend_dict():
     return {t["title"]: t["trend_score"] for t in trend_list}
 
 
+# -------------------------------------------------
+# 기사별 트렌드 점수 계산
+# -------------------------------------------------
 def calc_article_trend_score(keywords, google_dict, bigkinds_dict):
     """
-    기사 features 기준
-    Google 0.5 + BigKinds 0.5 고정 가중치 결합
+    기사 features 기준 트렌드 점수 계산
+
+    Google 0.5 + BigKinds 0.5 고정 가중치
     - 하나만 있으면 최대 0.5
     - 둘 다 있으면 최대 1.0
     - 둘 다 없으면 0
@@ -89,11 +98,9 @@ def calc_article_trend_score(keywords, google_dict, bigkinds_dict):
                 bigkinds_scores.append(b_score)
                 break
 
-    # 각 소스별 대표 점수 (없으면 0)
     google_part = max(google_scores) if google_scores else 0.0
     bigkinds_part = max(bigkinds_scores) if bigkinds_scores else 0.0
 
-    # 고정 가중치 결합
     final_score = 0.5 * google_part + 0.5 * bigkinds_part
 
     if final_score <= 0:
@@ -112,17 +119,22 @@ def calc_article_trend_score(keywords, google_dict, bigkinds_dict):
     return round(final_score, 3), top_keywords
 
 
+# -------------------------------------------------
 # 메인 파이프라인 (1시간 주기 실행)
+# -------------------------------------------------
 def run_article_trend_pipeline():
     """
-    [처리 흐름]
-    1. Google Trends 수집 → google_trends
-    2. BigKinds Trends 계산 → bigkinds_trends
+    처리 흐름
+
+    1. Google Trends 수집
+    2. BigKinds Trends 계산
     3. 최신 트렌드 로드
     4. 최근 24시간 & status=4 기사 조회
     5. 기사별 Trend Score 계산
     6. trending_articles 스냅샷 저장
-    7. article_data 업데이트 (status=5 + article_label.trend_score)
+    7. article_data 업데이트
+       - 트렌드 점수 있는 기사만 status=5
+       - article_label.trend_score만 부분 업데이트
     """
 
     now = datetime.now(KST)
@@ -152,10 +164,12 @@ def run_article_trend_pipeline():
         return
 
     logger.info(
-        f"[TREND] google={len(google_dict)}, bigkinds={len(bigkinds_dict)}"
+        "[TREND] google=%d, bigkinds=%d",
+        len(google_dict),
+        len(bigkinds_dict)
     )
 
-    # 3. 기사 조회 (신뢰도 완료 + 최근 24시간)
+    # 3. 기사 조회 (신뢰도 계산 완료 + 최근 24시간)
     query = {
         "size": 10000,
         "_source": ["features"],
@@ -177,7 +191,7 @@ def run_article_trend_pipeline():
     }
 
     hits = es.search(index=ARTICLE_INDEX, body=query)["hits"]["hits"]
-    logger.info(f"[TREND] 대상 기사 수: {len(hits)}")
+    logger.info("[TREND] 대상 기사 수: %d", len(hits))
 
     trend_articles = []
     bulk_updates = []
@@ -193,14 +207,7 @@ def run_article_trend_pipeline():
             bigkinds_dict
         )
 
-        logger.debug(
-            f"[TREND] {article_id} "
-            f"google_part={bool(google_dict)} "
-            f"bigkinds_part={bool(bigkinds_dict)} "
-            f"score={score}"
-        )
-
-        # ✅ 트렌드 점수가 있는 경우만 snapshot 저장
+        # 트렌드 점수가 있는 경우만 처리
         if score > 0:
             trend_articles.append({
                 "article_id": article_id,
@@ -208,27 +215,19 @@ def run_article_trend_pipeline():
                 "trend_keywords": top_keywords
             })
 
-        # 모든 기사 status는 5로 변경
-        update_doc = {
-            "status": 5
-        }
+            # status 변경 + trend_score만 부분 업데이트
+            bulk_updates.append({
+                "_op_type": "update",
+                "_index": ARTICLE_INDEX,
+                "_id": article_id,
+                "doc": {
+                    "status": 5,
+                    "article_label.trend_score": score
+                }
+            })
 
-        # 점수가 있을 때만 article_label.trend_score 저장
-        if score > 0:
-            update_doc["article_label"] = {
-                "trend_score": score
-            }
-
-        bulk_updates.append({
-            "_op_type": "update",
-            "_index": ARTICLE_INDEX,
-            "_id": article_id,
-            "doc": update_doc
-        })
-
-    # 5. trending_articles 저장 (시간 단위 스냅샷)
+    # 5. trending_articles 저장
     if trend_articles:
-        logger.info(trend_articles)
         es.index(
             index=TRENDING_INDEX,
             id=now.strftime("%Y%m%d%H"),
@@ -238,14 +237,16 @@ def run_article_trend_pipeline():
             }
         )
         logger.info(
-            f"[TREND] trending_articles 저장: {len(trend_articles)}"
+            "[TREND] trending_articles 저장: %d",
+            len(trend_articles)
         )
 
     # 6. article_data bulk 업데이트
     if bulk_updates:
         helpers.bulk(es, bulk_updates)
         logger.info(
-            f"[TREND] article_data 업데이트 완료: {len(bulk_updates)}건"
+            "[TREND] article_data 업데이트 완료: %d건",
+            len(bulk_updates)
         )
 
     logger.info("[TREND] 파이프라인 종료")
