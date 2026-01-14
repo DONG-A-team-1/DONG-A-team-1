@@ -211,8 +211,8 @@ async def find_user_pw(
 #     user_id: str = Form(...),
 # ):
 #     pass
-  
- 
+
+
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
@@ -309,6 +309,11 @@ async def topic_page(request: Request):
 def get_topics():
     result = topic.get_topic_from_es()
     return result
+
+class TopicArticleReq(BaseModel):
+    pos_ids: Optional[List[str]] = Field(default_factory=list)
+    neg_ids: Optional[List[str]] = Field(default_factory=list)
+    neu_ids: Optional[List[str]] = Field(default_factory=list)
 
 @app.post("/api/topic_article")
 def get_topic_article(body:TopicArticleReq):
@@ -552,3 +557,17 @@ def article_detail(article_id: str, body: ArticleEditReq):
 @app.patch("/api/admin/edit_topics/{topic_id}")
 def edit_topics(topic_id: str, body: TopicEditBody):
     return admin.edit_topics(topic_id, body)
+
+@app.get("/api/user/category-stats")
+async def get_category_stats(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    try:
+        # member.py의 함수 호출
+        stats = member.get_user_category_stats(user_id)
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.error(f"Category stats error: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
