@@ -30,7 +30,7 @@ def get_topic_from_es():
     for h in hits:
         src = h.get("_source", {})
         result.append(src)
-    logger.info(result)
+    # logger.info(result)
     return result
 
 def get_topic_article(id_list):

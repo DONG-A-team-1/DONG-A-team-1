@@ -22,7 +22,6 @@
         rel="stylesheet"
       />
 
-    <link rel="stylesheet" href="./styles.css" />
 
    <style>
       /*다크모드 */
@@ -1728,6 +1727,38 @@
                 </p>
             </div>
         </section>
+                <!-- 토픽에 관련된 긍/부 -->
+        <section class="opinion">
+          <div class="opinion-container">
+            <h3>
+              <span class="highlight">오늘의 토픽</span> 여론 분석
+            </h3>
+
+            <div class="opinion-wrap">
+              <!-- 긍정 기사 -->
+              <div class="side positive">
+                <p class="title">긍정 / 기대</p>
+                <div id="positive-articles">
+                  <!-- jQuery로 동적 생성 -->
+                </div>
+              </div>
+
+              <!-- 중앙 토픽 -->
+              <div class="center-topic">
+                <p class="small_topic">HOT TOPIC</p>
+                <h4 id="hot-topic-title">로딩 중...</h4>
+              </div>
+
+              <!-- 부정 기사 -->
+              <div class="side negative">
+                <p class="title">부정 / 우려</p>
+                <div id="negative-articles">
+                  <!-- jQuery로 동적 생성 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       <section class="wordcloud-section">
         <h3 class="wordcloud-title">오늘의 키워드 클라우드</h3>
 
@@ -1745,6 +1776,10 @@
         </div>
     </footer>
 
+
+
+
+
   </body>
 <script>
 /* ===============================
@@ -1755,6 +1790,7 @@ $(document).ready(function() {
     initApp();
     loadPersonalizedArticles();
     loadWordCloud();
+    loadTopicOpinion();
     let globalArticles = [];
 
     function loadNews() {
@@ -1762,6 +1798,7 @@ $(document).ready(function() {
             url: "/api/main-trending",
             type: "GET",
             success: function (response) {
+                console.log(response)
                 if (response.success && response.articles) {
                     globalArticles = response.articles;
                     const $track = $('#track');
@@ -1791,8 +1828,8 @@ $(document).ready(function() {
                     if (globalArticles.length > 0) {
                         loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
                     }
-                }
-            }
+              }
+            },error: function (error){console.log(error)}
         });
     }
 });
@@ -2022,12 +2059,20 @@ $(document).ready(function () {
 
     function loadNews() {
         $.ajax({
-            url: "/api/main-trending",
+            url: "/api/recommend/trend?limit=5",
             type: "GET",
             success: function (response) {
                 if (!response.success || !response.articles) return;
 
-                globalArticles = response.articles;
+                globalArticles = response.articles.map(item => ({
+                    article_id: item.article_id,
+                    title: item.title,
+                    image: item.image,
+                    source: item.press || "뉴스",
+                    category: "트렌드",
+                    trustScore: Math.round((item.trust_score || 0) * 100)
+                }));
+
                 const $track = $('#track');
                 const $template = $('#main-news-template');
 
@@ -2045,13 +2090,11 @@ $(document).ready(function () {
                     $clone.find('.press-name').text(data.source);
                     $clone.find('.trust-val').text(Math.round(data.trustScore / 100) + '점');
 
-
                     $track.append($clone);
                 });
 
                 initCustomCarousel();
 
-                // 첫 기사 기준 연관기사 로드
                 if (globalArticles.length > 0) {
                     loadRelatedArticles(
                         globalArticles[0].article_id,
@@ -2059,36 +2102,37 @@ $(document).ready(function () {
                     );
                 }
             }
+        }); // ✅ ajax 닫힘
+    }
+
+    // 캐러셀 ------------------------------
+    function initCustomCarousel() {
+        const $track = $('#track');
+        let index = 0;
+
+        $('#nextBtn').off().on('click', function() {
+            index = (index + 1) % globalArticles.length;
+            moveSlide(index);
         });
-    }
-// 캐러셀 ----------------------------------------------------------------------------
-function initCustomCarousel() {
-    const $track = $('#track');
-    let index = 0;
- // 오른쪽 버튼 클릭
-    $('#nextBtn').off().on('click', function() {
-        index = (index + 1) % globalArticles.length;
-        moveSlide(index);
-    });
-// 왼쪽 버튼 클릭
-    $('#prevBtn').off().on('click', function() {
-        index = (index - 1 + globalArticles.length) % globalArticles.length;
-        moveSlide(index);
-    });
 
-function moveSlide(currentIndex) {
-    const cardWidth = $track.find('.news-link').outerWidth(true);
-    $track.css({
-        transform: `translateX(${-currentIndex * cardWidth}px)`,
-        transition: 'transform 0.4s ease-in-out'
-    });
+        $('#prevBtn').off().on('click', function() {
+            index = (index - 1 + globalArticles.length) % globalArticles.length;
+            moveSlide(index);
+        });
 
-    const article = globalArticles[currentIndex];
-    if (article) {
-        loadRelatedArticles(article.article_id, article.title);
+        function moveSlide(currentIndex) {
+            const cardWidth = $track.find('.news-link').outerWidth(true);
+            $track.css({
+                transform: `translateX(${-currentIndex * cardWidth}px)`,
+                transition: 'transform 0.4s ease-in-out'
+            });
+
+            const article = globalArticles[currentIndex];
+            if (article) {
+                loadRelatedArticles(article.article_id, article.title);
+            }
+        }
     }
-}
-}
 
     loadNews();
 });
@@ -2189,6 +2233,82 @@ function loadWordCloud() {
     });
 }
 
+// -----------토픽----------------
+function loadTopicOpinion() {
+    $.ajax({
+        url: '/api/topic-opinion',
+        method: 'GET',
+        success: function(data) {
+            console.log('받은 데이터:', data);
+
+            // 중앙 토픽 제목 설정
+            $('#hot-topic-title').html(data.topic.replace(' ', '<br>'));
+
+            // 토픽 키워드 누르면 토픽 페이지 이동하기
+            $('#hot-topic-title').css('cursor', 'pointer').off('click').on('click', function() {
+                window.location.href = '/topics';  // 또는 '/view/polar.html'
+            });
+
+            // 긍정 기사 렌더링
+            const positiveArticles = data.positive_articles || [];
+            $('#positive-articles').empty();
+            positiveArticles.slice(0, 3).forEach(function(article) {
+                $('#positive-articles').append(
+                    `<div class="pill pos" data-article-id="${article.article_id}">
+                        ${article.title}
+                    </div>`
+                );
+            });
+
+            // 부정 기사 렌더링
+            const negativeArticles = data.negative_articles || [];
+            $('#negative-articles').empty();
+            negativeArticles.slice(0, 3).forEach(function(article) {
+                $('#negative-articles').append(
+                    `<div class="pill warn" data-article-id="${article.article_id}">
+                        ${article.title}
+                    </div>`
+                );
+            });
+
+            // 기사 클릭 이벤트
+            $('#positive-articles, #negative-articles').off('click', '.pill').on('click', '.pill', function() {
+                const articleId = $(this).data('article-id');
+                if (articleId && articleId !== 'undefined') {
+                    window.location.href = `/article/${articleId}`;
+                }
+            });
+        },
+        error: function(error) {
+            console.error('토픽 여론 데이터 로딩 실패:', error);
+            $('#hot-topic-title').text('데이터 로딩 실패');
+        }
+    });
+}
+
+function loadWordCloud() {
+    $.ajax({
+        url: '/api/wordcloud-data', // 백엔드 엔드포인트
+        type: 'GET',
+        success: function(options) {
+            // 1. div 요소 찾기
+            const chartDom = document.getElementById('wordCloudChart');
+            const myChart = echarts.init(chartDom);
+
+            // 2. 백엔드에서 받은 옵션 적용
+            myChart.setOption(options);
+
+            // 3. 클릭 이벤트 추가 (구글 검색 연동)
+            myChart.on('click', function (params) {
+                const keyword = params.name.replace('#', '');
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+            });
+
+            // 창 크기 조절 시 리사이즈
+            window.addEventListener('resize', myChart.resize);
+        }
+    });
+}
 </script>
 
 </html>

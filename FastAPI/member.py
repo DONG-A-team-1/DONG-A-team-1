@@ -6,6 +6,7 @@ from util.text_cleaner import yyyymmdd_to_iso
 
 import random
 import string
+import calendar
 
 # 아이디 중복 체크
 def check_id(user_id: str):
@@ -388,3 +389,30 @@ def get_user_history(user_id: str, date: str):
 
     finally:
         db.close()
+
+# 마이페이지 달력부분 로직
+def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
+    """
+    db 인자를 직접 받지 않고 내부에서 SessionLocal을 실행하도록 수정
+    """
+    activity_data = {}
+    total_views = 0
+
+    with SessionLocal() as db: # 내부에서 DB 세션 오픈
+        query = text("""
+            SELECT DATE(started_at) as date, COUNT(*) as count 
+            FROM session_data 
+            WHERE user_id = :uid 
+              AND YEAR(started_at) = :year 
+              AND MONTH(started_at) = :month
+            GROUP BY DATE(started_at)
+        """)
+
+        result = db.execute(query, {"uid": user_id, "year": year, "month": month}).fetchall()
+
+        if result:
+            # DB의 date 객체를 문자열로 변환 (JSON 에러 방지)
+            activity_data = {str(r[0]): r[1] for r in result}
+            total_views = sum(activity_data.values())
+
+    return activity_data, total_views

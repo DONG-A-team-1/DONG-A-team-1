@@ -3,34 +3,66 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 
 from starlette.middleware.sessions import SessionMiddleware
+
 # router 연결(session)
 from api.session_ping import router as session_ping_router
 from api.session import router as session_router
 from api.session_end import router as session_end_router
 from api.recommend import router as recommend_router
+from api.recommend_trend import recommend_trend_articles
+from api.admin import router as admin_router
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 import json
+import os
 
 from . import member
 from . import article
 from . import topic
 from . import search
 from . import category
+from . import admin
+
+# from main import register_jobs_test
+from main import register_jobs
 
 from wordcloud.wordCloudMaker import make_wordcloud_data
 from util.logger import Logger
 from util.elastic import es
+from util.scheduler_runtime import scheduler
 
 logger = Logger().get_logger(__name__)
 app = FastAPI()
+
+class ArticleStatusReq(BaseModel):
+    status: int = Field(..., ge=0, le=5, description="0=비활성, 5=활성")
+
+class ArticleEditReq(BaseModel):
+    title: Optional[str] = Field(None, description="기사 제목")
+    content: Optional[str] = Field(None, description="기사 본문")
+    category: Optional[str] = Field(None, description="기사 카테고리")
+
+class TopicArticleEdit(BaseModel):
+    article_id: str
+    sentiment: Literal["positive", "negative", "neutral"]
+
+class TopicEditBody(BaseModel):
+    name: Optional[str] = None
+    # 편집 결과를 최종 상태로 통째로 보내는 방식(간단/안전)
+    articles: Optional[List[TopicArticleEdit]] = None
+
+class TopicArticleReq(BaseModel):
+    pos_ids: Optional[List[str]] = Field(default_factory=list)
+    neg_ids: Optional[List[str]] = Field(default_factory=list)
+    neu_ids: Optional[List[str]] = Field(default_factory=list)
 
 # router 연결 === session 관련 ===
 app.include_router(session_router)
 app.include_router(session_ping_router)
 app.include_router(session_end_router)
 app.include_router(recommend_router)
+app.include_router(admin_router, prefix="/api")
 # static 파일
 app.mount("/view", StaticFiles(directory="view"), name="view")
 app.mount("/wordcloud", StaticFiles(directory="wordcloud"), name="wordcloud")
@@ -40,9 +72,35 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
 
+@app.on_event("startup")
+def startup_start_scheduler():
+    env = os.getenv("APP_ENV", "dev")
+    # job 등록 (id가 고정이어야 admin 토글 가능)
+    # register_jobs_test()
+    register_jobs()
+
+    # 중복 start 방지
+    if not scheduler.running:
+        scheduler.start()
+        logger.info("[SCHEDULER] started in FastAPI startup")
+
+@app.on_event("shutdown")
+def shutdown_stop_scheduler():
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
+        logger.info("[SCHEDULER] stopped in FastAPI shutdown")
+
 @app.get("/")
 async def read_root():
     return RedirectResponse(url="/view/home.html")  # 기본 메인페이지로 지정해야됨
+
+@app.get("/api/recommend/trend")
+def get_trend_recommend(limit: int = 5):
+    return {
+        "success": True,
+        "articles": recommend_trend_articles(limit)
+    }
+
 
 
 @app.get("/check-id")
@@ -152,8 +210,8 @@ async def find_user_pw(
 #     user_id: str = Form(...),
 # ):
 #     pass
-
-
+  
+ 
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
@@ -214,7 +272,6 @@ async def api_update_pw(
     if success: return {"status": "success"}
     return JSONResponse(status_code=400, content={"message": "현재 비밀번호가 일치하지 않습니다."})
 
-
 @app.get("/get-my-info")
 async def get_my_info(request: Request):
     user_id = request.session.get('loginId')
@@ -225,8 +282,8 @@ async def get_my_info(request: Request):
     user = member.get_user_data(user_id)
 
     if user:
-        birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
 
+        birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
         return {
             "status": "success",
             "data": {
@@ -237,7 +294,6 @@ async def get_my_info(request: Request):
                 "gender": user.user_gender
             }
         }
-
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
 
@@ -252,11 +308,6 @@ async def topic_page(request: Request):
 def get_topics():
     result = topic.get_topic_from_es()
     return result
-
-class TopicArticleReq(BaseModel):
-    pos_ids: Optional[List[str]] = Field(default_factory=list)
-    neg_ids: Optional[List[str]] = Field(default_factory=list)
-    neu_ids: Optional[List[str]] = Field(default_factory=list)
 
 @app.post("/api/topic_article")
 def get_topic_article(body:TopicArticleReq):
@@ -295,7 +346,6 @@ async def api_search(request: Request):
         )
 
 # 카테고리별로 불러오기------해정,하영님 합작
-
 @app.get("/api/category/{category_name}")
 async def get_category_articles(category_name: str, size: int = 20, page: int = 1, sort_type: str = "latest"):
     try:
@@ -309,7 +359,6 @@ async def get_category_articles(category_name: str, size: int = 20, page: int = 
             content={"success": False, "message": str(e)}
         )
 
-
 # main.py (FastAPI 예시)
 @app.get("/api/wordcloud-data")
 async def wordcloud_api():
@@ -321,7 +370,6 @@ async def wordcloud_api():
     options_json = await make_wordcloud_data(bigkinds_data)
     # 3. 브라우저로 전송
     return json.loads(options_json)
-
 
 @app.get("/api/main-trending")
 async def get_main_trending():
@@ -355,8 +403,6 @@ async def get_related_articles(id: str):
             "error": str(e)
         }
 
-        return {"success": False, "error": str(e)}
-
 @app.get("/api/user/history")
 async def api_user_history(request: Request, date: str):
     user_id = request.session.get("loginId")
@@ -365,3 +411,143 @@ async def api_user_history(request: Request, date: str):
         return JSONResponse(status_code=401, content={"success": False})
 
     return member.get_user_history(user_id, date)
+
+# 마이페이지 달력
+@app.get("/api/user/monthly-activity")
+async def get_activity(year: int, month: int, request: Request):
+    # 1. 세션에서 로그인 아이디 가져오기
+    user_id = request.session.get("loginId")
+
+    if not user_id:
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "로그인이 필요합니다."}
+        )
+
+    try:
+        # 2. member.py의 함수 호출 (이름 일치 확인: get_user_monthly_activity_stats)
+        # member.py에서 (activity_data, total_views) 튜플을 반환하므로 두 변수로 받습니다.
+        activity_map, total_views = member.get_user_monthly_activity_stats(user_id, year, month)
+
+        return {
+            "success": True,
+            "activity": activity_map,
+            "total_views": total_views
+        }
+    except Exception as e:
+        logger.error(f"Monthly activity stats error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "activity": {}, "total_views": 0, "error": str(e)}
+        )
+
+
+# 토픽 홈화면에 띄우기-------------------------------------
+@app.get("/api/topic-opinion")
+def get_topic_opinion():
+    try:
+        topics = topic.get_topic_from_es()
+
+        if not topics:
+            return {
+                "topic": "데이터 없음",
+                "positive_articles": [],
+                "negative_articles": []
+            }
+
+        top_topic = topics[0]
+        topic_name = top_topic.get("topic_name", "토픽 없음")
+
+        positive_ids = [
+            art["article_id"]
+            for art in top_topic.get("positive_articles", [])
+            if art.get("article_id")
+        ][:2]
+
+        negative_ids = [
+            art["article_id"]
+            for art in top_topic.get("negative_articles", [])
+            if art.get("article_id")
+        ][:2]
+
+        def fetch_articles(ids):
+            if not ids:
+                return []
+            try:
+                docs = article.get_article_from_es(
+                    ids,
+                    SOURCE_FIELDS=["article_id", "article_title"]
+                )
+                return [
+                    {
+                        "article_id": d.get("article_id"),
+                        "title": d.get("article_title", "제목 없음")
+                    }
+                    for d in docs
+                ]
+            except Exception as e:
+                logger.warning(f"기사 조회 실패: {e}")
+                return []
+
+        return {
+            "topic": topic_name,
+            "positive_articles": fetch_articles(positive_ids),
+            "negative_articles": fetch_articles(negative_ids)
+        }
+
+    except Exception:
+        logger.exception("topic-opinion 조회 실패")
+        return {
+            "topic": "에러 발생",
+            "positive_articles": [],
+            "negative_articles": []
+        }
+
+@app.get("/api/admin/admin_logs")
+def get_admin_logs_initial():
+    logs, logs_cursor, logs_more = admin.get_admin_logs_page(size=200, cursor=None)
+    articles, articles_cursor, articles_more = admin.get_admin_articles_page(size=200, cursor=None)
+    users = admin.get_admin_users()
+    topics = admin.get_admin_topics()
+    return {
+        "log": logs,
+        "log_next_cursor": logs_cursor,
+        "log_has_more": logs_more,
+
+        "article": articles,
+        "article_next_cursor": articles_cursor,
+        "article_has_more": articles_more,
+
+        "users": users,
+        "topics":topics
+    }
+
+@app.get("/api/admin/logs_more")
+def get_admin_logs_more(cursor: str | None = None, size: int = 200):
+    items, next_cursor, has_more = admin.get_admin_logs_page(size=size, cursor=cursor)
+    return {"items": items, "next_cursor": next_cursor, "has_more": has_more}
+
+@app.get("/api/admin/articles_more")
+def get_admin_articles_more(cursor: str | None = None, size: int = 200):
+    items, next_cursor, has_more = admin.get_admin_articles_page(size=size, cursor=cursor)
+    return {"items": items, "next_cursor": next_cursor, "has_more": has_more}
+
+@app.patch("/api/admin/hide_articles/{user_id}")
+def hide_articles(user_id: str , body: ArticleStatusReq):
+    return  admin.hide_articles(user_id, body)
+
+@app.patch("/api/admin/toggle_users/{user_id}")
+def toggle_users(user_id: str):
+    return  admin.toggle_users(user_id)
+
+@app.get("/api/admin/article_detail/{article_id}")
+def article_detail(article_id: str):
+    return admin.article_detail(article_id)
+
+@app.patch("/api/admin/edit_articles/{article_id}")
+def article_detail(article_id: str, body: ArticleEditReq):
+    return admin.edit_articles(article_id,body)
+
+@app.patch("/api/admin/edit_topics/{topic_id}")
+def edit_topics(topic_id: str, body: TopicEditBody):
+    return admin.edit_topics(topic_id, body)

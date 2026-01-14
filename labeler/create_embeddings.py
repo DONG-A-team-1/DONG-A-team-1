@@ -6,7 +6,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from elasticsearch import helpers
 from datetime import datetime
 
-model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
 
 #가중치 계산 함수
 def sent_weights_tfidf_in_doc(sents: list[str], mode="sum") -> np.ndarray:
@@ -153,6 +152,7 @@ def build_doc_embeddings(
 
 # 원하는 기사 식별키의 목록을 넣고 임베딩 필드를 업데이트 시키는 함수입니다
 def create_embedding(article_list):
+    model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
     # 1) 원하는 _id(=article_id)들을 mget으로 정확히 조회
     resp = es.mget(
         index="article_data",
@@ -189,6 +189,7 @@ def create_embedding(article_list):
 
 
 def re_embedding():
+    model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
     body = {
         "_source": ["article_id", "article_title", "article_content"],
         "size": 500,

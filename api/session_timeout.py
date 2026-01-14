@@ -16,21 +16,28 @@ from util.database import SessionLocal
 from sqlalchemy.orm import Session
 from util.logger import Logger
 from sqlalchemy import text
+from zoneinfo import ZoneInfo
 
 logger = Logger().get_logger(__name__)
 # 설정값
 # ping이 이 시간(초) 이상 없으면 세션 종료로 판단
 TIMEOUT_SECONDS = 120
 
+
+
 # 메인 배치 함수
 def close_timeout_sessions():
+    if not es.indices.exists(index="session_data"):
+        logger.warning("session_data index not found. skip timeout batch.")
+        return
+
     logger.info("-1분 간격 호출 대상 세션 정리-")
     """
     - APScheduler가 1분마다 호출 종료 대상 세션을 정리하고 DB에 반영
     """
 
     # (1) 현재 시각 (UTC 기준)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
 
     # (2) 타임아웃 기준 시각
     # now가 17:30이면 → 17:29 이전 ping은 종료 대상
@@ -97,9 +104,20 @@ def close_timeout_sessions():
                 {"aid": article_id}
             ).fetchone()
 
-            # 기사 정보 없으면 스킵
+            # [수정] 기사 정보가 없으면 ES에서 종료 처리만 하고 루프를 넘김
             if not article_row:
-                continue
+                logger.warning(f"기사 정보가 DB에 없어 세션을 종료 처리만 합니다. (Article ID: {article_id})")
+
+                # ES에서 이 세션을 다시 불러오지 않도록 완료 처리
+                es.update(
+                    index="session_data",
+                    id=session_id,  # 혹은 s["_id"]
+                    doc={
+                        "is_end": True,
+                        "ended_signal": False
+                    }
+                )
+                continue  # ES를 업데이트했으므로 이제 안전하게 다음 세션으로 넘어감
 
             article_length = article_row[0]
 
