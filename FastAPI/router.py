@@ -284,7 +284,6 @@ async def get_my_info(request: Request):
     if user:
 
         birth_str = user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else ""
-
         return {
             "status": "success",
             "data": {
@@ -295,7 +294,6 @@ async def get_my_info(request: Request):
                 "gender": user.user_gender
             }
         }
-
     return JSONResponse(status_code=404, content={"message": "유저 정보를 찾을 수 없습니다."})
 
 
@@ -404,8 +402,6 @@ async def get_related_articles(id: str):
             "articles": [],
             "error": str(e)
         }
-
-        return {"success": False, "error": str(e)}
 
 @app.get("/api/user/history")
 async def api_user_history(request: Request, date: str):
