@@ -23,10 +23,6 @@ logger = Logger().get_logger(__name__)
 # ping이 이 시간(초) 이상 없으면 세션 종료로 판단
 TIMEOUT_SECONDS = 10
 
-
-
-
-
 # 메인 배치 함수
 def close_timeout_sessions():
     if not es.indices.exists(index="session_data"):
