@@ -491,33 +491,105 @@ def get_admin_topics(
         })
     return out
 
-def edit_topics(topic_id, body):
-    q = {
-        "size": 1,
-        "query": {"term": {"topic_id.keyword": topic_id}}  # keyword 없으면 "topic_id"로
-    }
-    resp = es.search(index="topic_polarity", body=q)
-    hits = resp.get("hits", {}).get("hits", [])
-    if not hits:
-        return {"ok": False, "topic_id": topic_id, "updated": False, "reason": "topic not found in topic_data"}
+def _sync_articles_topic_polarity(
+    topic_id: str,
+    stance_map: Dict[str, str],   # article_id -> stance (positive/negative/neutral)
+    article_index: str = "article_data",
+):
+    """
+    article_label.topic_polarity 를 topic_id 기준으로 동기화
+    - stance_map에 있는 article_id는 upsert (stance 갱신)
+    - stance_map에 없는 article_id는 해당 topic_id 엔트리 제거
+    """
+    keep_ids = list(stance_map.keys())
 
-    doc_id = hits[0]["_id"]
+    # A) keep_ids: upsert/update
+    if keep_ids:
+        body_upsert = {
+            "query": {"terms": {"article_id": keep_ids}},
+            "script": {
+                "lang": "painless",
+                "params": {
+                    "topic_id": topic_id,
+                    "stance_map": stance_map,
+                    "default_intensity": 0.0,  # 정책: 편집 반영 시 intensity는 0으로
+                },
+                "source": """
+                  if (ctx._source.article_label == null) { ctx._source.article_label = new HashMap(); }
+                  if (ctx._source.article_label.topic_polarity == null) { ctx._source.article_label.topic_polarity = new ArrayList(); }
+
+                  def tp = ctx._source.article_label.topic_polarity;
+                  def aid = ctx._source.article_id;
+                  def newStance = params.stance_map[aid];
+
+                  // find existing entry by topic_id
+                  int idx = -1;
+                  for (int i = 0; i < tp.size(); i++) {
+                    if (tp.get(i) != null && tp.get(i).topic_id == params.topic_id) { idx = i; break; }
+                  }
+
+                  if (idx == -1) {
+                    def obj = new HashMap();
+                    obj.topic_id = params.topic_id;
+                    obj.stance = newStance;
+                    obj.intensity = params.default_intensity;
+                    tp.add(obj);
+                  } else {
+                    tp.get(idx).stance = newStance;
+                    if (tp.get(idx).intensity == null) { tp.get(idx).intensity = params.default_intensity; }
+                  }
+                """,
+            },
+        }
+        es.update_by_query(index=article_index, body=body_upsert, refresh=True, conflicts="proceed")
+
+    # B) remove from docs that currently have this topic_id but are NOT in keep_ids
+    body_remove = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"nested": {
+                        "path": "article_label.topic_polarity",
+                        "query": {"term": {"article_label.topic_polarity.topic_id": topic_id}}
+                    }}
+                ],
+                "must_not": [
+                    {"terms": {"article_id": keep_ids}} if keep_ids else {"match_all": {}}
+                ],
+            }
+        },
+        "script": {
+            "lang": "painless",
+            "params": {"topic_id": topic_id},
+            "source": """
+              if (ctx._source.article_label == null) return;
+              if (ctx._source.article_label.topic_polarity == null) return;
+
+              def tp = ctx._source.article_label.topic_polarity;
+              for (int i = tp.size() - 1; i >= 0; i--) {
+                if (tp.get(i) != null && tp.get(i).topic_id == params.topic_id) {
+                  tp.remove(i);
+                }
+              }
+            """,
+        },
+    }
+    es.update_by_query(index=article_index, body=body_remove, refresh=True, conflicts="proceed")
+
+def edit_topics(topic_id: str, body):
+    logger.info(f"[edit_topics] path topic_id={topic_id}")
+    logger.info(body)
 
     update_doc: Dict[str, Any] = {}
 
-    # ✅ 2) name 변경
     if getattr(body, "name", None) is not None:
         update_doc["topic_name"] = body.name
 
-    # ✅ 3) articles 최종 상태 반영 → 3그룹 재구성
     if getattr(body, "articles", None) is not None:
         pos, neg, neu = [], [], []
         for a in body.articles:
-            # a가 pydantic이면 a.article_id / a.sentiment
-            # a가 dict이면 a["article_id"] / a["sentiment"]
             article_id = getattr(a, "article_id", None) or (a.get("article_id") if isinstance(a, dict) else None)
             sentiment = getattr(a, "sentiment", None) or (a.get("sentiment") if isinstance(a, dict) else None)
-
             if not article_id:
                 continue
 
@@ -535,13 +607,41 @@ def edit_topics(topic_id, body):
         update_doc["neutral_articles"] = neu
 
     if not update_doc:
-        return {"ok": True, "topic_id": topic_id, "updated": False, "reason": "no changes"}
+        return {"ok": True, "updated": False, "reason": "no changes"}
 
-    # ✅ 4) ES update: index도 topic_data로 통일
-    es.update(
+    # 1) topic_id가 ES _id인 케이스 (바로 update 시도)
+    try:
+        resp = es.update(
+            index="topic_polarity",
+            id=topic_id,
+            body={"doc": update_doc},
+            refresh=True
+        )
+
+        stance_map = {a.article_id: a.sentiment for a in body.articles}  # payload가 TopicArticleEdit라면
+        _sync_articles_topic_polarity(topic_id=str(topic_id), stance_map=stance_map, article_index="article_data")
+
+        return {"ok": True, "updated": True, "doc_id": topic_id, "mode": "direct_es_id", "result": resp.get("result")}
+    except Exception as e:
+        # not found 등은 fallback으로 처리
+        logger.warning(f"[edit_topics] direct update failed, fallback search. err={e}")
+
+    # 2) fallback: _source.topic_id로 검색해서 ES _id 얻기
+    q = {"size": 1, "query": {"term": {"topic_id": topic_id}}}
+    resp = es.search(index="topic_polarity", body=q)
+    hits = resp.get("hits", {}).get("hits", [])
+    if not hits:
+        return {"ok": False, "updated": False, "reason": "topic not found", "topic_id": topic_id}
+
+    doc_id = hits[0]["_id"]
+
+    resp2 = es.update(
         index="topic_polarity",
         id=doc_id,
         body={"doc": update_doc},
         refresh=True
     )
-    return {"ok": True, "topic_id": topic_id, "updated": True, "doc_id": doc_id}
+    stance_map = {a.article_id: a.sentiment for a in body.articles}  # payload가 TopicArticleEdit라면
+    _sync_articles_topic_polarity(topic_id=str(topic_id), stance_map=stance_map, article_index="article_data")
+
+    return {"ok": True, "updated": True, "doc_id": doc_id, "mode": "search_by_topic_id", "result": resp2.get("result")}

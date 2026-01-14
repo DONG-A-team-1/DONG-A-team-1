@@ -22,7 +22,6 @@ def session_ping(req: SessionPingRequest):
         index="session_data",
         id=req.session_id
     )
-
     source = res["_source"]
 
     # 2. seq 증가

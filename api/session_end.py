@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 from datetime import datetime, timezone
 from util.elastic import es
-from api.user_embedding import update_session_embedding
+# from api.user_embedding import update_session_embedding
 from zoneinfo import ZoneInfo
 
 router = APIRouter(prefix="/session", tags=["session"])
