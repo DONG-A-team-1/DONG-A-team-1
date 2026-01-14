@@ -364,8 +364,6 @@ async def get_related_articles(id: str):
             "error": str(e)
         }
 
-        return {"success": False, "error": str(e)}
-
 @app.get("/api/user/history")
 async def api_user_history(request: Request, date: str):
     user_id = request.session.get("loginId")

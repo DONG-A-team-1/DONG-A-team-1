@@ -203,9 +203,51 @@ def es_search_related_by_embedding(article_id: str, size: int = 4):
         })
 
         used_press.add(press)
-
         if len(articles) >= size:
             break
-
     return articles
 
+# 메인 트렌딩 기사
+def es_search_trending_articles(size=5):
+    """
+    최근 3일 기사 중 트렌드 점수 기준 상위 기사
+    """
+
+    res = es.search(
+        index="article_data",
+        body={
+            "size": size,
+            "query": {
+                "range": {
+                    "collected_at": {"gte": "now-3d"}
+                }
+            },
+            "sort": [
+                {"article_label.trend_score": {"order": "desc"}},
+                {"collected_at": {"order": "desc"}}
+            ],
+            "_source": [
+                "article_id",
+                "article_title",
+                "article_img",
+                "press",
+                "article_label"
+            ]
+        }
+    )
+
+    articles = []
+    for h in res["hits"]["hits"]:
+        src = h["_source"]
+        label = src.get("article_label", {})
+
+        articles.append({
+            "article_id": src["article_id"],
+            "title": src["article_title"],
+            "image": src.get("article_img"),
+            "source": src.get("press"),
+            "category": label.get("category"),
+            "trustScore": int(label.get("article_trust_score", 0) * 100)
+        })
+
+    return {"success": True, "articles": articles}

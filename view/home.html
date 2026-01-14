@@ -1798,6 +1798,7 @@ $(document).ready(function() {
             url: "/api/main-trending",
             type: "GET",
             success: function (response) {
+                console.log(response)
                 if (response.success && response.articles) {
                     globalArticles = response.articles;
                     const $track = $('#track');
@@ -1827,8 +1828,8 @@ $(document).ready(function() {
                     if (globalArticles.length > 0) {
                         loadRelatedArticles(globalArticles[0].article_id, globalArticles[0].title);
                     }
-                }
-            }
+              }
+            },error: function (error){console.log(error)}
         });
     }
 });
