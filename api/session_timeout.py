@@ -16,6 +16,7 @@ from util.database import SessionLocal
 from sqlalchemy.orm import Session
 from util.logger import Logger
 from sqlalchemy import text
+from zoneinfo import ZoneInfo
 
 logger = Logger().get_logger(__name__)
 # 설정값
@@ -36,7 +37,7 @@ def close_timeout_sessions():
     """
 
     # (1) 현재 시각 (UTC 기준)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
 
     # (2) 타임아웃 기준 시각
     # now가 17:30이면 → 17:29 이전 ping은 종료 대상

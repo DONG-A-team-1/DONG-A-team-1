@@ -6,6 +6,7 @@
 <title>NewsPalette Admin - 관리자 대시보드</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
 :root {
     --primary: #3B82F6;
@@ -719,6 +720,7 @@ body.dark .status-badge.suspended { background: rgba(239,68,68,0.2); color: #FCA
 .label-chip.culture { background: #EDE9FE; color: #5B21B6; }
 .label-chip.sports { background: #DCFCE7; color: #166534; }
 .label-chip.economy { background: #FEF3C7; color: #92400E; }
+.label-chip.local { background: #FEF3C7; color: #92400E; }
 
 body.dark .label-chip.society { background: rgba(59,130,246,0.2); color: #93C5FD; }
 body.dark .label-chip.politics { background: rgba(239,68,68,0.2); color: #FCA5A5; }
@@ -1527,28 +1529,131 @@ body.dark .topic-article-delete-btn:hover {
 .topic-article-delete-btn .material-symbols-outlined {
     font-size: 1rem;
 }
+/* 공통 ellipsis */
+.col-id,
+.col-title,
+.col-date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 컬럼별 최대 폭 */
+.col-id {
+  max-width: 220px;
+}
+
+.col-title {
+  max-width: 420px;
+}
+
+.col-date {
+  max-width: 180px;
+  font-variant-numeric: tabular-nums; /* 숫자 정렬 깔끔 */
+}
+
+/* 링크도 같이 잘리게 */
+.col-id a,
+.article-title-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: inherit;
+  overflow: inherit;
+  text-overflow: inherit;
+}
+@media (max-width: 1024px) {
+  .col-title { max-width: 300px; }
+}
+
+@media (max-width: 768px) {
+  .col-id { max-width: 160px; }
+  .col-title { max-width: 220px; }
+  .col-date { max-width: 140px; }
+}
+
+/* ✅ 카테고리 컬럼은 줄바꿈/ellipsis 금지 + 최소폭 보장 */
+.col-category{
+  white-space: nowrap;
+  overflow: visible;      /* ... 안 되게 */
+  text-overflow: clip;
+  min-width: 120px;       /* 카테고리 글자 길이에 맞춰 조절 */
+}
+
+/* label-chip이 찌그러지는 경우 방지 */
+.col-category .label-chip{
+  display: inline-flex;
+  white-space: nowrap;
+}
+/* 기본값: 펼친 사이드바 */
+.sidebar {
+  transform: translateX(0);
+  transition: transform 0.25s ease;
+}
+
+/* ✅ 접힌 상태: 화면 밖으로 밀기 (폭만큼) */
+.sidebar.collapsed {
+  transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+/* ✅ 접힌 상태에서 왼쪽에 “잡는 영역(핫존)” 만들기 */
+.sidebar-collapsed-hitbox {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 12px;          /* 마우스 감지 영역 */
+  height: 100vh;
+  z-index: 120;         /* sidebar(100)보다 위 */
+  display: none;
+}
+
+/* 접힌 상태일 때만 hitbox 활성화 */
+body.sidebar-collapsed .sidebar-collapsed-hitbox {
+  display: block;
+}
+
+/* ✅ 메인 컨텐츠도 같이 당기기 */
+body.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
+.status-badge {
+  white-space: nowrap;   /* ✅ '활성' 줄바꿈 금지 */
+  flex-wrap: nowrap;     /* ✅ inline-flex라도 wrap 금지 */
+}
+
+/* 기사 본문 textarea */
+#editArticleContent {
+  width:100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;  /* 긴 토큰도 강제 줄바꿈 */
+  word-break: break-word;
+  overflow-x: hidden;  
+  min-height: 160px;   /* 기존 120~140이면 → 160 */
+  max-height: 300px;   /* 기존 220이면 → 300 */
+}
+
+
 </style>
 </head>
 <body>
 <div class="admin-layout">
-    <!-- Sidebar -->
+    <div class="sidebar-collapsed-hitbox" id="sidebarHitbox"></div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a class="sidebar-logo" href="home.html">
                 <span class="material-symbols-outlined sidebar-logo-icon">palette</span>
                 <span class="sidebar-logo-text">NewsPalette</span>
             </a>
-            <span class="sidebar-badge">Admin</span>
         </div>
         
         <nav class="sidebar-nav">
-            <div class="nav-section">
+            <!-- <div class="nav-section">
                 <div class="nav-section-title">대시보드</div>
                 <button class="nav-item active" data-page="dashboard">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>개요</span>
                 </button>
-            </div>
+            </div> -->
             
             <div class="nav-section">
                 <div class="nav-section-title">모니터링</div>
@@ -1606,15 +1711,15 @@ body.dark .topic-article-delete-btn:hover {
                 <button class="icon-btn" onclick="toggleDarkMode()">
                     <span class="material-symbols-outlined">dark_mode</span>
                 </button>
-                <button class="icon-btn">
+                <!-- <button class="icon-btn">
                     <span class="material-symbols-outlined">notifications</span>
-                </button>
+                </button> -->
             </div>
         </header>
         
         <main class="page-content">
             <!-- Dashboard Page -->
-            <section class="page-section active" id="page-dashboard">
+            <!-- <section class="page-section active" id="page-dashboard">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon blue">
@@ -1652,8 +1757,7 @@ body.dark .topic-article-delete-btn:hover {
                         </div>
                         <div class="stat-info">
                             <div class="stat-label">오류 발생</div>
-                            <div class="stat-value">3</div>
-                            <div class="stat-change down">↓ 2 어제 대비</div>
+                            <div class="stat-value" id="error_stat_value">3</div>
                         </div>
                     </div>
                 </div>
@@ -1700,10 +1804,10 @@ body.dark .topic-article-delete-btn:hover {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> -->
             
             <!-- Logs Page -->
-            <section class="page-section" id="page-logs">
+            <section class="page-section active" id="page-logs">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
@@ -1745,7 +1849,7 @@ body.dark .topic-article-delete-btn:hover {
                                     <th>유형</th>
                                     <th>소스</th>
                                     <th>메시지</th>
-                                    <th>작업</th>
+                                    <th>상세보기</th>
                                 </tr>
                             </thead>
                             <tbody id="logsTableBody">
@@ -1916,70 +2020,47 @@ body.dark .topic-article-delete-btn:hover {
                         <div class="settings-section">
                             <h3 class="settings-section-title">자동화 설정</h3>
                             <p class="settings-section-desc">시스템 자동화 기능을 활성화하거나 비활성화합니다.</p>
-                            
                             <div class="settings-list">
+
+                                <!-- 1) news_full_pipeline -->
                                 <div class="settings-item">
                                     <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 기사 분류</div>
-                                        <div class="settings-item-desc">새 기사가 등록되면 AI가 자동으로 카테고리와 라벨을 분류합니다.</div>
+                                        <div class="settings-item-title">뉴스 파이프라인 (크롤링+트렌드)</div>
+                                        <div class="settings-item-desc">1시간마다 기사 크롤링 및 트렌드 분석을 실행합니다.</div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="settingAutoClassify" checked onchange="saveSettings()">
+                                        <input type="checkbox"
+                                                id="toggle_news_full_pipeline"
+                                                data-job-id="news_full_pipeline"
+                                                onchange="onSchedulerToggle(this)">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
-                                
+                                <!-- 2) session_timeout_job -->
                                 <div class="settings-item">
                                     <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 토픽 생성</div>
-                                        <div class="settings-item-desc">관련 기사가 일정 수 이상 모이면 자동으로 토픽을 생성합니다.</div>
+                                        <div class="settings-item-title">세션 타임아웃 정리</div>
+                                        <div class="settings-item-desc">1분마다 세션 타임아웃을 검사하고 종료 처리합니다.</div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="settingAutoTopic" checked onchange="saveSettings()">
+                                        <input type="checkbox"
+                                                id="toggle_session_timeout_job"
+                                                data-job-id="session_timeout_job"
+                                                onchange="onSchedulerToggle(this)">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
-                                
+                                <!-- 3) polarity_daily_0500 -->
                                 <div class="settings-item">
                                     <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 감성 분석</div>
-                                        <div class="settings-item-desc">기사의 긍정/부정/중립 성향을 자동으로 분석합니다.</div>
+                                        <div class="settings-item-title">토픽 성향 분석</div>
+                                        <div class="settings-item-desc">매일 05:00에 토픽 성향(긍/부정)을 분석합니다.</div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="settingSentiment" checked onchange="saveSettings()">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                
-                                <div class="settings-item">
-                                    <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 크롤링</div>
-                                        <div class="settings-item-desc">외부 뉴스 소스에서 기사를 주기적으로 수집합니다.</div>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="settingCrawling" onchange="saveSettings()">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                
-                                <div class="settings-item">
-                                    <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 알림 발송</div>
-                                        <div class="settings-item-desc">속보나 중요 이벤트 발생 시 사용자에게 알림을 자동 발송합니다.</div>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="settingNotification" onchange="saveSettings()">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                
-                                <div class="settings-item">
-                                    <div class="settings-item-info">
-                                        <div class="settings-item-title">자동 로그 정리</div>
-                                        <div class="settings-item-desc">30일이 지난 로그를 자동으로 삭제합니다.</div>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="settingLogCleanup" checked onchange="saveSettings()">
+                                        <input type="checkbox"
+                                                id="toggle_polarity_daily_0500"
+                                                data-job-id="polarity_daily_0500"
+                                                onchange="onSchedulerToggle(this)">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -2061,6 +2142,10 @@ body.dark .topic-article-delete-btn:hover {
                 <input type="text" class="form-input" id="editArticleTitle" placeholder="기사 제목">
             </div>
             <div class="form-group">
+                <label class="form-label">기사 본문</label>
+                <textarea type="text" class="form-input" id="editArticleContent" placeholder="기사 본문" wrap="soft"></textarea>
+            </div>
+            <div class="form-group">
                 <label class="form-label">카테고리</label>
                 <select class="form-select" id="editArticleCategory">
                     <option value="society">사회/경제</option>
@@ -2068,32 +2153,8 @@ body.dark .topic-article-delete-btn:hover {
                     <option value="world">국제</option>
                     <option value="culture">문화</option>
                     <option value="sports">스포츠</option>
+                    <option value="local">지역</option>
                 </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">라벨</label>
-                <div class="form-checkbox-group">
-                    <label class="form-checkbox-item">
-                        <input type="checkbox" id="labelPositive" value="positive">
-                        <span class="form-checkbox-label">긍정</span>
-                    </label>
-                    <label class="form-checkbox-item">
-                        <input type="checkbox" id="labelNegative" value="negative">
-                        <span class="form-checkbox-label">부정</span>
-                    </label>
-                    <label class="form-checkbox-item">
-                        <input type="checkbox" id="labelNeutral" value="neutral">
-                        <span class="form-checkbox-label">중립</span>
-                    </label>
-                    <label class="form-checkbox-item">
-                        <input type="checkbox" id="labelBreaking" value="breaking">
-                        <span class="form-checkbox-label">속보</span>
-                    </label>
-                    <label class="form-checkbox-item">
-                        <input type="checkbox" id="labelExclusive" value="exclusive">
-                        <span class="form-checkbox-label">단독</span>
-                    </label>
-                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -2107,17 +2168,17 @@ body.dark .topic-article-delete-btn:hover {
 <div class="modal-overlay" id="deleteConfirmModal">
     <div class="modal" style="max-width: 24rem;">
         <div class="modal-header">
-            <h3 class="modal-title">삭제 확인</h3>
+            <h3 class="modal-title">비활성화 확인</h3>
             <button class="modal-close" onclick="closeModal('deleteConfirmModal')">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
         <div class="modal-body">
-            <p id="deleteConfirmMessage">정말로 이 항목을 삭제하시겠습니까?</p>
+            <p id="deleteConfirmMessage">정말로 이 항목을 비활성화하시겠습니까?</p>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">취소</button>
-            <button class="btn btn-danger" id="confirmDeleteBtn">삭제</button>
+            <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">아니요</button>
+            <button class="btn btn-danger" id="confirmDeleteBtn">예</button>
         </div>
     </div>
 </div>
@@ -2213,85 +2274,227 @@ body.dark .topic-article-delete-btn:hover {
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-// Sample Data
-const logsData = [
-    { id: 1, time: '2026-01-06 14:32:15', type: 'error', source: 'API Server', message: 'Database connection timeout after 30s', stack: 'Error: Connection timeout\n  at DBClient.connect (/app/db.js:45)\n  at async Server.start (/app/server.js:12)' },
-    { id: 2, time: '2026-01-06 14:30:42', type: 'warning', source: 'Auth Service', message: 'Multiple failed login attempts from IP 192.168.1.100', stack: '' },
-    { id: 3, time: '2026-01-06 14:28:11', type: 'info', source: 'Scheduler', message: 'Daily article cleanup job started', stack: '' },
-    { id: 4, time: '2026-01-06 14:25:33', type: 'success', source: 'API Server', message: 'Successfully synced 150 articles from external source', stack: '' },
-    { id: 5, time: '2026-01-06 14:20:18', type: 'error', source: 'ML Pipeline', message: 'Failed to classify article: model not loaded', stack: 'ModelError: Model file not found\n  at Classifier.load (/app/ml/classifier.js:23)' },
-    { id: 6, time: '2026-01-06 14:15:05', type: 'info', source: 'Cache', message: 'Cache invalidated for category: politics', stack: '' },
-    { id: 7, time: '2026-01-06 14:10:22', type: 'success', source: 'User Service', message: 'New user registration: user5678@email.com', stack: '' },
-    { id: 8, time: '2026-01-06 14:05:44', type: 'warning', source: 'Storage', message: 'Storage usage at 85% capacity', stack: '' },
-    { id: 9, time: '2026-01-06 14:00:01', type: 'info', source: 'Scheduler', message: 'Hourly analytics aggregation completed', stack: '' },
-    { id: 10, time: '2026-01-06 13:55:30', type: 'error', source: 'Email Service', message: 'Failed to send notification email: SMTP connection refused', stack: 'SMTPError: Connection refused\n  at Mailer.send (/app/mail.js:89)' },
-];
+const PAGE_SIZE = 10;
+let logsCurrentPage = 1;
+const ARTICLE_PAGE_SIZE = 10;
+let articlesCurrentPage = 1;
 
-const usersData = [
-    { id: 1, name: '김민준', email: 'minjun.kim@email.com', joinDate: '2025-12-15', lastActive: '2026-01-06 14:30', status: 'active' },
-    { id: 2, name: '이서윤', email: 'seoyun.lee@email.com', joinDate: '2025-11-20', lastActive: '2026-01-06 12:15', status: 'active' },
-    { id: 3, name: '박지훈', email: 'jihoon.park@email.com', joinDate: '2025-10-05', lastActive: '2026-01-05 18:45', status: 'active' },
-    { id: 4, name: '정수현', email: 'suhyun.jung@email.com', joinDate: '2025-09-12', lastActive: '2025-12-28 09:30', status: 'inactive' },
-    { id: 5, name: '최예린', email: 'yerin.choi@email.com', joinDate: '2025-08-25', lastActive: '2025-11-15 14:20', status: 'suspended' },
-    { id: 6, name: '강도현', email: 'dohyun.kang@email.com', joinDate: '2025-12-01', lastActive: '2026-01-06 13:55', status: 'active' },
-    { id: 7, name: '윤하은', email: 'haeun.yoon@email.com', joinDate: '2025-11-10', lastActive: '2026-01-06 11:00', status: 'active' },
-    { id: 8, name: '임시우', email: 'siwoo.lim@email.com', joinDate: '2025-10-18', lastActive: '2026-01-04 16:30', status: 'active' },
-];
+let logsNextCursor = null;
+let logsHasMore = false;
 
-const articlesData = [
-    { id: 'A001', title: '마두로 베네수엘라 대통령 체포', category: 'world', labels: ['breaking', 'negative'], date: '2026-01-06' },
-    { id: 'A002', title: '이재명 대통령, 시진핑과 정상회담', category: 'politics', labels: ['neutral'], date: '2026-01-06' },
-    { id: 'A003', title: '북한, 동해상으로 탄도미사일 발사', category: 'politics', labels: ['breaking', 'negative'], date: '2026-01-06' },
-    { id: 'A004', title: '삼성전자, 2분기 실적 발표...영업이익 50% 증가', category: 'society', labels: ['positive'], date: '2026-01-05' },
-    { id: 'A005', title: '차준환, 3연속 올림픽 출전권 획득', category: 'sports', labels: ['positive', 'exclusive'], date: '2026-01-05' },
-    { id: 'A006', title: '에코프로, 기술 리더십 강화로 글로벌 시장 재도전', category: 'society', labels: ['positive'], date: '2026-01-05' },
-    { id: 'A007', title: '임재범, 40주년 투어 후 은퇴 선언', category: 'culture', labels: ['neutral'], date: '2026-01-05' },
-    { id: 'A008', title: '기후변화로 인한 해수면 상승 가속화', category: 'world', labels: ['negative'], date: '2026-01-04' },
-];
+let articlesNextCursor = null;
+let articlesHasMore = false;
 
-const userActivities = [
-    { type: 'login', title: '로그인', desc: 'Chrome / Windows에서 로그인', time: '오늘 14:30' },
-    { type: 'view', title: '기사 조회', desc: '"마두로 베네수엘라 대통령 체포" 기사 조회', time: '오늘 14:25' },
-    { type: 'view', title: '기사 조회', desc: '"이재명 대통령, 시진핑과 정상회담" 기사 조회', time: '오늘 14:20' },
-    { type: 'action', title: '댓글 작성', desc: '기사에 댓글을 작성했습니다.', time: '오늘 14:18' },
-    { type: 'login', title: '로그인', desc: 'Safari / macOS에서 로그인', time: '어제 18:45' },
-    { type: 'view', title: '기사 조회', desc: '"차준환, 3연속 올림픽 출전권 획득" 기사 조회', time: '어제 18:40' },
-];
+const LOGS_FETCH_SIZE = 200;
+const ARTICLES_FETCH_SIZE = 200;
 
-// Topics Data
-const topicsData = [
-    { id: 'T001', name: '마두로 베네수엘라 대통령 체포', articles: [
-        { id: 'A001', title: '마두로 베네수엘라 대통령 체포', sentiment: 'negative' },
-        { id: 'A009', title: '베네수엘라 시민들, 거리로 몰려나와', sentiment: 'neutral' },
-        { id: 'A010', title: '국제사회, 마두로 체포에 환영 의사', sentiment: 'positive' },
-    ], date: '2026-01-06' },
-    { id: 'T002', name: '이재명 대통령 한중 정상회담', articles: [
-        { id: 'A002', title: '이재명 대통령, 시진핑과 정상회담', sentiment: 'neutral' },
-        { id: 'A011', title: '한중 경제협력 강화 합의', sentiment: 'positive' },
-    ], date: '2026-01-06' },
-    { id: 'T003', name: '북한 미사일 발사', articles: [
-        { id: 'A003', title: '북한, 동해상으로 탄도미사일 발사', sentiment: 'negative' },
-        { id: 'A012', title: '한미일, 북한 미사일 발사 규탄', sentiment: 'negative' },
-        { id: 'A013', title: '전문가 분석: 북한의 의도는?', sentiment: 'neutral' },
-    ], date: '2026-01-06' },
-    { id: 'T004', name: '삼성전자 실적 발표', articles: [
-        { id: 'A004', title: '삼성전자, 2분기 실적 발표...영업이익 50% 증가', sentiment: 'positive' },
-        { id: 'A014', title: '반도체 시장 회복세, 삼성 수혜', sentiment: 'positive' },
-    ], date: '2026-01-05' },
-    { id: 'T005', name: '차준환 올림픽 출전', articles: [
-        { id: 'A005', title: '차준환, 3연속 올림픽 출전권 획득', sentiment: 'positive' },
-    ], date: '2026-01-05' },
-];
+let logsData = [];
+let articlesData = [];
+let filteredLogs = [];
+let filteredArticles = [];
+let usersData = [];          // ✅ const 말고 let
+let filteredUsers = [];      // ✅ filteredUsers도 전역으로 유지
+let usersCurrentPage = 1;    // ✅ 너 코드에서 쓰는데 선언이 없음
+const USERS_PAGE_SIZE = 10;  // (원하면 PAGE_SIZE 재사용해도 됨)
+let topicsData = [];          // ✅ 전역 선언 필수
+let filteredTopics = [];      // 이미 있으면 중복 제거
+let topicsCurrentPage = 1;    // 토픽 페이징 쓰면 선언
+const TOPICS_PAGE_SIZE = 10;  // 토픽 페이징
+
+function normalizeLabel(label) {
+  // label이 object면 흔히 오는 키들에서 문자열 뽑기
+  if (label && typeof label === "object") {
+    label = label.value ?? label.label ?? label.name ?? label.type ?? "";
+  }
+  return String(label ?? "").trim().toLowerCase();
+}
+
+function normalizeCategory(c) {
+  const v = String(c ?? '').toLowerCase().trim();
+  const map = {
+    "사회/경제/산업": "society",
+    "사회": "society",
+    "경제": "society",
+    "정치": "politics",
+    "국제": "world",
+    "문화": "culture",
+    "스포츠": "sports",
+    "지역": "local"
+  };
+  return map[v] || v; // 이미 society 같은 값이면 그대로
+}
+
+function normalizeTopics(rawTopics) {
+  const arr = Array.isArray(rawTopics) ? rawTopics : [];
+
+  return arr.map((t) => {
+    // ✅ 케이스 1: 이미 프론트 모델이면 그대로
+    if (t && t.id && t.name && Array.isArray(t.articles)) {
+      return {
+        id: String(t.id),
+        name: String(t.name ?? ""),
+        articles: t.articles.map(a => ({
+          id: String(a.id ?? a.article_id ?? ""),
+          title: String(a.title ?? a.article_title ?? ""),
+          sentiment: String(a.sentiment ?? a.polarity ?? "neutral")
+        })),
+        date: String(t.date ?? "")
+      };
+    }
+
+    // ✅ 케이스 2: ES raw(topic_polarity) 형태
+    const id = String(t.topic_id ?? t.id ?? "");
+    const name = String(t.topic_name ?? t.name ?? "");
+    const date = formatDateOnly(t.calculated_at ?? t.date);
+
+    const pos = Array.isArray(t.positive_articles) ? t.positive_articles : [];
+    const neg = Array.isArray(t.negative_articles) ? t.negative_articles : [];
+    const neu = Array.isArray(t.neutral_articles) ? t.neutral_articles : []; // 혹시 있다면
+
+    // ES raw는 title이 없을 수 있음 → 일단 id만 박아도 렌더는 되게
+    const articles = [
+      ...pos.map(a => ({
+        id: String(a.article_id ?? a.id ?? ""),
+        title: String(a.title ?? a.article_title ?? a.article_id ?? ""),
+        sentiment: "positive"
+      })),
+      ...neg.map(a => ({
+        id: String(a.article_id ?? a.id ?? ""),
+        title: String(a.title ?? a.article_title ?? a.article_id ?? ""),
+        sentiment: "negative"
+      })),
+      ...neu.map(a => ({
+        id: String(a.article_id ?? a.id ?? ""),
+        title: String(a.title ?? a.article_title ?? a.article_id ?? ""),
+        sentiment: "neutral"
+      })),
+    ].filter(a => a.id); // 빈 id 제거
+
+    return { id, name, articles, date };
+  });
+}
+
+function formatDateOnly(v) {
+  if (!v) return "";
+  // ISO string "2026-01-13T..." → "2026-01-13"
+  if (typeof v === "string") return v.slice(0, 10);
+  // epoch millis
+  if (typeof v === "number") {
+    try { return new Date(v).toISOString().slice(0,10); } catch(e){ return ""; }
+  }
+  return "";
+}
+
+function loadAdminLogs() {
+  return $.ajax({
+    url: "/api/admin/admin_logs",
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+      console.log("admin_logs:", data);
+
+      logsData = data.log || [];
+      articlesData = data.article || [];
+      usersData = data.users || [];
+
+      // ✅ topics 정규화
+      topicsData = normalizeTopics(data.topics || []);
+      filteredTopics = [...topicsData];
+
+      // cursor/has_more ...
+      logsNextCursor = data.log_next_cursor ?? null;
+      logsHasMore = Boolean(data.log_has_more);
+      articlesNextCursor = data.article_next_cursor ?? null;
+      articlesHasMore = Boolean(data.article_has_more);
+
+      filteredLogs = [...logsData];
+      filteredArticles = [...articlesData];
+      logsCurrentPage = 1;
+      articlesCurrentPage = 1;
+      usersCurrentPage = 1;
+      topicsCurrentPage = 1;
+
+      // ✅ 각 섹션 렌더는 데이터 셋업 이후
+      filterLogs();
+      updateErrorCount();
+      filterArticles();
+      filterUsers();
+
+      // ✅ 토픽은 여기서 렌더 (이게 제일 중요)
+      renderTopics();
+    },
+    error: function (xhr) {
+      console.error("loadAdminLogs failed:", xhr.status, xhr.responseText);
+      logsData = [];
+      filteredLogs = [];
+      renderLogs();
+      updateErrorCount();
+
+      // ✅ 토픽도 실패 시 빈 렌더
+      topicsData = [];
+      filteredTopics = [];
+      renderTopics();
+    }
+  });
+}
+
+function fetchMoreLogs() {
+  if (!logsHasMore) return Promise.resolve(false);
+
+  return $.ajax({
+    url: "/api/admin/logs_more",
+    method: "GET",
+    dataType: "json",
+    data: {
+      cursor: logsNextCursor,
+      size: LOGS_FETCH_SIZE
+    }
+  }).then(res => {
+    const items = res.items || [];
+    if (items.length) logsData.push(...items);
+
+    logsNextCursor = res.next_cursor ?? null;
+    logsHasMore = Boolean(res.has_more);
+
+    return items.length > 0;
+  }).catch(err => {
+    console.error("fetchMoreLogs failed:", err);
+    logsHasMore = false; // 실패 시 더 안 시도
+    return false;
+  });
+}
+
+function fetchMoreArticles() {
+  if (!articlesHasMore) return Promise.resolve(false);
+
+  return $.ajax({
+    url: "/api/admin/articles_more",
+    method: "GET",
+    dataType: "json",
+    data: {
+      cursor: articlesNextCursor,
+      size: ARTICLES_FETCH_SIZE
+    }
+  }).then(res => {
+    const items = res.items || [];
+    if (items.length) articlesData.push(...items);
+
+    articlesNextCursor = res.next_cursor ?? null;
+    articlesHasMore = Boolean(res.has_more);
+
+    return items.length > 0;
+  }).catch(err => {
+    console.error("fetchMoreArticles failed:", err);
+    articlesHasMore = false;
+    return false;
+  });
+}
 
 // State
 let currentEditUserId = null;
 let currentEditArticleId = null;
 let currentEditTopicId = null;
 let deleteCallback = null;
-let filteredLogs = [...logsData];
-let filteredUsers = [...usersData];
-let filteredArticles = [...articlesData];
-let filteredTopics = [...topicsData];
 
 // Page Titles
 const pageTitles = {
@@ -2303,16 +2506,14 @@ const pageTitles = {
     settings: '시스템 설정'
 };
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    initDarkMode();
-    initNavigation();
-    renderLogs();
-    renderUsers();
-    renderArticles();
-    renderTopics();
-    updateErrorCount();
-    loadSettings();
+  initDarkMode();
+  initNavigation();
+  navigateTo()
+  loadAdminLogs();      
+  updateErrorCount();
+  loadSettings();
+  loadSchedulerToggles();
 });
 
 // Dark Mode
@@ -2327,9 +2528,25 @@ function toggleDarkMode() {
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
 }
 
-// Sidebar
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+  const sidebar = document.getElementById('sidebar');
+  const collapsedMode = document.body.classList.contains('sidebar-collapsed');
+
+  // 좁은 화면(접힘 모드)에서는 토글이 "고정 열기/닫기" 역할
+  if (collapsedMode) {
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    if (isCollapsed) {
+      sidebar.classList.remove('collapsed');
+      sidebarPinnedOpen = true;   // ✅ 고정 열기
+    } else {
+      sidebar.classList.add('collapsed');
+      sidebarPinnedOpen = false;  // ✅ 고정 해제 + 닫기
+    }
+    return;
+  }
+
+  // 넓은 화면에서는 기존처럼 동작해도 되고, 필요 없으면 제거
+  sidebar.classList.toggle('collapsed');
 }
 
 // Navigation
@@ -2343,46 +2560,70 @@ function initNavigation() {
 }
 
 function navigateTo(page) {
-    // Update nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
-    
-    // Update page sections
-    document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.remove('active');
-    });
-    document.getElementById(`page-${page}`).classList.add('active');
-    
-    // Update title
-    document.getElementById('pageTitle').textContent = pageTitles[page];
-    
-    // Close sidebar on mobile
-    document.getElementById('sidebar').classList.remove('open');
+  const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
+  const section = document.getElementById(`page-${page}`);
+  const titleEl = document.getElementById('pageTitle');
+  const sidebar = document.getElementById('sidebar');
+
+  if (!navBtn) {
+    console.warn('[navigateTo] nav not found for page=', page);
+    return;
+  }
+  if (!section) {
+    console.warn('[navigateTo] section not found: id=', `page-${page}`);
+    return;
+  }
+
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  navBtn.classList.add('active');
+
+  // Update page sections
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  section.classList.add('active');
+
+  // Update title
+  if (titleEl) titleEl.textContent = pageTitles[page] ?? page;
+
+  // Close sidebar on mobile
+  if (sidebar) sidebar.classList.remove('open');
+
+  if (page === "settings") loadSchedulerToggles();
 }
 
 // Logs
 function renderLogs() {
-    const tbody = document.getElementById('logsTableBody');
-    tbody.innerHTML = filteredLogs.map(log => `
-        <tr>
-            <td>${log.time}</td>
-            <td><span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span></td>
-            <td>${log.source}</td>
-            <td><span class="log-message">${escapeHtml(log.message)}</span></td>
-            <td>
-                <div class="action-btns">
-                    <button class="action-btn" onclick="viewLogDetail(${log.id})" title="상세 보기">
-                        <span class="material-symbols-outlined">visibility</span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    document.getElementById('logsTotalCount').textContent = filteredLogs.length;
-    renderPagination('logsPagination', filteredLogs.length);
+  const tbody = document.getElementById('logsTableBody');
+
+  const total = filteredLogs.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  // currentPage 보정
+  logsCurrentPage = Math.min(Math.max(1, logsCurrentPage), totalPages);
+
+  const start = (logsCurrentPage - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  const pageItems = filteredLogs.slice(start, end);
+
+  tbody.innerHTML = pageItems.map(log => `
+    <tr>
+      <td>${log.time ?? ''}</td>
+      <td><span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span></td>
+      <td>${log.source ?? ''}</td>
+      <td><span class="log-message">${escapeHtml(log.message ?? '')}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn" onclick="viewLogDetail('${String(log.id).replace(/'/g, "\\'")}')" title="상세 보기">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('logsTotalCount').textContent = total;
+
+  renderLogsPagination(totalPages); // ✅ logs 전용 pagination
 }
 
 function getLogTypeLabel(type) {
@@ -2399,86 +2640,228 @@ function filterLogs() {
         const matchesSearch = log.message.toLowerCase().includes(search) || log.source.toLowerCase().includes(search);
         return matchesType && matchesSearch;
     });
-    
+    logsCurrentPage = 1; 
     renderLogs();
 }
 
 function refreshLogs() {
-    showToast('로그를 새로고침했습니다.', 'info');
-    renderLogs();
+  showToast('로그를 새로고침했습니다.', 'info');
+  loadAdminLogs(); // ✅ 이것만
 }
 
 function viewLogDetail(logId) {
-    const log = logsData.find(l => l.id === logId);
-    if (!log) return;
-    
-    document.getElementById('logDetailTime').textContent = log.time;
-    document.getElementById('logDetailType').innerHTML = `<span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span>`;
-    document.getElementById('logDetailSource').textContent = log.source;
-    document.getElementById('logDetailMessage').textContent = log.message;
-    document.getElementById('logDetailStack').textContent = log.stack || '스택 트레이스 없음';
-    
-    openModal('logDetailModal');
+  const key = String(logId);
+  const log = (logsData || []).find(l => String(l.id) === key);
+
+  console.log("clicked:", key, "found:", log);
+  if (!log) return;
+
+  document.getElementById('logDetailTime').textContent = log.time ?? "";
+  document.getElementById('logDetailType').innerHTML =
+    `<span class="log-badge ${log.type}">${getLogTypeLabel(log.type)}</span>`;
+  document.getElementById('logDetailSource').textContent = log.source ?? "";
+  document.getElementById('logDetailMessage').textContent = log.message ?? "";
+  document.getElementById('logDetailStack').textContent = log.stack || '스택 트레이스 없음';
+  console.log(log.stack)
+  openModal('logDetailModal');
 }
+
+function renderLogsPagination(totalPages) {
+  const container = document.getElementById('logsPagination');
+  const cur = logsCurrentPage;
+
+  const windowSize = 5;
+  let start = Math.max(1, cur - Math.floor(windowSize / 2));
+  let end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+
+  // ✅ 핵심: 마지막 페이지라도 logsHasMore면 next를 disabled 하지 않는다
+  const disablePrev = (cur === 1);
+  const disableNext = (cur === totalPages && !logsHasMore); // ✅ 변경
+
+  let html = `
+    <button class="page-btn" data-nav="prev" ${disablePrev ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+    </button>
+  `;
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === cur ? 'active' : ''}" data-page="${p}">${p}</button>`;
+  }
+
+  html += `
+    <button class="page-btn" data-nav="next" ${disableNext ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#logsPagination .page-btn');
+  if (!btn) return;
+  if (btn.hasAttribute('disabled')) return;
+
+  const nav = btn.dataset.nav;
+  const page = btn.dataset.page;
+  const totalPagesNow = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+
+  let targetPage = logsCurrentPage;
+  if (nav === 'prev') targetPage = Math.max(1, logsCurrentPage - 1);
+  else if (nav === 'next') targetPage = Math.min(totalPagesNow + 1, logsCurrentPage + 1); // ✅ +1 허용 (추가 fetch 대비)
+  else if (page) targetPage = parseInt(page, 10) || 1;
+
+  const requiredCount = targetPage * PAGE_SIZE;
+
+  // ✅ 일단 현재 필터 기준으로 부족하면, ES에서 더 가져온 뒤 다시 필터/렌더
+  const ensureAndRender = () => {
+    // 필터는 logsData 기준으로 다시 계산해야 함
+    // (filterLogs는 logsCurrentPage=1을 해버리므로, 페이지 유지하려면 아래처럼 직접 계산)
+    const type = document.getElementById('logTypeFilter')?.value ?? 'all';
+    const search = (document.getElementById('logSearchInput')?.value ?? '').toLowerCase().trim();
+
+    filteredLogs = (logsData || []).filter(log => {
+      const lt = String(log.type ?? '');
+      const msg = String(log.message ?? '').toLowerCase();
+      const src = String(log.source ?? '').toLowerCase();
+      const matchesType = type === 'all' || lt === type;
+      const matchesSearch = !search || msg.includes(search) || src.includes(search);
+      return matchesType && matchesSearch;
+    });
+
+    logsCurrentPage = targetPage;
+    renderLogs();
+    updateErrorCount();
+  };
+
+  if (requiredCount <= filteredLogs.length) {
+    logsCurrentPage = targetPage;
+    renderLogs();
+    return;
+  }
+
+  // ✅ 부족 + 더 가져올 수 있으면 반복 fetch
+  if (!logsHasMore) {
+    // 더 없는데 넘어가려는 경우: 마지막 페이지로 보정
+    logsCurrentPage = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+    renderLogs();
+    return;
+  }
+
+  showToast('추가 로그를 불러오는 중...', 'info');
+
+  const fetchLoop = () => {
+    return fetchMoreLogs().then(added => {
+      // 추가로 받아온 뒤 필터 적용하면 filteredLogs가 늘어날 수 있음
+      // 필요한 만큼 확보됐으면 렌더
+      // (매번 필터/카운트 확인)
+      const type = document.getElementById('logTypeFilter')?.value ?? 'all';
+      const search = (document.getElementById('logSearchInput')?.value ?? '').toLowerCase().trim();
+
+      const tmpFiltered = (logsData || []).filter(log => {
+        const lt = String(log.type ?? '');
+        const msg = String(log.message ?? '').toLowerCase();
+        const src = String(log.source ?? '').toLowerCase();
+        const matchesType = type === 'all' || lt === type;
+        const matchesSearch = !search || msg.includes(search) || src.includes(search);
+        return matchesType && matchesSearch;
+      });
+
+      if (requiredCount <= tmpFiltered.length) {
+        ensureAndRender();
+        return;
+      }
+
+      // 더 없거나, 이번에 추가가 없으면 종료
+      if (!logsHasMore || !added) {
+        // 가능한 마지막 페이지로 이동
+        filteredLogs = tmpFiltered;
+        logsCurrentPage = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+        renderLogs();
+        updateErrorCount();
+        return;
+      }
+
+      // 계속 가져오기
+      return fetchLoop();
+    });
+  };
+
+  fetchLoop();
+});
+
 
 function updateErrorCount() {
     const errorCount = logsData.filter(l => l.type === 'error').length;
     document.getElementById('errorCount').textContent = errorCount;
+    // document.getElementById('error_stat_value').textContent = errorCount;
 }
 
 // Users
 function renderUsers() {
-    const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = filteredUsers.map(user => `
-        <tr>
-            <td>
-                <div class="user-cell">
-                    <div class="user-avatar">${user.name.charAt(0)}</div>
-                    <div class="user-details">
-                        <div class="user-name">${escapeHtml(user.name)}</div>
-                        <div class="user-email">${escapeHtml(user.email)}</div>
-                    </div>
-                </div>
-            </td>
-            <td>${user.joinDate}</td>
-            <td>${user.lastActive}</td>
-            <td><span class="status-badge ${user.status}">${getStatusLabel(user.status)}</span></td>
-            <td>
-                <div class="action-btns">
-                    <button class="action-btn" onclick="viewUserActivity(${user.id})" title="활동 내역">
-                        <span class="material-symbols-outlined">history</span>
-                    </button>
-                    <button class="action-btn" onclick="editUser(${user.id})" title="수정">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="action-btn delete" onclick="confirmDeleteUser(${user.id})" title="삭제">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    document.getElementById('usersTotalCount').textContent = filteredUsers.length;
-    renderPagination('usersPagination', filteredUsers.length);
+  const tbody = document.getElementById('usersTableBody');
+
+  tbody.innerHTML = filteredUsers.map(user => {
+    const id = String(user.id ?? user.user_id ?? ''); // ✅ id 통일
+    const name = String(user.name ?? user.user_name ?? '');
+    const email = String(user.email ?? user.user_email ?? '');
+    const joinDate = user.joinDate ?? user.join_date ?? user.joined_at ?? '';
+    const lastActive = user.lastActive ?? user.last_active ?? user.lastActiveAt ?? '';
+    const status = user.status ?? (user.is_active ? 'active' : 'inactive');
+
+    return `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">${escapeHtml(name ? name.charAt(0) : '?')}</div>
+            <div class="user-details">
+              <div class="user-name">${escapeHtml(name)}</div>
+              <div class="user-email">${escapeHtml(email)}</div>
+            </div>
+          </div>
+        </td>
+        <td>${escapeHtml(String(joinDate))}</td>
+        <td>${escapeHtml(String(lastActive))}</td>
+        <td><span class="status-badge ${escapeHtml(status)}">${getStatusLabel(status)}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn delete" onclick="confirmDeleteUser('${id}')" title="삭제">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('usersTotalCount').textContent = filteredUsers.length;
+  renderPagination('usersPagination', filteredUsers.length);
 }
 
+
 function getStatusLabel(status) {
-    const labels = { active: '활성', inactive: '비활성', suspended: '정지' };
+    const labels = { active: '활성', inactive: '비활성' };
     return labels[status] || status;
 }
 
 function filterUsers() {
-    const status = document.getElementById('userStatusFilter').value;
-    const search = document.getElementById('userSearchInput').value.toLowerCase();
-    
-    filteredUsers = usersData.filter(user => {
-        const matchesStatus = status === 'all' || user.status === status;
-        const matchesSearch = user.name.toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
-        return matchesStatus && matchesSearch;
-    });
-    
-    renderUsers();
+  const status = document.getElementById('userStatusFilter')?.value ?? 'all';
+  const search = (document.getElementById('userSearchInput')?.value ?? '').toLowerCase().trim();
+
+  filteredUsers = (usersData || []).filter(u => {
+    const name = String(u.name ?? u.user_name ?? '').toLowerCase();
+    const email = String(u.email ?? u.user_email ?? '').toLowerCase();
+    const st = String(u.status ?? (Number(u.is_active) === 1 ? 'active' : 'inactive'));
+
+    const matchesStatus = status === 'all' || st === status;
+    const matchesSearch = !search || name.includes(search) || email.includes(search);
+    return matchesStatus && matchesSearch;
+  });
+
+  usersCurrentPage = 1;
+  renderUsers();
 }
 
 function editUser(userId) {
@@ -2530,57 +2913,173 @@ function getActivityIcon(type) {
 }
 
 function confirmDeleteUser(userId) {
-    const user = usersData.find(u => u.id === userId);
-    if (!user) return;
-    
-    document.getElementById('deleteConfirmMessage').textContent = `"${user.name}" 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
-    deleteCallback = () => {
-        const index = usersData.findIndex(u => u.id === userId);
-        if (index > -1) {
-            usersData.splice(index, 1);
-            filterUsers();
-            showToast('사용자가 삭제되었습니다.', 'success');
+  const user = usersData.find(
+    u => String(u.id ?? u.user_id) === String(userId)
+  );
+  if (!user) return;
+
+  // 현재 상태 판단
+  const isActive = user.is_active === 1 || user.status === "active";
+
+  const name = user.name ?? user.user_name ?? '';
+  const actionText = isActive ? "비활성화" : "활성화";
+
+  document.getElementById('deleteConfirmMessage').textContent =
+    `"${name}" 사용자를 ${actionText}하시겠습니까?`;
+
+  deleteCallback = () => {
+    $.ajax({
+      url: `/api/admin/toggle_users/${encodeURIComponent(userId)}`,
+      method: "PATCH",   // ✅ toggle이므로 PATCH가 의미상 적절
+      success: (res) => {
+        // ✅ 서버 결과 기준으로 상태 반영
+        const u = usersData.find(x => String(x.id ?? x.user_id) === String(userId));
+        if (u) {
+          const newActive = Number(res.is_active);   // ✅ 핵심
+          u.is_active = newActive;
+          u.status = newActive === 1 ? "active" : "inactive";
         }
+
+        filterUsers();
+        showToast(`사용자가 ${actionText}되었습니다.`, 'success');
         closeModal('deleteConfirmModal');
-    };
-    document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
-    
-    openModal('deleteConfirmModal');
+      },
+      error: (xhr) => {
+        console.error("toggle user failed:", xhr.status, xhr.responseText);
+        showToast(`사용자 ${actionText}에 실패했습니다.`, 'error');
+      }
+    });
+  };
+  document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
+  openModal('deleteConfirmModal');
 }
 
-// Articles
 function renderArticles() {
-    const tbody = document.getElementById('articlesTableBody');
-    tbody.innerHTML = filteredArticles.map(article => `
-        <tr>
-            <td>${article.id}</td>
-            <td><span class="article-title-cell">${escapeHtml(article.title)}</span></td>
-            <td><span class="label-chip ${article.category}">${getCategoryLabel(article.category)}</span></td>
-            <td>
-                <div class="label-chips">
-                    ${article.labels.map(label => `<span class="label-chip ${getLabelClass(label)}">${getLabelText(label)}</span>`).join('')}
-                </div>
-            </td>
-            <td>${article.date}</td>
-            <td>
-                <div class="action-btns">
-                    <button class="action-btn" onclick="editArticle('${article.id}')" title="수정">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="action-btn delete" onclick="confirmDeleteArticle('${article.id}')" title="삭제">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    document.getElementById('articlesTotalCount').textContent = filteredArticles.length;
-    renderPagination('articlesPagination', filteredArticles.length);
+  const tbody = document.getElementById('articlesTableBody');
+
+  const total = filteredArticles.length;
+  const totalPages = Math.max(1, Math.ceil(total / ARTICLE_PAGE_SIZE));
+  articlesCurrentPage = Math.min(Math.max(1, articlesCurrentPage), totalPages);
+
+  const start = (articlesCurrentPage - 1) * ARTICLE_PAGE_SIZE;
+  const end = start + ARTICLE_PAGE_SIZE;
+  const pageItems = filteredArticles.slice(start, end);
+
+  tbody.innerHTML = pageItems.map(article => {
+    const id = String(article.id ?? article.article_id ?? "");
+    const title = String(article.title ?? article.article_title ?? "");
+    const date = String(article.date ?? article.upload_date ?? article.published_date ?? "");
+
+    const rawCategory = article.category ?? article.article_category ?? article.article_label?.category ?? "";
+    const category = normalizeCategory(rawCategory);
+    const status = Number(article.status ?? article.article_status ?? 5); // 기본 활성
+    const isActive = status >= 5;
+    const labelsArr =
+      article.labels ??
+      article.article_label?.labels ??
+      article.article_label?.label ??
+      [];
+
+    return `
+      <tr>
+        <td class="col-id">
+          <a href="/article/${encodeURIComponent(id)}" class="article-id-link" title="${escapeHtml(id)}">
+            ${escapeHtml(id)}
+          </a>
+        </td>
+
+        <td class="col-title">
+          <span class="article-title-cell" title="${escapeHtml(title)}">${escapeHtml(title)}</span>
+        </td>
+
+        <td class="col-category">
+          <span class="label-chip ${escapeHtml(category)}">${getCategoryLabel(category)}</span>
+        </td>
+
+        <td>
+            <span class="status-badge ${isActive ? 'active' : 'inactive'}">
+                ${isActive ? '활성' : '비활성'}
+            </span>
+        </td>
+
+
+        <td class="col-date" title="${escapeHtml(date)}">${escapeHtml(date)}</td>
+
+        <td class="col-actions">
+          <div class="action-btns">
+            <button type="button"
+                class="action-btn"
+                data-article-action="edit"
+                data-article-id="${escapeHtml(id)}"
+                title="기사 편집">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button"
+                class="action-btn ${isActive ? 'delete' : ''}"
+                data-article-action="toggle"
+                data-article-id="${escapeHtml(id)}"
+                data-article-next="${isActive ? 0 : 5}"
+                title="${isActive ? '비활성화' : '활성화'}">
+                <span class="material-symbols-outlined">${isActive ? 'visibility_off' : 'visibility'}</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('articlesTotalCount').textContent = total;
+  renderArticlesPagination(totalPages);
+}
+
+function renderArticlesPagination(totalPages) {
+  const container = document.getElementById('articlesPagination');
+  const cur = articlesCurrentPage;
+
+  const windowSize = 5;
+  let start = Math.max(1, cur - Math.floor(windowSize / 2));
+  let end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+
+  const disablePrev = (cur === 1);
+  const disableNext = (cur === totalPages && !articlesHasMore); // ✅ 핵심
+
+  let html = `
+    <button class="page-btn" data-article-nav="prev" ${disablePrev ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+    </button>
+  `;
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === cur ? 'active' : ''}" data-article-page="${p}">${p}</button>`;
+  }
+
+  html += `
+    <button class="page-btn" data-article-nav="next" ${disableNext ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+function refilterArticlesKeepPage() {
+  const category = document.getElementById('articleCategoryFilter')?.value ?? 'all';
+  const search = (document.getElementById('articleSearchInput')?.value ?? '').toLowerCase().trim();
+
+  filteredArticles = (articlesData || []).filter(a => {
+    const aCategory = normalizeCategory(a.category ?? a.article_category ?? a.article_label?.category);
+    const aTitle = String(a.title ?? a.article_title ?? '').toLowerCase();
+
+    const matchesCategory = category === 'all' || aCategory === String(category).toLowerCase();
+    const matchesSearch = !search || aTitle.includes(search);
+
+    return matchesCategory && matchesSearch;
+  });
 }
 
 function getCategoryLabel(category) {
-    const labels = { society: '사회/경제', politics: '정치', world: '국제', culture: '문화', sports: '스포츠' };
+    const labels = { society: '사회/경제', politics: '정치', world: '국제', culture: '문화', sports: '스포츠', local :'지역'};
     return labels[category] || category;
 }
 
@@ -2595,71 +3094,176 @@ function getLabelText(label) {
 }
 
 function filterArticles() {
-    const category = document.getElementById('articleCategoryFilter').value;
-    const search = document.getElementById('articleSearchInput').value.toLowerCase();
-    
-    filteredArticles = articlesData.filter(article => {
-        const matchesCategory = category === 'all' || article.category === category;
-        const matchesSearch = article.title.toLowerCase().includes(search);
-        return matchesCategory && matchesSearch;
-    });
-    
-    renderArticles();
+  const category = document.getElementById('articleCategoryFilter')?.value ?? 'all';
+  const search = (document.getElementById('articleSearchInput')?.value ?? '').toLowerCase().trim();
+
+  filteredArticles = (articlesData || []).filter(a => {
+    const aCategory = normalizeCategory(a.category ?? a.article_category ?? a.article_label?.category);
+    const aTitle = String(a.title ?? a.article_title ?? '').toLowerCase();
+
+    const matchesCategory = category === 'all' || aCategory === String(category).toLowerCase();
+    const matchesSearch = !search || aTitle.includes(search);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  articlesCurrentPage = 1;
+  renderArticles();
 }
 
 function editArticle(articleId) {
-    const article = articlesData.find(a => a.id === articleId);
-    if (!article) return;
-    
-    currentEditArticleId = articleId;
-    document.getElementById('editArticleTitle').value = article.title;
-    document.getElementById('editArticleCategory').value = article.category;
-    
-    // Reset checkboxes
-    document.querySelectorAll('#articleEditModal input[type="checkbox"]').forEach(cb => cb.checked = false);
-    article.labels.forEach(label => {
-        const cb = document.getElementById('label' + label.charAt(0).toUpperCase() + label.slice(1));
-        if (cb) cb.checked = true;
-    });
-    
-    openModal('articleEditModal');
+  const idStr = String(articleId);
+
+  // 목록에서 메타 찾기(없어도 상세 조회는 가능하게)
+  const listItem = (articlesData || []).find(a => String(a.id ?? a.article_id) === idStr);
+
+  currentEditArticleId = idStr;
+
+  // 1) 모달을 먼저 열고 로딩 상태 표시
+  document.getElementById('editArticleTitle').value =
+    (listItem?.title ?? listItem?.article_title ?? '불러오는 중...');
+  document.getElementById('editArticleCategory').value =
+    normalizeCategory(listItem?.category ?? listItem?.article_category ?? 'society');
+
+  // (선택) 본문 textarea가 있으면 초기화
+  const contentEl = document.getElementById('editArticleContent');
+  if (contentEl) contentEl.value = '불러오는 중...';
+
+  // 라벨 체크박스 초기화
+  document.querySelectorAll('#articleEditModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+  // 목록 데이터에 labels가 있으면 일단 반영(상세에서 덮어쓸 수 있음)
+  const seedLabels = listItem?.labels ?? [];
+  (Array.isArray(seedLabels) ? seedLabels : [seedLabels]).forEach(l => {
+    const label = normalizeLabel(l);
+    if (!label) return;
+    const cbId = 'label' + label.charAt(0).toUpperCase() + label.slice(1);
+    const cb = document.getElementById(cbId);
+    if (cb) cb.checked = true;
+  });
+
+  openModal('articleEditModal');
+
+  // 2) 상세 조회(본문 포함) - 성공하면 모달 값 업데이트
+  $.ajax({
+    url: `/api/admin/article_detail/${encodeURIComponent(idStr)}`,
+    method: "GET",
+    dataType: "json",
+    success: (res) => {
+      // title/category
+      if (res?.title != null) document.getElementById('editArticleTitle').value = res.title;
+      if (res?.category != null) document.getElementById('editArticleCategory').value = normalizeCategory(res.category);
+
+      // content
+      if (contentEl && res?.article_content != null) contentEl.value = res.article_content;
+    },
+    error: (xhr) => {
+      console.error("editArticle detail fetch failed:", xhr.status, xhr.responseText);
+      showToast('기사 상세를 불러오지 못했습니다.', 'error');
+      // 모달은 열린 채로 두고, 목록 데이터로 편집이라도 가능하게 유지
+      if (contentEl && contentEl.value === '불러오는 중...') contentEl.value = '';
+    }
+  });
 }
 
 function saveArticleEdit() {
-    const article = articlesData.find(a => a.id === currentEditArticleId);
-    if (!article) return;
-    
-    article.title = document.getElementById('editArticleTitle').value;
-    article.category = document.getElementById('editArticleCategory').value;
-    
-    const labels = [];
-    document.querySelectorAll('#articleEditModal input[type="checkbox"]:checked').forEach(cb => {
-        labels.push(cb.value);
-    });
-    article.labels = labels;
-    
-    filterArticles();
-    closeModal('articleEditModal');
-    showToast('기사 정보가 수정되었습니다.', 'success');
+  const articleId = String(currentEditArticleId ?? '');
+  if (!articleId) return;
+
+  const title = document.getElementById('editArticleTitle').value.trim();
+  const content = document.getElementById('editArticleContent').value.trim();
+  const category = document.getElementById('editArticleCategory').value;
+
+  if (!title) {
+    showToast('제목을 입력해주세요.', 'warning');
+    return;
+  }
+
+  $.ajax({
+    url: `/api/admin/edit_articles/${encodeURIComponent(articleId)}`,
+    method: "PATCH",
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify({
+      title,
+      content,
+      category,
+
+      // labels는 일단 제외(원하면 다음 단계로 붙이자)
+    }),
+    success: (res) => {
+      // ✅ 로컬 반영 (화면 즉시)
+      const a = (articlesData || []).find(x => String(x.id ?? x.article_id) === articleId);
+      if (a) {
+        a.title = res.title ?? title;
+        a.category = res.category ?? category;
+      }
+
+      // ✅ 필터/렌더 갱신
+      refilterArticlesKeepPage();
+      renderArticles();
+
+      closeModal('articleEditModal');
+      showToast('기사 정보가 저장되었습니다.', 'success');
+    },
+    error: (xhr) => {
+      console.error("saveArticleEdit failed:", xhr.status, xhr.responseText);
+      showToast('기사 저장에 실패했습니다.', 'error');
+    }
+  });
 }
 
-function confirmDeleteArticle(articleId) {
-    const article = articlesData.find(a => a.id === articleId);
-    if (!article) return;
-    
-    document.getElementById('deleteConfirmMessage').textContent = `"${article.title}" 기사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
-    deleteCallback = () => {
-        const index = articlesData.findIndex(a => a.id === articleId);
-        if (index > -1) {
-            articlesData.splice(index, 1);
-            filterArticles();
-            showToast('기사가 삭제되었습니다.', 'success');
-        }
+function confirmToggleArticleStatus(articleId, nextStatus) {
+  const id = String(articleId);
+  const next = Number(nextStatus); // 0 or 1
+
+  const article = (articlesData || []).find(a => String(a.id ?? a.article_id) === id);
+  const title = article?.title ?? article?.article_title ?? id;
+
+  const actionText = next === 0 ? "비활성화(노출 제외)" : "활성화(노출 포함)";
+
+  document.getElementById('deleteConfirmMessage').textContent =
+    `"${title}" 기사를 ${actionText} 하시겠습니까?`;
+
+  document.getElementById('confirmDeleteBtn').onclick = () => {
+    $.ajax({
+      url: `/api/admin/hide_articles/${encodeURIComponent(id)}`,
+      method: "PATCH",
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify({ status: next }),
+      success: (res) => {
+        const newStatus = Number(res.status ?? next);
+        const idStr = String(id);
+
+        // 1️⃣ articlesData 갱신
+        const a = articlesData.find(x => String(x.id ?? x.article_id) === idStr);
+        if (a) a.status = newStatus;
+
+        // 2️⃣ filteredArticles도 갱신 (이게 핵심)
+        const f = filteredArticles.find(x => String(x.id ?? x.article_id) === idStr);
+        if (f) f.status = newStatus;
+
+        // 3️⃣ 필터 재계산 (status 조건 반영)
+        refilterArticlesKeepPage();
+
+        // 4️⃣ 페이지 보정
+        const last = Math.max(1, Math.ceil(filteredArticles.length / ARTICLE_PAGE_SIZE));
+        articlesCurrentPage = Math.min(articlesCurrentPage, last);
+
+        // 5️⃣ 렌더
+        loadAdminLogs();          // ✅ 바로 재렌더
         closeModal('deleteConfirmModal');
-    };
-    document.getElementById('confirmDeleteBtn').onclick = deleteCallback;
-    
-    openModal('deleteConfirmModal');
+        showToast('상태가 변경되었습니다.', 'success');
+        },
+      error: (xhr) => {
+        console.error("toggle article status failed:", xhr.status, xhr.responseText);
+        showToast('상태 변경에 실패했습니다.', 'error');
+      }
+    });
+  };
+
+  openModal('deleteConfirmModal');
 }
 
 // Pagination (simplified)
@@ -2720,81 +3324,126 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Topics
 function renderTopics() {
-    const tbody = document.getElementById('topicsTableBody');
-    tbody.innerHTML = filteredTopics.map(topic => {
-        const positive = topic.articles.filter(a => a.sentiment === 'positive').length;
-        const negative = topic.articles.filter(a => a.sentiment === 'negative').length;
-        const neutral = topic.articles.filter(a => a.sentiment === 'neutral').length;
-        
-        return `
-            <tr>
-                <td>${topic.id}</td>
-                <td><span class="article-title-cell">${escapeHtml(topic.name)}</span></td>
-                <td>${topic.articles.length}</td>
-                <td>
-                    <div class="topic-stats">
-                        <span class="topic-stat positive">긍정 ${positive}</span>
-                        <span class="topic-stat negative">부정 ${negative}</span>
-                        <span class="topic-stat neutral">중립 ${neutral}</span>
-                    </div>
-                </td>
-                <td>${topic.date}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn" onclick="editTopic('${topic.id}')" title="수정">
-                            <span class="material-symbols-outlined">edit</span>
-                        </button>
-                        <button class="action-btn delete" onclick="confirmDeleteTopic('${topic.id}')" title="삭제">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
-    
-    document.getElementById('topicsTotalCount').textContent = filteredTopics.length;
-    renderPagination('topicsPagination', filteredTopics.length);
+  const tbody = document.getElementById('topicsTableBody');
+  const totalEl = document.getElementById('topicsTotalCount');
+
+  if (!tbody) {
+    console.warn("topicsTableBody not found");
+    return;
+  }
+
+  const total = Array.isArray(filteredTopics) ? filteredTopics.length : 0;
+  if (totalEl) totalEl.textContent = String(total);
+
+  // ✅ 페이징(원치 않으면 이 block 삭제)
+  const totalPages = Math.max(1, Math.ceil(total / TOPICS_PAGE_SIZE));
+  topicsCurrentPage = Math.min(Math.max(1, topicsCurrentPage), totalPages);
+
+  const start = (topicsCurrentPage - 1) * TOPICS_PAGE_SIZE;
+  const end = start + TOPICS_PAGE_SIZE;
+  const pageItems = (filteredTopics || []).slice(start, end);
+
+  if (!pageItems.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; opacity:0.7; padding:16px;">
+          표시할 토픽이 없습니다.
+        </td>
+      </tr>
+    `;
+    // pagination도 비우기
+    const p = document.getElementById('topicsPagination');
+    if (p) p.innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = pageItems.map(topic => {
+    const id = String(topic.id ?? "");
+    const name = String(topic.name ?? "");
+    const date = String(topic.date ?? "");
+
+    const arts = Array.isArray(topic.articles) ? topic.articles : [];
+
+    const positive = arts.reduce((acc,a)=> acc + (a.sentiment === 'positive'), 0);
+    const negative = arts.reduce((acc,a)=> acc + (a.sentiment === 'negative'), 0);
+    const neutral  = arts.reduce((acc,a)=> acc + (a.sentiment === 'neutral'), 0);
+
+    return `
+      <tr>
+        <td>${escapeHtml(id)}</td>
+        <td><span class="article-title-cell">${escapeHtml(name)}</span></td>
+        <td>${arts.length}</td>
+        <td>
+          <div class="topic-stats">
+            <span class="topic-stat positive">긍정 ${positive}</span>
+            <span class="topic-stat negative">부정 ${negative}</span>
+            <span class="topic-stat neutral">중립 ${neutral}</span>
+          </div>
+        </td>
+        <td>${escapeHtml(date)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn" data-topic-action="edit" data-topic-id="${escapeHtml(id)}" title="수정">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="action-btn delete" data-topic-action="delete" data-topic-id="${escapeHtml(id)}" title="삭제">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  renderTopicsPagination(totalPages);
 }
+
 
 function filterTopics() {
-    const search = document.getElementById('topicSearchInput').value.toLowerCase();
-    
-    filteredTopics = topicsData.filter(topic => {
-        return topic.name.toLowerCase().includes(search);
-    });
-    
-    renderTopics();
+  const el = document.getElementById('topicSearchInput');
+  const search = (el?.value ?? '').toLowerCase().trim();
+
+  filteredTopics = (topicsData || []).filter(topic => {
+    const name = String(topic.name ?? '').toLowerCase();
+    const id = String(topic.id ?? '').toLowerCase();
+    return !search || name.includes(search) || id.includes(search);
+  });
+
+  topicsCurrentPage = 1;
+  renderTopics();
 }
 
+
 function editTopic(topicId) {
-    const topic = topicsData.find(t => t.id === topicId);
-    if (!topic) return;
-    
-    currentEditTopicId = topicId;
-    document.getElementById('editTopicName').value = topic.name;
-    
-    const list = document.getElementById('topicArticlesList');
-    list.innerHTML = topic.articles.map((article, idx) => `
-        <div class="topic-article-item" data-article-idx="${idx}">
-            <span class="topic-article-title">${escapeHtml(article.title)}</span>
-            <div class="topic-article-actions">
-                <select data-article-idx="${idx}" onchange="updateTopicArticleSentiment(this)">
-                    <option value="positive" ${article.sentiment === 'positive' ? 'selected' : ''}>긍정</option>
-                    <option value="negative" ${article.sentiment === 'negative' ? 'selected' : ''}>부정</option>
-                    <option value="neutral" ${article.sentiment === 'neutral' ? 'selected' : ''}>중립</option>
-                </select>
-                <button class="topic-article-delete-btn" onclick="deleteTopicArticle(${idx})" title="기사 제거">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-        </div>
-    `).join('');
-    
-    openModal('topicEditModal');
+  const topic = (topicsData || []).find(t => String(t.id) === String(topicId));
+  if (!topic) return;
+
+  currentEditTopicId = String(topicId);
+  document.getElementById('editTopicName').value = topic.name ?? "";
+
+  const list = document.getElementById('topicArticlesList');
+  const arts = Array.isArray(topic.articles) ? topic.articles : [];
+
+  list.innerHTML = arts.map((article, idx) => `
+    <div class="topic-article-item" data-article-idx="${idx}">
+      <span class="topic-article-title">${escapeHtml(article.title ?? article.id ?? '')}</span>
+      <div class="topic-article-actions">
+        <select data-article-idx="${idx}">
+          <option value="positive" ${article.sentiment === 'positive' ? 'selected' : ''}>긍정</option>
+          <option value="negative" ${article.sentiment === 'negative' ? 'selected' : ''}>부정</option>
+          <option value="neutral"  ${article.sentiment === 'neutral'  ? 'selected' : ''}>중립</option>
+        </select>
+        <button class="topic-article-delete-btn" type="button" onclick="deleteTopicArticle(${idx})" title="기사 제거">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  openModal('topicEditModal');
 }
+
 
 function updateTopicArticleSentiment(select) {
     // This updates in real-time when saved
@@ -2809,22 +3458,47 @@ function deleteTopicArticle(articleIdx) {
     showToast('기사가 토픽에서 제거되었습니다.', 'success');
 }
 
-function saveTopicEdit() {
-    const topic = topicsData.find(t => t.id === currentEditTopicId);
-    if (!topic) return;
-    
-    topic.name = document.getElementById('editTopicName').value;
-    
-    // Update sentiments
-    const selects = document.querySelectorAll('#topicArticlesList select');
-    selects.forEach(select => {
-        const idx = parseInt(select.dataset.articleIdx);
-        topic.articles[idx].sentiment = select.value;
-    });
-    
+async function saveTopicEdit() {
+  const topic = topicsData.find(t => String(t.id) === String(currentEditTopicId));
+  if (!topic) return;
+
+  const newName = document.getElementById('editTopicName').value.trim();
+
+  // 모달에서 선택된 sentiment 반영 (로컬)
+  const selects = document.querySelectorAll('#topicArticlesList select');
+  selects.forEach(select => {
+    const idx = parseInt(select.dataset.articleIdx, 10);
+    if (!Number.isNaN(idx) && topic.articles[idx]) {
+      topic.articles[idx].sentiment = select.value;
+    }
+  });
+
+  // ✅ 백엔드로 보낼 최종 articles 리스트 구성
+  const payload = {
+    name: newName,
+    articles: (topic.articles || []).map(a => ({
+      article_id: String(a.id),
+      sentiment: a.sentiment || "neutral"
+    }))
+  };
+
+  try {
+    await patchTopic(currentEditTopicId, payload);
+
+    // 성공 시 로컬도 확정 반영
+    topic.name = newName;
+
     filterTopics();
     closeModal('topicEditModal');
-    showToast('토픽이 수정되었습니다.', 'success');
+    showToast('토픽이 저장되었습니다.', 'success');
+
+    // (선택) 서버 기준으로 다시 로드하고 싶으면:
+    // loadAdminLogs();
+
+  } catch (e) {
+    console.error("saveTopicEdit failed:", e);
+    showToast('토픽 저장에 실패했습니다.', 'error');
+  }
 }
 
 function openAddTopicModal() {
@@ -2873,42 +3547,412 @@ function confirmDeleteTopic(topicId) {
     openModal('deleteConfirmModal');
 }
 
-// Settings
-function saveSettings() {
-    const settings = {
-        autoClassify: document.getElementById('settingAutoClassify').checked,
-        autoTopic: document.getElementById('settingAutoTopic').checked,
-        sentiment: document.getElementById('settingSentiment').checked,
-        crawling: document.getElementById('settingCrawling').checked,
-        notification: document.getElementById('settingNotification').checked,
-        logCleanup: document.getElementById('settingLogCleanup').checked
-    };
-    
-    localStorage.setItem('adminSettings', JSON.stringify(settings));
-    showToast('설정이 저장되었습니다.', 'success');
+function patchTopic(topicId, payload) {
+  return $.ajax({
+    url: `/api/admin/edit_topics/${encodeURIComponent(topicId)}`,
+    method: "PATCH",
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify(payload),
+    success: function(){
+        loadAdminLogs();
+    }
+  });
 }
 
+// Settings
+async function saveSettings() {
+  const settings = {
+    autoClassify: document.getElementById('settingAutoClassify').checked,
+    autoTopic: document.getElementById('settingAutoTopic').checked,
+    sentiment: document.getElementById('settingSentiment').checked,
+    crawling: document.getElementById('settingCrawling').checked,
+    notification: document.getElementById('settingNotification').checked,
+    logCleanup: document.getElementById('settingLogCleanup').checked
+  };
+
+  // ✅ 일단 로컬 저장 (기존 유지)
+  localStorage.setItem('adminSettings', JSON.stringify(settings));
+
+  // ✅ "자동 크롤링"만 백엔드 스케줄러 연동
+  // checked=true  => paused=false (resume)
+  // checked=false => paused=true  (pause)
+  const crawlingEnabled = settings.crawling;
+  const paused = !crawlingEnabled;
+
+  const el = document.getElementById('settingCrawling');
+  const prev = !paused; // API 실패 시 롤백용(대략적인 이전값)
+
+  try {
+    await patchJobPaused("news_full_pipeline", paused);
+    showToast(`자동 크롤링이 ${crawlingEnabled ? "활성화" : "비활성화"}되었습니다.`, "success");
+  } catch (e) {
+    console.error("patchJobPaused failed:", e);
+
+    // ✅ 실패 시 UI 롤백
+    if (el) el.checked = prev;
+    settings.crawling = prev;
+    localStorage.setItem('adminSettings', JSON.stringify(settings));
+
+    showToast("자동 크롤링 설정 변경에 실패했습니다.", "error");
+  }
+}
+
+
 function loadSettings() {
-    const saved = localStorage.getItem('adminSettings');
-    if (saved) {
-        const settings = JSON.parse(saved);
-        document.getElementById('settingAutoClassify').checked = settings.autoClassify ?? true;
-        document.getElementById('settingAutoTopic').checked = settings.autoTopic ?? true;
-        document.getElementById('settingSentiment').checked = settings.sentiment ?? true;
-        document.getElementById('settingCrawling').checked = settings.crawling ?? false;
-        document.getElementById('settingNotification').checked = settings.notification ?? false;
-        document.getElementById('settingLogCleanup').checked = settings.logCleanup ?? true;
-    }
+  const saved = localStorage.getItem('adminSettings');
+  if (saved) {
+    const settings = JSON.parse(saved);
+    document.getElementById('settingAutoClassify').checked = settings.autoClassify ?? true;
+    document.getElementById('settingAutoTopic').checked = settings.autoTopic ?? true;
+    document.getElementById('settingSentiment').checked = settings.sentiment ?? true;
+    document.getElementById('settingCrawling').checked = settings.crawling ?? false;
+    document.getElementById('settingNotification').checked = settings.notification ?? false;
+    document.getElementById('settingLogCleanup').checked = settings.logCleanup ?? true;
+  }
+
+  // ✅ 로컬 저장값보다 "실제 스케줄러 상태"가 우선
+  loadSchedulerStatus();
+}
+
+
+async function loadSchedulerStatus() {
+  try {
+    const res = await $.ajax({
+      url: "/api/admin/scheduler/jobs",
+      method: "GET",
+      dataType: "json"
+    });
+
+    // job 목록에서 target 찾기
+    const jobs = res.jobs || [];
+
+    // APScheduler pause 상태를 직접 주진 않아서 "다음 실행 시간"으로 간접 판단
+    // next_run_time이 null이면 보통 paused (or removed) 가능성이 높음
+    const crawlJob = jobs.find(j => j.id === "news_full_pipeline");
+    const enabled = Boolean(crawlJob && crawlJob.next_run_time); 
+
+    // ✅ "자동 크롤링" 스위치에 반영
+    const el = document.getElementById("settingCrawling");
+    if (el) el.checked = enabled;
+
+  } catch (e) {
+    console.error("loadSchedulerStatus failed:", e);
+    showToast("스케줄러 상태를 불러오지 못했습니다.", "warning");
+  }
+}
+
+async function patchJobPaused(jobId, paused) {
+  return $.ajax({
+    url: `/api/admin/scheduler/jobs/${encodeURIComponent(jobId)}`,
+    method: "PATCH",
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify({ paused })
+  });
 }
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
+
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.classList.remove('active');
         }
     });
 });
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-article-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.articleAction;
+  const articleId = btn.dataset.articleId;
+
+  if (action === 'edit') editArticle(articleId);
+  else if (action === 'toggle') confirmToggleArticleStatus(articleId, btn.dataset.articleNext);
+});
+
+const COLLAPSE_BREAKPOINT = 1200; // 여기서 이하로 내려가면 자동 접기
+const EDGE_HOTZONE = 12;          // 왼쪽 가장자리 감지 폭(px)
+
+let sidebarPinnedOpen = false;    // 사용자가 수동으로 열어 고정했는지
+let sidebarTempOpen = false;      // hover로 임시로 열렸는지
+
+function setSidebarCollapsed(collapsed) {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+
+  if (collapsed) {
+    sidebar.classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+    sidebarPinnedOpen = false;
+  } else {
+    sidebar.classList.remove('collapsed');
+    document.body.classList.remove('sidebar-collapsed');
+  }
+}
+
+function openSidebarTemp() {
+  if (sidebarPinnedOpen) return;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.remove('collapsed');
+  sidebarTempOpen = true;
+}
+
+function closeSidebarTemp() {
+  if (sidebarPinnedOpen) return;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.add('collapsed');
+  sidebarTempOpen = false;
+}
+
+// ✅ 화면 크기에 따라 자동 접기/펼치기
+function applyResponsiveSidebar() {
+  if (window.innerWidth <= COLLAPSE_BREAKPOINT) {
+    setSidebarCollapsed(true);
+  } else {
+    setSidebarCollapsed(false);
+  }
+}
+
+function renderTopicsPagination(totalPages) {
+  const container = document.getElementById('topicsPagination');
+  if (!container) return;
+
+  const cur = topicsCurrentPage;
+  const disablePrev = (cur === 1);
+  const disableNext = (cur === totalPages);
+
+  let html = `
+    <button class="page-btn" data-topic-nav="prev" ${disablePrev ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_left</span>
+    </button>
+  `;
+
+  const windowSize = 5;
+  let start = Math.max(1, cur - Math.floor(windowSize / 2));
+  let end = Math.min(totalPages, start + windowSize - 1);
+  start = Math.max(1, end - windowSize + 1);
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === cur ? 'active' : ''}" data-topic-page="${p}">${p}</button>`;
+  }
+
+  html += `
+    <button class="page-btn" data-topic-nav="next" ${disableNext ? 'disabled' : ''}>
+      <span class="material-symbols-outlined" style="font-size:1rem;">chevron_right</span>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#topicsPagination .page-btn');
+  if (!btn) return;
+  if (btn.hasAttribute('disabled')) return;
+
+  const nav = btn.dataset.topicNav;
+  const page = btn.dataset.topicPage;
+
+  const totalPages = Math.max(1, Math.ceil((filteredTopics?.length ?? 0) / TOPICS_PAGE_SIZE));
+
+  if (nav === 'prev') topicsCurrentPage = Math.max(1, topicsCurrentPage - 1);
+  else if (nav === 'next') topicsCurrentPage = Math.min(totalPages, topicsCurrentPage + 1);
+  else if (page) topicsCurrentPage = parseInt(page, 10) || 1;
+
+  renderTopics();
+});
+
+
+window.addEventListener('resize', applyResponsiveSidebar);
+applyResponsiveSidebar();
+
+// ✅ 마우스가 왼쪽 가장자리로 오면 열기, 떠나면 닫기
+document.addEventListener('mousemove', (e) => {
+  if (!document.body.classList.contains('sidebar-collapsed')) return;
+  if (sidebarPinnedOpen) return;
+
+  if (e.clientX <= EDGE_HOTZONE) {
+    if (!sidebarTempOpen) openSidebarTemp();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-user-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.userAction;
+  const userId = btn.dataset.userId; // 항상 문자열
+
+  if (!userId) return;
+
+  if (action === 'history') viewUserActivity(userId);
+  else if (action === 'edit') editUser(userId);
+  else if (action === 'delete') confirmDeleteUser(userId);
+});
+
+// 사이드바에서 마우스 빠져나가면 다시 닫기
+document.getElementById('sidebar').addEventListener('mouseleave', () => {
+  if (document.body.classList.contains('sidebar-collapsed')) {
+    closeSidebarTemp();
+  }
+});
+
+// hitbox에 올라오면 열기 (mousemove보다 안정적)
+document.getElementById('sidebarHitbox').addEventListener('mouseenter', () => {
+  if (document.body.classList.contains('sidebar-collapsed')) openSidebarTemp();
+});
+
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('#articlesPagination button');
+  if (!btn) return;
+
+  if (btn.hasAttribute('disabled')) return;
+
+  const nav = btn.dataset.articleNav;
+  const page = btn.dataset.articlePage;
+
+  // 현재 필터 기준으로 최신화
+  refilterArticlesKeepPage();
+
+  let targetPage = articlesCurrentPage;
+  if (nav === 'prev') targetPage = Math.max(1, articlesCurrentPage - 1);
+  else if (nav === 'next') targetPage = articlesCurrentPage + 1;      // ✅ +1 허용
+  else if (page) targetPage = parseInt(page, 10) || 1;
+
+  const requiredCount = targetPage * ARTICLE_PAGE_SIZE;
+
+  // ✅ 이미 로드/필터된 데이터로 충분하면 바로 렌더
+  if (requiredCount <= filteredArticles.length) {
+    articlesCurrentPage = targetPage;
+    renderArticles();
+    return;
+  }
+
+  // ✅ 더 가져올 수 없으면 마지막 페이지로 보정
+  if (!articlesHasMore) {
+    articlesCurrentPage = Math.max(1, Math.ceil(filteredArticles.length / ARTICLE_PAGE_SIZE));
+    renderArticles();
+    return;
+  }
+
+  showToast('추가 기사를 불러오는 중...', 'info');
+
+  // ✅ 필요한 만큼 확보될 때까지 반복 fetch
+  while (articlesHasMore && requiredCount > filteredArticles.length) {
+    const added = await fetchMoreArticles();     // existing function
+    refilterArticlesKeepPage();
+    if (!added) break;
+  }
+
+  // ✅ 가능한 범위 내로 보정 후 렌더
+  const lastPage = Math.max(1, Math.ceil(filteredArticles.length / ARTICLE_PAGE_SIZE));
+  articlesCurrentPage = Math.min(targetPage, lastPage);
+  renderArticles();
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-article-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.articleAction;
+  const articleId = btn.dataset.articleId;
+
+  if (action === 'toggle') {
+    confirmToggleArticleStatus(articleId, btn.dataset.articleNext);
+  }
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-topic-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.topicAction;
+  const topicId = btn.dataset.topicId;
+
+  if (!topicId) return;
+
+  if (action === 'edit') editTopic(topicId);
+  if (action === 'delete') confirmDeleteTopic(topicId);
+});
+
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'topicSearchInput') filterTopics();
+});
+
+function isJobEnabledFromNextRun(nextRunTime) {
+  // APScheduler에서 pause_job되면 next_run_time이 null이 되는 케이스가 많음
+  return Boolean(nextRunTime);
+}
+
+function loadSchedulerToggles() {
+  return $.ajax({
+    url: "/api/admin/scheduler/jobs",
+    method: "GET",
+    dataType: "json"
+  }).then(res => {
+    const jobs = res.jobs || [];
+    const map = {};
+    jobs.forEach(j => { map[j.id] = j; });
+
+    // 3개 토글 세팅
+    ["news_full_pipeline", "session_timeout_job", "polarity_daily_0500"].forEach(jobId => {
+      const el = document.querySelector(`input[data-job-id="${jobId}"]`);
+      if (!el) return;
+
+      const job = map[jobId];
+      const enabled = job ? isJobEnabledFromNextRun(job.next_run_time) : false;
+      el.checked = enabled;
+      el.disabled = false;
+    });
+  }).catch(err => {
+    console.error("loadSchedulerToggles failed:", err);
+    showToast("스케줄러 상태를 불러오지 못했습니다.", "error");
+
+    // 실패 시 토글 잠그기(잘못된 조작 방지)
+    ["news_full_pipeline", "session_timeout_job", "polarity_daily_0500"].forEach(jobId => {
+      const el = document.querySelector(`input[data-job-id="${jobId}"]`);
+      if (el) el.disabled = true;
+    });
+  });
+}
+
+function patchSchedulerJob(jobId, enabled) {
+  // enabled=true => paused=false
+  // enabled=false => paused=true
+  return $.ajax({
+    url: `/api/admin/scheduler/jobs/${encodeURIComponent(jobId)}`,
+    method: "PATCH",
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify({ paused: !enabled })
+  });
+}
+function onSchedulerToggle(checkboxEl) {
+  const jobId = checkboxEl.dataset.jobId;
+  if (!jobId) return;
+
+  const nextEnabled = checkboxEl.checked;
+  const prevEnabled = !nextEnabled;
+
+  // 중복 클릭 방지
+  checkboxEl.disabled = true;
+
+  patchSchedulerJob(jobId, nextEnabled).then(() => {
+    showToast(`${jobId} ${nextEnabled ? "활성화" : "비활성화"} 완료`, "success");
+  }).catch(err => {
+    console.error("patchSchedulerJob failed:", err);
+
+    // 롤백
+    checkboxEl.checked = prevEnabled;
+    showToast(`${jobId} 설정 변경 실패`, "error");
+  }).always(() => {
+    checkboxEl.disabled = false;
+  });
+}
+
 </script>
 </body>
 </html>
