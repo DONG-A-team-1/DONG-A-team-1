@@ -247,185 +247,121 @@ main {
     border-top-color: #374151;
 }
 
-/* Donut Chart */
+/* 전체 컨테이너 */
 .chart-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 300px; /* 부모 너비에 맞춰 조절 */
+    margin: 0 auto;
+}
+
+/* 도넛 위치 고정 */
+.donut-container {
+    position: relative;
+    margin: 2rem 0;
 }
 
 .donut-chart {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
-    background: conic-gradient(
-        #3b82f6 0% 40%,
-        #22c55e 40% 70%,
-        #a855f7 70% 90%,
-        #e5e7eb 90% 100%
-    );
+    background: #374151; /* 초기값 */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background 0.5s ease; /* 부드러운 변화 */
 }
 
-.dark .donut-chart {
-    background: conic-gradient(
-        #3b82f6 0% 40%,
-        #22c55e 40% 70%,
-        #a855f7 70% 90%,
-        #4b5563 90% 100%
-    );
-}
-
+/* 도넛 구멍: 부모 카드 배경색과 맞춰야 깔끔함 */
 .donut-chart::after {
     content: "";
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 85px; /* 구멍 크기 살짝 조절 */
+    height: 85px;
+    background: white; /* 라이트모드 기본값 */
     border-radius: 50%;
-    background: #ffffff;
+    z-index: 1;
 }
 
+/* 다크모드일 때 구멍 색상 변경 */
 .dark .donut-chart::after {
-    background: #1f2937;
+    background: #1f2937; /* 다크모드 카드 배경색 */
 }
 
-.donut-percent {
-    position: absolute;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #374151;
-    z-index: 10;
+/* 중앙 텍스트가 구멍 위로 오도록 */
+#algorithm-percent {
+    position: relative;
+    z-index: 2;
+    font-size: 1.5rem;
+    font-weight: 800;
 }
 
-.dark .donut-percent {
-    color: white;
-}
-
-.donut-percent .unit {
-    font-size: 0.75rem;
-    font-weight: normal;
-    color: #9ca3af;
-}
-
-.chart-label {
-    position: absolute;
-    font-size: 0.625rem;
-    font-weight: bold;
-    background-color: rgba(255,255,255,0.9);
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.dark .chart-label {
-    background-color: rgba(31, 41, 55, 0.9);
-}
-
-.chart-label-1 {
-    color: #2563eb;
-    border: 1px solid #dbeafe;
-    top: 1rem;
-    right: -1.75rem;
-}
-
-.dark .chart-label-1 {
-    color: #60a5fa;
-    border-color: rgba(30, 58, 138, 0.5);
-}
-
-.chart-label-2 {
-    color: #16a34a;
-    border: 1px solid #d1fae5;
-    bottom: -1rem;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.dark .chart-label-2 {
-    color: #4ade80;
-    border-color: rgba(20, 83, 45, 0.5);
-}
-
-.chart-label-3 {
-    color: #9333ea;
-    border: 1px solid #f3e8ff;
-    left: -1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.dark .chart-label-3 {
-    color: #c084fc;
-    border-color: rgba(88, 28, 135, 0.5);
-}
-
-.chart-label-4 {
-    color: #6b7280;
-    border: 1px solid #e5e7eb;
-    left: 0.25rem;
-    top: -1rem;
-}
-
-.dark .chart-label-4 {
-    color: #9ca3af;
-    border-color: #374151;
-}
-
+/* 범례 스타일 수정 (이미지의 텍스트 밀림 해결) */
 .chart-legend {
     width: 100%;
-    padding: 0 1rem;
+    margin-top: 1.5rem;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    margin-bottom: 0.75rem;
+    justify-content: space-between; /* 아이콘+텍스트는 왼쪽, %는 오른쪽 */
+    padding: 0.5rem 0;
+    width: 100%;
 }
 
-.legend-label {
+.legend-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 12px; /* 아이콘과 글자 간격 */
 }
 
 .legend-color {
-    width: 0.75rem;
-    height: 0.75rem;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    flex-shrink: 0; /* 아이콘이 찌그러지지 않게 방지 */
 }
-
-.legend-color.blue { background-color: #3b82f6; }
-.legend-color.green { background-color: #22c55e; }
-.legend-color.purple { background-color: #a855f7; }
-.legend-color.gray { background-color: #e5e7eb; }
-.dark .legend-color.gray { background-color: #4b5563; }
 
 .legend-text {
-    font-weight: 500;
-    color: #4b5563;
-}
-
-.dark .legend-text {
+    font-size: 0.9rem;
     color: #d1d5db;
+    white-space: nowrap; /* 글자가 아래로 꺾이는 것 방지 */
 }
 
 .legend-value {
+    font-size: 0.9rem;
     font-weight: bold;
-    color: #111827;
+    color: #ffffff;
 }
 
-.dark .legend-value {
-    color: white;
+/* 차트 위 라벨 위치 세밀 조정 */
+.chart-label {
+    position: absolute;
+    z-index: 20;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(31, 41, 55, 0.8);
+    color: #fff;
+    pointer-events: none;
 }
+
+.label-social { top: 20%; right: -20px; color: #3b82f6; }
+.label-politics { bottom: -10px; left: 50%; transform: translateX(-50%); color: #22c55e; }
+.label-global { top: 50%; left: -25px; transform: translateY(-50%); color: #a855f7; }
+.label-local { top: -10px; left: 50%; transform: translateX(-50%); color: #9ca3af; }
+
+/* 색상 클래스 */
+.blue { background-color: #3b82f6; }
+.green { background-color: #22c55e; }
+.purple { background-color: #a855f7; }
+.gray { background-color: #4b5563; }
+.yellow { background-color: #eab308; }
+.orange { background-color: #f97316; }
 
 .reset-btn {
     width: 100%;
@@ -1824,49 +1760,20 @@ body.dark .user-dropdown {
                     </div>
                         
                         <div class="chart-section">
-                            <div style="position: relative; margin-bottom: 1.5rem;">
+                            <div class="donut-container">
                                 <div class="donut-chart" id="algorithm-chart">
-                                    <span class="donut-percent" id="algorithm-percent">40<span class="unit">%</span></span>
-                                    <span class="chart-label chart-label-1">IT/과학</span>
-                                    <span class="chart-label chart-label-2">경제</span>
-                                    <span class="chart-label chart-label-3">문화</span>
-                                    <span class="chart-label chart-label-4">기타</span>
+                                    <span class="donut-percent" id="algorithm-percent">
+                                        <span class="unit"></span>
+                                    </span>
                                 </div>
                             </div>
                             
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-label">
-                                        <span class="legend-color blue"></span>
-                                        <span class="legend-text">IT/과학</span>
-                                    </div>
-                                    <span class="legend-value">40%</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-label">
-                                        <span class="legend-color green"></span>
-                                        <span class="legend-text">경제</span>
-                                    </div>
-                                    <span class="legend-value">30%</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-label">
-                                        <span class="legend-color purple"></span>
-                                        <span class="legend-text">문화</span>
-                                    </div>
-                                    <span class="legend-value">20%</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-label">
-                                        <span class="legend-color gray"></span>
-                                        <span class="legend-text">기타</span>
-                                    </div>
-                                    <span class="legend-value">10%</span>
-                                </div>
+                            <div class="chart-legend" id="chart-legend-container">
+                                <p style="text-align:center; font-size:0.8rem; color:#6b7280;">데이터를 불러오는 중...</p>
                             </div>
                         </div>
-                        
-                        <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;">
+
+                        <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;" class="dark:border-gray-700">
                             <button class="reset-btn" onclick="resetAlgorithm()">
                                 <span class="material-icons-outlined" style="font-size: 0.875rem;">restart_alt</span>
                                 <span>알고리즘 초기화</span>
@@ -1883,12 +1790,12 @@ body.dark .user-dropdown {
                             <span class="material-icons-outlined">calendar_month</span>
                             <h2>최근 활동 분석</h2>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <!-- <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <div class="legend-item"><span class="dot no"></span><span>활동 없음</span></div>
                             <div class="legend-item"><span class="dot low"></span><span>적음</span></div>
                             <div class="legend-item"><span class="dot medium"></span><span>보통</span></div>
                             <div class="legend-item"><span class="dot high"></span><span>많음</span></div>
-                        </div>
+                        </div> -->
                     </div>
                     
                     <div class="activity-layout">
@@ -2078,11 +1985,13 @@ let currentCalendarDate = new Date();
 $(document).ready(function() {
     initApp();
     setActiveCategoryByURL();
+    loadDonutChart();
 });
 
 function initApp() {
     initDarkMode();
     updateCalendarUI();
+    // updateCategoryChart();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
     renderUserMenu(isLoggedIn, savedName);
@@ -2147,6 +2056,36 @@ function saveUserInfo() {
             location.reload();
         },
         error: (xhr) => alert("수정 실패: " + (xhr.responseJSON?.message || "오류 발생"))
+    });
+}
+
+function updatePassword() {
+    const currentPwd = $('#current-password').val();
+    const newPwd = $('#new-password').val();
+    const confirmPwd = $('#confirm-password').val();
+
+    if (newPwd !== confirmPwd) {
+        alert("새 비밀번호가 일치하지 않습니다.");
+        return;
+    }
+
+    // [중요] 기존 형식을 유지하기 위해 Form 데이터 형식으로 전송
+    $.ajax({
+        url: '/update-password',
+        type: 'POST',
+        // contentType을 지정하지 않아야 브라우저가 자동으로 multipart/form-data 또는 application/x-www-form-urlencoded로 처리합니다.
+        data: {
+            current_pw: currentPwd, // 백엔드 변수명 current_pw와 일치
+            new_pw: newPwd          // 백엔드 변수명 new_pw와 일치
+        },
+        success: function(response) {
+            alert("비밀번호가 변경되었습니다.");
+            location.reload();
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON?.message || "오류가 발생했습니다.";
+            alert("변경 실패: " + msg);
+        }
     });
 }
 
@@ -2367,6 +2306,71 @@ document.addEventListener('click', (e) => {
         dropdown.classList.remove('show');
     }
 });
+
+/* ============================================================
+    4. 도넛 차트 업데이트 (AJAX 연동)
+============================================================ */
+
+function loadDonutChart(userId) {
+    $.ajax({
+        url: `/api/user/category-stats`,
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.stats) {
+                renderChart(response.stats);
+            } else {
+                renderChart([]); // 데이터가 없는 경우 처리
+            }
+        },
+        error: function(xhr) {
+            console.error("차트 데이터 로드 실패:", xhr.status);
+            renderChart([]); // 에러 발생 시 초기 상태
+        }
+    });
+}
+
+function renderChart(stats) {
+    const chart = document.querySelector('.donut-chart');
+    const legend = document.querySelector('.chart-legend');
+    const percentCenter = document.getElementById('algorithm-percent');
+    
+    const colors = {
+        '사회': '#3b82f6', '정치': '#22c55e', '국제': '#a855f7',
+        '지역': '#6b7280', '문화': '#eab308', '스포츠': '#f97316'
+    };
+    if (!stats || stats.length === 0) {
+        if (chart) chart.style.background = '#374151';
+        if (percentCenter) percentCenter.innerHTML = `0<span class="unit">%</span>`;
+        return;
+    }
+    // 1. conic-gradient 문자열 생성
+    let currentPos = 0;
+    const gradientParts = stats.map(s => {
+        if (s.percent === 0) return null;
+        const start = currentPos;
+        currentPos += s.percent;
+        return `${colors[s.category]} ${start}% ${currentPos}%`;
+    }).filter(Boolean);
+
+    // 차트 배경 적용
+    chart.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+    
+    // // 2. 가운데 최대 점유율 표시
+    // const maxStat = [...stats].sort((a, b) => b.percent - a.percent)[0];
+    // percentCenter.innerHTML = `${maxStat.percent}<span class="unit">%</span>`;
+
+    // 3. 범례(Legend) 동적 생성
+    legend.innerHTML = stats.map(s => `
+        <div class="legend-item">
+            <div class="legend-left">
+                <span class="legend-color" style="background-color: ${colors[s.category]}"></span>
+                <span class="legend-text">${s.category}</span>
+            </div>
+            <span class="legend-value">${s.percent}%</span>
+        </div>
+    `).join('');
+}
+
 </script>
 </body>
 </html>

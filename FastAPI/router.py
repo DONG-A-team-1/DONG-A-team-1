@@ -394,3 +394,17 @@ async def get_activity(year: int, month: int, request: Request):
             status_code=500,
             content={"success": False, "activity": {}, "total_views": 0, "error": str(e)}
         )
+
+@app.get("/api/user/category-stats")
+async def get_category_stats(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    try:
+        # member.py의 함수 호출
+        stats = member.get_user_category_stats(user_id)
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.error(f"Category stats error: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})

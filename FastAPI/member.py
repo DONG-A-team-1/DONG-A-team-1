@@ -416,3 +416,59 @@ def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
             total_views = sum(activity_data.values())
 
     return activity_data, total_views
+
+
+def get_user_category_stats(user_id: str):
+    # 1. MySQL에서 사용자가 읽은 모든 article_id 추출
+    with SessionLocal() as db:
+        query = text("SELECT article_id FROM session_data WHERE user_id = :uid")
+        rows = db.execute(query, {"uid": user_id}).fetchall()
+        article_ids = [row[0] for row in rows]
+
+    if not article_ids:
+        return []
+
+    # 2. ES에서 카테고리 집계 (Aggregation)
+    es_query = {
+        "size": 0,
+        "query": {
+            "terms": {"article_id": article_ids}
+        },
+        "aggs": {
+            "category_count": {
+                "terms": {
+                    # 맵핑 구조에 따라 객체 경로를 정확히 지정해야 합니다.
+                    "field": "article_label.category",
+                    "size": 10
+                }
+            }
+        }
+    }
+
+    res = es.search(index="article_data", body=es_query)
+    buckets = res["aggregations"]["category_count"]["buckets"]
+
+    # 3. 데이터 정규화
+    target_categories = ['사회', '정치', '국제', '지역', '문화', '스포츠']
+    category_map = {b['key']: b['doc_count'] for b in buckets}
+
+    total_docs = sum(category_map.values())
+
+    # 검색된 기사가 하나도 없을 경우 빈 리스트 반환 (0 나누기 방지)
+    if total_docs == 0:
+        return []
+
+    stats = []
+    for cat in target_categories:
+        count = category_map.get(cat, 0)
+        # 퍼센트 계산
+        percent = round((count / total_docs * 100))
+        stats.append({
+            "category": cat,
+            "count": count,
+            "percent": percent
+        })
+
+    # 퍼센트 높은 순 정렬
+    stats.sort(key=lambda x: x['percent'], reverse=True)
+    return stats
