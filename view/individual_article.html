@@ -1712,6 +1712,7 @@ function performSearch() {
 
 
 
+
 /*
 @ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
 기사 페이지 1회 체류 = session 1개
@@ -1724,53 +1725,44 @@ ping / 종료 신호를 안정적으로 서버에 전달
 
 
 
-//   0. 서버에서 내려준 값 (임시)
-// 추후 아래 코드 주석처리 필요
-// window.LOGIN_USER_ID = "jimin"; // 테스트용으로 jimin 넣어놨는데 본인 DB에 등록된 회원ID 넣으면 구동 될 거임
-const urlParams = new URLSearchParams(window.location.search);
-const articleId = urlParams.get("article_id");
-const userId = localStorage.getItem('userId')
+/* ===============================
+   ✅ ARTICLE SESSION TRACKING (FINAL)
+   - userId 대기
+   - 세션 중복 생성 방지
+   - ping / end 안정 처리
+================================ */
 
-// 로그인 안 한 유저는 로그 수집X
-if (!userId || !articleId) {
-  console.warn("[SESSION] userId or articleId missing → tracking disabled");
+const params = new URLSearchParams(window.location.search);
+const articleId = params.get("article_id");
+
+function getUserId() {
+  return localStorage.getItem("user_id");
 }
-//  1. 스크롤 깊이 계산 함수
 
-<!--1. 세션 저장 키 sessionStorage → 탭 단위 유지 (새로고침 유지, 탭 닫으면 삭제) -->
+if (!articleId) {
+  console.warn("[SESSION] articleId missing → tracking disabled");
+}
+
+/* === sessionStorage key (탭 단위) === */
 const SESSION_KEY = "article_session_id";
+let sessionId = sessionStorage.getItem(SESSION_KEY);
+let pingTimer = null;
+let ended = false;
 
 
-// <!--2. 스크롤 깊이 계산-->
-/*
-(scrollTop + windowHeight) / documentHeight
-→ 0 ~ 1 사이 값
-*/
-
+/* === scroll depth === */
 function getScrollDepth() {
-  const scrollTop =
-    window.scrollY || document.documentElement.scrollTop;
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
-
-  const depth = (scrollTop + windowHeight) / documentHeight;
-
-  // 0~1 범위 강제 보정
-  return Math.min(1, Math.max(0, depth));
+  return Math.min(1, Math.max(0, (scrollTop + windowHeight) / documentHeight));
 }
 
 
-// <!--   3. 세션 시작 (중복 방지)-->
-/*
-- 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
-- "기사 페이지 진입 1회 = 세션 1개"
-*/
-
-let sessionId = sessionStorage.getItem(SESSION_KEY);
-
+/* === session start (1회만) === */
 async function startSessionOnce() {
-  // 비로그인 or 이미 세션 존재 → 종료
-  if (!userId || sessionId) return;
+  const userId = getUserId();
+  if (!userId || !articleId || sessionId) return;
 
   console.log("[SESSION] start");
 
@@ -1784,27 +1776,16 @@ async function startSessionOnce() {
   });
 
   const data = await res.json();
-
   sessionId = data.session_id;
-
-  // 탭 단위로 세션 고정
   sessionStorage.setItem(SESSION_KEY, sessionId);
+
+  startPing(); // 세션 생성 후에만 ping
 }
 
-// 최초 로드 시 1회만 실행
-startSessionOnce();
-
-// <!-- 4. Ping 전송 (체류 중)-->
-/*
-@ 역할
-- 사용자가 "아직 읽고 있다"는 신호
-- batch가 종료 여부 판단하는 기준 데이터
-@ 주기 10초
-*/
-
-let pingTimer = null;
-
+/* === ping === */
 function startPing() {
+  if (pingTimer) return;
+
   pingTimer = setInterval(() => {
     if (!sessionId) return;
 
@@ -1818,22 +1799,7 @@ function startPing() {
     });
   }, 10_000);
 }
-
-// 세션 생성 후 ping 시작
-setTimeout(startPing, 1000);
-
-/*
-@ 종료 조건
-- 탭 닫기
-- 페이지 이동
-- 백그라운드 전환
-
-- sendBeacon 사용 → 페이지 종료 중에도 안정적으로 전송
-- sessionStorage 정리 → 다음 진입 시 새 세션 생성 가능
-*/
-
-let ended = false;
-
+/* === session end === */
 function endSessionOnce() {
   if (!sessionId || ended) return;
   ended = true;
@@ -1844,22 +1810,26 @@ function endSessionOnce() {
     `/session/end?session_id=${sessionId}`
   );
 
-  // 세션 정리
   sessionStorage.removeItem(SESSION_KEY);
-
   if (pingTimer) clearInterval(pingTimer);
 }
 
-// 탭이 백그라운드로 갈 때
+
+/* === visibility / page exit === */
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     endSessionOnce();
   }
 });
-
-// 페이지 이동 / 닫기
 window.addEventListener("pagehide", endSessionOnce);
 
+/* === userId 생길 때까지 대기 === */
+const waitForUser = setInterval(() => {
+  if (getUserId()) {
+    clearInterval(waitForUser);
+    startSessionOnce();
+  }
+}, 100);
 
 /* ===============================
    🔥 다크모드 (로컬스토리지)
@@ -1933,7 +1903,7 @@ function fetchUserInfo() {
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userId', user.user_id);
-                console.log(userId);
+                console.log(user.user_id);
                 console.log(user);
                 // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
@@ -2078,8 +2048,29 @@ $(function () {
       $(".author-name").text(main_article.reporter || "");
       $(".press").text(main_article.press || "");
       $(".upload_date").text(main_article.upload_date || "");
-      $(".main_img").attr("src", main_article.article_img || "");
-      $(".article_content").html(renderParagraphs(main_article.article_content, 2));
+      /* =========================
+           🔥 메인 이미지 처리
+        ========================= */
+        if (main_article.article_img) {
+            $(".featured-image").show();   // ⭐ 이 줄 추가 (중요)
+            $(".main_img")
+                .attr("src", main_article.article_img)
+                .attr("alt", main_article.article_title || "기사 이미지");
+        } else {
+            $(".featured-image").hide();
+        }
+
+        /* =========================
+           🔥 본문 처리 (본문 내 이미지/캡션 제거)
+        ========================= */
+        const cleanedBody = (main_article.article_content || "")
+            .replace(/<figure[\s\S]*?<\/figure>/gi, "") // figure 통째 제거 (⭐ 핵심)
+            .replace(/<img[^>]*>/gi, "")                 // 남은 img 제거
+            .replace(/South Korean prosecutor.*$/gmi, ""); // 영문 캡션 제거
+
+        $(".article_content").html(
+            renderParagraphs(cleanedBody, 2)
+        );
 
       // --- related 렌더링 (기존 방식 유지) ---
       const related = data.related || [];
@@ -2213,6 +2204,36 @@ function loadPersonalizedArticlesForSidebar() {
 $(document).ready(function () {
     loadPersonalizedArticlesForSidebar();
 });
+
+/* ===============================
+   🔥 링크 클릭 시 세션 종료 보장
+================================ */
+  /* ===============================
+     🔥 링크 이동 시 세션 종료 보장 (최종)
+  ================================ */
+  document.addEventListener("click", (e) => {
+  const a = e.target.closest("a");
+  if (!a) return;
+
+  const href = a.getAttribute("href");
+  const target = a.getAttribute("target");
+
+  if (
+    !href ||
+    href.startsWith("#") ||
+    href.startsWith("javascript") ||
+    target === "_blank"
+  ) return;
+
+  if (typeof endSessionOnce === "function") {
+    e.preventDefault();
+    endSessionOnce();
+    setTimeout(() => {
+      window.location.href = href;
+    }, 120);
+  }
+});
+
 </script>
 
 </body>
