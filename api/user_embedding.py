@@ -439,7 +439,7 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
     if not random:
         return ranked[:limit]
     else:
-        return _soft_shuffle_topk(ranked, top_k=12, strength=1.2)[:limit]
+        return _soft_shuffle_topk(ranked, top_k=12, strength=1.2)[:limi
 
 
 if __name__ == "__main__":
