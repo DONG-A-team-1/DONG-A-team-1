@@ -620,8 +620,8 @@ main {
 }
 
 .calendar-day.selected {
-    background-color: #3b82f6;
-    color: white;
+    /* background-color: #3b82f6; */
+    /* color: white; */
     font-weight: 900;
     box-shadow: 0 10px 15px rgba(59, 130, 246, 0.3);
     z-index: 20;
@@ -1693,6 +1693,97 @@ body.dark .user-dropdown {
     display: block;
 }
 
+/* 기본 상태 (라이트모드) */
+.legend-text {
+    color: var(--gray-700); /* 진한 회색 (검정에 가까움) */
+    font-weight: 500;
+}
+
+.legend-value {
+    color: var(--gray-900); /* 거의 검정 */
+    font-weight: 700;
+}
+
+/* 다크모드 상태 */
+body.dark .legend-text {
+    color: var(--gray-400); /* 연한 회색 */
+}
+
+body.dark .legend-value {
+    color: #FFFFFF; /* 흰색 */
+}
+
+/* 추가: 범례 아이템 간격 및 정렬 (필요시) */
+.legend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.activity-category.high{
+    color: #3B82F6;
+}
+
+/* --- 기본 상태 (라이트모드) --- */
+#list-count {
+    color: var(--gray-900); /* 진한 검정색 */
+    font-weight: 700;
+}
+
+/* 활동 내역 리스트 내부의 제목들 */
+.activity-title {
+    color: var(--gray-800);
+    transition: color 0.3s;
+}
+
+/* 데이터가 없을 때 표시되는 문구 */
+.activity-empty {
+    color: var(--gray-500);
+}
+
+/* --- 다크모드 상태 --- */
+body.dark #list-count {
+    color: #FFFFFF; /* 흰색 */
+}
+
+body.dark .activity-title {
+    color: var(--gray-100); /* 아주 밝은 회색 */
+}
+
+body.dark .activity-empty {
+    color: var(--gray-400);
+}
+
+/* 활동 내역 아이템(a 태그) 전체의 텍스트 색상 전이 */
+body.dark .activity-item {
+    color: var(--gray-300);
+}
+
+body.dark .activity-category.high{
+    color: skyblue;
+}
+
+body.dark .material-symbols-outlined.user-menu-icon{
+    color: #9CA3AF;
+}
+
+.material-symbols-outlined.user-menu-icon{
+    color: #6B7280;
+}
+
+/* 기본 상태 (라이트모드): 아이콘을 조금 더 진하게 하거나 특정 색상 필터 적용 */
+.form-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    /* 초록색 계열(--primary)로 바꾸고 싶을 때 유사한 필터 값 */
+    filter: invert(48%) sepia(13%) saturate(543%) hue-rotate(182deg) brightness(92%) contrast(87%);
+}
+
+/* 다크모드일 때 아이콘을 흰색으로 변경 */
+body.dark .form-input::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* 색상을 완전히 반전시켜 흰색으로 만듦 */
+}
+
 </style>
 </head>
 <body>
@@ -1776,7 +1867,7 @@ body.dark .user-dropdown {
                         <div style="padding-top: 0.5rem; border-top: 1px solid #f3f4f6;" class="dark:border-gray-700">
                             <button class="reset-btn" onclick="resetAlgorithm()">
                                 <span class="material-icons-outlined" style="font-size: 0.875rem;">restart_alt</span>
-                                <span>조회기록 초기화</span>
+                                <span>조회기록   초기화</span>
                             </button>
                         </div>
                     </div>
@@ -2098,14 +2189,31 @@ function logout() {
     }).fail(() => { localStorage.clear(); location.reload(); });
 }
 
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (!dropdown) return;
+
+    // 현재 로그인 상태와 이름을 로컬스토리지에서 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const savedName = localStorage.getItem('userName') || "회원";
+
+    // 메뉴를 다시 그려줌 (상태 최신화)
+    renderUserMenu(isLoggedIn, savedName);
+
+    // 보이기/숨기기 토글
+    dropdown.classList.toggle('show');
+}
+
+// [보완] 기존 renderUserMenu에 마이페이지 링크 추가
 function renderUserMenu(isLoggedIn, userName = "회원") {
     const content = document.getElementById('dropdownContent');
     if (!content) return;
+    
     if (isLoggedIn) {
         content.innerHTML = `
             <div class="dropdown-header">
                 <p class="dropdown-subtitle">환영합니다!</p>
-                <p class="dropdown-title" style="font-weight:bold; color:var(--text-main); margin-top:4px;">${userName}님</p>
+                <p class="dropdown-title" style="font-weight:bold; color:var(--gray-900); margin-top:4px;">${userName}님</p>
             </div>
             <button onclick="logout()" class="dropdown-item logout" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; padding: 12px 16px; color: #ef4444;">
                 <span class="material-symbols-outlined">logout</span>
@@ -2118,6 +2226,17 @@ function renderUserMenu(isLoggedIn, userName = "회원") {
             <a href="logregist.html" class="dropdown-item"><span class="material-symbols-outlined">person_add</span>회원가입</a>`;
     }
 }
+
+// [수정] 외부 클릭 시 닫기 로직 (기존 document listener를 클래스명에 맞춰 수정)
+document.addEventListener('click', (e) => {
+    const menuContainer = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    
+    // 클릭된 곳이 .user-menu 내부가 아니라면 닫기
+    if (dropdown && menuContainer && !menuContainer.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
 
 function setActiveCategoryByURL() {
     const navItems = document.querySelectorAll('.nav-splash-item');
