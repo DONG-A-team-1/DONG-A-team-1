@@ -102,6 +102,21 @@ body.dark .logo-circle {
     font-size: 1.875rem;
 }
 
+.logo-circle a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit;        /* 부모인 .logo-circle의 color(--primary)를 그대로 사용 */
+    display: flex;         /* 중앙 정렬 유지 */
+    align-items: center;
+    justify-content: center;
+    width: 100%;           /* 원 전체를 클릭 가능하게 만듦 */
+    height: 100%;
+}
+
+/* 방문 후에도 색이 변하지 않도록 고정 */
+.logo-circle a:visited {
+    color: inherit;
+}
+
 .brand-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -546,7 +561,7 @@ body.dark .modal-description {
 <body>
 <div class="signup-container">
     <div class="header">
-        <div class="logo-circle"><span class="material-icons"><a href="home.html" class="no-underline">palette</a></span></div>
+        <div class="logo-circle"><a href="home.html" class="no-underline"><span class="material-icons">palette</span></a></div>
         <h1 class="brand-title">NewsPalette</h1>
         <h2 class="page-title">회원가입</h2>
         <p class="page-description">뉴스 팔레트를 이용하시려면 계정을 생성해주세요</p>

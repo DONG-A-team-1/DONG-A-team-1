@@ -123,6 +123,21 @@ body.dark .logo-circle {
     font-size: 1.875rem;
 }
 
+.logo-circle a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit;        /* 부모인 .logo-circle의 color(--primary)를 그대로 사용 */
+    display: flex;         /* 중앙 정렬 유지 */
+    align-items: center;
+    justify-content: center;
+    width: 100%;           /* 원 전체를 클릭 가능하게 만듦 */
+    height: 100%;
+}
+
+/* 방문 후에도 색이 변하지 않도록 고정 */
+.logo-circle a:visited {
+    color: inherit;
+}
+
 .header-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -382,7 +397,7 @@ body.dark .footer-text {
 <main class="main-container">
 <div class="header">
 <div class="logo-circle">
-<span class="material-icons-round">palette</span>
+    <a href="home.html"><span class="material-icons-round">palette</span></a>
 </div>
 <h1 class="header-title">NewsPalette</h1>
 <p class="header-subtitle">아이디 찾기</p>

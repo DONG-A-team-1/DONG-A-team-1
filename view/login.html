@@ -297,6 +297,23 @@ body.dark-mode .login-card {
     font-size: 2.5rem;
 }
 
+/* 링크 스타일 초기화 및 영역 확장 */
+.logo-link {
+    text-decoration: none; /* 밑줄 제거 */
+    color: white;          /* 아이콘 색상을 흰색으로 고정 */
+    display: flex;         /* 중앙 정렬 유지 */
+    align-items: center;
+    justify-content: center;
+    width: 100%;           /* 4rem 전체 너비 사용 */
+    height: 100%;          /* 4rem 전체 높이 사용 */
+    border-radius: 50%;    /* 클릭 피드백(포커스) 발생 시 원형 유지 */
+}
+
+/* 방문 후나 클릭 시에도 색상 변화 방지 */
+.logo-link:visited, .logo-link:hover, .logo-link:active {
+    color: white;
+}
+
 .brand-name {
     font-size: 1.25rem;
     font-weight: 700;
@@ -546,7 +563,9 @@ body.dark-mode .footer-divider {
 <div class="login-card">
 <div class="header-section">
 <div class="logo-icon">
-<span class="material-icons-round">palette</span>
+    <a href="home.html" class="logo-link">
+        <span class="material-icons-round">palette</span>
+    </a>
 </div>
 <h1 class="brand-name">NewsPalette</h1>
 <h2 class="welcome-title">환영합니다</h2>
