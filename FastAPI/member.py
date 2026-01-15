@@ -213,30 +213,14 @@ def search_articles(search_type: str, query: str, size: int = 20):
     elif search_type == "content" or search_type == "body":
         es_query = {"match": {"article_content": query}}
     elif search_type == "keywords" or search_type == "keyword":
-        es_query = {
-            "match_phrase": {  # 완전한 구문 매칭
-                "keywords": query
-            }
-        }
-    #     키워드 매칭 확인해주세요 제대로 되는지
-    else: 
+        es_query = {"match_phrase": {"keywords": query}}
+    else:
         es_query = {
             "bool": {
                 "should": [
-                    {"match": {
-                        "article_title": {
-                            "query": query,
-                            "operator": "and"
-                        }
-                    }},
-                    {"match": {
-                        "article_content": {
-                            "query": query,
-                            "operator": "and"
-                        }
-                    }}
+                    {"match": {"article_title": {"query": query, "operator": "and"}}},
+                    {"match": {"article_content": {"query": query, "operator": "and"}}}
                 ],
-                # 키워드 정확하게 매칭하기 위해서
                 "minimum_should_match": 1
             }
         }
@@ -253,40 +237,33 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "article_img",
             "url",
             "article_label",
-            "trend_score",
             "keywords"
         ],
         "size": size,
         "query": es_query,
-        "sort": [
-            {"upload_date": {"order": "desc"}}
-        ]
+        "sort": [{"upload_date": {"order": "desc"}}]
     }
 
     resp = es.search(index="article_data", body=body)
     hits = resp.get("hits", {}).get("hits", [])
 
-    # 결과 포맷팅
     no_img = "/static/newspalette.png"
     articles = []
+
     for hit in hits:
         src = hit.get("_source", {})
         label = src.get("article_label") or {}
 
-        # trustScore 처리
-        raw_score = label.get("article_trust_score")
-        if raw_score is None:
-            trust_score = 0
-        else:
-            # 이미 1~100 범위이므로 소수점만 반올림
-            trust_score = round(float(raw_score))
+        # trustScore - article_label 안에 있음
+        raw_trust = label.get("article_trust_score")
+        trust_score = round(float(raw_trust)) if raw_trust is not None else 0
 
-        # trendScore 처리 (동일)
+        # trendScore - article_label 안에 있음 (0.74 → 74점으로 변환)
         raw_trend = label.get("trend_score")
-        if raw_trend is None:
-            trend_score = 0
+        if raw_trend is not None:
+            trend_score = round(float(raw_trend) * 100)  # 0.74 → 74
         else:
-            trend_score = round(float(raw_trend))
+            trend_score = 0
 
         articles.append({
             "article_id": src.get("article_id"),
