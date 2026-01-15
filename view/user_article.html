@@ -1315,10 +1315,6 @@ body.dark .footer-info {
                                 <span class="card-date"></span>
                             </div>
                             <div class="score-container">
-                                <div class="trend-score">
-                                    <span class="trend-label">트렌드</span>
-                                    <span class="trend-value"></span>
-                                </div>
                                 <div class="trust-score">
                                     <span class="trust-label">팔레트 점수</span>
                                     <span class="trust-value"></span>
@@ -1446,157 +1442,6 @@ function initApp() {
         loadPersonalizedArticlesuser();
     }
 }
-
-
-
-        /*
-@ 유저 행동 로그 – 기사 상세 페이지 세션 관리]
-기사 페이지 1회 체류 = session 1개
-새로고침 / BFCache / JS 재실행해도 session 중복 생성 방지
-ping / 종료 신호를 안정적으로 서버에 전달
-
-@ 핵심
-- sessionStorage를 이용해 "현재 탭의 세션"을 단 하나만 유지 / ES에는 실시간 기록 / RDB 저장은 batch에서 단 1회만
-*/
-
-
-
-//   0. 서버에서 내려준 값 (임시)
-// 추후 아래 코드 주석처리 필요
-// window.LOGIN_USER_ID = "jimin"; // 테스트용으로 jimin 넣어놨는데 본인 DB에 등록된 회원ID 넣으면 구동 될 거임
-const urlParams = new URLSearchParams(window.location.search);
-const articleId = urlParams.get("article_id");
-const userId = localStorage.getItem('user_id')
-
-// 로그인 안 한 유저는 로그 수집X
-if (!userId || !articleId) {
-  console.warn("[SESSION] userId or articleId missing → tracking disabled");
-}
-//  1. 스크롤 깊이 계산 함수
-
-<!--1. 세션 저장 키 sessionStorage → 탭 단위 유지 (새로고침 유지, 탭 닫으면 삭제) -->
-const SESSION_KEY = "article_session_id";
-
-
-// <!--2. 스크롤 깊이 계산-->
-/*
-(scrollTop + windowHeight) / documentHeight
-→ 0 ~ 1 사이 값
-*/
-
-function getScrollDepth() {
-  const scrollTop =
-    window.scrollY || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
-
-  const depth = (scrollTop + windowHeight) / documentHeight;
-
-  // 0~1 범위 강제 보정
-  return Math.min(1, Math.max(0, depth));
-}
-
-
-// <!--   3. 세션 시작 (중복 방지)-->
-/*
-- 이미 sessionStorage에 session_id가 있으면 절대 새로 만들지 않는다
-- "기사 페이지 진입 1회 = 세션 1개"
-*/
-
-let sessionId = sessionStorage.getItem(SESSION_KEY);
-
-async function startSessionOnce() {
-  // 비로그인 or 이미 세션 존재 → 종료
-  if (!userId || sessionId) return;
-
-  console.log("[SESSION] start");
-
-  const res = await fetch("/session/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user_id: userId,
-      article_id: articleId
-    })
-  });
-
-  const data = await res.json();
-
-  sessionId = data.session_id;
-
-  // 탭 단위로 세션 고정
-  sessionStorage.setItem(SESSION_KEY, sessionId);
-}
-
-// 최초 로드 시 1회만 실행
-startSessionOnce();
-
-// <!-- 4. Ping 전송 (체류 중)-->
-/*
-@ 역할
-- 사용자가 "아직 읽고 있다"는 신호
-- batch가 종료 여부 판단하는 기준 데이터
-@ 주기 10초
-*/
-
-let pingTimer = null;
-
-function startPing() {
-  pingTimer = setInterval(() => {
-    if (!sessionId) return;
-
-    fetch("/session/ping", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId,
-        scroll_depth: getScrollDepth()
-      })
-    });
-  }, 10_000);
-}
-
-// 세션 생성 후 ping 시작
-setTimeout(startPing, 1000);
-
-/*
-@ 종료 조건
-- 탭 닫기
-- 페이지 이동
-- 백그라운드 전환
-
-- sendBeacon 사용 → 페이지 종료 중에도 안정적으로 전송
-- sessionStorage 정리 → 다음 진입 시 새 세션 생성 가능
-*/
-
-let ended = false;
-
-function endSessionOnce() {
-  if (!sessionId || ended) return;
-  ended = true;
-
-  console.log("[SESSION] end");
-
-  navigator.sendBeacon(
-    `/session/end?session_id=${sessionId}`
-  );
-
-  // 세션 정리
-  sessionStorage.removeItem(SESSION_KEY);
-
-  if (pingTimer) clearInterval(pingTimer);
-}
-
-// 탭이 백그라운드로 갈 때
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    endSessionOnce();
-  }
-});
-
-// 페이지 이동 / 닫기
-window.addEventListener("pagehide", endSessionOnce);
-
         // 검색어바----------------------------------
     function performSearch() {
         // 검색어 입력창에서 값 가져와서 앞뒤 공백 제거
@@ -1956,9 +1801,7 @@ function displayCardArticles(articles) {
 
         // 🔥 점수
         card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
-        card.find('.trend-value').text(
-            article.trendScore ? `${Math.round(article.trendScore)}점` : '–'
-        );
+
 
         container.append(card);
     });
