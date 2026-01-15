@@ -449,7 +449,7 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
 
         if has_user_embedding:
             emb = normalize(h["_score"], emb_min, emb_max)
-            final_raw = 0.4 * emb + 0.4 * trend + 0.2 * trust
+            final_raw = 0.6 * emb + 0.2 * trend + 0.2 * trust
         else:
             final_raw = 0.7 * trend + 0.3 * trust
 
@@ -465,9 +465,9 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
             "press": src.get("press", ""),
             "category": label.get("category", "기타"),
             "upload_date": src.get("upload_date"),
-            # 점수----------
-            "trust_score": trust_score,
-            "trend_score": trend_score
+            # ✅ 점수 추가
+            "trend_score": label.get("trend_score", 0.0),
+            "trust_score": label.get("article_trust_score", 0.0),
         })
 
     ranked.sort(key=lambda x: x["final_score"], reverse=True)

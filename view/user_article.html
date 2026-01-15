@@ -83,9 +83,9 @@ body.dark nav {
 .nav-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* 양쪽 끝으로 배치 */
     height: 64px;
-    position: relative;
+    position: relative; /* 중앙 정렬을 위해 필요 */
 }
 
 .nav-left {
@@ -1280,8 +1280,8 @@ body.dark .footer-info {
                 </div>
 
                 <div class="search-input-wrap">
-                    <input id="searchInput" class="search-input" spellcheck="false" placeholder="관심있는 뉴스 기사를 검색해보세요" type="text" onkeypress="if(event.key === 'Enter') performSearch()" />
-                    <button id="searchBtn" class="search-btn" aria-label="검색" onclick="performSearch()">
+                    <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
+                    <button id="searchBtn" class="search-btn" aria-label="검색">
                         <span class="material-symbols-outlined">search</span>
                     </button>
                 </div>
@@ -1431,12 +1431,15 @@ $(document).ready(function() {
 });
 
 function initApp() {
+    // 로그인 여부 확인
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const savedName = localStorage.getItem('userName') || "회원";
 
+    // 2. 서버 응답 전이라도 로컬 데이터를 이용해 UI 먼저 렌더링
     renderUserMenu(isLoggedIn, savedName);
 
     if (isLoggedIn) {
+        // 3. 서버에서 최신 정보 가져와 동기화
         fetchUserInfo();
     } else {
         loadPersonalizedArticlesuser();
@@ -1531,6 +1534,7 @@ function fetchUserInfo() {
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
 
+                // UI 업데이트 (드롭다운 & 사이드바)
                 renderUserMenu(true, user.name);
 
                 // ✅ 반드시 여기서 추천 호출
@@ -1906,7 +1910,6 @@ function displayCardArticles(articles) {
 
         //                 // 검색 결과로 카드 업데이트
         //                 updateSearchResults(results);
-
         //                 searchSection.style.display = "block";
         //                 articleSection.style.display = "none";
         //             }

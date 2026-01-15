@@ -211,8 +211,8 @@ async def find_user_pw(
 #     user_id: str = Form(...),
 # ):
 #     pass
-  
- 
+
+
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 async def article_page(request: Request, article_id: str):
     return RedirectResponse(
@@ -504,6 +504,18 @@ def get_topic_opinion():
             "negative_articles": []
         }
 
+@app.post("/api/user/reset-algorithm")
+async def reset_algorithm_api(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    success = member.reset_user_algorithm(user_id)
+    if success:
+        return {"success": True, "message": "알고리즘 및 히스토리가 초기화되었습니다."}
+    else:
+        return JSONResponse(status_code=500, content={"success": False, "message": "초기화 중 오류가 발생했습니다."})
+
 @app.get("/api/admin/admin_logs")
 def get_admin_logs_initial():
     logs, logs_cursor, logs_more = admin.get_admin_logs_page(size=200, cursor=None)
@@ -552,3 +564,17 @@ def article_detail(article_id: str, body: ArticleEditReq):
 @app.patch("/api/admin/edit_topics/{topic_id}")
 def edit_topics(topic_id: str, body: TopicEditBody):
     return admin.edit_topics(topic_id, body)
+
+@app.get("/api/user/category-stats")
+async def get_category_stats(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    try:
+        # member.py의 함수 호출
+        stats = member.get_user_category_stats(user_id)
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.error(f"Category stats error: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
