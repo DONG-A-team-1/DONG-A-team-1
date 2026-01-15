@@ -563,3 +563,17 @@ def article_detail(article_id: str, body: ArticleEditReq):
 @app.patch("/api/admin/edit_topics/{topic_id}")
 def edit_topics(topic_id: str, body: TopicEditBody):
     return admin.edit_topics(topic_id, body)
+
+@app.get("/api/user/category-stats")
+async def get_category_stats(request: Request):
+    user_id = request.session.get("loginId")
+    if not user_id:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인 필요"})
+
+    try:
+        # member.py의 함수 호출
+        stats = member.get_user_category_stats(user_id)
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        logger.error(f"Category stats error: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
