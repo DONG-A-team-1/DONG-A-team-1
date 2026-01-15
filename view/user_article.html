@@ -545,6 +545,10 @@ body.dark .search-input:-webkit-autofill:focus {
     min-height: unset;
 }
 
+.result-count{
+    margin:10px;
+}
+
 /* ========== 카드형 렌더링 CSS ========== */
 .card-grid {
     display: grid;
@@ -583,14 +587,18 @@ body.dark .search-input:-webkit-autofill:focus {
     transform: translateY(-2px);
 }
 
+/* 🔥 카드 이미지 컨테이너도 수정 */
 .card-image-container {
-    height: 160px;
+    width: 100%;
+    height: 12rem;  /* 192px 고정 */
     background: #e5e7eb;
     position: relative;
-    overflow: hidden;
+    overflow: hidden;  /* ✅ hidden 추가 */
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;  /* ✅ 추가 */
+    padding: 0;  /* ✅ 추가 */
 }
 
 body.dark .card-image-container {
@@ -600,7 +608,7 @@ body.dark .card-image-container {
 .card-img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     transition: transform .3s;
 }
@@ -845,7 +853,7 @@ body.dark .filter-button:not(.active):hover {
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid #e5e7eb;
-    overflow: visible;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     transition: all 0.2s;
@@ -869,18 +877,18 @@ body.dark .article-item {
 }
 
 .article-image-container {
-    margin-left: 16px;
-    margin-top: 16px;
+    border-radius: 1rem;
     width: 100%;
-    height: 12rem;
+    height: 10rem;  /* 160px */
     flex-shrink: 0;
-    background: transparent;
+    background: #f3f4f6;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: -0.25rem;
+    margin: 12px;
+    padding: 0;
 }
 
 @media (min-width: 768px) {
@@ -894,17 +902,15 @@ body.dark .article-image-container {
     background-color: #374151;
 }
 
+/* 🔥 이미지 스타일 - 카테고리 페이지와 동일 */
 .article-img {
-    width: auto !important;
+    width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
+    object-fit: cover !important;  /* 🔥 cover */
     object-position: center !important;
     display: block !important;
-    transition: transform 0.5s;
+    transition: transform 0.3s;  /* 0.5s → 0.3s */
 }
-
 .article-item:hover .article-img {
     transform: scale(1.05);
 }
@@ -1274,7 +1280,7 @@ body.dark .footer-info {
                 </div>
 
                 <div class="search-input-wrap">
-                    <input id="searchInput" class="search-input" spellcheck="false" placeholder="관심있는 뉴스를 검색해보세요" type="text" onkeypress="if(event.key === 'Enter') performSearch()" />
+                    <input id="searchInput" class="search-input" spellcheck="false" placeholder="관심있는 뉴스 기사를 검색해보세요" type="text" onkeypress="if(event.key === 'Enter') performSearch()" />
                     <button id="searchBtn" class="search-btn" aria-label="검색" onclick="performSearch()">
                         <span class="material-symbols-outlined">search</span>
                     </button>
@@ -1285,7 +1291,7 @@ body.dark .footer-info {
        <!-- Search Result Header -->
         <section class="result-header">
             <h1 class="result-title">
-                <span class="search-term"></span> 개인화 맞춤 추천 기사 입니다.
+                <!-- JavaScript로 동적 생성 -->
             </h1>
             <p class="result-count"><span class="count-number"></span></p>
 
@@ -1300,15 +1306,21 @@ body.dark .footer-info {
                         </div>
                         <div class="card-body">
                             <h3 class="card-title"></h3>
-                            <!-- 🔥 card-description 제거 -->
-                            <!-- 🔥 card-meta 제거 -->
+                            <!-- 🔥 메타 정보 (기자, 언론사, 날짜) -->
+                            <div class="card-meta">
+                                <span class="card-reporter"></span>
+                                <span>•</span>
+                                <span class="card-source"></span>
+                                <span>•</span>
+                                <span class="card-date"></span>
+                            </div>
                             <div class="score-container">
                                 <div class="trend-score">
                                     <span class="trend-label">트렌드</span>
                                     <span class="trend-value"></span>
                                 </div>
                                 <div class="trust-score">
-                                    <span class="trust-label">신뢰도</span>
+                                    <span class="trust-label">팔레트 점수</span>
                                     <span class="trust-value"></span>
                                 </div>
                             </div>
@@ -1331,7 +1343,7 @@ body.dark .footer-info {
             <div class="filter-buttons">
                 <button class="filter-button active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
                 <button class="filter-button" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
-                <button class="filter-button" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+                <button class="filter-button" id="btnReliability" onclick="sortArticles('reliability')">추천순</button>
             </div>
         </div>
 
@@ -1359,7 +1371,7 @@ body.dark .footer-info {
                     </div>
                 </div>
                 <div class="trust-score">
-                    <span class="trust-label">신뢰도</span>
+                    <span class="trust-label">팔레트 점수</span>
                     <span class="trust-value"></span>
                 </div>
             </a>
@@ -1396,29 +1408,24 @@ let allArticles = [];
 let trendingArticles = [];
 
 // ========== 날짜 포맷팅 함수 ==========
-function formatDate(isoString) {
+function formatDateForList(isoString) {
     if (!isoString) return '';
-    const date = new Date(isoString);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}.${day}`;
-}
 
-function formatDateFull(isoString) {
-    if (!isoString) return '';
     const date = new Date(isoString);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
+
     return `${year}-${month}-${day}`;
 }
+function formatDate(isoString) {
+    if (!isoString) return '';
 
-function formatTime(iso) {
-    if (!iso) return "";
-    const diff = (Date.now() - new Date(iso)) / 1000;
-    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
-    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
-    return `${Math.floor(diff/86400)}일 전`;
+    const date = new Date(isoString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${month}.${day}`;
 }
 
 
@@ -1659,14 +1666,6 @@ let globalArticles = [];
 // });
 
 
-function formatTime(iso) {
-    if (!iso) return "";
-    const diff = (Date.now() - new Date(iso)) / 1000;
-    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
-    if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
-    return `${Math.floor(diff/86400)}일 전`;
-}
-
 function fetchUserInfo() {
     $.ajax({
         url: '/get-my-info',
@@ -1785,11 +1784,15 @@ window.onclick = function(event) {
 
 function loadPersonalizedArticlesuser() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userName = localStorage.getItem('userName') || '회원';  // 🔥 추가
 
     // 백엔드가 user_id 필수
     const userId = isLoggedIn
         ? localStorage.getItem('user_id')
         : "guest";
+
+    // 🔥 타이틀 설정
+    updateResultTitle(isLoggedIn, userName);
 
     if (!userId) {
         console.warn("userId 없음 → 추천 중단");
@@ -1826,8 +1829,19 @@ function loadPersonalizedArticlesuser() {
             content: item.content || ''
         }));
 
-        // 카드 영역용 (상위 4개)
-        trendingArticles = allArticles.slice(0, 4);
+        // 🔥 카드용: 트렌드 점수 상위 4개
+        trendingArticles = allArticles
+            .sort((a, b) => b.trendScore - a.trendScore)
+            .slice(0, 4);
+
+        // 🔥 리스트용: 트렌드 상위 4개를 제외한 나머지
+        const trendingIds = new Set(trendingArticles.map(a => a.article_id));
+        const listArticles = allArticles.filter(a => !trendingIds.has(a.article_id));
+
+        // 렌더링
+        displayCardArticles(trendingArticles);  // 🔥 상위 4개만
+        displayListArticles(listArticles);       // 🔥 나머지만
+
 
         /* ===============================
            2️⃣ 렌더링은 기존 함수에 맡긴다
@@ -1839,6 +1853,21 @@ function loadPersonalizedArticlesuser() {
         console.log("✅ 개인화 추천 로드 완료:", allArticles.length);
     });
 }
+
+// 🔥 타이틀 업데이트 함수 (새로 추가)
+function updateResultTitle(isLoggedIn, userName) {
+    const titleElement = $('.result-title');
+
+    if (isLoggedIn) {
+        titleElement.html(`<strong>${userName}</strong>님의 개인화 맞춤 추천 기사입니다.`);
+    } else {
+        titleElement.html(`
+            회원가입을 하시면 개인화 맞춤 기사를 볼 수 있습니다.<br>
+
+        `);
+    }
+}
+
 // ========== 리스트형 렌더링 (개인화 전용) ==========
 function displayListArticles(articles) {
     const container = $('#articleList');
@@ -1869,8 +1898,8 @@ function displayListArticles(articles) {
         const categoryClass = getCategoryClass(article.category);
         item.find('.article-category').addClass(categoryClass);
 
-        // 🔥 날짜 포맷 (home.html처럼 "N분 전" 형식)
-        item.find('.article-date').text(formatTime(article.upload_date));
+        // 🔥 yyyy-mm-dd 형식
+        item.find('.article-date').text(formatDateForList(article.upload_date));
 
         // 🔥 제목/내용
         item.find('.article-title').text(article.title);
@@ -1880,8 +1909,9 @@ function displayListArticles(articles) {
         item.find('.author-source').text(article.source || '');
         item.find('.author-name').text(article.reporter || '미상');
 
-        // 🔥 신뢰도 점수
-        item.find('.trust-value').text(`${article.trustScore}점`);
+        // 🔥 신뢰도 점수 - 정수로
+        item.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+
 
         container.append(item);
     });
@@ -1915,25 +1945,20 @@ function displayCardArticles(articles) {
         // 🔥 제목
         card.find('.card-title').text(article.title);
 
-        // 🔥 내용 (있을 경우에만)
-        if (card.find('.card-description').length) {
-            card.find('.card-description').text((article.content || '').substring(0, 100) + '...');
-        }
+        // 🔥 기자명
+        card.find('.card-reporter').text(article.reporter || '미상');
 
-        // 🔥 메타 정보 (있을 경우에만)
-        if (card.find('.card-reporter').length) {
-            card.find('.card-reporter').text(article.reporter || '');
-        }
-        if (card.find('.card-source').length) {
-            card.find('.card-source').text(article.source || '');
-        }
-        if (card.find('.card-date').length) {
-            card.find('.card-date').text(formatDate(article.upload_date));
-        }
+        // 🔥 언론사명
+        card.find('.card-source').text(article.source || '');
+
+        // 🔥 날짜 (yyyy-mm-dd 형식) - 한 번만 설정!
+        card.find('.card-date').text(formatDateForList(article.upload_date));
 
         // 🔥 점수
         card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
-        card.find('.trend-value').text(article.trendScore ? `${Math.round(article.trendScore)}점` : '–');
+        card.find('.trend-value').text(
+            article.trendScore ? `${Math.round(article.trendScore)}점` : '–'
+        );
 
         container.append(card);
     });
@@ -2091,26 +2116,57 @@ function displayCardArticles(articles) {
         //         button.classList.add('active');
         //     });
         // });
-        // ========== 페이지 표시 ==========
+       // ========== 페이지 표시 ==========
 function displayPage(page) {
     const itemsPerPage = 5;
     const startIdx = (page - 1) * itemsPerPage;
     const endIdx = startIdx + itemsPerPage;
-    const pageArticles = allArticles.slice(startIdx, endIdx);
 
-    // 카드는 항상 트렌드 top4 고정
-    displayCardArticles(trendingArticles);
+    // 🔥 트렌드 상위 4개 제외한 나머지
+    const trendingIds = new Set(trendingArticles.map(a => a.article_id));
+    const listArticles = allArticles.filter(a => !trendingIds.has(a.article_id));
 
-    // 리스트는 페이지별로 5개씩
-    displayListArticles(pageArticles);
+    // 🔥 페이지별로 5개씩
+    const pageArticles = listArticles.slice(startIdx, endIdx);
+
+    // 리스트 렌더링
+    if (pageArticles.length === 0) {
+        displayEmptyMessage();
+    } else {
+        displayListArticles(pageArticles);
+    }
 
     updatePaginationUI(page);
     currentPage = page;
+}
 
-    if (pageArticles.length === 0){
-        displayEmptyMessage(); // 기사 없을 때,
-    } else {
-        displayListArticles(pageArticles); // 기사 있을 때
+// ========== 페이지네이션 UI 업데이트 ==========
+function updatePaginationUI(activePage = currentPage) {
+    // 🔥 트렌드 4개 제외한 나머지 기사 수
+    const trendingIds = new Set(trendingArticles.map(a => a.article_id));
+    const listArticles = allArticles.filter(a => !trendingIds.has(a.article_id));
+
+    const maxPage = Math.ceil(listArticles.length / 5);
+    const maxVisible = 5;
+    const currentBlock = Math.floor((activePage - 1) / maxVisible);
+    const startPage = currentBlock * maxVisible + 1;
+    const endPage = Math.min(startPage + maxVisible - 1, maxPage);
+
+    const pagination = document.querySelector('.pagination');
+    const oldButtons = pagination.querySelectorAll('.page-number');
+    oldButtons.forEach(btn => btn.remove());
+
+    const nextButton = pagination.querySelector('button:last-child');
+
+    for (let i = startPage; i <= endPage; i++) {
+        const button = document.createElement('button');
+        button.className = 'page-number';
+        if (i === activePage) {
+            button.classList.add('active');
+        }
+        button.innerText = i;
+        button.onclick = () => goToPage(i);
+        pagination.insertBefore(button, nextButton);
     }
 }
 
@@ -2143,52 +2199,6 @@ function showResultCount(total) {
     $('.result-count').html(
         `<span class="count-number" id="countNumber">${total}</span>개의 검색 결과`
     );
-}
-// ========== 카드형 렌더링 ==========
-function displayCardArticles(articles) {
-    const container = $('#cardGrid');
-    const template = $('.news-card-template');
-
-    if (template.length === 0) {
-        return;
-    }
-
-    container.find('.news-card:not(.news-card-template)').remove();
-
-    articles.forEach(function(article) {
-        const card = template.clone();
-        card.removeClass('news-card-template');
-        card.css('display', '');
-        card.attr('href', `/article/${article.article_id}`);
-
-        // 🔥 이미지
-        const imageUrl = article.image || '/static/newspalette.png';
-        card.find('.card-img').attr('src', imageUrl).attr('alt', article.title);
-
-        // 🔥 카테고리
-        card.find('.card-category').text(article.category || '기타');
-
-        // 🔥 제목
-        card.find('.card-title').text(article.title);
-
-        // 🔥 내용 (content 필드 사용)
-        card.find('.card-description').text((article.content || '').substring(0, 100) + '...');
-
-        // 🔥 기자명
-        card.find('.card-reporter').text(article.reporter || '');
-
-        // 🔥 언론사명
-        card.find('.card-source').text(article.source || '');
-
-        // 🔥 날짜 (월.일 형식)
-        card.find('.card-date').text(formatDate(article.upload_date));
-
-        // 🔥 점수
-        card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
-        card.find('.trend-value').text(article.trendScore ? `${Math.round(article.trendScore)}점` : '–');
-
-        container.append(card);
-    });
 }
 
 // // ========== 리스트형 렌더링 ==========
