@@ -449,7 +449,7 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
 
         if has_user_embedding:
             emb = normalize(h["_score"], emb_min, emb_max)
-            final_raw = 0.4 * emb + 0.4 * trend + 0.2 * trust
+            final_raw = 0.6 * emb + 0.2 * trend + 0.2 * trust
         else:
             final_raw = 0.7 * trend + 0.3 * trust
 
