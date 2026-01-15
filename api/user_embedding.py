@@ -311,10 +311,10 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
                 "article_label",
                 "collected_at",
                 "article_img",
-                "category",  # 카테고리
-                "reporter",  # 기자명
-                "press",  # 언론사
-                "content"  # 본문 (프론트에서 요약용)
+                "article_content",    #  본문  해정 개인화 페이지 추가
+                "reporter",           #  기자명
+                "press",              #  언론사
+                "upload_date"         #  업로드 날짜
             ]
         )
 
@@ -337,7 +337,11 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
                 "article_title",
                 "article_label",
                 "collected_at",
-                "article_img"
+                "article_img",
+                "article_content", #해정 추가
+                "reporter",
+                "press",
+                "upload_date"
             ]
         )
 
@@ -365,7 +369,11 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
                 "article_title",
                 "article_label",
                 "collected_at",
-                "article_img"
+                "article_img",
+                "article_content", # 해정 추가
+                "reporter",
+                "press",
+                "upload_date"
             ]
         )
 
@@ -422,6 +430,20 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
         src = h["_source"]
         label = src.get("article_label", {})
 
+        # 🔥 트렌드 점수: 항상 0~1 범위 → 100배
+        raw_trend = label.get("trend_score")
+        if raw_trend is None:
+            trend_score = 0
+        else:
+            trend_score = round(float(raw_trend) * 100)  # 0.74 → 74
+
+        # 🔥 신뢰도 점수: 이미 1~100 범위 → 반올림만
+        raw_trust = label.get("article_trust_score")
+        if raw_trust is None:
+            trust_score = 0
+        else:
+            trust_score = round(float(raw_trust))  # 68.57 → 69
+        #----------------------------------------------------해정
         trend = normalize(label.get("trend_score", 0.0), trend_min, trend_max)
         trust = normalize(label.get("article_trust_score", 0.0), trust_min, trust_max)
 
@@ -437,15 +459,15 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
             "article_img": src.get("article_img"),
             "final_score": int(round(final_raw * 100)),
             "collected_at": src.get("collected_at"),
-            # ✅ 점수 추가
-            "trend_score": label.get("trend_score", 0.0),
-            "trust_score": label.get("article_trust_score", 0.0),
-
-            # ✅ 메타 정보 추가
-            "category": src.get("category", "기타"),
+            # 추가 필드 해정 추가
+            "content": src.get("article_content", ""),
             "reporter": src.get("reporter", ""),
             "press": src.get("press", ""),
-            "content": src.get("content", "")
+            "category": label.get("category", "기타"),
+            "upload_date": src.get("upload_date"),
+            # 점수----------
+            "trust_score": trust_score,
+            "trend_score": trend_score
         })
 
     ranked.sort(key=lambda x: x["final_score"], reverse=True)
