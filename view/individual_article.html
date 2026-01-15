@@ -1652,7 +1652,7 @@ body.dark {
                 <div class="related-grid">
                     <a class="related-card" href="article-detail.html">
                         <div class="related-image">
-                            <img alt="Meeting"/>
+                            <img alt="Meeting" src="" onerror="this.src='/static/newspalette.png'"/>
                             <span class="related-badge">사회</span>
                         </div>
                         <h4 class="related-title">유통에 도입 능력 공개 차... 인천 일괄 명령</h4>
@@ -2031,6 +2031,7 @@ $(function () {
   const articleId = params.get("article_id");
 
   // 2️⃣ AJAX 요청 (GET)
+  const DEFAULT_IMG = "/static/newspalette.png";
   $.ajax({
     url: `/api/article/${articleId}`,
     method: "GET",
@@ -2085,8 +2086,9 @@ $(function () {
         $card.find(".related-date").text(item.upload_date || "");
         $card.find(".related-badge").text(item.category || "");
 
-        $card.find(".related-image img").attr("src", item.article_img || "");
-      });
+       $card.find(".related-image img")
+        .attr("src", item.article_img || DEFAULT_IMG)
+        .on("error", function() { $(this).attr("src", DEFAULT_IMG); });
 
       // --- polar 파싱 (⭐ 핵심: 구조 달라도 잡히게) ---
       console.log("data.polar raw =", data.polar);
