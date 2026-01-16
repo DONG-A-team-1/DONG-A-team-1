@@ -1215,6 +1215,15 @@ body.dark footer {
 body.dark .footer-info {
     color: #9ca3af;
 }
+
+body.dark .material-symbols-outlined.user-menu-icon{
+    color: #9CA3AF;
+}
+
+.material-symbols-outlined.user-menu-icon{
+    color: #6B7280;
+}
+
 </style>
 
 </head>
@@ -1280,7 +1289,7 @@ body.dark .footer-info {
                 </div>
 
                 <div class="search-input-wrap">
-                    <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" type="text" />
+                    <input id="searchInput" class="search-input" placeholder="관심있는 뉴스를 검색해보세요" spellcheck="false" type="text" />
                     <button id="searchBtn" class="search-btn" aria-label="검색">
                         <span class="material-symbols-outlined">search</span>
                     </button>
@@ -2204,7 +2213,7 @@ function updatePaginationUI() {
         button.innerText = i;  // 버튼 텍스트에 페이지 번호 표시
         button.onclick = () => goToPage(i);  // 클릭 시 해당 페이지로 이동
 
-        // next 버튼 앞에 삽입
+        // next 버튼 앞에 삽입place
         pagination.insertBefore(button, nextButton);
     }
 }

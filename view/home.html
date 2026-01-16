@@ -747,19 +747,26 @@
       /* 캐러셀 기본 */
       .carousel {
         position: relative;
+        width: 100%;
+        min-width: 0;
+        overflow: hidden; /* 철벽 1: 밖으로 절대 안 나감 */
+        isolation: isolate; /* 철벽 2: 레이아웃 완전 독립 */
       }
 
       /* 보이는 영역 */
       .viewport {
-        overflow: hidden;
+        overflow: hidden; /* 철벽 3: 중복 방어 */
         width: 100%;
+        position: relative;
+        contain: layout style; /* 철벽 4: 레이아웃 격리 */
       }
 
       /* 실제로 움직이는 줄 */
       .track {
         display: flex;
-        width: 100%;
         transition: transform 0.4s ease;
+        will-change: transform;
+        backface-visibility: hidden; /* GPU 가속 */
       }
 
       /* 메인 기사 카드 - 고정 높이 */
@@ -770,15 +777,14 @@
         text-decoration: none;
         color: inherit;
         display: block;
+        flex-shrink: 0;
       }
 
       .main-news-card {
-        flex: 0 0 100%;
-        width: 100%;
-        max-width: 100%;
-        height: 500px; /* 고정 높이 */
+        width: 100% !important;  /* 강제 고정 */
+        height: 500px !important; /* 강제 고정 */
         display: grid;
-        grid-template-columns: 1.5fr 1fr; /* 1:1 비율 */
+        grid-template-columns: 1.5fr 1fr;
         gap: 0;
         border-radius: 20px;
         overflow: hidden;
@@ -786,6 +792,7 @@
         position: relative;
         cursor: pointer;
         transition: transform .25s ease, box-shadow .25s ease;
+        contain: layout; /* 레이아웃 격리 */
       }
 
       .main-news-card:hover {
