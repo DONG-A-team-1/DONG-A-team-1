@@ -1055,15 +1055,64 @@
       .article-date,
       .rel-date {
         white-space: nowrap;
+
       }
 
       /* ========== 연관 기사 & 개인화 기사 푸터 ,신뢰도 점수 (우측 하단) ========== */
+      .related {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0;
+          overflow: hidden;
+          isolation: isolate;
+        }
+
+        /* ⭐⭐⭐ 연관 기사 카드 - 완전 고정 ⭐⭐⭐ */
+    .related-item {
+      /* 너비 완전 고정 */
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 100% !important;
+
+      /* 높이 5중 고정 - 절대 변하지 않음 */
+      height: 106px !important;
+      min-height: 106px !important;
+      max-height: 106px !important;
+
+      /* 마진 수정 (기존 margin: 10px 제거) */
+      margin: 0 0 12px 0 !important;
+
+      /* 레이아웃 */
+      position: relative;
+      display: flex !important;
+      cursor: pointer;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .15s, transform .15s;
+
+      /* 절대 변형 금지 */
+      flex-shrink: 0 !important;
+      flex-grow: 0 !important;
+
+      /* 레이아웃 완전 격리 */
+      contain: strict !important;
+      overflow: hidden !important;
+    }
+
 
       /* 연관 기사 푸터 (새로 추가) */
     .related-item .article-footer {
-        padding-right: 0;
+        padding-right: 0 !important;  /* padding 제거 */
         margin-top: 6px;
         margin-bottom: 0;
+        width: 100%;
+        max-width: 100% !important;  /* 전체 너비 사용 */
+        overflow: hidden;
     }
 
       .related-meta {
@@ -1210,7 +1259,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 4px 72px 4px 0;
+        padding: 4px 95px 4px 0;
         min-width: 0;
         position: relative;
       }
