@@ -424,7 +424,7 @@
         }
 
         .search-input {
-            caret-color:#ffffff;
+            caret-color:#000000;
             width: 100%;
             padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
             border-radius: 10px;
@@ -453,7 +453,7 @@
         .search-input:focus-visible,
         .search-input:active {
             background: var(--surface) !important;
-            border-color: transparent;
+            border-color: rgb(158, 158, 158);
             box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
         }
 
@@ -467,6 +467,7 @@
         body.dark .search-input:focus,
         body.dark .search-input:active,
         body.dark .search-input:focus-visible {
+            caret-color:#ffffff;
             background: var(--surface) !important;
             color: var(--text);
             border-color: var(--border);
@@ -595,7 +596,7 @@
         .card-img {
             width: 100%;
             height: 100%;
-            object-fit: contain;  /* cover → contain 변경 */
+            object-fit: cover;
             object-position: center;
             transition: transform .3s;
         }
@@ -895,18 +896,18 @@
         }
 
         .article-image-container {
-            margin-left:16px;
-            margin-top: 16px;
+           border-radius: 1rem;
             width: 100%;
-            height: 12rem;
+            height: 10rem;  /* 160px */
             flex-shrink: 0;
-            background: transparent;
+            background: #f3f4f6;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: -0.25rem;
+            margin: 12px;
+            padding: 0;
         }
 
         @media (min-width: 768px) {
@@ -921,14 +922,12 @@
         }
 
         .article-img {
-            width: auto !important;      /* ⭐ 100% → auto */
+            width: 100% !important;
             height: 100% !important;
-            max-width: 100% !important;  /* ⭐ 추가 */
-            max-height: 100% !important; /* ⭐ 추가 */
-            object-fit: contain !important;
+            object-fit: cover !important;  /* 🔥 cover */
             object-position: center !important;
             display: block !important;
-            transition: transform 0.5s;
+            transition: transform 0.3s;  /* 0.5s → 0.3s */
         }
 
         .article-item:hover .article-img {
@@ -1303,12 +1302,8 @@
                             <span class="card-date"></span>
                         </div>
                         <div class="score-container">
-                            <div class="trend-score">
-                                <span class="trend-label">트렌드</span>
-                                <span class="trend-value"></span>
-                            </div>
                             <div class="trust-score">
-                                <span class="trust-label">신뢰도</span>
+                                <span class="trust-label">팔레트 점수</span>
                                 <span class="trust-value"></span>
                             </div>
                         </div>
@@ -1330,7 +1325,7 @@
             <div class="filter-buttons">
                 <button class="filter-button active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
                 <button class="filter-button" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
-                <button class="filter-button" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+                <button class="filter-button" id="btnReliability" onclick="sortArticles('reliability')">추천순</button>
             </div>
         </div>
 
@@ -1358,7 +1353,7 @@
                     </div>
                 </div>
                 <div class="trust-score">
-                    <span class="trust-label">신뢰도</span>
+                    <span class="trust-label">팔레트 점수</span>
                     <span class="trust-value"></span>
                 </div>
             </a>
