@@ -123,6 +123,21 @@ body.dark .logo-circle {
     font-size: 1.875rem;
 }
 
+.logo-circle a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit;        /* 부모인 .logo-circle의 color(--primary)를 그대로 사용 */
+    display: flex;         /* 중앙 정렬 유지 */
+    align-items: center;
+    justify-content: center;
+    width: 100%;           /* 원 전체를 클릭 가능하게 만듦 */
+    height: 100%;
+}
+
+/* 방문 후에도 색이 변하지 않도록 고정 */
+.logo-circle a:visited {
+    color: inherit;
+}
+
 .header-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -376,13 +391,71 @@ body.dark .reset-button:hover {
 body.dark .footer-text {
     color: var(--gray-500);
 }
+
+/* --- Select 태그를 Input과 동일하게 맞춤 --- */
+.form-select {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem; /* 아이콘 공간 확보 */
+    border: 1px solid var(--border-light);
+    border-radius: 0.75rem;
+    background-color: var(--gray-50);
+    color: var(--gray-900);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s;
+    cursor: pointer;
+    
+    /* 기본 화살표 제거 */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* 커스텀 화살표 아이콘 (회색 #6B7280) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+}
+
+/* 포커스 시 효과 */
+.form-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+    border-color: transparent;
+}
+
+/* --- 다크모드 대응 --- */
+body.dark .form-select {
+    border-color: var(--border-dark);
+    background-color: var(--gray-800);
+    color: white;
+    /* 다크모드용 흰색 화살표 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* option 항목 배경색 (다크모드 시 글자 안보임 방지) */
+.form-select option {
+    background-color: var(--surface-light);
+    /* color: var(--gray-900); */
+}
+
+body.dark .form-select option {
+    background-color: var(--surface-dark);
+    color: white;
+}
+
+/* 
+option{
+    color: #f9fafb;
+} */
+
 </style>
 </head>
 <body>
 <main class="main-container">
 <div class="header">
 <div class="logo-circle">
-<span class="material-icons-round">palette</span>
+    <a href="home.html"><span class="material-icons-round">palette</span></a>
 </div>
 <h1 class="header-title">NewsPalette</h1>
 <p class="header-subtitle">아이디 찾기</p>

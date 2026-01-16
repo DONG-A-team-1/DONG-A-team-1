@@ -213,30 +213,14 @@ def search_articles(search_type: str, query: str, size: int = 20):
     elif search_type == "content" or search_type == "body":
         es_query = {"match": {"article_content": query}}
     elif search_type == "keywords" or search_type == "keyword":
-        es_query = {
-            "match_phrase": {  # 완전한 구문 매칭
-                "keywords": query
-            }
-        }
-    #     키워드 매칭 확인해주세요 제대로 되는지
-    else: 
+        es_query = {"match_phrase": {"keywords": query}}
+    else:
         es_query = {
             "bool": {
                 "should": [
-                    {"match": {
-                        "article_title": {
-                            "query": query,
-                            "operator": "and"
-                        }
-                    }},
-                    {"match": {
-                        "article_content": {
-                            "query": query,
-                            "operator": "and"
-                        }
-                    }}
+                    {"match": {"article_title": {"query": query, "operator": "and"}}},
+                    {"match": {"article_content": {"query": query, "operator": "and"}}}
                 ],
-                # 키워드 정확하게 매칭하기 위해서
                 "minimum_should_match": 1
             }
         }
@@ -253,40 +237,33 @@ def search_articles(search_type: str, query: str, size: int = 20):
             "article_img",
             "url",
             "article_label",
-            "trend_score",
             "keywords"
         ],
         "size": size,
         "query": es_query,
-        "sort": [
-            {"upload_date": {"order": "desc"}}
-        ]
+        "sort": [{"upload_date": {"order": "desc"}}]
     }
 
     resp = es.search(index="article_data", body=body)
     hits = resp.get("hits", {}).get("hits", [])
 
-    # 결과 포맷팅
     no_img = "/static/newspalette.png"
     articles = []
+
     for hit in hits:
         src = hit.get("_source", {})
         label = src.get("article_label") or {}
 
-        # trustScore 처리
-        raw_score = label.get("article_trust_score")
-        if raw_score is None:
-            trust_score = 0
-        else:
-            # 이미 1~100 범위이므로 소수점만 반올림
-            trust_score = round(float(raw_score))
+        # trustScore - article_label 안에 있음
+        raw_trust = label.get("article_trust_score")
+        trust_score = round(float(raw_trust)) if raw_trust is not None else 0
 
-        # trendScore 처리 (동일)
+        # trendScore - article_label 안에 있음 (0.74 → 74점으로 변환)
         raw_trend = label.get("trend_score")
-        if raw_trend is None:
-            trend_score = 0
+        if raw_trend is not None:
+            trend_score = round(float(raw_trend) * 100)  # 0.74 → 74
         else:
-            trend_score = round(float(raw_trend))
+            trend_score = 0
 
         articles.append({
             "article_id": src.get("article_id"),
@@ -327,6 +304,7 @@ def get_user_history(user_id: str, date: str):
             FROM session_data
             WHERE user_id = :user_id
               AND DATE(started_at) = :date
+              AND is_train = 1
             ORDER BY started_at DESC
         """)
 
@@ -405,6 +383,7 @@ def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
             WHERE user_id = :uid 
               AND YEAR(started_at) = :year 
               AND MONTH(started_at) = :month
+              AND is_train = 1
             GROUP BY DATE(started_at)
         """)
 
@@ -416,3 +395,82 @@ def get_user_monthly_activity_stats(user_id: str, year: int, month: int):
             total_views = sum(activity_data.values())
 
     return activity_data, total_views
+
+
+def get_user_category_stats(user_id: str):
+    # 1. MySQL에서 사용자가 읽은 모든 article_id 추출
+    with SessionLocal() as db:
+        query = text("SELECT article_id FROM session_data WHERE user_id = :uid AND is_train = 1")
+        rows = db.execute(query, {"uid": user_id}).fetchall()
+        article_ids = [row[0] for row in rows]
+
+    if not article_ids:
+        return []
+
+    # 2. ES에서 카테고리 집계 (Aggregation)
+    es_query = {
+        "size": 0,
+        "query": {
+            "terms": {"article_id": article_ids}
+        },
+        "aggs": {
+            "category_count": {
+                "terms": {
+                    # 맵핑 구조에 따라 객체 경로를 정확히 지정해야 합니다.
+                    "field": "article_label.category",
+                    "size": 10
+                }
+            }
+        }
+    }
+
+    res = es.search(index="article_data", body=es_query)
+    buckets = res["aggregations"]["category_count"]["buckets"]
+
+    # 3. 데이터 정규화
+    target_categories = ['사회', '정치', '국제', '지역', '문화', '스포츠']
+    category_map = {b['key']: b['doc_count'] for b in buckets}
+
+    total_docs = sum(category_map.values())
+
+    # 검색된 기사가 하나도 없을 경우 빈 리스트 반환 (0 나누기 방지)
+    if total_docs == 0:
+        return []
+
+    stats = []
+    for cat in target_categories:
+        count = category_map.get(cat, 0)
+        # 퍼센트 계산
+        percent = round((count / total_docs * 100))
+        stats.append({
+            "category": cat,
+            "count": count,
+            "percent": percent
+        })
+
+    # 퍼센트 높은 순 정렬
+    stats.sort(key=lambda x: x['percent'], reverse=True)
+    return stats
+
+def reset_user_algorithm(user_id):
+    try:
+        # 1. MySQL: 세션 데이터 비활성화 (히스토리 및 통계 제외)
+        with SessionLocal() as db:
+            query = text("UPDATE session_data SET is_train = 0 WHERE user_id = :uid")
+            db.execute(query, {"uid": user_id})
+            db.commit()
+
+        # 2. Elasticsearch: 유저 임베딩 문서 삭제 (추천 가중치 초기화)
+        # delete_by_query를 사용하여 해당 유저의 모든 임베딩 데이터를 삭제합니다.
+        es.delete_by_query(
+            index="user_embeddings",
+            body={
+                "query": {
+                    "term": { "user_id": user_id }
+                }
+            }
+        )
+        return True
+    except Exception as e:
+        print(f"Algorithm & Embedding reset error: {e}")
+        return False
