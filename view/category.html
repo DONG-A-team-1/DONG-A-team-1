@@ -395,7 +395,7 @@ main {
 }
 
 .search-bar {
-  max-width: 48rem;
+  max-width: 896px;
   margin: 0 auto;
   padding: 8px;
   border-radius: 16px;
@@ -405,6 +405,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
 }
 
 body.dark .search-bar {
@@ -432,19 +433,25 @@ body.dark .search-bar {
 
 .select {
   appearance: none;
-  width: 100%;
-  padding: 12px 36px 12px 16px;
-  border: 0;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.05);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+    width: 100%;
+    padding: 12px 36px 12px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--text-main-light) 6%, transparent);  /* 🔥 수정 */
+    color: color-mix(in oklab, var(--text-main-light) 88%, transparent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+body.dark .select-caret {
+    color: var(--text-sub-dark);
 }
 
 body.dark .select {
-  background: rgba(255,255,255,0.08);
-  color: #E5E7EB;
+  background: color-mix(in oklab, var(--text-main-dark) 6%, transparent);  /* 🔥 수정 */
+  color: var(--text-main-dark);
 }
 
 @media (min-width: 640px) {
@@ -466,36 +473,105 @@ body.dark .select {
 .search-input-wrap {
   position: relative;
   flex: 1;
+  width: 100%;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 10px;
+  transform: translateZ(0);
 }
 
 .search-input {
-  width: 100%;
-  padding: 12px 44px 12px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--gray-300);
-  outline: none;
+    caret-color: #000000;
+    width: 100%;
+    padding: 12px 44px 12px 16px !important;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--text-main-light) 12%, transparent);
+    background: var(--surface-light) !important;
+    color: var(--text-main-light);
+    outline: none !important;
+    transition: box-shadow .15s, border-color .15s;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 body.dark .search-input {
-  background: var(--surface-dark);
-  color: #F9FAFB;
-  border-color: var(--gray-700);
+    caret-color: #ffffff;
+    background: var(--surface-dark) !important;
+    color: var(--text-main-dark);
+    border-color: var(--gray-700);
+}
+
+.search-input::placeholder {
+    color: color-mix(in oklab, var(--text-main-light) 35%, transparent);
+}
+
+body.dark .search-input::placeholder {
+    color: var(--text-sub-dark);
 }
 
 .search-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    border-color: transparent;
+    background: var(--surface-light) !important;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+body.dark .search-input:focus {
+    background: var(--surface-dark) !important;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+.search-input:focus-visible,
+.search-input:active {
+    background: var(--surface-light) !important;
+    border-color: rgb(158, 158, 158);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+body.dark .search-input:focus-visible,
+body.dark .search-input:active {
+    background: var(--surface-dark) !important;
+}
+
+/* 브라우저 자동완성 배경 제거 */
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--surface-light) inset !important;
+    -webkit-text-fill-color: var(--text-main-light) !important;
+}
+
+body.dark .search-input:-webkit-autofill,
+body.dark .search-input:-webkit-autofill:hover,
+body.dark .search-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--surface-dark) inset !important;
+    -webkit-text-fill-color: var(--text-main-dark) !important;
 }
 
 .search-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--primary);
-  cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%) translateZ(0);
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    border-radius: 4px;
+}
+
+.search-btn .material-icons-round {
+    font-size: 26px;
+    display: block;
+    line-height: 1;
 }
 
 /* Section Headers */
@@ -678,12 +754,12 @@ body.dark .article-meta {
     white-space: nowrap;
 }
 
-.reliability-high {
-    background-color: #D1FAE5;
-    color: #065F46;
+.reliability-blue {
+    background-color: #eff6ff;
+    color: #2563eb;
 }
 
-body.dark .reliability-high {
+/*body.dark .reliability-high {
     background-color: rgba(16, 185, 129, 0.2);
     color: #6EE7B7;
 }
@@ -691,14 +767,14 @@ body.dark .reliability-high {
 .reliability-medium {
     background-color: #FEF3C7;
     color: #92400E;
+}*/
+
+body.dark .reliability-blue {
+    background-color: rgba(37, 99, 235, 0.25);
+    color: #60a5fa;
 }
 
-body.dark .reliability-medium {
-    background-color: rgba(251, 191, 36, 0.2);
-    color: #FCD34D;
-}
-
-.reliability-low {
+/* .reliability-low {
     background-color: #FEE2E2;
     color: #991B1B;
 }
@@ -706,11 +782,11 @@ body.dark .reliability-medium {
 body.dark .reliability-low {
     background-color: rgba(239, 68, 68, 0.2);
     color: #FCA5A5;
-}
+} */
 
-.reliability-icon {
+/* .reliability-icon {
     font-size: 0.875rem;
-}
+} */
 
 /* List Section */
 .list-section {
@@ -754,46 +830,57 @@ body.dark .list-title {
     color: #E5E7EB;
 }
 
+
+/*------------정렬 버튼----------- 해정 수정*/
 .sort-buttons {
     display: flex;
-    gap: 0.25rem;
-    background-color: #F3F4F6;
-    padding: 0.25rem;
-    border-radius: 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
-body.dark .sort-buttons {
-    background-color: #1F2937;
+@media (min-width: 768px) {
+    .sort-buttons {
+        padding-bottom: 0;
+    }
 }
 
 .sort-btn {
-    padding: 0.375rem 1rem;
+    padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
-    border-radius: 0.375rem;
-    border: none;
+    border-radius: 9999px; /* 동그랗게 */
+    white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
-    color: #4B5563;
-    background: transparent;
-}
-
-body.dark .sort-btn {
-    color: #9CA3AF;
-}
-
-.sort-btn:hover {
-    background-color: #E5E7EB;
-}
-
-body.dark .sort-btn:hover {
-    background-color: #374151;
+    border: none;
 }
 
 .sort-btn.active {
-    background-color: #3B82F6;
-    color: #FFFFFF;
+    background-color: #3b82f6;
+    color: white;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.sort-btn:not(.active) {
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+body.dark .sort-btn:not(.active) {
+    background-color: #1f2937;
+    color: #d1d5db;
+    border-color: #374151;
+}
+
+.sort-btn:not(.active):hover {
+    background-color: #f9fafb;
+}
+
+body.dark .sort-btn:not(.active):hover {
+    background-color: #1f2937;
 }
 
 /* Article List */
@@ -807,11 +894,20 @@ body.dark .sort-btn:hover {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    padding: 1rem;
+    padding: 3rem 3rem;
     border-radius: 0.75rem;
     transition: background-color 0.2s;
     text-decoration: none;
-    border-bottom: 1px solid #F3F4F6;
+    border:1px solid #F3F4F6;
+    background-color: white; /* 뒤에 흰색 추가*/
+}
+
+.list-article.list-article-template{
+    background-color: white;
+}
+
+.list-article:hover .list-title-text { /* 검색 결과랑 통일 */
+    color: #3B82F6;
 }
 
 @media (min-width: 640px) {
@@ -821,15 +917,13 @@ body.dark .sort-btn:hover {
 }
 
 body.dark .list-article {
-    border-bottom-color: #1F2937;
+    background-color: #1f2937;
+    border-color: #374151;
 }
 
-.list-article:last-child {
-    border-bottom: none;
-}
 
 .list-article:hover {
-    background-color: #F9FAFB;
+    border-color: #3B82F6; /* 파란색 테두리 */
 }
 
 body.dark .list-article:hover {
@@ -837,8 +931,8 @@ body.dark .list-article:hover {
 }
 
 .list-article-image {
-    width: 100%;
-    height: 10rem;
+    width: 20rem;
+    height: 13rem;
     flex-shrink: 0;
     border-radius: 0.5rem;
     overflow: hidden;
@@ -847,7 +941,8 @@ body.dark .list-article:hover {
 
 @media (min-width: 640px) {
     .list-article-image {
-        width: 16rem;
+        width: 20rem;
+        height: 13rem;
     }
 }
 
@@ -950,6 +1045,8 @@ body.dark .list-article-source {
 body.dark .list-article-source strong {
     color: #D1D5DB;
 }
+
+
 
 /* Pagination */
 .pagination {
@@ -1205,7 +1302,7 @@ body.dark .material-symbols-outlined.user-menu-icon{
                 <span class="material-icons-round select-caret">expand_more</span>
             </div>
             <div class="search-input-wrap">
-                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <input id="searchInput" class="search-input" type="text" spellcheck="false" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
                 <button class="search-btn" onclick="performSearch()" aria-label="검색">
                     <span class="material-icons-round">search</span>
                 </button>
@@ -1232,7 +1329,7 @@ body.dark .material-symbols-outlined.user-menu-icon{
                 <div class="article-meta">
                     <div class="card-source"></div>
                     <span class="reliability-badge">
-                        <span class="material-symbols-outlined reliability-icon">verified</span>
+<!--                        <span class="material-symbols-outlined reliability-icon">verified</span>-->
                         <span class="card-trust"></span>
                     </span>
                 </div>
@@ -1250,7 +1347,7 @@ body.dark .material-symbols-outlined.user-menu-icon{
         <div class="sort-buttons">
             <button class="sort-btn active" id="btnLatest" onclick="sortArticles('latest')">최신순</button>
             <button class="sort-btn" id="btnOldest" onclick="sortArticles('oldest')">과거순</button>
-            <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">신뢰도순</button>
+            <button class="sort-btn" id="btnReliability" onclick="sortArticles('reliability')">추천순</button>
         </div>
     </div>
 
@@ -1273,7 +1370,7 @@ body.dark .material-symbols-outlined.user-menu-icon{
                 <strong class="list-source"></strong>
 
                 <span class="reliability-badge">
-                    <span class="material-symbols-outlined reliability-icon">verified</span>
+<!--                    <span class="material-symbols-outlined reliability-icon">verified</span>-->
                     <span class="list-trust"></span>
                 </span>
             </div>
@@ -1312,21 +1409,21 @@ const categoryInfo = {
 };
 
 // [추가] 현재 정렬 상태를 추적하기 위한 전역 변수
-let currentSortType = 'latest'; 
+let currentSortType = 'latest';
 
 // ========== 페이지 로드 시 실행 ==========
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentCategory = urlParams.get('cat') || '사회'; 
+    const currentCategory = urlParams.get('cat') || '사회';
 
     initializeUI(currentCategory);
-    
+
     // 초기 로드 시 기본 정렬(최신순)로 호출
     loadCategoryArticles(currentCategory, 1, 'latest');
 });
 
 function initializeUI(category) {
-    initApp(); 
+    initApp();
     $('.section-title').text(category);
     $('.list-title').text(category);
     const iconName = categoryInfo[category]?.icon || 'newspaper';
@@ -1368,10 +1465,10 @@ function loadCategoryArticles(categoryName, page = 1, sortType = currentSortType
     $.ajax({
         url: `/api/category/${encodeURIComponent(categoryName)}`,
         type: 'GET',
-        data: { 
-            size: 10, // 리스트에 보여줄 개수
-            page: page, 
-            sort_type: sortType 
+        data: {
+            size: 5, // 리스트에 보여줄 개수 / 해정 수정 통일
+            page: page,
+            sort_type: sortType
         },
         success: function(response) {
             if (response.success) {
@@ -1416,19 +1513,19 @@ function displayCardArticles(articles) {
 
     articles.forEach(function(article) {
         const card = template.clone().removeClass('article-card-template').show();
-        
+
         card.attr('href', `/article/${article.article_id}`);
         // 백엔드에서 처리된 이미지를 사용
         card.find('.card-img').attr('src', article.image);
         card.find('.card-title').text(article.title);
         card.find('.card-description').text((article.content || '').substring(0, 80) + '...');
-        
+
         const dateText = formatDate(article.upload_date);
         card.find('.card-source').text(`${article.source || '뉴스'} • ${dateText}`);
 
         // 백엔드에서 온 정수값(예: 85)을 그대로 사용
         const trust = article.trustScore || 0;
-        card.find('.card-trust').text(`신뢰도 ${trust}%`);
+        card.find('.card-trust').text(`팔레트 ${trust}점`);
 
         const reliabilityClass = getReliabilityClass(trust);
         card.find('.reliability-badge').removeClass('reliability-high reliability-medium reliability-low').addClass(reliabilityClass);
@@ -1446,9 +1543,9 @@ function displayListArticles(articles) {
 
     articles.forEach(function(article) {
         const item = template.clone().removeClass('list-article-template').show();
-        
+
         item.attr('href', `/article/${article.article_id}`);
-        
+
         item.find('.list-img').attr('src', article.image);
         item.find('.list-category').text(article.category || '기타');
         item.find('.list-date').text(formatDateYMD(article.upload_date));
@@ -1456,10 +1553,10 @@ function displayListArticles(articles) {
         item.find('.list-desc').text((article.content || '').substring(0, 120) + '...');
         item.find('.list-reporter').text(article.reporter || '');
         item.find('.list-source').text(article.source || '');
-        
+
         const trust = article.trustScore || 0;
-        item.find('.list-trust').text(`신뢰도 ${trust}%`);
-        
+        item.find('.list-trust').text(`팔레트 ${trust}점`);
+
         const reliabilityClass = getReliabilityClass(trust);
         item.find('.reliability-badge').removeClass('reliability-high reliability-medium reliability-low').addClass(reliabilityClass);
 
@@ -1471,7 +1568,7 @@ function displayListArticles(articles) {
 function goToPage(pageNumber) {
     const urlParams = new URLSearchParams(window.location.search);
     const currentCategory = urlParams.get('cat') || '사회';
-    
+
     // 페이지 이동 시에도 현재 설정된 정렬 기준을 유지합니다.
     loadCategoryArticles(currentCategory, pageNumber, currentSortType);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1485,9 +1582,9 @@ function updatePaginationUI(activePage) {
 }
 
 function getReliabilityClass(score) {
-    if (score >= 80) return 'reliability-high';
-    if (score >= 50) return 'reliability-medium';
-    return 'reliability-low';
+    // if (score >= 80) return 'reliability-high';
+    // if (score >= 50) return 'reliability-medium';
+    return 'reliability-blue';
 }
 
 function formatDate(dateStr) {

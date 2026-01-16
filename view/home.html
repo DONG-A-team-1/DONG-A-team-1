@@ -264,7 +264,7 @@
 
       .material-symbols-outlined {
         font-family: 'Material Symbols Outlined' !important;
-        font-size: 24px;
+        font-size: 1.875rem;
         line-height: 1;
       }
 
@@ -928,7 +928,6 @@
 
       /* 푸터 - 하단 고정 */
       .article-footer {
-        padding-right:100px;
         margin-top: auto;
         margin-bottom: 8px;
       }
@@ -994,9 +993,9 @@
 
       /* ========== 메인 기사 캐러셀 점수 ========== */
       .main-news-body .article-footer {
+            padding-right: 100px;
             margin-top: auto;
-            margin-bottom: 0;
-            padding-right: 100px; /* 👈 신뢰도 점수 공간 확보 */
+            margin-bottom: 8px;
         }
       .main-news-body .score-container {
         position: absolute;
@@ -1020,8 +1019,17 @@
       }
 
       .main-news-body .trust-score {
-        color: #2563eb;
-      }
+          display: inline-flex;
+          align-items: center;
+          gap: 0px;
+          padding: 0px 5px;
+          border-radius: 6px;
+          background: #eff6ff;
+          font-size: 13px;
+          font-weight: 500;
+          color: #2563eb;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* 선택 */
+        }
 
       .main-news-body .trend-value {
         padding: 3px 8px;
@@ -1043,7 +1051,107 @@
         background: rgba(37, 99, 235, 0.25);
       }
 
-      /* ========== 연관 기사 & 개인화 기사 신뢰도 점수 (우측 하단) ========== */
+      .card-date,
+      .article-date,
+      .rel-date {
+        white-space: nowrap;
+
+      }
+
+      /* ========== 연관 기사 & 개인화 기사 푸터 ,신뢰도 점수 (우측 하단) ========== */
+      .related {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0;
+          overflow: hidden;
+          isolation: isolate;
+        }
+
+        /* ⭐⭐⭐ 연관 기사 카드 - 완전 고정 ⭐⭐⭐ */
+    .related-item {
+      /* 너비 완전 고정 */
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 100% !important;
+
+      /* 높이 5중 고정 - 절대 변하지 않음 */
+      height: 106px !important;
+      min-height: 106px !important;
+      max-height: 106px !important;
+
+      /* 마진 수정 (기존 margin: 10px 제거) */
+      margin: 0 0 12px 0 !important;
+
+      /* 레이아웃 */
+      position: relative;
+      display: flex !important;
+      cursor: pointer;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .15s, transform .15s;
+
+      /* 절대 변형 금지 */
+      flex-shrink: 0 !important;
+      flex-grow: 0 !important;
+
+      /* 레이아웃 완전 격리 */
+      contain: strict !important;
+      overflow: hidden !important;
+    }
+
+
+      /* 연관 기사 푸터 (새로 추가) */
+    .related-item .article-footer {
+        padding-right: 0 !important;  /* padding 제거 */
+        margin-top: 6px;
+        margin-bottom: 0;
+        width: 100%;
+        max-width: 100% !important;  /* 전체 너비 사용 */
+        overflow: hidden;
+    }
+
+      .related-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .related-meta span {
+            white-space: nowrap;
+        }
+
+        .related-reporter,
+        .related-press {
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 개인화 카드 특정 스타일 */
+        .personal-card.related-item {
+            height: auto;
+            min-height: 106px;
+        }
+
+        .personal-card .related-text {
+            padding-right: 90px;  /* 신뢰도 점수 공간 확보 */
+        }
+
+        .personal-card .related-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
       .trust-score {
             flex-shrink: 0;        /* 절대 줄어들지 않음 */
             margin-left: auto;    /*오른쪽 끝으로 밀기 */
@@ -1151,7 +1259,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 4px 72px 4px 0;
+        padding: 4px 95px 4px 0;
         min-width: 0;
         position: relative;
       }
@@ -1260,7 +1368,7 @@
         color: color-mix(in oklab, var(--text) 50%, transparent);
         margin-top: auto;
       }
-      /* opinion */
+      /* 토픽-------*/
 
       .opinion {
         background: var(--surface);
@@ -1270,11 +1378,12 @@
 
         display: flex;
         flex-direction: column;
-        align-items: center;   /* ⭐ 가로 중앙 */
+        align-items: center;   /*가로 중앙 */
       }
 
       .opinion h3 {
-
+        margin: 10px;
+        text-align: center;
         font-size: 18px;
         font-weight: 700;
         letter-spacing: -0.02em;
@@ -1285,49 +1394,92 @@
       }
 
       .opinion-wrap {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 60px;
-        padding-bottom: 24px;
-      }
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 40px;
+          flex-wrap: wrap;
+        }
 
       .side {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
+        max-width: 320px;
+        width: 100%;
+        flex: 1 1 280px;   /* ⭐ 반응형 핵심 */
+    }
 
       .title {
         font-weight: bold;
         font-size: 14px;
+        text-align: center;
       }
 
-      .pill {
+      .pill.pos {
         padding: 10px 20px;
         border-radius: 999px;
-        background: #f3e8ff;
+        background: transparent;
         color: #6b21a8;
         cursor: pointer;
+        border: 2px solid #6b21a8;
         transition: transform 0.3s;
+        margin: 10px;
       }
 
+      /* 긍정 기사 (다크 모드) */
+        body.dark .pill.pos {
+          color: #c084fc;
+          border-color: #c084fc;
+        }
+
+        body.dark .pill.pos:hover {
+          background: rgba(192, 132, 252, 0.1);
+          transform: translateY(-2px);
+        }
+
       .pill.warn {
-        background: #fef3c7;
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: transparent;
+        border: 2px solid #92400e;
         color: #92400e;
+        margin: 10px;
       }
+
+      /* 부정 기사 (다크 모드) */
+        body.dark .pill.warn {
+          color: #fbbf24;
+          border-color: #fbbf24;
+        }
+
+        body.dark .pill.warn:hover {
+          background: rgba(251, 191, 36, 0.1);
+          transform: translateY(-2px);
+        }
 
       .center-topic {
         width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #60a5fa, #2563eb);
-        color: white;
+        height: 115px;
+        border: 2px solid #669be5;
+        border-radius: 20%;
+        background: transparent;
+        color: #669be5;
         text-align: center;
         padding: 20px;
         cursor: pointer;
+        margin:0 60px;
+        flex-shrink: 0;
       }
 
+      /* HOT TOPIC 텍스트만 색 변경 */
+      .center-topic .small_topic {
+          color: #54535a;
+          margin-bottom: 7px;
+      }
+
+      /* 다크모드 */
+      body.dark .center-topic .small_topic {
+          color: #9CA3AF;
+      }
 
       /* 한 줄짜리 개인화 기사 */
 
@@ -1677,7 +1829,7 @@
                         <span class="trend-value score-val"></span>
                       </div> --> <!-- 트랜드 스코어 제외함 -->
                       <div class="trust-score">
-                        <span class="trust-label">신뢰도</span>
+                        <span class="trust-label">팔레트</span>
                         <span class="trust-value trust-val"></span>
                       </div>
                     </div>
@@ -1711,11 +1863,13 @@
                   <div class="article-author-info">
                     <span class="author-name rel-author"></span>
                     <span class="author-dot rel-press"></span>
+                      <span>•</span>
+                      <span class="rel-date"></span>
                   </div>
                 </div>
               </div>
               <div class="trust-score">
-                <span class="trust-label">신뢰도</span>
+                <span class="trust-label">팔레트</span>
                 <span class="trust-value rel-trust"></span>
               </div>
             </article>
@@ -2039,18 +2193,25 @@ function loadPersonalizedArticles() {
             el.className = "news-link";
 
             el.innerHTML = `
-              <article class="personal-card list-card">
-                <div class="personal-img">
+              <article class="personal-card related-item">
+                <div class="thumb">
                   <img src="${item.article_img || '/static/newspalette.png'}" alt="기사 이미지">
                 </div>
 
-                <div class="card-text">
-                  <h3 class="card-title clamp-2">${item.title}</h3>
-                  <span class="card-time">${formatTime(item.collected_at)}</span>
+                <div class="related-text">
+                  <h3 class="related-title">${item.title}</h3>
+
+                  <div class="related-meta">
+                    <span class="related-reporter">${item.reporter || '미상'}</span>
+                    <span>•</span>
+                    <span class="related-press">${item.press || ''}</span>
+                    <span>•</span>
+                    <span class="related-date">${formatDate(item.collected_at)}</span>
+                  </div>
                 </div>
 
                 <div class="trust-score">
-                  <span class="trust-label">추천점수</span>
+                  <span class="trust-label">추천</span>
                   <span class="trust-value">${item.final_score}점</span>
                 </div>
               </article>
@@ -2061,7 +2222,21 @@ function loadPersonalizedArticles() {
 }
 
 
+/*날짜 포맷팅 함수*/
+function formatDate(dateString) {
+    if (!dateString) return '';
 
+    const d = new Date(dateString);
+
+    // 날짜 파싱 실패 방어
+    if (isNaN(d.getTime())) return '';
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
 
 
 /* =========================
@@ -2082,7 +2257,9 @@ $(document).ready(function () {
                     title: item.title,
                     image: item.image,
                     source: item.press || "뉴스",
-                    category: "트렌드",
+                    reporter: item.reporter || "기자 미상",      //  추가 해정
+                    date: item.upload_date || item.collected_at, // 추가 해정
+                    category: item.category || "기타",
                     trustScore: Math.round((item.trust_score || 0) * 100)
                 }));
 
@@ -2101,6 +2278,9 @@ $(document).ready(function () {
                     $clone.find('.rank-text').text(`트렌드 순위 ${index + 1}위`);
                     $clone.find('.article-title').text(data.title);
                     $clone.find('.press-name').text(data.source);
+                    $clone.find('.reporter-name').text(data.reporter);   // 기자명 해정 추가
+                    $clone.find('.article-date').text(formatDate(data.date)); // 날짜 해정 추가
+                    $clone.find('.pill').text(data.category); // 카테고리 수정 추가 해정
                     $clone.find('.trust-val').text(Math.round(data.trustScore / 100) + '점');
 
                     $track.append($clone);
@@ -2181,6 +2361,7 @@ function loadRelatedArticles(articleId, articleTitle) {
                 $clone.find('.rel-title').text(data.title);
                 $clone.find('.rel-author').text(data.reporter || '');
                 $clone.find('.rel-press').text(data.source || '');
+                $clone.find('.rel-date').text(formatDate(data.date));
                 $clone.find('.rel-trust').text(Math.round(data.trustScore / 100) + '점');
                 $container.append($clone);
             });

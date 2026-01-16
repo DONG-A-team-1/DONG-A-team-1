@@ -29,6 +29,7 @@ def _run_id_kst() -> str:
 def register_jobs():
     """✅ job 등록만 분리 (admin에서 job id로 pause/resume 하려면 id가 고정이어야 함)"""
 
+    now = datetime.now(KST)
     scheduler.add_job(
         run_pipeline,
         IntervalTrigger(hours=1),
@@ -37,7 +38,7 @@ def register_jobs():
         max_instances=1,
         coalesce=True,
         misfire_grace_time=300,
-        paused=True
+        next_run_time=now,
     )
 
     scheduler.add_job(

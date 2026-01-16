@@ -113,8 +113,8 @@ def recommend_trend_articles(limit: int = 20):
         query={
             "bool": {
                 "must": [
-                    {"range": {"collected_at": {"gte": "now-3d"}}},
-                    {"exists": {"field": "article_label.trend_score"}},
+                    {"range": {"collected_at": {"gte": "now-1d"}}},
+                    # {"exists": {"field": "article_label.trend_score"}},
                     {"term": {"status": 5}}
                 ]
             }
@@ -129,6 +129,8 @@ def recommend_trend_articles(limit: int = 20):
             "article_label.article_trust_score",
             "article_embedding",
             "article_img",
+            "reporter", # 해정 추가 트렌드 메인
+            "article_label", # 해정 추가 카테고리 가져와야해서
             "press",
             "collected_at"
         ]
@@ -162,10 +164,10 @@ def recommend_trend_articles(limit: int = 20):
             continue
 
         trend_score = label.get("trend_score", 0.0)
-        trust_score = label.get("article_trust_score", 0.0)
+        # trust_score = label.get("article_trust_score", 0.0)
 
         # 트렌드 점수로 컷하지 않음 (정렬만 사용)
-        final_score = 0.7 * trend_score + 0.3 * trust_score
+        final_score =  trend_score
 
         candidates.append(h)
         embeddings.append(np.array(emb))
@@ -201,7 +203,9 @@ def recommend_trend_articles(limit: int = 20):
             "trust_score": label.get("article_trust_score", 0.0),
             "collected_at": src.get("collected_at"),
             "image": src.get("article_img"),
-            "press": src.get("press")
+            "press": src.get("press"),
+            "reporter": src.get("reporter", ""),  # 추가
+            "category": label.get("category", "기타") # 카테고리 추가 해정
         })
 
     logger.info("[TREND-RECOMMEND] done count=%d", len(results))
