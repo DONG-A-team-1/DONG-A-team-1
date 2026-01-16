@@ -113,8 +113,8 @@ def recommend_trend_articles(limit: int = 20):
         query={
             "bool": {
                 "must": [
-                    {"range": {"collected_at": {"gte": "now-3d"}}},
-                    {"exists": {"field": "article_label.trend_score"}},
+                    {"range": {"collected_at": {"gte": "now-1d"}}},
+                    # {"exists": {"field": "article_label.trend_score"}},
                     {"term": {"status": 5}}
                 ]
             }
@@ -164,10 +164,10 @@ def recommend_trend_articles(limit: int = 20):
             continue
 
         trend_score = label.get("trend_score", 0.0)
-        trust_score = label.get("article_trust_score", 0.0)
+        # trust_score = label.get("article_trust_score", 0.0)
 
         # 트렌드 점수로 컷하지 않음 (정렬만 사용)
-        final_score = 0.7 * trend_score + 0.3 * trust_score
+        final_score =  trend_score
 
         candidates.append(h)
         embeddings.append(np.array(emb))
