@@ -111,6 +111,8 @@ def update_user_embedding(user_id):
                 "updated_at": datetime.now(KST)
             }
         )
+        # [LOG-4A] 최초 개인화 시점
+        logger.info(f"[EMB UPDATE] user_id={user_id} CREATE")
         return
 
     user_embedding = hits[0]["_source"].get("embedding")
@@ -130,6 +132,8 @@ def update_user_embedding(user_id):
             }
         }
     )
+    # [LOG-4B] 개인화 누적 반영
+    logger.info(f"[EMB UPDATE] user_id={user_id} UPDATE")
 
 
 # -------------------------------------------------
@@ -286,7 +290,10 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
         )
         user_hits = resp.get("hits", {}).get("hits", [])
         has_user_embedding = len(user_hits) > 0
-
+        # [LOG-1] 콜드스타트 / 개인화 분기 확인
+        logger.info(
+            f"[RECOMMEND] user_id={user_id} has_user_embedding={has_user_embedding}"
+        )
     # -------------------------------------------------
     # 2. 후보 기사 조회
     # -------------------------------------------------
@@ -393,6 +400,10 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
         filtered_hits.append(h)
 
     hits = filtered_hits
+    # [LOG-2] 추천 후보 수 확인 (kNN / 필터 정상 여부)
+    logger.info(
+        f"[RECOMMEND] user_id={user_id} candidate_hits={len(hits)}"
+    )
 
     if not hits:
         return []
@@ -471,6 +482,11 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
         })
 
     ranked.sort(key=lambda x: x["final_score"], reverse=True)
+    # [LOG-3] 최종 추천 결과 (체감 확인용 핵심 로그)
+    logger.info(
+        f"[RECOMMEND RESULT] user_id={user_id} "
+        f"top_ids={[r['article_id'] for r in ranked[:limit]]}"
+    )
     if not random:
         return ranked[:limit]
     else:
