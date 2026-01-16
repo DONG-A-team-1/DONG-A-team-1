@@ -1069,6 +1069,26 @@ main {
     background-color: #fee2e2;
 }
 
+.admin-btn {
+    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid #fecaca;
+    background-color: #fef2f2;
+    color: #006d75;
+    cursor: pointer;
+    transition: all 0.3s;
+
+}
+
+.admin-btn:hover {
+    background-color: #fee2e2;
+}
+
 .dark .delete-account-btn {
     border-color: rgba(127, 29, 29, 0.3);
     background-color: rgba(127, 29, 29, 0.1);
@@ -2036,6 +2056,9 @@ body.dark .form-input::-webkit-calendar-picker-indicator {
                 </section>
                 
                 <div style="display: flex; justify-content: flex-end; padding-top: 1rem;">
+                    <button class="admin-btn" onclick="go_admin_page()">
+                        <span>관리자 페이지</span>
+                    </button>
                     <button class="delete-account-btn" onclick="openWithdrawModal()">
                         <span class="material-icons-outlined">person_remove</span>
                         <span>회원탈퇴</span>
@@ -2077,7 +2100,19 @@ $(document).ready(function() {
     initApp();
     setActiveCategoryByURL();
     loadDonutChart();
+    checkAdminButton();
 });
+
+function checkAdminButton() {
+    const userId = localStorage.getItem('user_id');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn === 'true' && userId === 'admin') {
+        $('.admin-btn').show();
+    } else {
+        $('.admin-btn').hide();
+    }
+}
 
 function initApp() {
     initDarkMode();
@@ -2552,6 +2587,10 @@ function resetAlgorithm() {
             alert(msg);
         }
     });
+}
+
+function go_admin_page(){
+    location.href = 'admin_page.html';
 }
 </script>
 </body>
