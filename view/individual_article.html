@@ -2038,88 +2038,107 @@ $(function () {
   const articleId = params.get("article_id");
 
   // 2️⃣ AJAX 요청 (GET)
+  const DEFAULT_IMG = "/static/newspalette.png";
+
   $.ajax({
     url: `/api/article/${articleId}`,
     method: "GET",
     dataType: "json",
-    success: function (data) {
-    //   console.log("✅ success");
-    //   console.log("data keys:", Object.keys(data));
-    //   console.log("related len:", (data.related || []).length);
-    //   console.log("DOM related cards:", $(".related-card").length);
-    //   console.log("DOM polar cards:", $(".sidebar-article.polar").length);
 
-      // --- 메인 기사 렌더링 ---
+    success: function (data) {
+
+      /* =========================
+         🔹 메인 기사 렌더링
+      ========================= */
       const main_article = data.article || {};
+
       $(".article-headline").text(main_article.article_title || "");
       $(".author-name").text(main_article.reporter || "");
       $(".press").text(main_article.press || "");
       $(".upload_date").text(main_article.upload_date || "");
+
+      // 메인 이미지
+      if (main_article.article_img) {
+        $(".featured-image").show();
+        $(".main_img")
+          .attr("src", main_article.article_img)
+          .attr("alt", main_article.article_title || "기사 이미지")
+          .on("error", function () {
+            $(this).attr("src", DEFAULT_IMG);
+          });
+      } else {
+        $(".featured-image").hide();
+      }
+
       /* =========================
-           🔥 메인 이미지 처리
-        ========================= */
-        if (main_article.article_img) {
-            $(".featured-image").show();   // ⭐ 이 줄 추가 (중요)
-            $(".main_img")
-                .attr("src", main_article.article_img)
-                .attr("alt", main_article.article_title || "기사 이미지");
-        } else {
-            $(".featured-image").hide();
-        }
+         🔹 본문 처리 (이미지/캡션 제거)
+      ========================= */
+      const cleanedBody = (main_article.article_content || "")
+        .replace(/<figure[\s\S]*?<\/figure>/gi, "")
+        .replace(/<img[^>]*>/gi, "")
+        .replace(/South Korean prosecutor.*$/gmi, "");
 
-        /* =========================
-           🔥 본문 처리 (본문 내 이미지/캡션 제거)
-        ========================= */
-        const cleanedBody = (main_article.article_content || "")
-            .replace(/<figure[\s\S]*?<\/figure>/gi, "") // figure 통째 제거 (⭐ 핵심)
-            .replace(/<img[^>]*>/gi, "")                 // 남은 img 제거
-            .replace(/South Korean prosecutor.*$/gmi, ""); // 영문 캡션 제거
+      $(".article_content").html(
+        renderParagraphs(cleanedBody, 2)
+      );
 
-        $(".article_content").html(
-            renderParagraphs(cleanedBody, 2)
-        );
-
-      // --- related 렌더링 (기존 방식 유지) ---
+      /* =========================
+         🔹 Related 기사 렌더링
+      ========================= */
       const related = data.related || [];
       const $cards = $(".related-card");
 
       related.forEach((item, idx) => {
         const $card = $cards.eq(idx);
         if ($card.length === 0) return;
-        // querystring 방식으로 통일 (너 페이지 구조 기준)
+
         $card.attr("href", `/article/${item.article_id}`);
         $card.find(".related-title").text(item.article_title || "");
         $card.find(".related-date").text(item.upload_date || "");
         $card.find(".related-badge").text(item.category || "");
 
-        $card.find(".related-image img").attr("src", item.article_img || "");
+        $card.find(".related-image img")
+          .attr("src", item.article_img || DEFAULT_IMG)
+          .on("error", function () {
+            $(this).attr("src", DEFAULT_IMG);
+          });
       });
 
-      // --- polar 파싱 (⭐ 핵심: 구조 달라도 잡히게) ---
-      console.log("data.polar raw =", data.polar);
-
-      // 케이스1) data.polar = { topic_name, articles: [...] }
-      // 케이스2) data.polar = { polar: { topic_name, articles: [...] } }  (이중 래핑)
+      /* =========================
+         🔹 Polar 기사 파싱
+      ========================= */
       const polarObj =
         (data.polar && Array.isArray(data.polar.articles)) ? data.polar :
         (data.polar && data.polar.polar && Array.isArray(data.polar.polar.articles)) ? data.polar.polar :
         {};
-      console.log(polarObj);
-      const polarArticles = Array.isArray(polarObj.articles) ? polarObj.articles : [];
-      console.log("polar articles len:", polarArticles.length);
 
-      const $polarzone = $(".sidebar.polar")
+      const polarArticles = Array.isArray(polarObj.articles)
+        ? polarObj.articles
+        : [];
+
+      const $polarzone = $(".sidebar.polar");
       const $polarCards = $(".sidebar-article.polar");
-      $polarzone.find(".sidebar-title").text(polarObj.topic_name)
+
+      if (polarArticles.length === 0) {
+        $polarzone.hide();
+        return;
+      }
+
+      $polarzone.show();
+      $polarzone.find(".sidebar-title").text(polarObj.topic_name || "");
+
       polarArticles.forEach((item, idx) => {
         const $card = $polarCards.eq(idx);
         if ($card.length === 0) return;
-        $
+
         $card.attr("href", `/article/${item.article_id}`);
         $card.find(".article-title").text(item.article_title || "");
         $card.find(".article-source").text(item.press || "");
-        $card.find(".article-thumb img").attr("src", item.article_img || "");
-
+        $card.find(".article-thumb img")
+          .attr("src", item.article_img || DEFAULT_IMG)
+          .on("error", function () {
+            $(this).attr("src", DEFAULT_IMG);
+          });
       });
 
       // 남는 polar 카드 숨김
@@ -2127,13 +2146,14 @@ $(function () {
         if (i >= polarArticles.length) $(this).hide();
         else $(this).show();
       });
-    if (polarArticles.length == 0) $($polarzone).hide();
     },
+
     error: function (xhr) {
       console.error("기사 로드 실패", xhr.status, xhr.responseText);
     }
   });
 });
+
 
 
 
@@ -2212,9 +2232,6 @@ $(document).ready(function () {
     loadPersonalizedArticlesForSidebar();
 });
 
-/* ===============================
-   🔥 링크 클릭 시 세션 종료 보장
-================================ */
   /* ===============================
      🔥 링크 이동 시 세션 종료 보장 (최종)
   ================================ */
