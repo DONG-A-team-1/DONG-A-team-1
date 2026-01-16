@@ -340,7 +340,8 @@ def recommend_articles(user_id: str, limit: int = 20,random: bool = False):
         base_hits = res_base.get("hits", {}).get("hits", [])
         item_hits = res_item.get("hits", {}).get("hits", [])
 
-        hits = dedupe_hits(base_hits, item_hits)
+        # hits = dedupe_hits(base_hits, item_hits)
+        hits = base_hits
         if not hits:
             return []
     else:
