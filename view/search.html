@@ -345,7 +345,7 @@
 
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 24px;
+            font-size: 1.875rem;
             line-height: 1;
         }
 
@@ -862,7 +862,7 @@
             bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 2px;
             padding: 4px 10px;
             font-size: 13px;
             font-weight: 500;
@@ -896,7 +896,7 @@
         }
 
         .article-image-container {
-           border-radius: 1rem;
+            border-radius: 0.5rem;
             width: 100%;
             height: 10rem;  /* 160px */
             flex-shrink: 0;
@@ -1207,6 +1207,15 @@
         body.dark .footer-info {
             color: #9ca3af;
         }
+
+        body.dark .material-symbols-outlined.user-menu-icon{
+    color: #9CA3AF;
+}
+
+.material-symbols-outlined.user-menu-icon{
+    color: #6B7280;
+}
+
     </style>
 </head>
 <body>
@@ -1303,7 +1312,7 @@
                         </div>
                         <div class="score-container">
                             <div class="trust-score">
-                                <span class="trust-label">팔레트 점수</span>
+                                <span class="trust-label"></span>
                                 <span class="trust-value"></span>
                             </div>
                         </div>
@@ -1353,7 +1362,7 @@
                     </div>
                 </div>
                 <div class="trust-score">
-                    <span class="trust-label">팔레트 점수</span>
+                    <span class="trust-label"></span>
                     <span class="trust-value"></span>
                 </div>
             </a>
@@ -1562,7 +1571,7 @@ function displayCardArticles(articles) {
         card.find('.card-reporter').text(article.reporter || '');
         card.find('.card-source').text(article.source);
         card.find('.card-date').text(article.upload_date);
-        card.find('.trust-value').text(`${article.trustScore}점`);
+        card.find('.trust-value').text(`팔레트 ${article.trustScore}점`);
         card.find('.trend-value').text(article.trendScore ? `${article.trendScore}점` : '–');
 
         container.append(card);
@@ -1597,7 +1606,7 @@ function displayListArticles(articles) {
         item.find('.article-description').text((article.content || '').substring(0, 150) + '...');
         item.find('.author-source').text(article.source);
         item.find('.author-name').text(article.reporter);
-        item.find('.trust-value').text(`${article.trustScore}점`);
+        item.find('.trust-value').text(`팔레트 ${article.trustScore}점`);
 
         const categoryClass = getCategoryClass(article.category);
         item.find('.article-category').addClass(categoryClass);

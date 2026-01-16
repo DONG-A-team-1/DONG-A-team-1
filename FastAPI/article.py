@@ -80,7 +80,7 @@ def get_related(article_id: str):
         "upload_date",
         "article_title",
         "article_img",
-        "article_label",
+        "article_label"
     ]
 
     docs = get_article_from_es(id_list, SOURCE_FIELDS=source_fields)
