@@ -1080,7 +1080,7 @@ body.dark .author-name {
     bottom: 1rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 2px;
     padding: 4px 10px;
     font-size: 13px;
     font-weight: 500;
@@ -1215,6 +1215,15 @@ body.dark footer {
 body.dark .footer-info {
     color: #9ca3af;
 }
+
+body.dark .material-symbols-outlined.user-menu-icon{
+    color: #9CA3AF;
+}
+
+.material-symbols-outlined.user-menu-icon{
+    color: #6B7280;
+}
+
 </style>
 
 </head>
@@ -1316,7 +1325,7 @@ body.dark .footer-info {
                             </div>
                             <div class="score-container">
                                 <div class="trust-score">
-                                    <span class="trust-label">팔레트 점수</span>
+                                    <span class="trust-label"></span>
                                     <span class="trust-value"></span>
                                 </div>
                             </div>
@@ -1367,7 +1376,7 @@ body.dark .footer-info {
                     </div>
                 </div>
                 <div class="trust-score">
-                    <span class="trust-label">팔레트 점수</span>
+                    <span class="trust-label"></span>
                     <span class="trust-value"></span>
                 </div>
             </a>
@@ -1759,7 +1768,7 @@ function displayListArticles(articles) {
         item.find('.author-name').text(article.reporter || '미상');
 
         // 🔥 신뢰도 점수 - 정수로
-        item.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+        item.find('.trust-value').text(`팔레트 ${Math.round(article.trustScore)}점`);
 
 
         container.append(item);
@@ -1804,7 +1813,7 @@ function displayCardArticles(articles) {
         card.find('.card-date').text(formatDateForList(article.upload_date));
 
         // 🔥 점수
-        card.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+        card.find('.trust-value').text(`팔레트 ${Math.round(article.trustScore)}점`);
 
 
         container.append(card);
@@ -2092,7 +2101,7 @@ function showResultCount(total) {
 //         item.find('.author-source').text(article.source || '');
 
 //         // 🔥 신뢰도 점수
-//         item.find('.trust-value').text(`${Math.round(article.trustScore)}점`);
+//         item.find('.trust-value').text(`팔레트 ${Math.round(article.trustScore)}점`);
 
 //         container.append(item);
 //     });

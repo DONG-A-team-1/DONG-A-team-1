@@ -9,8 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-  
+
 :root {
+    --surface: var(--surface-light);
+    --border: var(--gray-200);
+    --text: var(--text-main-light);
+    --muted: var(--text-sub-light);
     --primary: #3B82F6;
     --bg-light: #F3F4F6;
     --bg-dark: #111827;
@@ -27,8 +31,6 @@
     --gray-700: #374151;
     --gray-800: #1f2937;
 }
-
-
 
 * {
     margin: 0;
@@ -49,6 +51,10 @@ body {
 body.dark {
     background-color: var(--bg-dark);
     color: var(--text-main-dark);
+    --surface: var(--surface-dark);
+    --border: var(--gray-700);
+    --text: var(--text-main-dark);
+    --muted: var(--text-sub-dark);
 }
 
 /* Navigation */
@@ -392,112 +398,169 @@ main {
 }
 
 /* Search Section */
-.search-section {
-  margin-bottom: 3rem;
-}
+.search-section { margin-bottom: 30px; }
 
 .search-bar {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: 8px;
-  border-radius: 16px;
-  border: 1px solid var(--gray-200);
-  background: var(--surface-light);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    max-width: 896px;
+    margin: 0 auto;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
 }
 
+/* ✅ 다크모드 search-bar */
 body.dark .search-bar {
-  background: var(--surface-dark);
-  border-color: var(--gray-700);
+    background: var(--surface);
+    border-color: var(--border);
 }
 
 @media (min-width: 640px) {
-  .search-bar {
-    flex-direction: row;
-    align-items: center;
-  }
+    .search-bar { flex-direction: row; align-items: center; }
 }
 
 .select-wrap {
-  position: relative;
-  width: 100%;
+    position: relative;
+    width: 100%;
 }
-
 @media (min-width: 640px) {
-  .select-wrap {
-    width: auto;
-  }
+    .select-wrap { width: auto; }
 }
 
 .select {
-  appearance: none;
-  width: 100%;
-  padding: 12px 36px 12px 16px;
-  border: 0;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.05);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+    appearance: none;
+    width: 100%;
+    padding: 12px 36px 12px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+    color: color-mix(in oklab, var(--text) 88%, transparent);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
 }
-
-body.dark .select {
-  background: rgba(255,255,255,0.08);
-  color: #E5E7EB;
-}
-
 @media (min-width: 640px) {
-  .select {
-    width: 128px;
-  }
+    .select { width: 128px; }
 }
 
 .select-caret {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-  color: var(--text-sub-light);
-  pointer-events: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--muted);
+    pointer-events: none;
 }
 
 .search-input-wrap {
-  position: relative;
-  flex: 1;
+    position: relative;
+    width: 100%;
+    flex: 1;
+    background: transparent;  /* ✅ 추가 */
+    overflow: hidden;  /* ✅ 노이즈 방지 */
+    border-radius: 10px;  /* ✅ 추가 */
+    transform: translateZ(0);  /* ✅ GPU 가속 */
 }
 
 .search-input {
-  width: 100%;
-  padding: 12px 44px 12px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--gray-300);
-  outline: none;
+    caret-color:#000000;
+    width: 100%;
+    padding: 12px 44px 12px 16px !important;  /* ✅ !important 강제로 넣는 것*/
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+    background: var(--surface) !important;  /* ✅ !important 추가 */
+    color: var(--text);
+    outline: none !important;  /* ✅ !important 추가 */
+    transition: box-shadow .15s, border-color .15s;
+    box-sizing: border-box;  /* ✅ 추가 */
+    -webkit-appearance: none;  /* ✅ 추가 */
+    appearance: none;  /* ✅ 추가 */
+    backface-visibility: hidden;  /* ✅ 추가 */
+    transform: translateZ(0);  /* ✅ GPU 가속 */
 }
 
-body.dark .search-input {
-  background: var(--surface-dark);
-  color: #F9FAFB;
-  border-color: var(--gray-700);
+.search-input::placeholder {
+    color: color-mix(in oklab, var(--text) 35%, transparent);
 }
 
 .search-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    border-color: transparent;
+    background: var(--surface) !important;  /* ✅ !important 추가 */
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+.search-input:focus-visible,
+.search-input:active {
+    background: var(--surface) !important;
+    border-color: rgb(158, 158, 158);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+/* ✅ select 열릴 때도 input 배경 유지 */
+.select-wrap:focus-within ~ .search-input-wrap .search-input {
+    background: var(--surface) !important;
+}
+
+/* ✅ 다크모드 명시 */
+body.dark .search-input,
+body.dark .search-input:focus,
+body.dark .search-input:active,
+body.dark .search-input:focus-visible {
+    caret-color:#ffffff;
+    background: var(--surface) !important;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark .search-input::placeholder {
+    color: var(--muted);
+}
+
+/* ✅ 브라우저 자동완성 배경 제거 */
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+}
+
+/*webkit-autofill : 브라우저 자동완성 스타일 제어하는 css 선택자 */
+body.dark .search-input:-webkit-autofill,
+body.dark .search-input:-webkit-autofill:hover,
+body.dark .search-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
 }
 
 .search-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--primary);
-  cursor: pointer;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%) translateZ(0);  /* ✅ GPU 가속 추가 */
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 4px;  /* ✅ 클릭 영역 */
+    display: flex;  /* ✅ 추가 */
+    align-items: center;  /* ✅ 추가 */
+    justify-content: center;  /* ✅ 추가 */
+    z-index: 2;  /* ✅ 추가 */
+    border-radius: 4px;  /* ✅ 추가 */
+}
+
+.search-btn .material-symbols-outlined {
+    font-size: 26px;
+    display: block;  /* ✅ 추가 */
+    line-height: 1;  /* ✅ 추가 */
 }
 
 /* Section Headers */
@@ -1544,7 +1607,7 @@ body:not(.dark) .today-topics .topic-rank{
                 <span class="material-icons-round select-caret">expand_more</span>
             </div>
             <div class="search-input-wrap">
-                <input id="searchInput" class="search-input" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
+                <input id="searchInput" class="search-input" spellcheck="false" type="text" placeholder="제목+본문에서 관심있는 뉴스를 검색해보세요" onkeypress="if(event.key === 'Enter') performSearch()"/>
                 <button class="search-btn" onclick="performSearch()" aria-label="검색">
                     <span class="material-icons-round">search</span>
                 </button>
@@ -1712,7 +1775,7 @@ function fetchUserInfo() {
         success: function(response) {
             if (response.status === "success" && response.data) {
                 const user = response.data;
-                
+
                 // 브라우저 저장소 갱신
                 localStorage.setItem('userName', user.name);
                 localStorage.setItem('isLoggedIn', 'true');
@@ -1888,7 +1951,7 @@ function performSearch() {
     const term = document.getElementById('searchInput').value.trim();
     const scope = document.getElementById('searchScope').value;
     if (term) {
-        location.href = `searchresult.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
+        location.href = `search.html?q=${encodeURIComponent(term)}&scope=${encodeURIComponent(scope)}`;
     }
 }
 
@@ -1936,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const page = Number(new URLSearchParams(location.search).get('page')) || 1;
     updatePaginationUI(page);
-   
+
 });
 
 $(function(){
@@ -1968,7 +2031,7 @@ $(function(){
           neu: item.neutral_articles.map(a => a.article_id),
         };
         $card.attr("data-article-groups", JSON.stringify(articleIdGroups));
-    
+
     });
       const $first = $(".topic-item").first();
       if ($first.length) $first.trigger("click")
@@ -1980,7 +2043,7 @@ $(function(){
 })
 
 $(document).on("click", ".topic-item", function () {
-  const $item = $(this); 
+  const $item = $(this);
 
   const idx = $(this).attr("data-index");
   const title = $item.attr("topic-title");
@@ -2020,7 +2083,7 @@ $(document).on("click", ".topic-item", function () {
       pos_ids: groups.pos || [],
       neg_ids: groups.neg || [],
       neu_ids: groups.neu || [],
-    }), 
+    }),
     traditional: true,
     success: function (data) {
       renderMiniArticles($("#posList"), data[0] || data.positive_articles);

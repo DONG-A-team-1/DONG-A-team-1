@@ -155,6 +155,8 @@ def es_search_related_by_embedding(article_id: str, size: int = 4):
             "article_title",
             "article_img",
             "press",
+            "reporter",  #  기자명 추가 해정
+            "upload_date",  #  날짜 추가
             "article_label"
         ]
     )
@@ -199,6 +201,8 @@ def es_search_related_by_embedding(article_id: str, size: int = 4):
             "title": src["article_title"],
             "image": src.get("article_img"),
             "source": press,
+            "reporter": src.get("reporter", ""),  # 기자명 추가 해정
+            "date": yyyymmdd_to_iso(src.get("upload_date")),  # 날짜 추가
             "trustScore": int(label.get("article_trust_score", 0) * 100)
         })
 
