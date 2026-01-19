@@ -1555,6 +1555,13 @@ body:not(.dark) .today-topics .topic-rank{
   color: #374151 !important;
 }
 
+body.dark .material-symbols-outlined.user-menu-icon{
+    color: #9CA3AF;
+}
+
+.material-symbols-outlined.user-menu-icon{
+    color: #6B7280;
+}
 
 </style>
 </head>
@@ -1894,6 +1901,23 @@ function renderNeutralList($container, articles){
   $container.html(html);
 }
 
+// 로그아웃
+function logout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    $.ajax({
+        url: '/logout',
+        type: 'GET',
+        success: function() {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            location.href = 'home.html';
+        },
+        error: function() {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+}
 
 function getReliabilityClass(score) {
     if (score >= 80) return 'reliability-high';
@@ -1991,7 +2015,7 @@ function updatePaginationUI(activePage) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    toggleLoginState();
+    // toggleLoginState();
     setActiveCategoryByURL();
 
     const scopeSelect = document.getElementById('searchScope');
