@@ -1715,6 +1715,17 @@
     color: #6B7280;
 }
 
+#wordCloudChart {
+        background: var(--surface);
+        border-radius: 16px;
+        margin: 20px 0;
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;   /*가로 중앙 */
+      }
+
     </style>
 </head>
 
@@ -2422,7 +2433,7 @@ function loadWordCloud() {
                         });
                     }
                     // 클릭 시 창 전환 방식 설정 초기화
-                    series.linkTarget = '_self';
+                    series.linkTarget = '_self'; 
                 });
             }
 
@@ -2432,11 +2443,21 @@ function loadWordCloud() {
             // 3. 중복 이벤트 방지 및 자체 검색 엔진 연동
             myChart.off('click'); // 기존에 걸려있을지 모르는 이벤트를 깨끗이 비움
             myChart.on('click', function (params) {
-                const keyword = params.name.replace('#', '');
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+                // 이벤트 전파 방지
+                if (params.event && params.event.event) {
+                    params.event.event.preventDefault();
+                    params.event.event.stopPropagation();
+                }
+
+                const keyword = params.name.replace('#', '').trim();
+                if (keyword) {
+                    // 절대 경로(/view/...)로 설정하여 경로 이탈 방지
+                    const searchURL = `/view/search.html?q=${encodeURIComponent(keyword)}&scope=keyword`;
+                    console.log("이동 경로:", searchURL);
+                    location.href = searchURL;
+                }
             });
 
-            // 창 크기 조절 시 리사이즈
             window.addEventListener('resize', myChart.resize);
         },
         error: function(xhr, status, error) {
@@ -2498,29 +2519,29 @@ function loadTopicOpinion() {
     });
 }
 
-function loadWordCloud() {
-    $.ajax({
-        url: '/api/wordcloud-data', // 백엔드 엔드포인트
-        type: 'GET',
-        success: function(options) {
-            // 1. div 요소 찾기
-            const chartDom = document.getElementById('wordCloudChart');
-            const myChart = echarts.init(chartDom);
+// function loadWordCloud() {
+//     $.ajax({
+//         url: '/api/wordcloud-data', // 백엔드 엔드포인트
+//         type: 'GET',
+//         success: function(options) {
+//             // 1. div 요소 찾기
+//             const chartDom = document.getElementById('wordCloudChart');
+//             const myChart = echarts.init(chartDom);
 
-            // 2. 백엔드에서 받은 옵션 적용
-            myChart.setOption(options);
+//             // 2. 백엔드에서 받은 옵션 적용
+//             myChart.setOption(options);
 
-            // 3. 클릭 이벤트 추가 (구글 검색 연동)
-            myChart.on('click', function (params) {
-                const keyword = params.name.replace('#', '');
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
-            });
+//             // 3. 클릭 이벤트 추가 (구글 검색 연동)
+//             myChart.on('click', function (params) {
+//                 const keyword = params.name.replace('#', '');
+//                 window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+//             });
 
-            // 창 크기 조절 시 리사이즈
-            window.addEventListener('resize', myChart.resize);
-        }
-    });
-}
+//             // 창 크기 조절 시 리사이즈
+//             window.addEventListener('resize', myChart.resize);
+//         }
+//     });
+// }
 </script>
 
 </html>
