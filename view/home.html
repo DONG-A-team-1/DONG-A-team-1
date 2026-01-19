@@ -1715,6 +1715,17 @@
     color: #6B7280;
 }
 
+#wordCloudChart {
+        background: var(--surface);
+        border-radius: 16px;
+        margin: 20px 0;
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;   /*가로 중앙 */
+      }
+
     </style>
 </head>
 
@@ -2508,6 +2519,29 @@ function loadTopicOpinion() {
     });
 }
 
+// function loadWordCloud() {
+//     $.ajax({
+//         url: '/api/wordcloud-data', // 백엔드 엔드포인트
+//         type: 'GET',
+//         success: function(options) {
+//             // 1. div 요소 찾기
+//             const chartDom = document.getElementById('wordCloudChart');
+//             const myChart = echarts.init(chartDom);
+
+//             // 2. 백엔드에서 받은 옵션 적용
+//             myChart.setOption(options);
+
+//             // 3. 클릭 이벤트 추가 (구글 검색 연동)
+//             myChart.on('click', function (params) {
+//                 const keyword = params.name.replace('#', '');
+//                 window.open(`https://www.google.com/search?q=${encodeURIComponent(keyword)}&tbm=nws`, '_blank');
+//             });
+
+//             // 창 크기 조절 시 리사이즈
+//             window.addEventListener('resize', myChart.resize);
+//         }
+//     });
+// }
 </script>
 
 </html>
